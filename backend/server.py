@@ -12,14 +12,15 @@ from slowapi import Limiter  # QW10: Rate Limiting
 from slowapi.util import get_remote_address  # QW10
 from slowapi.errors import RateLimitExceeded  # QW10
 
-from controllers.auth_controller import router as auth_router
-from controllers.chat_text_controller import router as chat_text_router
-from controllers.chat_voice_controller import router as chat_voice_router
-from controllers.lessons_controller import router as lessons_router
-from database import Base, engine
-from config import settings, validate_settings
-from middleware import RequestIDMiddleware
-from utils.json_logger import setup_json_logging  # QW12: JSON Logging
+from backend.controllers.auth_controller import router as auth_router
+from backend.controllers.chat_text_controller import router as chat_text_router
+from backend.controllers.chat_voice_controller import router as chat_voice_router
+from backend.controllers.lessons_controller import router as lessons_router
+
+from backend.database import Base, engine
+from backend.config import settings, validate_settings
+from backend.middleware import RequestIDMiddleware
+from backend.utils.json_logger import setup_json_logging
 
 # Validate configuration (QW5)
 try:
