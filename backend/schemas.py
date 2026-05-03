@@ -93,6 +93,14 @@ class ChatRequest(BaseModel):
         if not v.strip():
             raise ValueError('Message cannot be empty or whitespace only')
         return v.strip()
+    
+    @field_validator('conversation_topic')
+    @classmethod
+    def validate_topic_with_mode(cls, v, info):
+        voice_mode = info.data.get('voice_mode')
+        if voice_mode == 'guided' and not v:
+            raise ValueError('conversation_topic MUST be set when voice_mode=guided (required: restaurant|airport|job|travel|doctor)')
+        return v
 
 
 class ShadowModeData(BaseModel):

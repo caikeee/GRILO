@@ -2271,6 +2271,14 @@ window.startVoiceChatWithSetup = async function(opts = {}) {
         voiceTopic = opts.topic || null;
         bilingualMode = voiceMode === "free" ? true : !!opts.bilingual;
         voiceBridgeMode = voiceMode === "free" ? true : false;
+        // Restore bridge mode preference from localStorage if free mode
+        if (voiceMode === "free") {
+            const savedBridgeMode = localStorage.getItem('voiceBridgeMode');
+            if (savedBridgeMode !== null) {
+                voiceBridgeMode = savedBridgeMode === 'true';
+                console.log("🔄 [VOICE-SETUP] Restored bridge mode from localStorage:", voiceBridgeMode);
+            }
+        }
         ttsSpeed = 1.0;
         shadowPhraseTarget = null;
         dictationPhraseTarget = null;
@@ -2354,6 +2362,8 @@ window.startVoiceChatWithSetup = async function(opts = {}) {
 window.toggleVoiceBridgeMode = function() {
     if (!voiceChatActive || voiceMode !== "free") return;
     voiceBridgeMode = !voiceBridgeMode;
+    // Persist bridge mode preference
+    localStorage.setItem('voiceBridgeMode', voiceBridgeMode);
     _syncVoiceBridgeUi();
     showVoiceToast(voiceBridgeMode ? "Ponte ligada: voce pode responder em PT ou EN." : "Ponte desligada: responda em ingles.");
 };

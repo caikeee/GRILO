@@ -27,10 +27,10 @@ class GraciousFallback:
     # Respostas predefinidas por modo
     FALLBACK_RESPONSES = {
         "free": {
-            "rate_limit": "I need a moment to think. Try again in 5 seconds!",
-            "timeout": "My brain is thinking... Try once more!",
-            "api_error": "Let me gather my thoughts. Try that again?",
-            "unknown": "Sorry, I didn't catch that clearly. Can you repeat?",
+            "rate_limit": "Give me a moment to think. Try again in a few seconds!",
+            "timeout": "I'm thinking about what you said. Can you say it again?",
+            "api_error": "I didn't quite get that. Can you repeat?",
+            "unknown": "Sorry, I didn't catch that clearly. Say it again?",
         },
         "guided": {
             "rate_limit": "Let me gather my thoughts. One moment please!",

@@ -517,10 +517,12 @@ MINIMAL_SYSTEM_PROMPT = """You are a friendly English tutor for beginners.
 Your job:
 1. Respond in English only.
 2. Keep it short: 1-2 sentences max (40-80 words).
-3. Be warm and encouraging.
-4. Correct errors naturally by modeling the right form.
-5. IMPORTANT: Continue the conversation naturally. Don't force questions or actions unless the student requests help.
-6. If the student shares something, acknowledge it before asking follow-ups.
+3. ALWAYS acknowledge what the student just said - echo one key word or idea.
+4. Continue naturally about THAT topic they mentioned.
+5. Ask one simple follow-up question about what they said.
+6. Be warm and encouraging.
+7. Correct errors naturally by modeling the right form.
+Example: If student says "I like pizza", you say "Pizza is delicious! Do you like..." NOT "Food is fun. Choose...". Always show you understood FIRST.
 Respond conversationally, as if chatting with a friend."""
 
 # Inject level context dynamically (20-30 tokens instead of 200)
@@ -538,12 +540,13 @@ _LEVEL_VOICE_RULES: dict = {
     "a1": (
         "You are coaching an absolute beginner (A1) in a voice lesson.\n"
         "STRICT MICRO-TURN RULES:\n"
-        "1. Keep replies very short: 1-2 sentences, max 10 words each.\n"
-        "2. Use simple present and very common vocabulary only.\n"
-        "3. Always give one tiny action: repeat, choose, or answer yes/no.\n"
-        "4. If user hesitates, provide exact words to copy.\n"
-        "5. Do not lecture grammar. Keep it practical and encouraging.\n"
-        "6. Never overload: one objective per turn."
+        "1. FIRST - Echo one key word from what they said to show understanding.\n"
+        "2. Keep replies very short: 1-2 sentences, max 10 words each.\n"
+        "3. Use simple present and very common vocabulary only.\n"
+        "4. Ask one simple follow-up about what they just said.\n"
+        "5. Be encouraging. Do not lecture.\n"
+        "6. Never overload: one objective per turn.\n"
+        "EXAMPLE: Student: 'I like cats'. You: 'Cats! Nice! Do you have a cat?'"
     ),
     "a2": (
         "You are coaching an elementary learner (A2) in a voice lesson.\n"
@@ -579,7 +582,10 @@ _LEVEL_VOICE_RULES: dict = {
         "1. Respond in natural, fluent English. Use varied vocabulary including phrasal verbs, idioms, nuanced expressions.\n"
         "2. 1-3 sentences. Engage intellectually — discuss nuances, opinions, hypotheticals.\n"
         "3. Only correct significant errors; focus on flow and sophistication over accuracy.\n"
-        "4. Push the learner to express complex ideas clearly. Ask open-ended questions."
+        "4. Push the learner to express complex ideas clearly. Ask open-ended questions.\n"
+        "IDIOM/PHRASAL VERB EXAMPLES:\n"
+        "- Student: 'I'm fed up with studying' → You: 'Fed up? That happens when coursework feels relentless. What subject is draining you most?'\n"
+        "- Student: 'I'll give it a shot' → You: 'Give it a shot—I appreciate that determination. What's your strategy if it doesn't work initially?'"
     ),
     "c2": (
         "You are a native-level English conversation partner for a near-fluent learner (C2 level).\n"
@@ -587,7 +593,10 @@ _LEVEL_VOICE_RULES: dict = {
         "1. Speak as you would to a native speaker. No simplification.\n"
         "2. Use full range of vocabulary including formal, informal, literary, and colloquial registers as fits context.\n"
         "3. Engage in sophisticated discourse — debate, storytelling, abstract analysis.\n"
-        "4. Only flag truly rare or stylistic errors; treat the learner as a peer."
+        "4. Only flag truly rare or stylistic errors; treat the learner as a peer.\n"
+        "SOPHISTICATED EXAMPLES:\n"
+        "- Student: 'The pandemic fundamentally altered our perception of remote work' → You: 'Altered—but did it?" Some argue it merely expedited an inevitable shift. How do you assess the permanence of these changes?'\n"
+        "- Student: 'I find linguistic nuances fascinating' → You: 'Absolutely—that's the hallmark of someone moving beyond competence into genuine fluency. What language phenomenon captivates you most lately?'"
     ),
 }
 
@@ -724,7 +733,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             voice_mode
         )
         
-        cached_response = voice_cache.get(cache_key)
+        cached_response = await voice_cache.get(cache_key)  # Now async with latency
         if cached_response and not bilingual_mode and not is_opening_turn:
             logger.info(f"[CACHE-HIT] Usando resposta em cache | key: {cache_key[:40]}...")
             return cached_response
@@ -749,6 +758,11 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             return await _build_voice_clarification_result(understanding, bilingual_mode)
         
         # ======== ROTA 3 & 4: LLM CALLS (LIGHT ou FULL) ========
+        # Force FULL_LLM for opening turn to enable personalized kickoff
+        if is_opening_turn:
+            classification = VoiceRequestClassification.FULL_LLM
+            logger.info(f"[CLASSIFICATION-OVERRIDE] Opening turn forced to FULL_LLM for personalized kickoff")
+        
         # Selecionar modelo baseado em classificação
         model_name = voice_router.get_model_for_classification(classification, groq_tokens_remaining=100000)
         logger.info(f"[MODEL-SELECTION] {model_name} | classification: {classification.value}")
@@ -764,6 +778,13 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         if classification == VoiceRequestClassification.LIGHT_LLM:
             # LIGHT_LLM: Último turno de histórico para contexto mínimo (mantém naturalidade)
             system_msg = MINIMAL_SYSTEM_PROMPT
+            
+            # Vary echo pattern based on conversation length to avoid monotony
+            # After 3+ exchanges, allow bot to sometimes assume known context
+            turn_count = len(request.history or [])
+            if turn_count > 6:  # After ~3 exchanges
+                system_msg += "\n[VARIATION] After acknowledging context is clear, sometimes assume known information to avoid repetition."
+            
             # Injetar contexto de level dinamicamente
             if level in _LEVEL_CONTEXT_INJECTION:
                 system_msg += "\n" + _LEVEL_CONTEXT_INJECTION[level]
@@ -786,6 +807,13 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             
             # FULL_LLM: Use detailed system prompt
             system_msg = _LEVEL_VOICE_RULES.get(level, _LEVEL_VOICE_RULES["b1"])
+            
+            # Vary echo pattern based on conversation length to avoid monotony
+            turn_count = len(request.history or [])
+            if turn_count > 6:  # After ~3 exchanges, already established context
+                system_msg += "\n[VARIATION] You can now assume context is understood. Mix strategies: sometimes echo, sometimes build on what's known. Avoid repetition."
+            else:  # Early in conversation, echo is important
+                system_msg += "\n[EARLY-STAGE] Echo and acknowledge to build clarity. First-turn clarity is critical."
             
             # Injetar scripts de modo
             if voice_mode == "guided" and conversation_topic:

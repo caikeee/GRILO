@@ -5,6 +5,8 @@ Reduz latência e token usage em ~20-30% com hit rate de 15-20%.
 
 import time
 import re
+import asyncio
+import random
 from typing import Dict, Optional, Tuple, Any
 from collections import OrderedDict
 import logging
@@ -40,7 +42,7 @@ class VoiceResponseCache:
         Computa cache key normalizado para maximizar hits.
         
         Normalização:
-        - Remove pontuação
+        - Remove pontuação (mantém ? e ! para preservar significado)
         - Lowercase
         - Whitespace único
         - Trunca em 100 chars
@@ -53,8 +55,8 @@ class VoiceResponseCache:
         Returns:
             Cache key string
         """
-        # Remover pontuação e extras
-        normalized = re.sub(r"[^\w\s]", "", text.lower().strip())
+        # Remover pontuação MENOS ? e ! (preserva sentença com intenção)
+        normalized = re.sub(r"[^\w\s\?\!]", "", text.lower().strip())
         # Colapsar whitespace
         normalized = re.sub(r"\s+", " ", normalized)
         # Truncar para evitar keys gigantes
@@ -62,14 +64,16 @@ class VoiceResponseCache:
         
         return f"{truncated}|{level}|{mode}"
     
-    def get(self, key: str) -> Optional[Dict[str, Any]]:
+    async def get(self, key: str) -> Optional[Dict[str, Any]]:
         """
         Recupera valor do cache se exists e valid.
+        Adiciona latência artificial para simular pensamento natural (250-350ms).
         
         Verifica:
         - Key exists
         - TTL não expirou
         - Atualiza hit count para LRU
+        - Artificial latency para evitar detecção de cache (naturalness)
         
         Args:
             key: Cache key (computado por compute_key)
@@ -95,6 +99,11 @@ class VoiceResponseCache:
         self.cache[key] = (value, timestamp, hit_count + 1)
         # Move to end (OrderedDict)
         self.cache.move_to_end(key)
+        
+        # Add artificial latency to simulate natural thinking (250-350ms)
+        # Cache hits are detected as instant/robotic, so add realistic latency
+        artificial_latency = 0.25 + random.uniform(-0.1, 0.1)  # ~250-350ms
+        await asyncio.sleep(artificial_latency)
         
         self.stats["hits"] += 1
         logger.debug(f"[CACHE] HIT for key: {key[:40]}... (hits: {self.stats['hits']})")

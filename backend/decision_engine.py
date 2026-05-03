@@ -60,6 +60,7 @@ class VoiceRequestRouter:
         """
         text = (request.message or "").strip().lower()
         word_count = len(text.split())
+        level = (getattr(request, "level", None) or "b1").lower()
         
         # =========== HEURÍSTICA 1: Ultra-curtas ===========
         if word_count <= 2:
@@ -81,17 +82,23 @@ class VoiceRequestRouter:
         if stt_confidence < 0.72:
             return VoiceRequestClassification.LIGHT_LLM
         
-        # =========== HEURÍSTICA 5: Comprimento base ===========
-        if word_count < 3:
-            # Ultra-curto (1-2 palavras) → LIGHT (rápido)
+        # =========== HEURÍSTICA 5: Level-aware word count thresholds ===========
+        # Adjust thresholds based on proficiency level to avoid mismatch
+        # (A1 learner saying 3 words slowly ≠ C2 learner saying 3 words quickly)
+        word_count_threshold = {
+            "a1": 2, "a2": 3, "b1": 4, "b2": 5, "c1": 6, "c2": 7
+        }.get(level, 4)
+        
+        if word_count < word_count_threshold:
+            # Below threshold for level → LIGHT_LLM (fast + context-aware)
             return VoiceRequestClassification.LIGHT_LLM
         
-        elif 3 <= word_count <= 6:
-            # Curto-médio → FULL_LLM para melhor contexto de conversa
+        elif word_count <= word_count_threshold + 3:
+            # At or slightly above threshold → FULL_LLM (better context matching)
             return VoiceRequestClassification.FULL_LLM
         
         else:
-            # Médio+ (>6 palavras) → sempre FULL
+            # Well above threshold (verbose) → always FULL
             return VoiceRequestClassification.FULL_LLM
     
     def get_model_for_classification(
