@@ -110,17 +110,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(SecurityHeadersMiddleware)
 
-# QW8: Enforce HTTPS in production (QW8)
-if settings.debug is False:
-    @app.middleware("http")
-    async def https_redirect(request, call_next):
-        if request.url.scheme == "http" and request.headers.get("host") != "localhost":
-            from fastapi.responses import RedirectResponse
-            return RedirectResponse(
-                url=request.url.replace(scheme="https"),
-                status_code=301
-            )
-        return await call_next(request)
 
 # QW8: Trusted hosts (security)
 app.add_middleware(
