@@ -862,6 +862,20 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             },
         }
         
+        # ======== VALIDAÇÃO FINAL: Nunca retornar resposta vazia ========
+        if not result.get("reply") or not result.get("reply").strip():
+            logger.error("[CRITICAL] Result reply is empty! Falling back...")
+            fallback = GraciousFallback.get_fallback_response(voice_mode, ErrorScenario.API_ERROR, level)
+            return {
+                "reply": fallback.get("response", "I couldn't generate a response. Try again?"),
+                "translation_pt": None,
+                "correction": None,
+                "understanding": {"status": "error", "clarification_needed": False},
+                "detected_input": {"language": "unknown"},
+                "fallback": True,
+                "error_scenario": "empty_response",
+            }
+        
         # Cachear apenas se apropriado
         if not bilingual_mode and correction is None and not is_opening_turn:
             voice_cache.set(cache_key, result)
@@ -874,7 +888,16 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         logger.error("[TIMEOUT] Groq API timeout")
         fallback = GraciousFallback.get_fallback_response(voice_mode, ErrorScenario.TIMEOUT, level)
         GraciousFallback.log_fallback_usage(0, voice_mode, ErrorScenario.TIMEOUT, level)
-        return fallback
+        # Convert fallback format to standard result format
+        return {
+            "reply": fallback.get("response", ""),
+            "translation_pt": None,
+            "correction": None,
+            "understanding": {"status": "error", "clarification_needed": False},
+            "detected_input": {"language": "unknown"},
+            "fallback": True,
+            "error_scenario": fallback.get("error_scenario"),
+        }
     
     except Exception as e:
         error_msg = str(e)
@@ -890,7 +913,16 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         
         fallback = GraciousFallback.get_fallback_response(voice_mode, scenario, level)
         GraciousFallback.log_fallback_usage(0, voice_mode, scenario, level)
-        return fallback
+        # Convert fallback format to standard result format
+        return {
+            "reply": fallback.get("response", ""),
+            "translation_pt": None,
+            "correction": None,
+            "understanding": {"status": "error", "clarification_needed": False},
+            "detected_input": {"language": "unknown"},
+            "fallback": True,
+            "error_scenario": fallback.get("error_scenario"),
+        }
 
 
 # ======== HELPER: Retry logic com exponential backoff ========
@@ -918,7 +950,18 @@ async def _call_groq_with_retry(
                 ),
                 timeout=12.0
             )
-            return response.choices[0].message.content.strip()
+            result = response.choices[0].message.content.strip()
+            
+            # Validação: garante que nunca retorna string vazia
+            if not result:
+                logger.warning(f"[API-EMPTY] Groq retornou resposta vazia, tentando novamente...")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(0.5)
+                    continue
+                else:
+                    raise ValueError("Groq API returned empty response after all retries")
+            
+            return result
         
         except asyncio.TimeoutError:
             logger.warning(f"[RETRY] Attempt {attempt+1}/{max_retries} - Timeout")
