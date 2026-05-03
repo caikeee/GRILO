@@ -125,7 +125,7 @@ if settings.debug is False:
 # QW8: Trusted hosts (security)
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=settings.cors_origins.split(",") + ["localhost", "127.0.0.1"]
+    allowed_hosts=settings.cors_origins.split(",") + ["localhost", "127.0.0.1", ".railway.app"]
 )
 
 # QW8: CORS with whitelist (security) - NOT allow_origins="*"
