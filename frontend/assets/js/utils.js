@@ -6,6 +6,37 @@
 'use strict';
 
 /**
+ * ===================================
+ * API BASE URL HELPER - Centralized
+ * ===================================
+ * 
+ * Automatically detects and returns the correct API base URL:
+ * - In production (Railway/Heroku): Uses window.location.origin (e.g., https://app.railway.app)
+ * - In development on localhost: Uses http://127.0.0.1:8000
+ * - In development on different ports: Uses relative paths (/api/...)
+ */
+function getApiBaseUrl() {
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  
+  // Production environment (not localhost)
+  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+    return window.location.origin; // e.g., https://web-production-6ecc2.up.railway.app
+  }
+  
+  // Local development on localhost or 127.0.0.1
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://127.0.0.1:8000';
+  }
+  
+  // Fallback to origin
+  return window.location.origin;
+}
+
+// Global API base URL - use this for all API calls
+const API_BASE_URL = getApiBaseUrl();
+
+/**
  * Utility functions
  */
 const Utils = {

@@ -20,9 +20,9 @@ _BACKEND_DIR = Path(__file__).resolve().parent.parent
 if str(_BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(_BACKEND_DIR))
 
-from rag.pdf_extractor import PDFExtractor
-from rag.chunking import PDFChunker
-from rag.vector_store import RAGVectorStore
+from backend.rag.pdf_extractor import PDFExtractor
+from backend.rag.chunking import PDFChunker
+from backend.rag.vector_store import RAGVectorStore
 
 logging.basicConfig(
     level=logging.INFO,

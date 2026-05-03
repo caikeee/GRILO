@@ -244,12 +244,12 @@ async function speakResponse(text, language = "pt-BR") {
 
     // Try ElevenLabs via backend
     const authToken = window.authToken || localStorage.getItem("grilo_token");
-    const apiUrl = typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000";
+    // API_BASE_URL is defined globally in utils.js
     
     if (authToken) {
         try {
             console.log("📡 [SPEAK] Attempting ElevenLabs TTS...");
-            const resp = await fetch(`${apiUrl}/api/tts`, {
+            const resp = await fetch(`${API_BASE_URL}/api/tts`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -950,8 +950,8 @@ function clearLiveErrors() {
 
 async function _fetchSessionHistory() {
     try {
-        const apiUrl = typeof API_BASE !== 'undefined' ? API_BASE : 'http://127.0.0.1:8000';
-        const resp = await fetch(apiUrl + '/api/voice/history', {
+        // API_BASE_URL is defined globally in utils.js
+        const resp = await fetch(API_BASE_URL + '/api/voice/history', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('grilo_token')}` },
         });
         if (!resp.ok) return [];
@@ -1119,8 +1119,8 @@ async function _transcribeWithWhisper(recording, browserTranscript, authToken) {
     try {
         const arrayBuf = await blob.arrayBuffer();
         const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuf)));
-        const apiUrl = typeof API_BASE !== 'undefined' ? API_BASE : 'http://127.0.0.1:8000';
-        const resp = await fetch(apiUrl + '/api/voice/transcribe', {
+        // API_BASE_URL is defined globally in utils.js
+        const resp = await fetch(API_BASE_URL + '/api/voice/transcribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
             body: JSON.stringify({ audio_base64: base64, mime_type: mimeType }),
@@ -1429,8 +1429,8 @@ async function _ensureVoiceHelpTranslation(aiText) {
     if (!authToken) return "Sem autenticacao para buscar traducao desta frase.";
 
     try {
-        const apiUrl = typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000";
-        const resp = await fetch(apiUrl + "/api/translate/", {
+        // API_BASE_URL is defined globally in utils.js
+        const resp = await fetch(API_BASE_URL + "/api/translate/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -1676,7 +1676,7 @@ window.voiceHelpAction = async function() {
 
 async function _sendVoiceTextTurnFromHelp(userMessage, options = {}) {
     const authToken = window.authToken || localStorage.getItem("grilo_token");
-    const apiUrl = typeof API_BASE !== 'undefined' ? API_BASE : "http://127.0.0.1:8000";
+    // API_BASE_URL is defined globally in utils.js
     const aiResponseText = document.getElementById("aiResponseText");
 
     if (!authToken) {
@@ -1730,7 +1730,7 @@ async function _sendVoiceTextTurnFromHelp(userMessage, options = {}) {
             payload.shadow_mode = options.shadow_mode;
         }
 
-        const response = await fetch(apiUrl + "/api/voice-chat", {
+        const response = await fetch(API_BASE_URL + "/api/voice-chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -2156,11 +2156,11 @@ async function startAIKickoffTurn() {
     console.log("🤖 [KICKOFF] Starting AI kickoff turn");
     
     const authToken = window.authToken || localStorage.getItem("grilo_token");
-    const apiUrl = typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000";
+    // API_BASE_URL is defined globally in utils.js
     const aiResponseText = document.getElementById("aiResponseText");
 
     console.log("🤖 [KICKOFF] Auth token present:", !!authToken);
-    console.log("🤖 [KICKOFF] API URL:", apiUrl);
+    console.log("🤖 [KICKOFF] API URL:", API_BASE_URL);
 
     if (aiResponseText) {
         aiResponseText.innerHTML = "<p>Vou iniciar a conversa para te guiar no primeiro passo.</p>";
@@ -2178,7 +2178,7 @@ async function startAIKickoffTurn() {
 
     try {
         console.log("📡 [KICKOFF] Sending kickoff request to backend...");
-        const response = await fetch(apiUrl + "/api/voice-chat", {
+        const response = await fetch(API_BASE_URL + "/api/voice-chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -2499,7 +2499,7 @@ function stopVoiceChat(options = {}) {
     // The recap endpoint (/api/voice/recap) will persist the full quality snapshot.
     const sessionToken = window.authToken || localStorage.getItem("grilo_token");
     if (!suppressSessionRecord && durationSeconds > 5 && sessionToken) {
-        fetch(`${API_BASE}/api/voice/session-end`, {
+        fetch(`${API_BASE_URL}/api/voice/session-end`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
             body: JSON.stringify({
@@ -2647,15 +2647,15 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
         }, MESSAGE_DEBOUNCE_MS);
 
         // Send to pure voice chat endpoint with proper API base
-        const apiUrl = typeof API_BASE !== 'undefined' ? API_BASE : 'http://127.0.0.1:8000';
-        console.log('📡 Using API URL:', apiUrl);
+        // API_BASE_URL is defined globally in utils.js
+        console.log('📡 Using API URL:', API_BASE_URL);
 
         // Create abort controller for request timeout
         const abortController = new AbortController();
         const timeoutId = setTimeout(() => abortController.abort(), API_TIMEOUT_MS);
 
         const apiStartTime = performance.now();
-        const response = await fetch(apiUrl + '/api/voice-chat', {
+        const response = await fetch(API_BASE_URL + '/api/voice-chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -3239,7 +3239,7 @@ async function showVoiceRecap(durationSeconds) {
 
     const loadingSection = document.getElementById("recapLoading");
     const contentSection = document.getElementById("recapContent");
-    const apiUrl = typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000";
+    // API_BASE_URL is defined globally in utils.js
     const recapToken = window.authToken || localStorage.getItem("grilo_token");
 
     if (loadingSection) loadingSection.style.display = "flex";
@@ -3252,7 +3252,7 @@ async function showVoiceRecap(durationSeconds) {
     }
 
     try {
-        const resp = await fetch(`${apiUrl}/api/voice/recap`, {
+        const resp = await fetch(`${API_BASE_URL}/api/voice/recap`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

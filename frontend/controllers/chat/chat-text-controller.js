@@ -16,7 +16,7 @@ let currentVoiceSessionId = null;
 let sessionStartTime = null;            // ISO string: when current session started
 let sessionVocabulary = [];            // Vocabulary collected in this session
 
-const API_BASE = "http://127.0.0.1:8000";
+// API_BASE_URL is defined globally in utils.js (getApiBaseUrl function)
 const WRITING_WELCOME_MESSAGE = "Hello! 👋 I'm GRILO, your writing coach. Type anything in English and I'll respond naturally with grammar and vocabulary feedback. Let's practice!";
 const INLINE_TRANSLATION_TIMEOUT_MS = 4500;
 const INLINE_TRANSLATION_RETRIES = 2;
@@ -51,7 +51,7 @@ async function handleLogin() {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/api/login`, {
+        const response = await fetch(`${API_BASE_URL}/api/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
@@ -102,7 +102,7 @@ async function handleRegister() {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/api/register`, {
+        const response = await fetch(`${API_BASE_URL}/api/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, email, password })
@@ -336,7 +336,7 @@ async function sendMessageWritten() {
             content: msg.content
         }));
         
-        const response = await fetch(`${API_BASE}/api/chat/write`, {
+        const response = await fetch(`${API_BASE_URL}/api/chat/write`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -589,7 +589,7 @@ async function detectPortugueseViaBackend(text, localResult = null) {
     if (!token) return null;
 
     try {
-        const response = await fetchWithTimeout(`${API_BASE}/api/detect-language/`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/api/detect-language/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1072,7 +1072,7 @@ async function toggleMessageTranslationDrawer(toggleBtn, messageBubble, original
 async function translateTextWithDirection(text, fromLang = 'en', toLang = 'pt', options = {}) {
     const token = authToken || localStorage.getItem('grilo_token');
 
-    const response = await fetchWithTimeout(`${API_BASE}/api/translate/`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/translate/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1732,7 +1732,7 @@ async function showSessionSummary(sessionStart) {
     return new Promise(async (resolve) => {
         try {
             const token = authToken || localStorage.getItem('grilo_token');
-            const response = await fetch(`${API_BASE}/api/chat/session-summary`, {
+            const response = await fetch(`${API_BASE_URL}/api/chat/session-summary`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

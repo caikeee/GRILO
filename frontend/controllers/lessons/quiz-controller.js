@@ -2,7 +2,8 @@
 // Standalone quiz system - 100 English questions A1 level
 // Independent from chat (written or voice)
 
-const QUIZ_API = "http://127.0.0.1:8000/api/quiz";
+// API_BASE_URL is defined globally in utils.js
+const getQuizApiUrl = (endpoint = '') => `${API_BASE_URL}/api/quiz${endpoint}`;
 
 // Quiz state
 let quizQuestions = [];
@@ -71,12 +72,12 @@ async function startQuiz(mode, count, category) {
     try {
         let url;
         if (mode === 'all') {
-            url = `${QUIZ_API}/questions`;
+            url = getQuizApiUrl('/questions');
         } else if (mode === 'category' && category) {
-            url = `${QUIZ_API}/questions/category/${encodeURIComponent(category)}`;
+            url = getQuizApiUrl('/questions/category/' + encodeURIComponent(category));
         } else {
             // random
-            url = `${QUIZ_API}/random?count=${count}`;
+            url = getQuizApiUrl('/random?count=' + count);
         }
 
         const resp = await fetch(url);
@@ -181,7 +182,7 @@ async function submitQuizAnswer() {
 
         if (token) {
             try {
-                const resp = await fetch(`${QUIZ_API}/submit-answer?question_id=${q.id}&answer_index=${quizSelectedOption}`, {
+                const resp = await fetch(getQuizApiUrl('/submit-answer?question_id=' + q.id + '&answer_index=' + quizSelectedOption), {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });

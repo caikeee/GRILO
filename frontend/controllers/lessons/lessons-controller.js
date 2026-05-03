@@ -37,7 +37,7 @@ function toCategoryLabel(category) {
 // ─── API helpers ─────────────────────────────────────────────────────────────
 async function loadLessonsV2() {
     try {
-        const res = await fetch(`${API_BASE}/api/lessons/all`, {
+        const res = await fetch(`${API_BASE_URL}/api/lessons/all`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (res.ok) { const data = await res.json(); lessonsDataV2 = data.lessons || []; return true; }
@@ -47,7 +47,7 @@ async function loadLessonsV2() {
 
 async function loadCategoriesV2() {
     try {
-        const res = await fetch(`${API_BASE}/api/lessons/categories`, {
+        const res = await fetch(`${API_BASE_URL}/api/lessons/categories`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (res.ok) { const data = await res.json(); allCategories = data.categories || []; return true; }
@@ -57,7 +57,7 @@ async function loadCategoriesV2() {
 
 async function loadLessonProgress() {
     try {
-        const res = await fetch(`${API_BASE}/api/lessons/progress`, {
+        const res = await fetch(`${API_BASE_URL}/api/lessons/progress`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (res.ok) { const data = await res.json(); lessonProgressMap = data.progress || {}; }
@@ -66,7 +66,7 @@ async function loadLessonProgress() {
 
 async function saveProgressToBackend(lessonId, correctAnswers, totalQuestions) {
     try {
-        const res = await fetch(`${API_BASE}/api/lessons/${lessonId}/save-progress`, {
+        const res = await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/save-progress`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
             body: JSON.stringify({ correct_answers: correctAnswers, total_questions: totalQuestions })
@@ -573,7 +573,7 @@ function nextLesson() {
 async function _submitExerciseToBackend(exerciseIndex, selectedIndex) {
     if (!currentLessonDetailV2) return;
     try {
-        await fetch(`${API_BASE}/api/lessons/${currentLessonDetailV2.id}/submit-exercise`, {
+        await fetch(`${API_BASE_URL}/api/lessons/${currentLessonDetailV2.id}/submit-exercise`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
             body: JSON.stringify({ exercise_index: exerciseIndex, selected_index: selectedIndex })
@@ -595,7 +595,7 @@ let _userStats = null;
 async function loadUserStats() {
     if (!authToken) return;
     try {
-        const res = await fetch(`${API_BASE}/api/user/stats`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/stats`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (!res.ok) return;
@@ -611,7 +611,7 @@ async function loadUserStats() {
 async function loadUserActivity() {
     if (!authToken) return;
     try {
-        const res = await fetch(`${API_BASE}/api/user/activity`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/activity`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (!res.ok) return;

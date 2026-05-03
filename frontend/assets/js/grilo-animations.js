@@ -21,9 +21,8 @@
     if (errorEl) errorEl.textContent = '';
     if (btn) { btn.disabled = true; btn.textContent = '...'; }
 
-    var API_BASE = window.location.origin || 'http://localhost:8000';
-
-    fetch(API_BASE + '/api/login', {
+    // API_BASE_URL is defined globally in utils.js
+    fetch(API_BASE_URL + '/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: username, password: password })

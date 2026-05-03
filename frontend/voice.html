@@ -1808,6 +1808,7 @@ body {
     </div>
 
     <!-- ===== SCRIPTS ===== -->
+    <script src="assets/js/utils.js"></script>
     <script src="controllers/voice/chat-voice-controller.js?v=30"></script>
     <script src="controllers/chat/chat-text-controller.js?v=20"></script>
 
@@ -1849,7 +1850,7 @@ body {
             const token = window.authToken || localStorage.getItem('grilo_token');
             if (!token) return;
             try {
-                const res = await fetch('http://127.0.0.1:8000/api/user/stats', {
+                const res = await fetch(API_BASE_URL + '/api/user/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.status === 401) {

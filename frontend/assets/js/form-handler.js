@@ -4,7 +4,7 @@
     ================================ */
 'use strict';
 
-const API_BASE = window.location.origin || 'http://localhost:8000';
+// API_BASE_URL is defined globally in utils.js
 
 /* ---- Toast notification ---- */
 function showToast(message, type) {
@@ -69,7 +69,7 @@ const AuthForm = {
     try {
       console.log('[GRILO] POST ' + endpoint, body);
 
-      const res = await fetch(API_BASE + endpoint, {
+      const res = await fetch(API_BASE_URL + endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
