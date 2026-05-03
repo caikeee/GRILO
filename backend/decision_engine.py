@@ -82,22 +82,16 @@ class VoiceRequestRouter:
             return VoiceRequestClassification.LIGHT_LLM
         
         # =========== HEURÍSTICA 5: Comprimento base ===========
-        if word_count < 4:
-            # Muito curto → LIGHT (rápido)
+        if word_count < 3:
+            # Ultra-curto (1-2 palavras) → LIGHT (rápido)
             return VoiceRequestClassification.LIGHT_LLM
         
-        elif 4 <= word_count <= 8:
-            # Médio → LIGHT ou FULL dependendo de conteúdo
-            has_context_keywords = any(
-                kw in text for kw in self.CONTEXT_REQUIRED_KEYWORDS
-            )
-            if has_context_keywords:
-                return VoiceRequestClassification.FULL_LLM
-            else:
-                return VoiceRequestClassification.LIGHT_LLM
+        elif 3 <= word_count <= 6:
+            # Curto-médio → FULL_LLM para melhor contexto de conversa
+            return VoiceRequestClassification.FULL_LLM
         
         else:
-            # Longo (>8 palavras) → sempre FULL
+            # Médio+ (>6 palavras) → sempre FULL
             return VoiceRequestClassification.FULL_LLM
     
     def get_model_for_classification(

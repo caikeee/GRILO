@@ -518,7 +518,10 @@ Your job:
 1. Respond in English only.
 2. Keep it short: 1-2 sentences max (40-80 words).
 3. Be warm and encouraging.
-4. Correct errors naturally by modeling the right form."""
+4. Correct errors naturally by modeling the right form.
+5. IMPORTANT: Continue the conversation naturally. Don't force questions or actions unless the student requests help.
+6. If the student shares something, acknowledge it before asking follow-ups.
+Respond conversationally, as if chatting with a friend."""
 
 # Inject level context dynamically (20-30 tokens instead of 200)
 _LEVEL_CONTEXT_INJECTION = {
@@ -759,12 +762,20 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         messages = []
         
         if classification == VoiceRequestClassification.LIGHT_LLM:
-            # LIGHT_LLM: ZERO histórico - apenas system prompt minimal
+            # LIGHT_LLM: Último turno de histórico para contexto mínimo (mantém naturalidade)
             system_msg = MINIMAL_SYSTEM_PROMPT
             # Injetar contexto de level dinamicamente
             if level in _LEVEL_CONTEXT_INJECTION:
                 system_msg += "\n" + _LEVEL_CONTEXT_INJECTION[level]
-            logger.info(f"[LIGHT-LLM] Zero histórico | tokens: ~50-100")
+            
+            # Adicionar último turno do histórico para manter continuidade (3-5 turnos = ~30-50 tokens)
+            if request.history and len(request.history) > 0:
+                last_turns = request.history[-2:] if len(request.history) > 1 else request.history[-1:]
+                for item in last_turns:
+                    messages.append({"role": item.get("role", "user"), "content": item.get("content", "")})
+                logger.info(f"[LIGHT-LLM] Com mini-histórico ({len(last_turns)} turno(s)) | tokens: ~80-130")
+            else:
+                logger.info(f"[LIGHT-LLM] Sem histórico disponível | tokens: ~50-100")
         else:
             # FULL_LLM: Histórico limitado (últimas 10 turns)
             if request.history:
