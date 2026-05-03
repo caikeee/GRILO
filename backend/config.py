@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     
     # Logging
     log_level: str = "INFO"
+    environment: str = "development"  # production, development, testing
     
     class Config:
         env_file = ".env"

@@ -30,3 +30,5 @@ PyPDF2
 tiktoken
 sentence-transformers
 chromadb
+
+

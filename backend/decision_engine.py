@@ -6,7 +6,7 @@ Reduz consumo de tokens ao rotear requisições para o caminho mais eficiente.
 import re
 from enum import Enum
 from typing import Optional, Dict, Any
-from schemas import ChatRequest
+from backend.schemas import ChatRequest
 
 
 class VoiceRequestClassification(Enum):

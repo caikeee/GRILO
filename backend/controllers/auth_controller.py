@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from auth import create_access_token, create_refresh_token, hash_password, verify_password, get_current_user_id, verify_token  # QW9
-from database import get_db
-from db_models import User, UserProgress
-from utils import update_streak, award_xp
-from schemas import (
+from backend.auth import create_access_token, create_refresh_token, hash_password, verify_password, get_current_user_id, verify_token  # QW9
+from backend.database import get_db
+from backend.db_models import User, UserProgress
+from backend.utils import update_streak, award_xp
+from backend.schemas import (
     TokenResponse,
     UserLogin,
     UserRegister,

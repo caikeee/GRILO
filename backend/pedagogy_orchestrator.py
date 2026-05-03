@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 from groq import Groq
 from sqlalchemy.orm import Session
-from db_models import Conversation, User
+from backend.db_models import Conversation, User
 from typing import Dict, Optional
 import logging
 

@@ -5,11 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from auth import get_current_user_id
-from database import get_db
-from db_models import Conversation, LessonProgress, User, UserActivity, UserProgress
-from utils import mark_activity, award_xp
-from quiz_questions import (
+from backend.auth import get_current_user_id
+from backend.database import get_db
+from backend.db_models import Conversation, LessonProgress, User, UserActivity, UserProgress
+from backend.utils import mark_activity, award_xp
+from backend.quiz_questions import (
     get_all_questions,
     get_questions_by_category,
     get_random_questions,

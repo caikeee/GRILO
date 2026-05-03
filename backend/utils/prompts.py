@@ -1,4 +1,4 @@
-from utils.teaching_policy import ACTIVE_RULES
+from backend.utils.teaching_policy import ACTIVE_RULES
 
 
 def prompt_perguntas(texto):

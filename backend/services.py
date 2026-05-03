@@ -6,18 +6,18 @@ import time as _time
 from dotenv import load_dotenv
 from fastapi import HTTPException
 from groq import Groq
-from utils.prompts import prompt_perguntas, prompt_continuacao, prompt_historia, prompt_analise, prompt_sugestao, prompt_refinar_bloco, prompt_combinar_historias
-from schemas import ChatRequest
-from db_models import Conversation, User
+from backend.utils.prompts import prompt_perguntas, prompt_continuacao, prompt_historia, prompt_analise, prompt_sugestao, prompt_refinar_bloco, prompt_combinar_historias
+from backend.schemas import ChatRequest
+from backend.db_models import Conversation, User
 from datetime import datetime
 from sqlalchemy.orm import Session
 import langdetect
 import logging
 
 # Import new optimization modules
-from decision_engine import voice_router, VoiceRequestClassification
-from voice_cache import voice_cache
-from fallback import GraciousFallback, ErrorScenario
+from backend.decision_engine import voice_router, VoiceRequestClassification
+from backend.voice_cache import voice_cache
+from backend.fallback import GraciousFallback, ErrorScenario
 
 logger = logging.getLogger(__name__)
 

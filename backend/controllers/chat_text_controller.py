@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from auth import get_current_user_id
-from database import get_db
-from utils import mark_activity
-from schemas import (
+from backend.auth import get_current_user_id
+from backend.database import get_db
+from backend.utils import mark_activity
+from backend.schemas import (
     ChatWriteResponse,
     WritingChatRequest,
 )

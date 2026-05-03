@@ -14,15 +14,15 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
-from auth import get_current_user_id
-from database import get_db
-from db_models import UserProgress, VoicePhrase, ShadowModeAnalytic
-from utils import mark_activity, award_xp
-from schemas import ChatRequest, ShadowModeData
-from services import chat_concise_voice, generate_voice_recap
-from voice_metrics import voice_metrics
-from voice_cache import voice_cache
-from fallback import GraciousFallback, ErrorScenario
+from backend.auth import get_current_user_id
+from backend.database import get_db
+from backend.db_models import UserProgress, VoicePhrase, ShadowModeAnalytic
+from backend.utils import mark_activity, award_xp
+from backend.schemas import ChatRequest, ShadowModeData
+from backend.services import chat_concise_voice, generate_voice_recap
+from backend.voice_metrics import voice_metrics
+from backend.voice_cache import voice_cache
+from backend.fallback import GraciousFallback, ErrorScenario
 
 router = APIRouter(tags=["chat-voice"])
 logger = logging.getLogger(__name__)
