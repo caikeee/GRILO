@@ -1,0 +1,133 @@
+# Ambiente Virtual
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Arquivo de ambiente
+.env
+backend/.env
+.env.local
+.env.*.local
+
+# IDE e Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+
+# Banco de Dados
+*.db
+*.sqlite
+*.sqlite3
+*.pkl
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Node modules (se houver)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.backup
+.tmp/
+temp/
+
+# Arquivo de configuração sensível
+config.json
+secrets.json
+credentials.json
+
+# Sistema operacional
+.AppleDouble
+.LSOverride
+._*
+.fuse_hidden*
+.Spotlight-V100
+.Trashes
+.TemporaryItems
+
+# Editor temporários
+.swp
+.swo
+.swn
+*~
+
+# Poetry
+poetry.lock
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# IDE específicas
+.idea/
+.vscode/
+.spyproject
+.ropeproject
+
+# Output
+output/
+results/
+
+# GRILO Específico (QW9-QW12)
+groq_quota.json                 # QW11: Groq quota tracking (sensível)
+backend/groq_quota.json         # Alternative location
+*.key                           # SSH keys
+*.pem                           # SSL certificates
+*.p12                           # Certificate archives
+
+# ChromaDB cache (RAG)
+backend/rag/chromadb_data/      # Vector database (local cache)
+
+# Test files
+backend/test_*.py               # Test files (não precisa no repo)
+
+# Voice cache
+backend/voice_cache/            # Cached voice files
+
+# Migrations (local)
+backend/migrations/versions/    # Database migration files

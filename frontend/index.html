@@ -1,0 +1,344 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GRILO Voice — treino conversacional de ingles com IA, feedback de pronuncia e progresso semanal para brasileiros.">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta property="og:title" content="GRILO Voice — Fale ingles com confianca">
+    <meta property="og:description" content="Treino de voz com IA, correcoes em tempo real e dashboard de evolucao. Foco total em conversacao real.">
+    <meta property="og:image" content="/assets/og-image.png">
+
+    <title>GRILO Voice — Treino de conversacao em ingles com IA</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/grilo-v3.css">
+
+    <style>
+      .toast { padding:14px 22px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:0.92rem; font-weight:500; color:#fff; box-shadow:0 8px 32px rgba(0,0,0,.3); animation:toastIn .3s ease; transition:opacity .3s,transform .3s; max-width:380px; }
+      .toast--success { background:linear-gradient(135deg,#22c55e,#16a34a); }
+      .toast--error   { background:linear-gradient(135deg,#ef4444,#dc2626); }
+      .hero-proof { margin-top:14px; font-family:'Space Grotesk',sans-serif; font-size:0.95rem; opacity:.85; }
+      @keyframes toastIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+    </style>
+</head>
+<body>
+
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-logo">
+                <span class="logo-icon">🦗</span>
+                <span class="logo-text">GRILO</span>
+            </a>
+            <button class="navbar-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="navbar-content" id="navContent">
+                <ul class="navbar-nav">
+                    <li><a href="#sistema">Produto</a></li>
+                    <li><a href="#como-funciona">Metodo</a></li>
+                    <li><a href="#historias">Prova</a></li>
+                </ul>
+                <div class="navbar-actions">
+                    <a href="#" class="navbar-cta-link" id="navEntrarBtn">Entrar</a>
+                    <button class="navbar-cta-btn" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Começar agora →</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- LOGIN STRIP -->
+    <div class="login-strip" id="loginStrip" role="complementary" aria-label="Login rápido">
+        <div class="login-strip-inner">
+            <span class="login-strip-label">Já tem conta?</span>
+            <input type="text" class="login-strip-input" id="navbarUsername" placeholder="Usuário" autocomplete="username">
+            <input type="password" class="login-strip-input" id="navbarPassword" placeholder="Senha" autocomplete="current-password">
+            <button class="login-strip-btn" id="navbarLoginBtn" onclick="handleNavbarLogin()">Entrar →</button>
+            <a href="#cta" class="login-strip-signup" onclick="closeNavbarMenu()">Criar conta</a>
+            <span id="navbarLoginError" class="login-strip-error" aria-live="polite"></span>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
+        <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
+
+        <div class="hero-content">
+            <div class="hero-tag" data-reveal>
+                <span class="hero-tag-dot" aria-hidden="true"></span>
+                Produto de voz para acelerar sua fluencia em ingles
+            </div>
+
+            <h1 class="hero-headline" data-reveal data-reveal-delay="1">
+                Voce nao precisa de mais teoria.<br>
+                <em>Precisa praticar voz todos os dias com feedback real.</em>
+            </h1>
+
+            <p class="hero-sub" data-reveal data-reveal-delay="2">
+                O GRILO Voice transforma estudo passivo em conversacao ativa: voce fala, recebe correcao na hora e acompanha seu score de evolucao. Um ciclo diario feito para brasileiros que precisam falar ingles no mundo real.
+            </p>
+
+            <div class="hero-buttons" data-reveal data-reveal-delay="3">
+                <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+                    Quero começar agora →
+                </button>
+                <button class="btn-secondary" onclick="document.getElementById('como-funciona').scrollIntoView({behavior:'smooth'})">
+                    Ver metodo
+                </button>
+            </div>
+
+
+        </div>
+    </section>
+
+    <!-- SISTEMA -->
+    <section id="sistema" class="section" style="background: linear-gradient(135deg, #f8faff 0%, #fff 50%);">
+        <div class="container" style="max-width: 900px; text-align: center;">
+            <div data-reveal>
+                <span class="section-eyebrow">O produto</span>
+                <h2 class="section-title" style="margin-bottom: 48px;">
+                    Conversa + Correcao + Replay + Score<br>
+                    <strong>no mesmo ciclo de voz.</strong>
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; margin-top: 40px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">🎤 Conversa real</div>
+                        <p style="font-size: 0.95rem; opacity: 0.8;">Fale em cenarios praticos com IA em tempo real.</p>
+                    </div>
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">🛠️ Correcao guiada</div>
+                        <p style="font-size: 0.95rem; opacity: 0.8;">Veja e ouca a forma correta para repetir na hora.</p>
+                    </div>
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">📈 Score de sessao</div>
+                        <p style="font-size: 0.95rem; opacity: 0.8;">Qualidade, trocas e erros para medir sua evolucao.</p>
+                    </div>
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">🔥 Desafio 7 dias</div>
+                        <p style="font-size: 0.95rem; opacity: 0.8;">Trilha de consistencia para manter ritmo e fluencia.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section id="como-funciona" class="section" style="background: linear-gradient(135deg, #f0f2f7 0%, #e8ecf5 100%);">
+        <div class="container" style="max-width: 1000px;">
+            <div data-reveal style="text-align: center;">
+                <span class="section-eyebrow">Metodo de evolucao</span>
+                <h2 class="section-title" style="margin-bottom: 48px;">
+                    Fale → Corrija → Repita<br>
+                    <strong>todos os dias.</strong>
+                </h2>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;">
+                <div data-reveal style="background: #fff; padding: 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+                    <div style="font-size: 2.5rem; margin-bottom: 12px;">1️⃣</div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #0a0a0a;">Falar</h3>
+                    <p style="color: #525252; font-size: 0.95rem;">Converse por voz com IA em cenarios reais.</p>
+                </div>
+                <div data-reveal data-reveal-delay="1" style="background: #fff; padding: 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+                    <div style="font-size: 2.5rem; margin-bottom: 12px;">2️⃣</div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #0a0a0a;">Ajustar</h3>
+                    <p style="color: #525252; font-size: 0.95rem;">Receba correcao, replay e dica de estudo.</p>
+                </div>
+                <div data-reveal data-reveal-delay="2" style="background: #fff; padding: 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+                    <div style="font-size: 2.5rem; margin-bottom: 12px;">3️⃣</div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #0a0a0a;">Evoluir</h3>
+                    <p style="color: #525252; font-size: 0.95rem;">Siga o desafio semanal e destrave novos modos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container" style="max-width: 900px;">
+            <div data-reveal>
+                <span class="section-eyebrow">Progresso</span>
+                <h2 class="section-title" style="margin-bottom: 32px;">
+                    Menos travas. Mais fluidez.<br>
+                    <strong>Ingles para situacoes reais.</strong>
+                </h2>
+                <p class="section-body" style="font-size: 1.1rem; margin-bottom: 24px;">
+                    Com ciclos curtos de voz e feedback, voce melhora pronuncia, velocidade de resposta e confianca para entrevistas, reunioes e viagens.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HISTÓRIAS -->
+    <section id="historias" class="section section--proof">
+        <div class="container">
+            <div class="proof-header" data-reveal>
+                <span class="section-eyebrow">Prova</span>
+                <h2 class="section-title">Quando estudo e pratica se conectam,<br>o tempo de resposta muda.</h2>
+            </div>
+
+            <div class="proof-grid">
+                <article class="proof-card proof-card--featured" data-reveal>
+                    <blockquote>"Antes eu estudava bastante, mas nao conseguia responder com naturalidade. Aqui, eu consegui conectar estudo com pratica, e isso mudou meu tempo de resposta."</blockquote>
+                    <footer>
+                        <span class="proof-avatar" aria-hidden="true">🧑‍💼</span>
+                        <div><strong>Camila R.</strong><span>Product Designer</span></div>
+                    </footer>
+                </article>
+                <article class="proof-card" data-reveal data-reveal-delay="1">
+                    <blockquote>"Ter correcao na hora faz diferenca. Voce ajusta e ja usa melhor na proxima frase. Isso deixa a pratica muito mais viva e muito mais util."</blockquote>
+                    <footer>
+                        <span class="proof-avatar" aria-hidden="true">🧑‍💻</span>
+                        <div><strong>Rafael M.</strong><span>Desenvolvedor</span></div>
+                    </footer>
+                </article>
+                <article class="proof-card" data-reveal data-reveal-delay="2">
+                    <blockquote>"O que faltava nao era mais conteudo. Era um sistema que me colocasse para usar o ingles com frequencia, contexto e ajuste. Foi isso que fez diferenca."</blockquote>
+                    <footer>
+                        <span class="proof-avatar" aria-hidden="true">🧳</span>
+                        <div><strong>Júlia S.</strong><span>Consultora</span></div>
+                    </footer>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA / AUTH -->
+    <section id="cta" class="section section--cta">
+        <div class="cta-container">
+            <div class="cta-text" data-reveal>
+                <span class="section-eyebrow section-eyebrow--light">Quebra final</span>
+                <h2 class="cta-headline">
+                    Sua voz em ingles comeca hoje.<br>Treine com IA, veja seu score e evolua toda semana.
+                </h2>
+                <p class="cta-body">
+                    Entre agora e faca sua primeira sessao de voz em minutos. Sem agenda, sem vergonha e sem depender de professor ao vivo.
+                </p>
+                <div class="cta-promo">
+                    <span class="promo-badge">Voice First</span>
+                    <p>Desafio de 7 dias para criar consistencia real.</p>
+                    <p class="promo-timer">Comece gratis e acompanhe seu progresso de voz.</p>
+                </div>
+            </div>
+
+            <div class="auth-card-v2" data-reveal data-reveal-delay="1">
+                <h3 id="formTitle">Entre e inicie seu treino de voz</h3>
+                <p class="auth-subtitle" id="formSubtitle">Crie sua conta e faca sua primeira conversa em ingles agora.</p>
+
+                <div id="authError" class="auth-error-v2" style="display:none;" role="alert"></div>
+
+                <form id="authForm" novalidate>
+                    <div class="form-group form-group-v2" id="registerFields" style="display:none;">
+                        <label class="form-label-v2" for="email">E-mail</label>
+                        <input type="email" id="email" class="form-input-v2" placeholder="você@email.com" autocomplete="email">
+                    </div>
+                    <div class="form-group form-group-v2">
+                        <label class="form-label-v2" for="username">Usuário</label>
+                        <input type="text" id="username" class="form-input-v2" placeholder="seu_nome" required autocomplete="username">
+                    </div>
+                    <div class="form-group form-group-v2">
+                        <label class="form-label-v2" for="password">Senha</label>
+                        <input type="password" id="password" class="form-input-v2" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-primary btn-primary--full">
+                        <span id="submitText">Entrar</span> →
+                    </button>
+                </form>
+
+                <div class="auth-toggle-v2">
+                    <span id="toggleText">Novo por aqui?</span>
+                    <button type="button" id="toggleBtn">Criar conta</button>
+                </div>
+
+                <p class="auth-footer-note">🔒 Seus dados ficam protegidos. Powered by <strong>Groq AI</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="logo-icon" aria-hidden="true">🦗</span>
+                <span class="logo-text">GRILO</span>
+            </div>
+            <p class="footer-copy">Ganhe voz no mundo com aprendizado conversacional · © 2026 GRILO</p>
+            <nav class="footer-links" aria-label="Links do rodapé">
+                <a href="#">Privacidade</a>
+                <a href="#">Termos</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Prevent default form submission -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var f = document.getElementById('authForm');
+        if (f) f.addEventListener('submit', function(e) { e.preventDefault(); });
+      });
+    </script>
+
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/form-handler.js?v=3"></script>
+    <script src="assets/js/grilo-animations.js"></script>
+
+    <script>
+        function closeNavbarMenu() {
+            var t = document.getElementById('navToggle');
+            var c = document.getElementById('navContent');
+            if (t) { t.classList.remove('active'); t.setAttribute('aria-expanded','false'); }
+            if (c) c.classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var navToggle = document.getElementById('navToggle');
+            var navContent = document.getElementById('navContent');
+
+            if (navToggle) {
+                navToggle.addEventListener('click', function() {
+                    var isOpen = this.classList.toggle('active');
+                    this.setAttribute('aria-expanded', isOpen);
+                    if (navContent) navContent.classList.toggle('active');
+                });
+            }
+
+            document.querySelectorAll('.navbar-nav a').forEach(function(link) {
+                link.addEventListener('click', closeNavbarMenu);
+            });
+
+            document.querySelectorAll('button').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    if (window.Utils) Utils.track('button_click', {
+                        button_text: this.textContent.trim(),
+                        button_class: this.className
+                    });
+                });
+            });
+
+            var navEntrarBtn = document.getElementById('navEntrarBtn');
+            if (navEntrarBtn) {
+                navEntrarBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var strip = document.getElementById('loginStrip');
+                    if (strip && strip.classList.contains('is-scrolled')) {
+                        var u = document.getElementById('navbarUsername');
+                        if (u) u.focus();
+                    } else {
+                        var cta = document.getElementById('cta');
+                        if (cta) cta.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

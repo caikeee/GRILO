@@ -1,0 +1,424 @@
+/* ================================
+   GRILO - BASE STYLES
+   Reset, Typography, Global Layout
+   ================================ */
+
+/* ============ RESET ============ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  overflow-x: hidden;
+  height: auto;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ============ GRAIN OVERLAY ============ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--noise-url);
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  opacity: var(--noise-opacity);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+main {
+  display: block;
+}
+
+/* ============ SCROLL PROGRESS BAR ============ */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--gradient-primary);
+  z-index: 10000;
+  transition: none;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ============ TIPOGRAFIA ============ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  letter-spacing: -0.04em;
+}
+
+h2 {
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  text-wrap: balance;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+  letter-spacing: -0.02em;
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+}
+
+h6 {
+  font-size: var(--font-size-base);
+}
+
+p {
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+strong {
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+em {
+  font-style: italic;
+}
+
+/* ============ TEXT UTILITIES ============ */
+.text-gradient {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-highlight {
+  position: relative;
+  display: inline;
+}
+
+.text-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+  height: 35%;
+  background: rgba(245, 158, 11, 0.2);
+  border-radius: 4px;
+  z-index: -1;
+  transform: skewX(-3deg);
+}
+
+.label-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: var(--radius-full);
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--accent-primary);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+}
+
+/* ============ LINKS ============ */
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color var(--transition-base);
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--accent-secondary);
+}
+
+/* ============ LIST ============ */
+ul, ol {
+  margin-left: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+li {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ============ IMAGENS ============ */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============ CONTAINER ============ */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.container-tight {
+  max-width: 800px;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+}
+
+/* ============ SEÇÕES ============ */
+section {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============ SECTION DIVIDERS ============ */
+.section-divider {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  z-index: 2;
+}
+
+.section-divider svg {
+  position: relative;
+  display: block;
+  width: calc(100% + 1.3px);
+  height: 60px;
+}
+
+.section-divider--top {
+  top: -1px;
+  bottom: auto;
+  transform: rotate(180deg);
+}
+
+/* ============ GRID UTILITIES ============ */
+.grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-2xl);
+  align-items: center;
+}
+
+.grid-2.reverse {
+  direction: rtl;
+}
+
+.grid-2.reverse > * {
+  direction: ltr;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+}
+
+@media (max-width: 1024px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .grid-2.reverse {
+    direction: ltr;
+  }
+}
+
+/* ============ FLEX UTILITIES ============ */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+
+/* ============ PADDING/MARGIN ============ */
+.p-section {
+  padding: var(--spacing-3xl) var(--spacing-lg);
+}
+
+@media (max-width: 768px) {
+  .p-section {
+    padding: var(--spacing-2xl) var(--spacing-md);
+  }
+}
+
+/* ============ ICON SVG ============ */
+.icon-svg {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.icon-svg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.icon-svg--lg {
+  width: 56px;
+  height: 56px;
+}
+
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-xl);
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--accent-primary);
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.icon-container--warm {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--accent-warm);
+}
+
+.icon-container--danger {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--accent-danger);
+}
+
+/* ============ ACESSIBILIDADE ============ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============ FOCUS VISIBLE ============ */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* ============ SELECTION ============ */
+::selection {
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--text-primary);
+}
