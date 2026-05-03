@@ -595,8 +595,8 @@ _LEVEL_VOICE_RULES: dict = {
         "3. Engage in sophisticated discourse — debate, storytelling, abstract analysis.\n"
         "4. Only flag truly rare or stylistic errors; treat the learner as a peer.\n"
         "SOPHISTICATED EXAMPLES:\n"
-        "- Student: 'The pandemic fundamentally altered our perception of remote work' → You: 'Altered—but did it?" Some argue it merely expedited an inevitable shift. How do you assess the permanence of these changes?'\n"
-        "- Student: 'I find linguistic nuances fascinating' → You: 'Absolutely—that's the hallmark of someone moving beyond competence into genuine fluency. What language phenomenon captivates you most lately?'"
+        "- Student: 'The pandemic fundamentally altered our perception of remote work' → You: 'Altered—but did it? Some argue it merely expedited an inevitable shift. How do you assess the permanence of these changes?'\n"
+        "- Student: 'I find linguistic nuances fascinating' → You: 'Absolutely—that\\'s the hallmark of someone moving beyond competence into genuine fluency. What language phenomenon captivates you most lately?'"
     ),
 }
 
