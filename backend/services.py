@@ -517,13 +517,18 @@ MINIMAL_SYSTEM_PROMPT = """You are a friendly English tutor for beginners.
 Your job:
 1. Respond in English only.
 2. Keep it short: 1-2 sentences max (40-80 words).
-3. ALWAYS acknowledge what the student just said - echo one key word or idea.
+3. [IMPLICIT-ECHO] UNDERSTAND what they said but NEVER repeat their exact words literally.
+   - If they say "Pizza", don't say "Pizza is delicious!"
+   - Instead, acknowledge the IDEA: "Oh, you enjoy food!" or "That's great!"
+   - Show understanding through context, not word repetition.
 4. Continue naturally about THAT topic they mentioned.
 5. Ask one simple follow-up question about what they said.
 6. Be warm and encouraging.
 7. Correct errors naturally by modeling the right form.
-Example: If student says "I like pizza", you say "Pizza is delicious! Do you like..." NOT "Food is fun. Choose...". Always show you understood FIRST.
-Respond conversationally, as if chatting with a friend."""
+8. If they give a very short answer (1-2 words), treat it as VALID and expand by adding context.
+   - Example: User: "Pizza" → You: "Oh, you enjoy it! Do you cook at home?"
+   - NOT: "Pizza! Do you like pizza?"
+Respond conversationally, as if chatting with a friend. Let your response feel natural, not like you're repeating them."""
 
 # Inject level context dynamically (20-30 tokens instead of 200)
 _LEVEL_CONTEXT_INJECTION = {
@@ -664,6 +669,15 @@ _GUIDED_TOPIC_SCRIPTS: dict = {
 
 # ==================== INTENT DETECTION + DYNAMIC PROMPTING ====================
 
+def should_expand_short_input(message: str) -> bool:
+    """
+    Detecta se input do usuário é muito curto (1-2 palavras).
+    Se sim, a IA deve expandir sutilmente a partir disso.
+    """
+    words = len(message.strip().split())
+    return words <= 2
+
+
 def detect_user_intent(message: str) -> str:
     """
     Detects user intent type to vary conversational approach.
@@ -706,68 +720,68 @@ def detect_user_intent(message: str) -> str:
 
 _INTENT_PROMPTS = {
     "disagreement": {
-        "a1": "User disagreed or said no. Ask WHY in simple words. Use 'Why?' or 'Why not?'",
-        "a2": "User disagreed or corrected you. Ask them to explain their preference simply.",
-        "b1": "User disagreed. Ask open questions about their reasoning: 'What made you choose...?' or 'Tell me why you prefer...?'",
-        "b2": "User disagreed or corrected something. Explore their perspective: 'Interesting - what's your reasoning?' or 'Help me understand why you see it that way.'",
-        "c1": "User disagreed or offered a contrasting view. Dig deeper into their logic: 'That's a perspective I hadn't considered—what shaped that view?' or 'Walk me through your thinking on that.'",
-        "c2": "User disagreed or presented a contrasting argument. Engage intellectually: 'You raise an intriguing point—how does that reconcile with...?' or 'Fascinating take. Where do you draw the line between...?'"
+        "a1": "User disagreed or said no. DON'T repeat their words. Show understanding then ask WHY: 'I see your point. Why do you feel that way?' or 'Got it. Tell me more.'",
+        "a2": "User disagreed or corrected. Acknowledge without echoing, then ask: 'I understand. Help me know your thinking.'",
+        "b1": "User disagreed. Show understanding WITHOUT repeating their words, then explore: 'I see that perspective. What led you there?' or 'Tell me why you feel that way?'",
+        "b2": "User disagreed. Validate and dig: 'That's an interesting take—what's driving that thinking?' or 'I hear you. Walk me through your logic.'",
+        "c1": "User disagreed or offered contrast. Engage naturally: 'That frames it differently—what shaped that view?' or 'I hadn't considered that angle. Elaborate.'",
+        "c2": "User disagreed or presented counter-argument. Engage without repeating: 'You're making an interesting distinction—how does that square with...?' or 'That opens a nuance worth exploring.'"
     },
     "opinion": {
-        "a1": "User shared what they think. Ask for more: 'Tell me more!' or 'That's good. Why?'",
-        "a2": "User shared an opinion. Ask them to expand: 'Why do you think that?' or 'That's interesting—tell me more.'",
-        "b1": "User shared an opinion. Explore it: 'What leads you to that conclusion?' or 'That's intriguing—have you always felt that way?' or 'What else factors into that?'",
-        "b2": "User shared an opinion. Build on it conversationally: 'I see your point—what other factors come into play?' or 'That's a solid perspective. How did you arrive at it?'",
-        "c1": "User shared a nuanced opinion. Engage critically: 'That's a thoughtful position—what counter-arguments do you wrestle with?' or 'Interesting take. How does that align with...?'",
-        "c2": "User articulated a sophisticated viewpoint. Challenge them intellectually: 'A compelling argument—though how do you reconcile that with the tension between...?' or 'You're articulating an interesting philosophical position there.'"
+        "a1": "User shared what they think. DON'T echo. Instead: 'That's good! Tell me more.' or 'Why do you think that?'",
+        "a2": "User shared an opinion. Ask to expand WITHOUT repeating their words: 'Why do you feel that way?' or 'Tell me more about that.'",
+        "b1": "User shared an opinion. Explore it naturally: 'What leads you to that conclusion?' or 'Have you always felt that way?' (don't repeat their words)",
+        "b2": "User shared opinion. Build on it: 'I see your point—what else factors in?' or 'That's solid. How did you arrive at it?'",
+        "c1": "User shared nuanced opinion. Challenge thoughtfully: 'That's a perspective—what counter-arguments do you wrestle with?' or 'How does that align with...?'",
+        "c2": "User articulated sophisticated view. Engage: 'Compelling argument—though how do you reconcile that with the tension between...?' or 'You're articulating something interesting there.'"
     },
     "explanation": {
-        "a1": "User is explaining. Ask for more details: 'And then?' or 'Tell me more about that.'",
-        "a2": "User is explaining their reasoning. Follow up: 'I understand—so what happened next?' or 'That makes sense. What else?'",
-        "b1": "User is explaining something. Dig deeper: 'That clarifies things—what came after?' or 'So what's the bigger picture here?' or 'How did that affect you?'",
-        "b2": "User is explaining their reasoning. Explore further: 'So the chain of events was... what came after that?' or 'That provides context—how does that play into your current situation?'",
-        "c1": "User is explaining causality or reasoning. Push for deeper analysis: 'Fascinating causal chain—were there any unintended consequences?' or 'So that's your reasoning—but what about the downstream implications?'",
-        "c2": "User is articulating a complex explanation. Engage analytically: 'So your thesis is that...? But doesn't that presuppose...?' or 'Interesting framework—how does that account for X?'"
+        "a1": "User is explaining. DON'T repeat. Ask for more: 'And then?' or 'Tell me what happened next.'",
+        "a2": "User explaining. Follow up WITHOUT echoing: 'I understand—so what came next?' or 'That makes sense. What else?'",
+        "b1": "User explaining something. Dig deeper: 'That clarifies it—what came after?' or 'So the bigger picture is...?' or 'How did that affect you?'",
+        "b2": "User explaining reasoning. Explore further: 'The chain was...what came after that?' or 'That gives context—how does it affect you now?'",
+        "c1": "User explaining causality. Push for analysis: 'Fascinating causal chain—were there unintended consequences?' or 'So your reasoning—but what about downstream?'",
+        "c2": "User articulating complex explanation. Engage analytically: 'So your thesis is...? But doesn't that presuppose...?' or 'Interesting framework—how does it account for...?'"
     },
     "question": {
-        "a1": "User asked a question. Answer simply and ask them back about it.",
-        "a2": "User asked a question. Give a short answer, then ask them: 'Does that make sense? Do you have more questions?'",
-        "b1": "User asked a question. Answer clearly, then ask: 'Does that answer your question? What made you curious about that?'",
-        "b2": "User asked a question. Answer it thoughtfully, then ask: 'That's a great question—what prompted you to ask?' or 'Now I'm curious—why are you asking?'",
-        "c1": "User asked a substantive question. Answer thoroughly, then explore: 'I think the answer is... but what's driving your curiosity about this?' or 'That opens up an interesting angle—have you considered...?'",
-        "c2": "User posed a sophisticated question. Answer with nuance: 'That's a nuanced question—the answer depends on which lens you use...' Then engage: 'But what's your intuition on how we should approach this?'"
+        "a1": "User asked a question. Answer simply WITHOUT repeating their words, then ask back about it.",
+        "a2": "User asked question. Give short answer, then ask: 'Does that help? Do you have more questions?'",
+        "b1": "User asked question. Answer clearly WITHOUT echoing their phrasing, then ask: 'Does that answer it? What made you curious?'",
+        "b2": "User asked question. Answer thoughtfully, then ask: 'That's a good question—what prompted it?' or 'Why are you asking?'",
+        "c1": "User asked substantive question. Answer thoroughly, then: 'But what's driving your curiosity about this?' or 'That opens an interesting angle—have you considered...?'",
+        "c2": "User posed sophisticated question. Answer with nuance: 'That's nuanced—the answer depends on the lens...' Then: 'But what's your intuition on how we approach it?'"
     },
     "emotion": {
-        "a1": "User expressed feelings (love/hate/excitement/boredom). Show you understand and ask why: 'That's great!' or 'Oh no! Why?'",
-        "a2": "User expressed strong emotion. Validate it: 'I can hear your enthusiasm!' Then ask: 'What is it about that makes you feel so strongly?'",
-        "b1": "User expressed emotion. Validate and explore: 'I sense real passion there—what specifically triggers that feeling?' or 'That resonates with you—tell me what draws you to it?'",
-        "b2": "User expressed emotion. Dig into the root: 'There's clearly something meaningful about that for you—what's the deeper connection?' or 'Your enthusiasm is contagious—where does that come from?'",
-        "c1": "User expressed nuanced emotion. Explore the underlying values: 'I'm picking up on something deeper—is this tied to your sense of...?' or 'That emotion suggests something important to you—what's the root?'",
-        "c2": "User expressed sophisticated emotional response. Engage meaningfully: 'Your sentiment reveals interesting values—would you say this relates to your broader worldview on...?' or 'Fascinating emotional response—what does that tell us about what matters to you?'"
+        "a1": "User expressed feelings. DON'T repeat their words. Show understanding: 'That sounds great!' or 'Oh no! Why do you feel that?' or 'Tell me why!'",
+        "a2": "User expressed strong emotion. Validate WITHOUT echoing: 'I hear your passion! What is it about that?' or 'What makes you feel so strongly?'",
+        "b1": "User expressed emotion. Validate and explore: 'I sense real feeling there—what triggers that?' or 'That resonates with you—what draws you?'",
+        "b2": "User expressed emotion. Dig into root: 'Something meaningful there for you—what's the deeper connection?' or 'Where does that come from?'",
+        "c1": "User expressed nuanced emotion. Explore values: 'I'm sensing something deeper—is this tied to your sense of...?' or 'What's at the root of that?'",
+        "c2": "User expressed sophisticated emotion. Engage meaningfully: 'Your sentiment reveals values—does this relate to your worldview on...?' or 'What does that tell us about what matters to you?'"
     },
     "correction": {
-        "a1": "User is correcting themselves. That's good! Ask: 'OK, so...?' to let them finish.",
-        "a2": "User self-corrected. Encourage them: 'Good—that makes sense. Can you tell me more?'",
-        "b1": "User self-corrected. Acknowledge and ask: 'Ah, I see what you mean now—so the real point is...?' or 'That clarification helps—go on.'",
-        "b2": "User self-corrected. Value the adjustment: 'I appreciate the clarification—so you're really saying...?' Then ask: 'What made you want to correct that?'",
-        "c1": "User refined or corrected their previous statement. Engage: 'The nuance is important—so you're distinguishing between...?' or 'I see the precision matters to you—elaborate on that distinction?'",
-        "c2": "User offered intellectual refinement. Explore: 'You're drawing a sophisticated distinction—one that hinges on...? Unpack that for me.' or 'That's a meaningful recalibration—why was the clarification necessary?'"
+        "a1": "User self-correcting. That's good! DON'T repeat. Say: 'OK, so...?' to let them finish.",
+        "a2": "User self-corrected. Encourage WITHOUT repeating: 'Good—tell me more?'",
+        "b1": "User self-corrected. Acknowledge: 'Ah, I see now—so the real point is...?' or 'That helps—go on.'",
+        "b2": "User self-corrected. Value it: 'I appreciate that—so you're really saying...?' Then: 'What made you refine that?'",
+        "c1": "User refined their statement. Engage: 'The nuance matters—so you're distinguishing between...?' or 'Precision matters—elaborate?'",
+        "c2": "User offered intellectual refinement. Explore: 'You're drawing a sophisticated distinction—one that hinges on...? Unpack it.' or 'Why was that clarification necessary?'"
     },
     "agreement": {
-        "a1": "User agreed! Ask what they think about related things: 'Great! What else do you like about that?'",
-        "a2": "User agreed or confirmed something. Build on it: 'Awesome! So what else connects to that?' or 'I'm glad we agree—what's your favorite part?'",
-        "b1": "User agreed. Deepen the conversation: 'Great—what draws you to that?' or 'I'm glad we see eye to eye. What else has impressed you about it?'",
-        "b2": "User confirmed your point. Explore deeper: 'Exactly—and beyond that, what other implications do you see?' or 'I'm glad we're aligned—what would it look like if things were different?'",
-        "c1": "User expressed agreement. Use it as a springboard: 'Exactly—and that understanding leads to what other conclusions?' or 'Right—so that means...?'",
-        "c2": "User affirmed your perspective. Build sophistication: 'Indeed—and if we extend that logic, doesn't it also suggest...?' or 'Precisely—which is why the nuance between X and Y becomes critical.'"
+        "a1": "User agreed! DON'T echo. Ask: 'Great! What else do you like about that?' or 'What's another thing?'",
+        "a2": "User agreed. Build on it WITHOUT repeating: 'Awesome! What else connects?' or 'Glad we agree—what's your favorite part?'",
+        "b1": "User agreed. Deepen WITHOUT repeating: 'Great—what draws you to it?' or 'I'm glad we see it the same way. What else?'",
+        "b2": "User confirmed. Explore deeper: 'Exactly—what else follows from that?' or 'I'm glad we align—what would be different otherwise?'",
+        "c1": "User expressed agreement. Use as springboard: 'Exactly—and that leads to what other conclusions?' or 'Right—so that means...?'",
+        "c2": "User affirmed perspective. Build: 'Indeed—and if we extend that logic, doesn't it suggest...?' or 'Precisely—which is why the nuance between X and Y matters.'"
     },
     "neutral": {
-        "a1": "User made a statement. Echo it back and ask a simple question about it.",
-        "a2": "User shared something. Show interest: 'That's interesting. Tell me more about that.' or 'I see. What else?'",
-        "b1": "User made a statement. Explore: 'That's an interesting take—what led you to that?' or 'Tell me more—what else is there?'",
-        "b2": "User shared something. Dig deeper: 'That catches my attention—what specifically about that matters to you?' or 'How does that fit into the bigger picture?'",
-        "c1": "User articulated something. Engage critically: 'That's intriguing—how would you defend that position?' or 'Interesting point—what are the limitations of that view?'",
-        "c2": "User presented an idea. Challenge thoughtfully: 'A compelling assertion—though doesn't that presuppose...?' or 'That raises an interesting epistemological question...'"
+        "a1": "User made statement. DON'T echo their exact words. Acknowledge and ask: 'That's nice! Tell me more.' or 'Why is that?'",
+        "a2": "User shared something. Show interest WITHOUT repeating: 'That's interesting. Tell me more?' or 'Why?'",
+        "b1": "User made statement. Explore WITHOUT echoing: 'That's an interesting angle—what led you there?' or 'Tell me more—what else?'",
+        "b2": "User shared something. Dig deeper: 'That catches my attention—why does that matter?' or 'How does it fit into things?'",
+        "c1": "User articulated something. Engage critically: 'That's intriguing—how would you defend it?' or 'What are the limits of that view?'",
+        "c2": "User presented idea. Challenge thoughtfully: 'Compelling—though doesn't that presuppose...?' or 'That raises an interesting question...'"
     }
 }
 
@@ -948,6 +962,12 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         
         if is_opening_turn:
             user_payload = "Start the voice lesson now."
+        
+        # ======== SHORT INPUT DETECTION + EXPANSION ========
+        is_short_input = should_expand_short_input(user_payload)
+        if is_short_input and not is_opening_turn:
+            system_msg += "\n\n[SHORT-INPUT-MODE] User gave a brief response (1-2 words). This is valid. Treat it as a complete thought and expand naturally by adding context or follow-up. Don't make them feel rushed."
+            logger.info(f"[SHORT-INPUT] Detected: '{user_payload}' | Activating expansion mode")
         
         # ======== INTENT DETECTION + DYNAMIC PROMPTING INJECTION ========
         if not is_opening_turn:
