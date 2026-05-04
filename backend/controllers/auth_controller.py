@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from backend.auth import (
     create_access_token,
@@ -45,11 +46,11 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         password_hash=hashed_password,
     )
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    db.flush()
 
-    user_progress = UserProgress(user_id=new_user.id)
-    db.add(user_progress)
+    progress = db.query(UserProgress).filter(UserProgress.user_id == new_user.id).first()
+    if not progress:
+        db.add(UserProgress(user_id=new_user.id))
 
     access_token = create_access_token(data={"user_id": new_user.id})
     refresh_token = create_refresh_token(data={"user_id": new_user.id})
@@ -59,7 +60,25 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         days=REFRESH_TOKEN_EXPIRE_DAYS
     )
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+
+        existing_user = db.query(User).filter(
+            (User.username == user_data.username) | (User.email == user_data.email)
+        ).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username or email already registered",
+            ) from exc
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not complete registration",
+        ) from exc
+
     db.refresh(new_user)
 
     return TokenResponse(
