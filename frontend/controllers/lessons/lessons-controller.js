@@ -593,6 +593,56 @@ function escapeHtml(text) {
 
 // ─── User Stats & Progress Dashboard ─────────────────────────────────────────
 let _userStats = null;
+const STANDALONE_PROGRESS_KEY = 'grilo_lesson_progress';
+const STANDALONE_LESSON_SLUGS = [
+    'pronomes',
+    'perguntas',
+    'negativa',
+    'passado',
+    'futuro',
+    'gerundio',
+    'preposicoes',
+    'verbos'
+];
+
+function getStandaloneLessonsSummary() {
+    try {
+        const raw = localStorage.getItem(STANDALONE_PROGRESS_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        const completed = STANDALONE_LESSON_SLUGS.filter(
+            (slug) => parsed?.[slug]?.completed && !parsed?.[slug]?.backendSynced
+        ).length;
+        const visited = STANDALONE_LESSON_SLUGS.filter((slug) => parsed?.[slug]?.visited).length;
+
+        return {
+            total: STANDALONE_LESSON_SLUGS.length,
+            completed,
+            visited,
+        };
+    } catch (e) {
+        return {
+            total: STANDALONE_LESSON_SLUGS.length,
+            completed: 0,
+            visited: 0,
+        };
+    }
+}
+
+function mergeStandaloneLessonsIntoStats(stats) {
+    const base = stats || {};
+    const standalone = getStandaloneLessonsSummary();
+    const mergedLessonsCompleted = (base.lessons_completed || 0) + standalone.completed;
+    const mergedTotalLessons = (base.total_lessons || 0) + standalone.total;
+
+    return {
+        ...base,
+        standalone_lessons_completed: standalone.completed,
+        standalone_lessons_visited: standalone.visited,
+        standalone_total_lessons: standalone.total,
+        lessons_completed: mergedLessonsCompleted,
+        total_lessons: mergedTotalLessons,
+    };
+}
 
 async function loadUserStats() {
     if (!authToken) return;
@@ -740,34 +790,35 @@ function hideProgressDetail() {
 }
 
 function renderProgressDetail(stats) {
+    const mergedStats = mergeStandaloneLessonsIntoStats(stats);
     const avgVoice = stats.avg_voice_quality != null ? `${stats.avg_voice_quality}%` : '--';
-    _pd('progressAccuracyValue', `${stats.avg_lesson_accuracy}%`);
+    _pd('progressAccuracyValue', `${mergedStats.avg_lesson_accuracy}%`);
     _pd('pdVoiceScore', avgVoice);
-    _pd('pdLevel',        stats.level);
-    _pd('pdLessons',      stats.lessons_completed);
-    _pd('pdXP',           stats.total_xp);
-    _pd('pdStreak',       stats.streak);
-    _pd('pdConversations',stats.total_conversations);
-    _pd('pdTextMessages', stats.text_messages_sent != null ? stats.text_messages_sent : '--');
+    _pd('pdLevel',        mergedStats.level);
+    _pd('pdLessons',      mergedStats.lessons_completed);
+    _pd('pdXP',           mergedStats.total_xp);
+    _pd('pdStreak',       mergedStats.streak);
+    _pd('pdConversations',mergedStats.total_conversations);
+    _pd('pdTextMessages', mergedStats.text_messages_sent != null ? mergedStats.text_messages_sent : '--');
 
-    const vm = stats.voice_minutes ?? 0;
+    const vm = mergedStats.voice_minutes ?? 0;
     _pd('pdVoiceTime', vm > 0 ? `${vm} min` : '--');
     _pd('pdVoiceMinutes', vm > 0 ? `${vm} min` : '--');
-    _pd('pdVoiceSessions', stats.voice_sessions_count != null ? stats.voice_sessions_count : '--');
-    _pd('pdVoiceExchanges', stats.total_voice_exchanges != null ? stats.total_voice_exchanges : '--');
-    _pd('pdVoiceCorrections', stats.total_voice_corrections != null ? stats.total_voice_corrections : '--');
-    _pd('pdChallenge', `${stats.challenge_days_completed || 0}/7`);
-    _pd('pdChallengeDays', stats.challenge_days_completed != null ? stats.challenge_days_completed : '--');
-    _pd('pdBestQuality', stats.best_voice_quality != null ? `${stats.best_voice_quality}%` : '--');
-    _pd('pdLastQuality', stats.last_voice_quality != null ? `${stats.last_voice_quality}%` : '--');
+    _pd('pdVoiceSessions', mergedStats.voice_sessions_count != null ? mergedStats.voice_sessions_count : '--');
+    _pd('pdVoiceExchanges', mergedStats.total_voice_exchanges != null ? mergedStats.total_voice_exchanges : '--');
+    _pd('pdVoiceCorrections', mergedStats.total_voice_corrections != null ? mergedStats.total_voice_corrections : '--');
+    _pd('pdChallenge', `${mergedStats.challenge_days_completed || 0}/7`);
+    _pd('pdChallengeDays', mergedStats.challenge_days_completed != null ? mergedStats.challenge_days_completed : '--');
+    _pd('pdBestQuality', mergedStats.best_voice_quality != null ? `${mergedStats.best_voice_quality}%` : '--');
+    _pd('pdLastQuality', mergedStats.last_voice_quality != null ? `${mergedStats.last_voice_quality}%` : '--');
 
-    const unlockedModes = (stats.voice_modes_unlocked || []).map(_modeLabelPt);
+    const unlockedModes = (mergedStats.voice_modes_unlocked || []).map(_modeLabelPt);
     _pd('pdUnlockedModes', unlockedModes.length ? unlockedModes.join(' · ') : 'Guiado');
 
     const nextUnlockEl = document.getElementById('pdNextUnlock');
     if (nextUnlockEl) {
-        if (stats.next_mode_unlock) {
-            nextUnlockEl.textContent = `${_modeLabelPt(stats.next_mode_unlock.mode)}: ${stats.next_mode_unlock.requires}`;
+        if (mergedStats.next_mode_unlock) {
+            nextUnlockEl.textContent = `${_modeLabelPt(mergedStats.next_mode_unlock.mode)}: ${mergedStats.next_mode_unlock.requires}`;
         } else {
             nextUnlockEl.textContent = 'Todos os modos desbloqueados';
         }
@@ -775,23 +826,28 @@ function renderProgressDetail(stats) {
 
     const challengeBar = document.getElementById('voiceChallengeBar');
     if (challengeBar) {
-        challengeBar.style.width = `${stats.challenge_completion_percent || 0}%`;
+        challengeBar.style.width = `${mergedStats.challenge_completion_percent || 0}%`;
     }
 
     const challengeLabel = document.getElementById('voiceChallengeLabel');
     if (challengeLabel) {
-        challengeLabel.textContent = `${stats.challenge_days_completed || 0} de 7 dias ativos nesta semana`;
+        challengeLabel.textContent = `${mergedStats.challenge_days_completed || 0} de 7 dias ativos nesta semana`;
     }
 
-    if (stats.writing_accuracy_avg != null) {
-        _pd('pdWriting', `${stats.writing_accuracy_avg}%`);
+    if (mergedStats.writing_accuracy_avg != null) {
+        _pd('pdWriting', `${mergedStats.writing_accuracy_avg}%`);
     }
 
     const grammarEl = document.getElementById('pdGrammarArea');
-    if (grammarEl) grammarEl.textContent = stats.top_grammar_area || '--';
+    if (grammarEl) grammarEl.textContent = mergedStats.top_grammar_area || '--';
 
     const bar = document.getElementById('pdLessonsBar');
-    if (bar) bar.style.width = `${(stats.lessons_completed / stats.total_lessons) * 100}%`;
+    if (bar) {
+        const ratio = mergedStats.total_lessons > 0
+            ? (mergedStats.lessons_completed / mergedStats.total_lessons) * 100
+            : 0;
+        bar.style.width = `${ratio}%`;
+    }
 }
 
 function _pd(id, value) {
@@ -807,6 +863,20 @@ function _modeLabelPt(mode) {
         dictation: 'Ditado'
     };
     return map[mode] || mode;
+}
+
+if (!window.__griloStandaloneProgressListenerBound) {
+    window.__griloStandaloneProgressListenerBound = true;
+    window.addEventListener('storage', (event) => {
+        if (event.key !== STANDALONE_PROGRESS_KEY || !_userStats) return;
+        if (typeof authToken !== 'undefined' && authToken) {
+            loadUserStats();
+            updateLessonsProgress();
+            return;
+        }
+        renderProgressDetail(_userStats);
+        updateLessonsProgress();
+    });
 }
 
 // ─── Global exports ────────────────────────────────────────────────────────────
@@ -971,8 +1041,9 @@ function filterLessonsByStatus(status) {
 }
 
 function updateLessonsProgress() {
-    const completed = lessonsDataV2.filter(l => lessonProgressMap[l.id]).length;
-    const total = 50;
+    const standalone = getStandaloneLessonsSummary();
+    const completed = Object.keys(lessonProgressMap || {}).length + standalone.completed;
+    const total = 50 + standalone.total;
     const percent = (completed / total) * 100;
     const countEl = document.getElementById('lessonsProgressCount');
     const fillEl = document.getElementById('lessonsProgressBarFill');

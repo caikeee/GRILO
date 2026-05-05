@@ -2193,6 +2193,32 @@
   const PROGRESS_KEY = 'grilo_lesson_progress';
   const LESSON_KEYS  = Object.keys(lessons);
   const exerciseScores = {};
+  const API_BASE_URL = window.location.origin;
+  const STANDALONE_BACKEND_IDS = {
+    pronomes: 1001,
+    perguntas: 1002,
+    negativa: 1003,
+    passado: 1004,
+    futuro: 1005,
+    gerundio: 1006,
+    preposicoes: 1007,
+    verbos: 1008
+  };
+
+  function getAuthToken() {
+    try { return localStorage.getItem('grilo_token'); }
+    catch (e) { return null; }
+  }
+
+  function getCurrentUserId() {
+    try {
+      const raw = localStorage.getItem('grilo_user');
+      const user = raw ? JSON.parse(raw) : null;
+      return user && user.id != null ? String(user.id) : null;
+    } catch (e) {
+      return null;
+    }
+  }
 
   function getProgress() {
     try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; }
@@ -2203,9 +2229,57 @@
     try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch (e) {}
   }
 
+  function markLessonBackendSynced(slug) {
+    const p = getProgress();
+    if (!p[slug]) return;
+    p[slug].backendSynced = true;
+    p[slug].backendSyncedAt = new Date().toISOString();
+    saveProgress(p);
+  }
+
+  async function syncLessonCompletionToBackend(slug) {
+    const lessonId = STANDALONE_BACKEND_IDS[slug];
+    const authToken = getAuthToken();
+    const currentUserId = getCurrentUserId();
+    const status = getLessonStatus(slug);
+
+    if (!lessonId || !authToken || !status.completed || status.backendSynced) return;
+    if (status.ownerId && currentUserId && status.ownerId !== currentUserId) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/save-progress`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ correct_answers: 1, total_questions: 1 })
+      });
+
+      if (res.ok) {
+        markLessonBackendSynced(slug);
+      }
+    } catch (e) {
+      console.error('[LESSONS-STANDALONE] Sync error:', e);
+    }
+  }
+
+  function syncPendingLessonCompletions() {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) return;
+
+    LESSON_KEYS.forEach((slug) => {
+      const status = getLessonStatus(slug);
+      if (!status.completed || status.backendSynced || status.ownerId !== currentUserId) return;
+      void syncLessonCompletionToBackend(slug);
+    });
+  }
+
   function setLessonVisited(slug) {
     const p = getProgress();
+    const currentUserId = getCurrentUserId();
     if (!p[slug]) p[slug] = {};
+    if (currentUserId) p[slug].ownerId = currentUserId;
     if (!p[slug].visited) {
       p[slug].visited = true;
       saveProgress(p);
@@ -2216,12 +2290,15 @@
 
   function setLessonCompleted(slug) {
     const p = getProgress();
+    const currentUserId = getCurrentUserId();
     if (!p[slug]) p[slug] = {};
     p[slug].visited = true;
     p[slug].completed = true;
+    if (currentUserId) p[slug].ownerId = currentUserId;
     saveProgress(p);
     renderLessonsCards();
     updateHeroProgress();
+    void syncLessonCompletionToBackend(slug);
   }
 
   function getLessonStatus(slug) {
@@ -2724,6 +2801,7 @@
   renderLessonsCards();
   updateHeroProgress();
   initLessonsChrome();
+  syncPendingLessonCompletions();
   window.renderAnchorDialog = renderAnchorDialog;
   window.renderInteractiveTable = renderInteractiveTable;
   window.renderScaffoldedExercises = renderScaffoldedExercises;
