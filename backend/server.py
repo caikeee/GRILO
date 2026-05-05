@@ -16,6 +16,7 @@ from backend.controllers.auth_controller import router as auth_router
 from backend.controllers.chat_text_controller import router as chat_text_router
 from backend.controllers.chat_voice_controller import router as chat_voice_router
 from backend.controllers.lessons_controller import router as lessons_router
+from backend.controllers.analytics_controller import router as analytics_router
 
 from backend.database import Base, engine
 from backend.config import settings, validate_settings
@@ -207,11 +208,22 @@ async def lessons_page():
     return FileResponse(_frontend_file("lessons.html"))
 
 
+@app.get("/dashboard")
+async def dashboard_alias():
+    return FileResponse(_frontend_file("dashboard.html"))
+
+
+@app.get("/dashboard.html")
+async def dashboard_page():
+    return FileResponse(_frontend_file("dashboard.html"))
+
+
 # Domain controllers
 app.include_router(auth_router)
 app.include_router(chat_text_router)
 app.include_router(chat_voice_router)
 app.include_router(lessons_router)
+app.include_router(analytics_router)
 
 # Static files should be mounted last to avoid intercepting API routes.
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")

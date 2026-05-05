@@ -750,6 +750,59 @@
     }
   };
 
+  // ========== PEDAGOGICAL DATA STRUCTURES ==========
+  // 5-layer system: Anchor → Table → Glossary → Exercises → Test
+
+  const ANCHOR_DIALOGS = {
+    pronomes: {
+      dialogue: 'I see that ___1___ are going to the park. Can ___2___ come with me?',
+      blanks: [
+        { answer: 'you', hint: 'Quem vai? "_____ são". Sujeito = você.' },
+        { answer: 'me', hint: 'Depois de preposição: "come with _____".' }
+      ]
+    }
+  };
+
+  const INTERACTIVE_TABLES = {
+    pronomes: {
+      rows: [
+        { pt: 'Eu', en: 'I', category: 'subject', example: 'I work every day.' },
+        { pt: 'Você', en: 'You', category: 'subject', example: 'You speak English.' },
+        { pt: 'Ele', en: 'He', category: 'subject', example: 'He lives in Rio.' },
+        { pt: 'Ela', en: 'She', category: 'subject', example: 'She loves coffee.' },
+        { pt: 'Me/mim', en: 'Me', category: 'object', example: 'She called me yesterday.' },
+        { pt: 'Você (objeto)', en: 'You', category: 'object', example: 'I saw you at the store.' },
+        { pt: 'O/O dele', en: 'Him', category: 'object', example: 'I saw him.' },
+        { pt: 'A/A dela', en: 'Her', category: 'object', example: 'I helped her.' }
+      ]
+    }
+  };
+
+  const GLOSSARY_TERMS = {
+    sujeito: { pt: 'Quem faz a ação', en: 'Subject - who performs the action', highlight: 'I, you, he, she, we, they' },
+    objeto: { pt: 'Quem recebe a ação', en: 'Object - who receives the action', highlight: 'me, you, him, her, us, them' },
+    pronome: { pt: 'Palavra que substitui um nome', en: 'Pronoun - word that replaces a noun' },
+    verbo: { pt: 'Ação ou estado', en: 'Verb - action or state', highlight: 'work, go, be, have' }
+  };
+
+  const SCAFFOLDED_EXERCISES = {
+    pronomes: [
+      { difficulty: 'easy', q: 'Complete: "___ am Brazilian."', options: ['I', 'Me', 'My'], correct: 0, hints: ['Use sujeito antes do verbo', 'I = I act. Me = someone acts on me.', 'Resposta: I'] },
+      { difficulty: 'easy', q: 'Complete: "She called ___"', options: ['I', 'Me', 'My'], correct: 1, hints: ['Use objeto depois do verbo', 'After a verb = object', 'Resposta: Me'] },
+      { difficulty: 'moderate', q: '"with you and ___" — qual usar?', options: ['I', 'Me', 'My'], correct: 1, hints: ['Preposição (with) + objeto', 'Teste: "with me" vs "with I"', 'Resposta: Me'] },
+      { difficulty: 'moderate', q: 'Qual frase está correta?', options: ['Her lives here.', 'She lives here.', 'Her is here.'], correct: 1, hints: ['Quem faz a ação? → subject', 'Subject: I, you, he, she', 'Resposta: She lives here.'] },
+      { difficulty: 'hard', q: 'Complete a frase: "___ enjoy cooking. Can you help ___?"', options: ['I / I', 'Me / me', 'I / me'], correct: 2, hints: ['1ª lacuna: sujeito antes do verbo', '2ª lacuna: objeto depois do verbo', 'Resposta: I / me'] }
+    ]
+  };
+
+  const FINAL_TESTS = {
+    pronomes: [
+      { q: 'Em "She calls me", qual é a função de "me"?', options: ['Sujeito', 'Objeto', 'Possessivo'], correct: 1 },
+      { q: '"This is for I" — o que está errado?', options: ['Nada, está correto', 'Deveria ser "for me"', 'Falta o verbo'], correct: 1 },
+      { q: 'Complete: "___ am going to the party."', options: ['Me', 'I', 'My'], correct: 1 }
+    ]
+  };
+
   // ========== EXERCISE ANSWERS ==========
 
   // ========== MULTIPLE-CHOICE EXERCISE DATA ==========
@@ -1218,6 +1271,103 @@
 
   // ========== PROGRESS MODULE ==========
 
+  // ========== PEDAGOGICAL EVENT HANDLERS ==========
+
+  function checkAnchorBlank(slug, blankIndex, selected, button) {
+    const blank = ANCHOR_DIALOGS[slug].blanks[blankIndex];
+    if (selected === blank.answer) {
+      button.classList.add('is-correct');
+      button.disabled = true;
+      document.getElementById(`blank-${slug}-${blankIndex}`).textContent = selected;
+      document.getElementById(`blank-${slug}-${blankIndex}`).classList.add('is-filled');
+      const allCorrect = document.querySelectorAll(`#buttons-${slug}-${blankIndex} .is-correct`).length > 0 &&
+        document.querySelectorAll(`#buttons-${slug}-*:not(.is-correct)`).length === 0;
+      if (allCorrect && blankIndex === ANCHOR_DIALOGS[slug].blanks.length - 1) {
+        document.getElementById(`anchor-continue-${slug}`).disabled = false;
+      }
+    } else {
+      button.classList.add('is-wrong');
+      button.disabled = true;
+    }
+  }
+
+  function checkScaffoldedAnswer(slug, exIndex, optIdx, button) {
+    const exercise = SCAFFOLDED_EXERCISES[slug][exIndex];
+    const exEl = document.getElementById(`exercise-${slug}-${exIndex}`);
+    if (!exercise || exEl.dataset.answered) return;
+    exEl.dataset.answered = '1';
+
+    const allBtns = document.querySelectorAll(`#options-${slug}-${exIndex} .lp-exercise-option`);
+    allBtns.forEach(b => b.disabled = true);
+
+    if (optIdx === exercise.correct) {
+      button.classList.add('is-correct');
+      const feedback = document.getElementById(`feedback-${slug}-${exIndex}`);
+      feedback.innerHTML = '✓ Correto!';
+      feedback.classList.add('is-visible');
+      feedback.style.display = 'block';
+    } else {
+      button.classList.add('is-wrong');
+      const hintsEl = document.getElementById(`hints-${slug}-${exIndex}`);
+      hintsEl.style.display = 'block';
+      hintsEl.innerHTML = `<div class="lp-hint"><strong>Dica:</strong> ${exercise.hints[0]}</div>`;
+      if (!exEl.dataset.hintLevel) exEl.dataset.hintLevel = 1;
+      else if (exEl.dataset.hintLevel < exercise.hints.length - 1) {
+        exEl.dataset.hintLevel++;
+        hintsEl.innerHTML += `<div class="lp-hint"><strong>Dica ${exEl.dataset.hintLevel}:</strong> ${exercise.hints[exEl.dataset.hintLevel]}</div>`;
+      }
+    }
+  }
+
+  function nextPhase(slug, phase) {
+    const phaseMap = { anchor: 0, table: 1, exercises: 2, test: 3 };
+    document.querySelectorAll(`[id*="${slug}"]`).forEach(el => {
+      el.style.display = el.id.includes(phase) ? 'block' : 'none';
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function checkFinalTest(slug, qIdx, optIdx, button) {
+    const test = FINAL_TESTS[slug][qIdx];
+    const qEl = document.getElementById(`test-q-${slug}-${qIdx}`);
+    if (!test || qEl.dataset.answered) return;
+    qEl.dataset.answered = '1';
+
+    const allBtns = document.querySelectorAll(`#test-q-${slug}-${qIdx} .lp-test-option`);
+    allBtns.forEach(b => b.disabled = true);
+
+    if (optIdx === test.correct) {
+      button.classList.add('is-correct');
+      window._testScore = (window._testScore || 0) + 1;
+    } else {
+      button.classList.add('is-wrong');
+      const correct = allBtns[test.correct];
+      if (correct) correct.classList.add('show-correct');
+    }
+
+    checkTestComplete(slug);
+  }
+
+  function checkTestComplete(slug) {
+    const totalQ = FINAL_TESTS[slug].length;
+    const answered = document.querySelectorAll(`[id^="test-q-${slug}-"][data-answered]`).length;
+    if (answered === totalQ) showTestResult(slug);
+  }
+
+  function showTestResult(slug) {
+    const totalQ = FINAL_TESTS[slug].length;
+    const score = window._testScore || 0;
+    const passing = Math.ceil(totalQ * 0.67);
+    const passed = score >= passing;
+    const resultEl = document.getElementById(`test-result-${slug}`);
+    resultEl.innerHTML = `<div class="lp-result-box ${passed ? 'is-passed' : 'is-failed'}"><h3>${passed ? '🎉 Parabéns!' : '📚 Continue praticando'}</h3><p>Você acertou ${score} de ${totalQ}</p><p>${passed ? 'Você desbloqueou esta lição!' : 'Tente novamente!'}</p></div>`;
+    resultEl.style.display = 'block';
+  }
+
+  function completeLesson(slug) {
+    window._griloMarkComplete && window._griloMarkComplete(slug);
+  }
+
   const PROGRESS_KEY = 'grilo_lesson_progress';
   const LESSON_KEYS  = Object.keys(lessons);
   const exerciseScores = {};
@@ -1547,6 +1697,26 @@
     // ── main content ──
     if (main) {
       main.innerHTML = '';
+
+      // ── PEDAGOGICAL MODE for pronomes ──
+      if (slug === 'pronomes') {
+        window._testScore = 0;
+        main.innerHTML = `
+          <div class=\"lp-peda-phase\" id=\"anchor-${slug}\">${renderAnchorDialog(slug)}</div>
+          <div class=\"lp-peda-phase\" id=\"table-${slug}\" style=\"display:none;\">${renderInteractiveTable(slug)}</div>
+          <div class=\"lp-peda-phase\" id=\"exercises-${slug}\" style=\"display:none;\">${renderScaffoldedExercises(slug)}</div>
+          <div class=\"lp-peda-phase\" id=\"test-${slug}\" style=\"display:none;\">${renderFinalTest(slug)}</div>
+        `;
+        modal.removeAttribute('hidden');
+        window.requestAnimationFrame(() => {
+          modal.classList.add('active');
+        });
+        document.body.style.overflow = 'hidden';
+        document.title = `${lesson.title} — GRILO`;
+        if (main) main.scrollTop = 0;
+        if (aside) aside.scrollTop = 0;
+        return;
+      }
 
       (lesson.sections || []).forEach((sec, idx) => {
         const secEl = document.createElement('div');

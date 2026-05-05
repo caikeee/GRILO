@@ -101,6 +101,11 @@ const AuthForm = {
         console.log('[GRILO] Token salvo:', token.substring(0, 20) + '...');
         console.log('[GRILO] User salvo:', data.user.username);
         console.log('[GRILO] localStorage keys:', Object.keys(localStorage));
+        
+        // Setar flag para mostrar modal BETA na home
+        sessionStorage.setItem('grilo_login_session_started', 'true');
+        console.log('[GRILO] Flag de login setado para mostrar modal BETA');
+        
         showToast('Login realizado com sucesso!', 'success');
         setTimeout(function() {
           console.log('[GRILO] Redirecionando para /home.html');

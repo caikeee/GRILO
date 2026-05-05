@@ -1029,3 +1029,456 @@ body.app-lessons {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========== PEDAGOGICAL LESSON STYLING ========== */
+
+/* Anchor Dialogue */
+.lp-anchor-wrap {
+  background: linear-gradient(135deg, #f5f0ff 0%, #f0f5ff 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.lp-anchor-dialogue {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #6366f1;
+}
+
+.lp-anchor-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #1f2937;
+}
+
+.lp-anchor-blank {
+  background: #fef3c7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 2px dashed #f59e0b;
+}
+
+.lp-anchor-blank.is-filled {
+  background: #d1fae5;
+  border: 2px solid #10b981;
+  color: #065f46;
+}
+
+.lp-anchor-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.lp-blank-label {
+  font-weight: 600;
+  color: #374151;
+  min-width: 80px;
+}
+
+.lp-anchor-option {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.lp-anchor-option:hover:not(:disabled) {
+  border-color: #6366f1;
+  background: #f0f4ff;
+}
+
+.lp-anchor-option.is-correct {
+  background: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.lp-anchor-option.is-wrong {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #7f1d1d;
+}
+
+.lp-anchor-continue {
+  background: #6366f1;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 1rem;
+  transition: background 0.2s;
+}
+
+.lp-anchor-continue:hover:not(:disabled) {
+  background: #4f46e5;
+}
+
+.lp-anchor-continue:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Interactive Table */
+.lp-table-wrap {
+  margin-bottom: 2rem;
+}
+
+.lp-interactive-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lp-interactive-table th {
+  background: #f3f4f6;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+  color: #374151;
+}
+
+.lp-interactive-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.lp-table-subject {
+  background: #f0fdf4;
+}
+
+.lp-table-subject td:first-child {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.lp-table-object {
+  background: #fffbeb;
+}
+
+.lp-table-object td:first-child {
+  color: #d97706;
+  font-weight: 600;
+}
+
+.lp-glossary-trigger {
+  cursor: help;
+  border-bottom: 2px dotted #6366f1;
+  color: #6366f1;
+  font-weight: 500;
+}
+
+.lp-glossary-tooltip {
+  position: fixed;
+  background: #1f2937;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  z-index: 1000;
+  max-width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.lp-glossary-pt {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #fbbf24;
+}
+
+.lp-glossary-en {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.lp-glossary-highlight {
+  font-size: 0.8rem;
+  background: rgba(255,255,255,0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+/* Scaffolded Exercises */
+.lp-exercises-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.lp-exercise {
+  background: white;
+  border-left: 4px solid #6366f1;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lp-exercise.lp-difficulty-easy {
+  border-left-color: #10b981;
+}
+
+.lp-exercise.lp-difficulty-moderate {
+  border-left-color: #f59e0b;
+}
+
+.lp-exercise.lp-difficulty-hard {
+  border-left-color: #ef4444;
+}
+
+.lp-exercise-q {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.lp-exercise-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.lp-exercise-option {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  text-align: left;
+}
+
+.lp-exercise-option:hover:not(:disabled) {
+  border-color: #6366f1;
+  background: #f0f4ff;
+}
+
+.lp-exercise-option.is-correct {
+  background: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.lp-exercise-option.is-wrong {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #7f1d1d;
+}
+
+.lp-exercise-hints {
+  background: #fef3c7;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  border-left: 3px solid #f59e0b;
+}
+
+.lp-hint {
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #78350f;
+}
+
+.lp-hint:last-child {
+  margin-bottom: 0;
+}
+
+.lp-exercise-feedback {
+  background: #d1fae5;
+  padding: 1rem;
+  border-radius: 6px;
+  color: #065f46;
+  border-left: 3px solid #10b981;
+}
+
+.lp-exercise-feedback.is-visible {
+  display: block;
+}
+
+.lp-exercises-continue {
+  background: #6366f1;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  align-self: flex-end;
+  transition: background 0.2s;
+}
+
+.lp-exercises-continue:hover {
+  background: #4f46e5;
+}
+
+/* Final Test */
+.lp-test-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.lp-test-header {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.lp-test-question {
+  background: white;
+  border: 2px solid #e5e7eb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lp-test-q-label {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.lp-test-option {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.lp-test-option:hover:not(:disabled) {
+  border-color: #6366f1;
+  background: #f0f4ff;
+}
+
+.lp-test-option.is-correct {
+  background: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.lp-test-option.is-wrong {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #7f1d1d;
+}
+
+.lp-test-option.show-correct {
+  background: #d1fae5;
+  border-color: #10b981;
+}
+
+.lp-test-result {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.lp-result-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #6366f1;
+}
+
+.lp-result-box.is-passed {
+  border-left-color: #10b981;
+}
+
+.lp-result-box.is-passed h3 {
+  color: #10b981;
+}
+
+.lp-result-box.is-failed {
+  border-left-color: #f59e0b;
+}
+
+.lp-result-box.is-failed h3 {
+  color: #d97706;
+}
+
+.lp-result-box h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.lp-result-box p {
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.lp-test-complete {
+  background: #6366f1;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.lp-test-complete:hover {
+  background: #4f46e5;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+  .lp-anchor-wrap,
+  .lp-table-wrap,
+  .lp-exercises-wrap,
+  .lp-test-wrap {
+    padding: 1rem;
+  }
+
+  .lp-exercise-options {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-anchor-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lp-anchor-option {
+    width: 100%;
+  }
+
+  .lp-glossary-tooltip {
+    max-width: 150px;
+    font-size: 0.85rem;
+  }
+}

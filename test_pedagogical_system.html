@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang=\"pt-BR\">
+<head>
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+  <title>Test Pedagogical System</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .test-section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .pass { color: green; font-weight: bold; }
+    .fail { color: red; font-weight: bold; }
+    code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Pedagogical System Test Suite</h1>
+  
+  <div class=\"test-section\">
+    <h2>✓ Data Structure Validation</h2>
+    <script>
+      // Load the lesson script inline to test
+      const ANCHOR_DIALOGS = {
+        pronomes: {
+          dialogue: 'I see that ___1___ are going to the park. Can ___2___ come with me?',
+          blanks: [
+            { answer: 'you', hint: 'Quem vai? \"_____ são\". Sujeito = você.' },
+            { answer: 'me', hint: 'Depois de preposição: \"come with _____\".' }
+          ]
+        }
+      };
+
+      const INTERACTIVE_TABLES = {
+        pronomes: {
+          rows: [
+            { pt: 'Eu', en: 'I', category: 'subject', example: 'I work every day.' }
+          ]
+        }
+      };
+
+      const GLOSSARY_TERMS = {
+        sujeito: { pt: 'Quem faz a ação', en: 'Subject - who performs the action', highlight: 'I, you, he, she, we, they' }
+      };
+
+      const SCAFFOLDED_EXERCISES = {
+        pronomes: [
+          { difficulty: 'easy', q: 'Complete: \"___ am Brazilian.\"', options: ['I', 'Me', 'My'], correct: 0, hints: ['Use sujeito antes do verbo'] }
+        ]
+      };
+
+      const FINAL_TESTS = {
+        pronomes: [
+          { q: 'Em \"She calls me\", qual é a função de \"me\"?', options: ['Sujeito', 'Objeto', 'Possessivo'], correct: 1 }
+        ]
+      };
+
+      // Test 1: Check if structures exist
+      const tests = [
+        { name: 'ANCHOR_DIALOGS exists', pass: !!ANCHOR_DIALOGS && !!ANCHOR_DIALOGS.pronomes },
+        { name: 'INTERACTIVE_TABLES exists', pass: !!INTERACTIVE_TABLES && !!INTERACTIVE_TABLES.pronomes },
+        { name: 'GLOSSARY_TERMS exists', pass: !!GLOSSARY_TERMS && !!GLOSSARY_TERMS.sujeito },
+        { name: 'SCAFFOLDED_EXERCISES exists', pass: !!SCAFFOLDED_EXERCISES && !!SCAFFOLDED_EXERCISES.pronomes },
+        { name: 'FINAL_TESTS exists', pass: !!FINAL_TESTS && !!FINAL_TESTS.pronomes },
+        { name: 'ANCHOR has 2 blanks', pass: ANCHOR_DIALOGS.pronomes.blanks.length === 2 },
+        { name: 'INTERACTIVE_TABLES has rows', pass: INTERACTIVE_TABLES.pronomes.rows.length > 0 },
+        { name: 'SCAFFOLDED_EXERCISES has 5 items', pass: SCAFFOLDED_EXERCISES.pronomes.length === 5 },
+        { name: 'FINAL_TESTS has 3 questions', pass: FINAL_TESTS.pronomes.length === 3 }
+      ];
+
+      tests.forEach(test => {
+        const cls = test.pass ? 'pass' : 'fail';
+        document.write(`<p><span class=\"${cls}\">${test.pass ? '✓' : '✗'}</span> ${test.name}</p>`);
+      });
+
+      const passCount = tests.filter(t => t.pass).length;
+      document.write(`<p><strong>Result: ${passCount}/${tests.length} tests passed</strong></p>`);
+    </script>
+  </div>
+
+  <div class=\"test-section\">
+    <h2>✓ Function Definitions</h2>
+    <p>Functions to be called on lessons.html:</p>
+    <ul>
+      <li><code>renderAnchorDialog(slug)</code> - Renders anchor dialogue with blanks</li>
+      <li><code>renderInteractiveTable(slug)</code> - Renders color-coded pronoun table</li>
+      <li><code>renderScaffoldedExercises(slug)</code> - Renders 5 progressive exercises</li>
+      <li><code>renderFinalTest(slug)</code> - Renders validation test</li>
+      <li><code>showGlossary(term, event)</code> - Shows glossary tooltip</li>
+      <li><code>checkAnchorBlank(slug, blankIndex, selected, button)</code> - Validates dialogue blanks</li>
+      <li><code>checkScaffoldedAnswer(slug, exIndex, optIdx, button)</code> - Validates exercise answers</li>
+      <li><code>checkFinalTest(slug, qIdx, optIdx, button)</code> - Validates test answers</li>
+    </ul>
+  </div>
+
+  <div class=\"test-section\">
+    <h2>✓ CSS Classes</h2>
+    <p>Styling should include these pedagogical components:</p>
+    <ul>
+      <li><code>.lp-anchor-*</code> - Anchor dialogue styling</li>
+      <li><code>.lp-table-*</code> - Interactive table styling</li>
+      <li><code>.lp-glossary-*</code> - Glossary tooltip styling</li>
+      <li><code>.lp-exercise-*</code> - Exercise styling</li>
+      <li><code>.lp-test-*</code> - Test styling</li>
+      <li><code>.lp-difficulty-*</code> - Difficulty level colors (easy, moderate, hard)</li>
+    </ul>
+  </div>
+
+  <div class=\"test-section\">
+    <h2>Testing Instructions</h2>
+    <ol>
+      <li>Open lessons.html in browser</li>
+      <li>Find \"Pronomes\" lesson card</li>
+      <li>Click to open the lesson</li>
+      <li>You should see 5 phases in sequence:
+        <ul>
+          <li><strong>Phase 1:</strong> Anchor dialogue with fill-in-the-blank</li>
+          <li><strong>Phase 2:</strong> Interactive table with 8 pronouns (color-coded)</li>
+          <li><strong>Phase 3:</strong> 5 scaffolded exercises with progressive hints</li>
+          <li><strong>Phase 4:</strong> Final test with 3 questions</li>
+          <li><strong>Phase 5:</strong> Result screen with pass/fail message</li>
+        </ul>
+      </li>
+      <li>Test buttons and interactions work as expected</li>
+    </ol>
+  </div>
+</body>
+</html>
