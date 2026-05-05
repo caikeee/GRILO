@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user_id
 from backend.database import get_db
-from backend.utils import mark_activity
+from backend.utils import mark_activity, track_metric_event
 from backend.schemas import (
     ChatWriteResponse,
     WritingChatRequest,
@@ -49,6 +49,13 @@ async def write_chat(
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.info("[WRITE-CHAT] SUCCESS | user_id=%s | %.2fs", user_id, elapsed)
         mark_activity(db, int(user_id), "chat")
+        track_metric_event(
+            db,
+            int(user_id),
+            "chat",
+            "chat_message_sent",
+            details={"mode": "write"},
+        )
         return result
     except Exception as exc:
         elapsed = (datetime.now() - start_time).total_seconds()

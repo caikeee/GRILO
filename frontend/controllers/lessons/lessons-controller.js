@@ -64,6 +64,18 @@ async function loadLessonProgress() {
     } catch (e) { console.error('[LESSONS-V2] Progress load error:', e); }
 }
 
+async function trackLessonAccess(lessonId) {
+    if (!authToken || !lessonId) return;
+    try {
+        await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/track-access`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+    } catch (e) {
+        console.error('[LESSONS-V2] Access track error:', e);
+    }
+}
+
 async function saveProgressToBackend(lessonId, correctAnswers, totalQuestions) {
     try {
         const res = await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/save-progress`, {
@@ -279,6 +291,7 @@ function openLessonDetail(lesson) {
     document.getElementById('lessonsView').style.display      = 'none';
     document.getElementById('lessonDetailView').style.display = 'block';
     populateLessonDetail(lesson);
+    trackLessonAccess(lesson.id);
     document.getElementById('lessonDetailView').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 

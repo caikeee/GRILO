@@ -140,6 +140,20 @@ class UserActivity(Base):
     count = Column(Integer, default=1)
 
 
+class AnalyticsEvent(Base):
+    """Tracks exact product events for dashboards that need per-action counters."""
+    __tablename__ = "analytics_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    category = Column(String(30), nullable=False, index=True)   # lesson | chat | voice | funnel
+    event_name = Column(String(60), nullable=False, index=True)
+    lesson_id = Column(Integer, nullable=True, index=True)
+    count = Column(Integer, default=1)
+    details = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
 class ShadowModeAnalytic(Base):
     """Voice Help Shadowing - pronunciation practice analytics for pedagogical use."""
     __tablename__ = "shadow_mode_analytics"

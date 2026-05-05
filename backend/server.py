@@ -58,6 +58,25 @@ def _run_migrations():
                 conn.execute(text("ALTER TABLE user_progress ADD COLUMN voice_seconds INTEGER DEFAULT 0"))
                 conn.commit()
                 logger.info("Migration: added voice_seconds to user_progress")
+            if "voice_sessions" not in cols_up:
+                conn.execute(text("ALTER TABLE user_progress ADD COLUMN voice_sessions JSON"))
+                conn.commit()
+                logger.info("Migration: added voice_sessions to user_progress")
+
+            # onboarding/profile columns on users
+            cols_users = [c["name"] for c in insp.get_columns("users")]
+            if "onboarding_step" not in cols_users:
+                conn.execute(text("ALTER TABLE users ADD COLUMN onboarding_step INTEGER DEFAULT 0"))
+                conn.commit()
+                logger.info("Migration: added onboarding_step to users")
+            if "learning_why" not in cols_users:
+                conn.execute(text("ALTER TABLE users ADD COLUMN learning_why TEXT"))
+                conn.commit()
+                logger.info("Migration: added learning_why to users")
+            if "daily_interests" not in cols_users:
+                conn.execute(text("ALTER TABLE users ADD COLUMN daily_interests TEXT"))
+                conn.commit()
+                logger.info("Migration: added daily_interests to users")
 
             # activity_type on user_activity (if table exists)
             if "user_activity" in insp.get_table_names():

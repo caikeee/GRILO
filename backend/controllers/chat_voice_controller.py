@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from backend.auth import get_current_user_id
 from backend.database import get_db
 from backend.db_models import UserProgress, VoicePhrase, ShadowModeAnalytic
-from backend.utils import mark_activity, award_xp
+from backend.utils import mark_activity, award_xp, track_metric_event
 from backend.schemas import ChatRequest, ShadowModeData
 from backend.services import chat_concise_voice, generate_voice_recap
 from backend.voice_metrics import voice_metrics
@@ -322,6 +322,13 @@ async def voice_chat(
         # Award XP for each voice message exchange
         xp_result = award_xp(db, int(user_id), 8, source="voice")
         mark_activity(db, int(user_id), "voice")
+        track_metric_event(
+            db,
+            int(user_id),
+            "voice",
+            "voice_message_sent",
+            details={"voice_mode": getattr(request, "voice_mode", "free") or "free"},
+        )
 
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.info(
@@ -385,6 +392,18 @@ async def voice_session_end(
         db.commit()
         logger.info("[VOICE-SESSION] User %s +%ds | quality=%s", uid, duration, body.quality_score)
         mark_activity(db, uid, "voice")
+        track_metric_event(
+            db,
+            uid,
+            "voice",
+            "voice_session_ended",
+            details={
+                "duration_seconds": duration,
+                "quality_score": body.quality_score,
+                "corrections_count": body.corrections_count or 0,
+                "exchanges": body.exchanges or 0,
+            },
+        )
         return {"success": True}
     except Exception as exc:
         logger.error("[VOICE-SESSION] Error: %s", exc)

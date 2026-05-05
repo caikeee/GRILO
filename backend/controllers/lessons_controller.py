@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from backend.auth import get_current_user_id
 from backend.database import get_db
 from backend.db_models import Conversation, LessonProgress, User, UserActivity, UserProgress
-from backend.utils import mark_activity, award_xp
+from backend.utils import mark_activity, award_xp, track_metric_event
 from backend.quiz_questions import (
     get_all_questions,
     get_questions_by_category,
@@ -127,6 +127,31 @@ async def get_lesson_progress(
         raise HTTPException(status_code=500, detail="Error fetching progress")
 
 
+@router.post("/api/lessons/{lesson_id}/track-access")
+async def track_lesson_access(
+    lesson_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Persist every lesson open so dashboard access counters reflect real usage."""
+    try:
+        from lessons_v2 import get_lesson_by_id
+
+        lesson = get_lesson_by_id(lesson_id)
+        if not lesson:
+            raise HTTPException(status_code=404, detail="Lesson not found")
+
+        uid = int(user_id)
+        mark_activity(db, uid, "lesson")
+        track_metric_event(db, uid, "lesson", "lesson_access", lesson_id=lesson_id)
+        return {"success": True, "lesson_id": lesson_id}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("[LESSON-ACCESS] Error tracking access: %s", str(exc))
+        raise HTTPException(status_code=500, detail="Error tracking lesson access")
+
+
 @router.post("/api/lessons/{lesson_id}/submit-exercise")
 async def submit_lesson_exercise(
     lesson_id: int,
@@ -162,6 +187,18 @@ async def submit_lesson_exercise(
         if xp_earned > 0:
             xp_result = award_xp(db, int(user_id), xp_earned, source="lesson_exercise")
             mark_activity(db, int(user_id), "lesson")
+
+        track_metric_event(
+            db,
+            int(user_id),
+            "lesson",
+            "lesson_exercise_submitted",
+            lesson_id=lesson_id,
+            details={
+                "exercise_index": body.exercise_index,
+                "is_correct": is_correct,
+            },
+        )
 
         logger.info(
             "[LESSON-EXERCISE] User %s - Lesson %s, Ex %s: %s | xp=%s",
@@ -229,6 +266,18 @@ async def save_lesson_progress(
             xp_result = award_xp(db, int(user_id), 50, source="lesson_complete")
 
         mark_activity(db, int(user_id), "lesson")
+        track_metric_event(
+            db,
+            int(user_id),
+            "lesson",
+            "lesson_progress_saved",
+            lesson_id=lesson_id,
+            details={
+                "correct_answers": body.correct_answers,
+                "total_questions": body.total_questions,
+                "is_first_completion": existing is None,
+            },
+        )
         logger.info(
             "[LESSON-PROGRESS] User %s - Lesson %s: %s/%s | xp=%s",
             user_id,

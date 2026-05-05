@@ -118,8 +118,10 @@ def update_streak(db, user_id: int) -> dict:
 def mark_activity(db, user_id: int, activity_type: str = "general") -> None:
     """Increment today's activity count for the user by type. Silent-fail on any error."""
     try:
-        from db_models import UserActivity
+        from db_models import User, UserActivity, UserProgress
+
         today = _date.today().isoformat()
+        now = _datetime.utcnow()
         existing = (
             db.query(UserActivity)
             .filter(
@@ -133,6 +135,46 @@ def mark_activity(db, user_id: int, activity_type: str = "general") -> None:
             existing.count += 1
         else:
             db.add(UserActivity(user_id=user_id, date=today, activity_type=activity_type))
+
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            user.last_active = now
+
+        up = db.query(UserProgress).filter(UserProgress.user_id == user_id).first()
+        if up:
+            up.last_active_date = now
+
+        db.commit()
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
+
+def track_metric_event(
+    db,
+    user_id: int | None,
+    category: str,
+    event_name: str,
+    lesson_id: int | None = None,
+    count: int = 1,
+    details: dict | None = None,
+) -> None:
+    """Persist exact analytics events used by the observability dashboard."""
+    try:
+        from db_models import AnalyticsEvent
+
+        db.add(
+            AnalyticsEvent(
+                user_id=user_id,
+                category=category,
+                event_name=event_name,
+                lesson_id=lesson_id,
+                count=max(int(count or 1), 1),
+                details=details or None,
+            )
+        )
         db.commit()
     except Exception:
         try:

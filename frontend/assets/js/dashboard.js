@@ -4,15 +4,24 @@
  */
 
 const API_BASE = window.location.origin;
+const DASHBOARD_REFRESH_MS = 15 * 1000;
 let chartsInstances = {};
+let analyticsRequestInFlight = false;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadAnalytics();
-    // Atualizar a cada 5 minutos
-    setInterval(loadAnalytics, 5 * 60 * 1000);
+    setInterval(loadAnalytics, DASHBOARD_REFRESH_MS);
 });
 
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) loadAnalytics();
+});
+
+window.addEventListener('focus', loadAnalytics);
+
 async function loadAnalytics() {
+    if (analyticsRequestInFlight) return;
+    analyticsRequestInFlight = true;
     try {
         const response = await fetch(`${API_BASE}/api/analytics/dashboard`);
         if (!response.ok) throw new Error('Erro ao buscar analytics');
@@ -25,6 +34,8 @@ async function loadAnalytics() {
     } catch (error) {
         console.error('Analytics error:', error);
         showError(error.message);
+    } finally {
+        analyticsRequestInFlight = false;
     }
 }
 
@@ -126,38 +137,41 @@ function renderBusinessHealth(health) {
             </div>
 
             <div class="card">
-                <div class="card-title">Conversas Médias</div>
+                <div class="card-title">Interações Médias</div>
                 <div class="card-value">${health.avg_conversations_per_user}</div>
-                <div class="card-label">Conversas por usuário</div>
+                <div class="card-label">Texto + voice por usuário ativo</div>
             </div>
         </div>
     `;
 }
 
 function renderLearningMetrics(learning) {
-    const completion = learning.avg_completion_rate_percent;
+    const score = learning.avg_score_percent ?? learning.avg_completion_rate_percent;
     const difficulty = learning.difficulty_distribution;
+    const uniqueLessons = learning.unique_lessons_accessed || 0;
+    const exerciseSubmissions = learning.exercise_submissions || 0;
 
     return `
         <div class="section-title">📚 Qualidade de Aprendizado</div>
         <div class="dashboard-grid">
             <div class="card">
-                <div class="card-title">Lições Acessadas</div>
+                <div class="card-title">Acessos a Aulas</div>
                 <div class="card-value">${learning.lessons_accessed}</div>
-                <div class="card-label">Total de lições</div>
+                <div class="card-label">${uniqueLessons} aulas únicas abertas</div>
             </div>
 
             <div class="card">
-                <div class="card-title">Lições Completadas</div>
+                <div class="card-title">Aulas Concluídas</div>
                 <div class="card-value">${learning.lessons_completed}</div>
-                <div class="card-label">Com score > 0%</div>
+                <div class="card-label">Progresso final salvo no banco</div>
             </div>
 
             <div class="card">
-                <div class="card-title">Taxa de Conclusão</div>
-                <div class="card-value">${completion}%</div>
-                <span class="badge ${completion > 70 ? 'badge-success' : 'badge-warning'}">
-                    ${completion > 70 ? '✓ Bem' : '⚠ Revisar'}
+                <div class="card-title">Aproveitamento Médio</div>
+                <div class="card-value">${score}%</div>
+                <div class="card-label">Média de acerto nas aulas concluídas</div>
+                <span class="badge ${score > 70 ? 'badge-success' : 'badge-warning'}">
+                    ${score > 70 ? '✓ Bom' : '⚠ Revisar'}
                 </span>
             </div>
 
@@ -165,6 +179,7 @@ function renderLearningMetrics(learning) {
                 <div class="card-title">Badges Ganhos</div>
                 <div class="card-value">${learning.total_badges_earned}</div>
                 <div class="card-label">${learning.unique_badges} tipos únicos</div>
+                <div class="card-stat">📝 ${exerciseSubmissions} exercícios enviados</div>
             </div>
 
             <div class="card">
@@ -183,18 +198,20 @@ function renderLearningMetrics(learning) {
                     <thead>
                         <tr>
                             <th>Lição ID</th>
-                            <th>Tentativas</th>
+                            <th>Acessos</th>
                             <th>Popularidade</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${learning.top_5_lessons.map((l, i) => `
+                        ${learning.top_5_lessons.map((l, i) => {
+                            const accessCount = l.accesses ?? l.attempts ?? 0;
+                            return `
                             <tr>
                                 <td>#${l.lesson_id}</td>
-                                <td>${l.attempts}</td>
-                                <td>${'★'.repeat(Math.ceil(l.attempts / 10))}</td>
+                                <td>${accessCount}</td>
+                                <td>${'★'.repeat(Math.max(1, Math.ceil(accessCount / 5)))}</td>
                             </tr>
-                        `).join('')}
+                        `; }).join('')}
                     </tbody>
                 </table>
             </div>
@@ -229,9 +246,9 @@ function renderVoiceMetrics(voice) {
             </div>
 
             <div class="card">
-                <div class="card-title">Voice Conversations</div>
-                <div class="card-value">${formatNumber(voice.voice_conversations)}</div>
-                <div class="card-label">Sessões de chat</div>
+                <div class="card-title">Sessões de Voice</div>
+                <div class="card-value">${formatNumber(voice.voice_sessions ?? voice.voice_conversations)}</div>
+                <div class="card-label">Sessões encerradas e salvas</div>
             </div>
 
             ${voice.top_topics.length > 0 ? `
@@ -256,13 +273,13 @@ function renderPatterns(patterns) {
             <div class="card">
                 <div class="card-title">Atividade Média por Dia</div>
                 <div class="card-value">${patterns.avg_activity_per_day}</div>
-                <div class="card-label">Conversas/dia (últimos 30 dias)</div>
+                <div class="card-label">Eventos/dia (últimos 30 dias)</div>
             </div>
 
             <div class="card">
                 <div class="card-title">Usuários Consistentes</div>
                 <div class="card-value">${patterns.consistent_users_last_30d}</div>
-                <div class="card-label">Ativos nos últimos 30 dias</div>
+                <div class="card-label">5+ dias ativos nos últimos 30 dias</div>
             </div>
 
             <div class="card">
@@ -304,7 +321,7 @@ function renderFunnel(funnel) {
             <div class="card">
                 <div class="card-title">Taxa de Primeiro Uso</div>
                 <div class="card-value">${firstUse}%</div>
-                <div class="card-label">Fizeram 1ª conversa</div>
+                <div class="card-label">Fizeram ao menos 1 atividade</div>
             </div>
 
             <div class="card">
@@ -316,7 +333,7 @@ function renderFunnel(funnel) {
             <div class="card">
                 <div class="card-title">Usuários Ativos</div>
                 <div class="card-value">${funnel.users_ever_active}</div>
-                <div class="card-label">Que fizeram ≥1 conversa</div>
+                <div class="card-label">Com atividade registrada</div>
             </div>
         </div>
 
@@ -390,7 +407,7 @@ function initCharts(data) {
                 data: {
                     labels: sortedDates,
                     datasets: [{
-                        label: 'Conversas por dia',
+                        label: 'Eventos por dia',
                         data: activityValues,
                         borderColor: '#22c55e',
                         backgroundColor: 'rgba(34, 197, 94, 0.1)',
