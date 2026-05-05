@@ -12,7 +12,7 @@ def award_xp(db, user_id: int, amount: int, source: str = "general") -> dict:
     Silent-fail on any error (returns zeros dict).
     """
     try:
-        from db_models import User, UserProgress
+        from backend.db_models import User, UserProgress
 
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -29,7 +29,7 @@ def award_xp(db, user_id: int, amount: int, source: str = "general") -> dict:
         if up:
             up.xp_daily = (up.xp_daily or 0) + amount
         else:
-            from db_models import UserProgress as UP
+            from backend.db_models import UserProgress as UP
             db.add(UP(user_id=user_id, xp_daily=amount))
             db.flush()
             up = db.query(UserProgress).filter(UserProgress.user_id == user_id).first()
@@ -68,7 +68,7 @@ def update_streak(db, user_id: int) -> dict:
     Returns: {streak, streak_bonus_xp, is_new_day}
     """
     try:
-        from db_models import User, UserProgress
+        from backend.db_models import User, UserProgress
 
         today = _date.today()
         user = db.query(User).filter(User.id == user_id).first()
@@ -118,7 +118,7 @@ def update_streak(db, user_id: int) -> dict:
 def mark_activity(db, user_id: int, activity_type: str = "general") -> None:
     """Increment today's activity count for the user by type. Silent-fail on any error."""
     try:
-        from db_models import User, UserActivity, UserProgress
+        from backend.db_models import User, UserActivity, UserProgress
 
         today = _date.today().isoformat()
         now = _datetime.utcnow()
@@ -163,7 +163,7 @@ def track_metric_event(
 ) -> None:
     """Persist exact analytics events used by the observability dashboard."""
     try:
-        from db_models import AnalyticsEvent
+        from backend.db_models import AnalyticsEvent
 
         db.add(
             AnalyticsEvent(

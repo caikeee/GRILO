@@ -100,7 +100,7 @@ async def get_current_user_id(authorization: Optional[str] = Header(None)) -> in
 
 async def get_current_user(db, user_id: int = Depends(get_current_user_id)):
     """Dependency to get current user object from database."""
-    from db_models import User
+    from backend.db_models import User
     
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

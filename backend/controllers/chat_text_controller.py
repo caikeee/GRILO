@@ -138,7 +138,7 @@ async def get_session_summary(
     Returns a learning summary for the current chat session.
     Includes accuracy trend, top errors, related lessons, vocabulary learned, and improvement vs historical.
     """
-    from db_models import Conversation
+    from backend.db_models import Conversation
     from datetime import timedelta
     from backend.lessons_v2 import find_lessons_for_error_type
 
