@@ -868,14 +868,15 @@ function _modeLabelPt(mode) {
 if (!window.__griloStandaloneProgressListenerBound) {
     window.__griloStandaloneProgressListenerBound = true;
     window.addEventListener('storage', (event) => {
-        if (event.key !== STANDALONE_PROGRESS_KEY || !_userStats) return;
+        if (event.key !== STANDALONE_PROGRESS_KEY) return;
+        updateLessonsProgress();
         if (typeof authToken !== 'undefined' && authToken) {
             loadUserStats();
-            updateLessonsProgress();
             return;
         }
-        renderProgressDetail(_userStats);
-        updateLessonsProgress();
+        if (_userStats) {
+            renderProgressDetail(_userStats);
+        }
     });
 }
 
