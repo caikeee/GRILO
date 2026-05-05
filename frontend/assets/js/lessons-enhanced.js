@@ -1699,7 +1699,12 @@
       main.innerHTML = '';
 
       // ── PEDAGOGICAL MODE for pronomes ──
-      if (slug === 'pronomes') {
+        const hasPedagogicalRenderer = typeof renderAnchorDialog === 'function'
+          && typeof renderInteractiveTable === 'function'
+          && typeof renderScaffoldedExercises === 'function'
+          && typeof renderFinalTest === 'function';
+
+        if (slug === 'pronomes' && hasPedagogicalRenderer) {
         window._testScore = 0;
         main.innerHTML = `
           <div class=\"lp-peda-phase\" id=\"anchor-${slug}\">${renderAnchorDialog(slug)}</div>
@@ -1709,6 +1714,10 @@
         `;
         modal.removeAttribute('hidden');
         window.requestAnimationFrame(() => {
+
+        if (slug === 'pronomes' && !hasPedagogicalRenderer) {
+          console.warn('[LESSONS] Pedagogical renderer unavailable for pronomes. Falling back to standard lesson view.');
+        }
           modal.classList.add('active');
         });
         document.body.style.overflow = 'hidden';

@@ -143,7 +143,7 @@ function _makeTab(label, cat, active, container) {
 
 function filterLessonsByCategory(category) {
     currentCategoryFilterV2 = category;
-    document.querySelectorAll('.lessons-cat-tab').forEach(tab => {
+    document.querySelectorAll('.lessons-cat-tab-new').forEach(tab => {
         tab.classList.toggle('active', tab.getAttribute('data-category') === category);
     });
     displayLessonsGrid(category);
@@ -178,6 +178,7 @@ function displayLessonsGrid(category) {
 function _makeCardLessonV2(lesson) {
     const card = document.createElement('div');
     card.className = 'lesson-card-new';
+    card.setAttribute('data-lesson-id', String(lesson.id));
     
     const progress = lessonProgressMap[lesson.id];
     let status = 'new';
@@ -242,6 +243,7 @@ function _makeCardLessonV2(lesson) {
 function createLessonCard(lesson) {
     const card     = document.createElement('div');
     card.className = 'lesson-card';
+    card.setAttribute('data-lesson-id', String(lesson.id));
     // Prefer story_context (narrative hook) → description → introduction as card preview
     const story    = lesson.content && lesson.content.story_context;
     const hook     = story

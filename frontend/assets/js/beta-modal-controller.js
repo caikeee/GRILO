@@ -9,11 +9,24 @@
 'use strict';
 
 const BetaWelcomeModal = {
+  isInitialized: false,
+
   /**
    * Inicializar e verificar se deve mostrar modal
    */
   init() {
+    if (this.isInitialized) {
+      return;
+    }
+
     console.log('[GRILO] BetaWelcomeModal.init()');
+    this.isInitialized = true;
+    this.setupCloseHandlers();
+
+    const modal = document.getElementById('betaWelcomeModal');
+    if (modal) {
+      modal.setAttribute('aria-hidden', 'true');
+    }
     
     // Verificar se sessionStorage tem flag de login
     const loginFlag = sessionStorage.getItem('grilo_login_session_started');
@@ -25,9 +38,6 @@ const BetaWelcomeModal = {
     } else {
       console.log('[GRILO] Sem flag de login recente, modal não será exibido');
     }
-    
-    // Setup listeners de fechar
-    this.setupCloseHandlers();
   },
 
   /**
@@ -39,6 +49,10 @@ const BetaWelcomeModal = {
       console.warn('[GRILO] betaWelcomeModal element not found');
       return;
     }
+
+    modal.removeAttribute('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('beta-modal-open');
 
     // Adicionar classe 'active' para trigger fade-in
     requestAnimationFrame(() => {
@@ -56,6 +70,8 @@ const BetaWelcomeModal = {
     if (!modal) return;
 
     modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('beta-modal-open');
     console.log('[GRILO] Modal BETA fechado');
   },
 
@@ -66,6 +82,7 @@ const BetaWelcomeModal = {
     const modal = document.getElementById('betaWelcomeModal');
     const backdrop = document.getElementById('betaModalBackdrop');
     const closeBtn = document.getElementById('betaModalCloseBtn');
+    const primaryBtn = document.getElementById('betaModalPrimaryBtn');
 
     if (!modal) return;
 
@@ -73,6 +90,12 @@ const BetaWelcomeModal = {
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        this.closeModal();
+      });
+    }
+
+    if (primaryBtn) {
+      primaryBtn.addEventListener('click', () => {
         this.closeModal();
       });
     }

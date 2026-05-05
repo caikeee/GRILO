@@ -1536,13 +1536,14 @@ function setVoiceDimensionMode(enabled) {
 function switchTab(tabName) {
     console.log('[switchTab] Iniciando com tabName:', tabName);
 
-    if (tabName === 'chat-written' || tabName === 'lessons') {
+    if (tabName === 'chat-written') {
         tabName = 'chat-voice';
     }
 
     const tabMap = {
         'painel':       'painelTab',
-        'chat-voice':   'chatVoiceTab'
+        'chat-voice':   'chatVoiceTab',
+        'lessons':      'lessonsTab'
     };
 
     const actualTabId = tabMap[tabName];
@@ -1563,6 +1564,10 @@ function switchTab(tabName) {
     if (!tabContent) { console.error('[switchTab] Conteúdo de aba não encontrado:', actualTabId); return; }
     document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
     tabContent.classList.add("active");
+
+    if (tabName === 'lessons' && typeof showLessonsView === 'function') {
+        showLessonsView().catch(err => console.error('[switchTab] Erro ao abrir aulas:', err));
+    }
 
     // Show/hide session submenus
     const voiceSubmenu = document.getElementById('voiceSessionsSubmenu');
@@ -1942,17 +1947,30 @@ function renderSessionSummaryModal(data, onClose) {
 function openLessonFromSummary(lessonId) {
     // Close the modal and navigate to lessons tab at that lesson
     document.getElementById('sessionSummaryModal')?.remove();
-    // Switch to lessons tab
-    const lessonsTab = document.querySelector('[data-tab="lessons"]') || document.getElementById('lessonsTabBtn');
-    if (lessonsTab) lessonsTab.click();
-    // Scroll to or open lesson
-    setTimeout(() => {
+    if (typeof switchTab === 'function') {
+        switchTab('lessons');
+    }
+
+    const openTargetLesson = () => {
         const lessonEl = document.querySelector(`[data-lesson-id="${lessonId}"]`);
-        if (lessonEl) {
-            lessonEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            lessonEl.click();
+        if (!lessonEl) return false;
+
+        lessonEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        lessonEl.click();
+        return true;
+    };
+
+    if (openTargetLesson()) {
+        return;
+    }
+
+    let attempts = 0;
+    const retryId = window.setInterval(() => {
+        attempts += 1;
+        if (openTargetLesson() || attempts >= 8) {
+            window.clearInterval(retryId);
         }
-    }, 400);
+    }, 250);
 }
 
 
