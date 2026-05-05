@@ -327,7 +327,10 @@ async def voice_chat(
             int(user_id),
             "voice",
             "voice_message_sent",
-            details={"voice_mode": getattr(request, "voice_mode", "free") or "free"},
+            details={
+                "voice_mode": getattr(request, "voice_mode", "free") or "free",
+                "conversation_topic": getattr(request, "conversation_topic", None),
+            },
         )
 
         elapsed = (datetime.now() - start_time).total_seconds()

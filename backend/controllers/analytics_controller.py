@@ -459,16 +459,35 @@ def _get_voice_metrics(db: Session) -> Dict[str, Any]:
 
     voice_sessions = _get_voice_session_count(db)
 
-    top_phrases = (
-        db.query(VoicePhrase.topic, func.count(VoicePhrase.id).label("count"))
-        .group_by(VoicePhrase.topic)
-        .order_by(func.count(VoicePhrase.id).desc())
-        .limit(5)
+    topic_counts: Dict[str, int] = defaultdict(int)
+    voice_topic_events = (
+        db.query(AnalyticsEvent.details, AnalyticsEvent.count)
+        .filter(AnalyticsEvent.event_name == "voice_message_sent")
         .all()
-        if db.query(VoicePhrase.id).first()
-        else []
     )
-    top_topics = [{"topic": topic or "general", "count": int(count)} for topic, count in top_phrases]
+    for details, count in voice_topic_events:
+        if not isinstance(details, dict):
+            continue
+        topic = (details.get("conversation_topic") or details.get("topic") or "").strip()
+        if topic:
+            topic_counts[topic] += int(count or 1)
+
+    if topic_counts:
+        top_topics = [
+            {"topic": topic, "count": int(count)}
+            for topic, count in sorted(topic_counts.items(), key=lambda item: item[1], reverse=True)[:5]
+        ]
+    else:
+        top_phrases = (
+            db.query(VoicePhrase.topic, func.count(VoicePhrase.id).label("count"))
+            .group_by(VoicePhrase.topic)
+            .order_by(func.count(VoicePhrase.id).desc())
+            .limit(5)
+            .all()
+            if db.query(VoicePhrase.id).first()
+            else []
+        )
+        top_topics = [{"topic": topic or "general", "count": int(count)} for topic, count in top_phrases]
 
     monthly_active_users = len(_get_active_user_ids(db, month_start, today))
     monthly_voice_users = len(_get_voice_user_ids(db, month_start, today))

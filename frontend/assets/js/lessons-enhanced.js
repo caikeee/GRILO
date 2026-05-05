@@ -2100,6 +2100,13 @@
       });
       document.getElementById(`blank-${slug}-${blankIndex}`).textContent = selected;
       document.getElementById(`blank-${slug}-${blankIndex}`).classList.add('is-filled');
+      const selectedIndex = Array.isArray(blank.options) ? blank.options.indexOf(selected) : 0;
+      try {
+        void _submitStandaloneExerciseToBackend(slug, 100 + blankIndex, Math.max(selectedIndex, 0), {
+          is_correct: true,
+          source: 'anchor_blank'
+        });
+      } catch (e) {}
       const allCorrect = ANCHOR_DIALOGS[slug].blanks.every((_, index) =>
         document.getElementById(`blank-${slug}-${index}`)?.classList.contains('is-filled')
       );
@@ -2117,11 +2124,12 @@
     const exEl = document.getElementById(`exercise-${slug}-${exIndex}`);
     if (!exercise || exEl.dataset.answered) return;
     exEl.dataset.answered = '1';
+    const isCorrect = optIdx === exercise.correct;
 
     const allBtns = document.querySelectorAll(`#options-${slug}-${exIndex} .lp-exercise-option`);
     allBtns.forEach(b => b.disabled = true);
 
-    if (optIdx === exercise.correct) {
+    if (isCorrect) {
       button.classList.add('is-correct');
       const feedback = document.getElementById(`feedback-${slug}-${exIndex}`);
       feedback.innerHTML = '✓ Correto!';
@@ -2138,6 +2146,13 @@
         hintsEl.innerHTML += `<div class="lp-hint"><strong>Dica ${exEl.dataset.hintLevel}:</strong> ${exercise.hints[exEl.dataset.hintLevel]}</div>`;
       }
     }
+
+    try {
+      void _submitStandaloneExerciseToBackend(slug, 200 + exIndex, optIdx, {
+        is_correct: isCorrect,
+        source: 'scaffolded_exercise'
+      });
+    } catch (e) {}
   }
 
   function nextPhase(slug, phase) {
@@ -2152,11 +2167,12 @@
     const qEl = document.getElementById(`test-q-${slug}-${qIdx}`);
     if (!test || qEl.dataset.answered) return;
     qEl.dataset.answered = '1';
+    const isCorrect = optIdx === test.correct;
 
     const allBtns = document.querySelectorAll(`#test-q-${slug}-${qIdx} .lp-test-option`);
     allBtns.forEach(b => b.disabled = true);
 
-    if (optIdx === test.correct) {
+    if (isCorrect) {
       button.classList.add('is-correct');
       window._testScore = (window._testScore || 0) + 1;
     } else {
@@ -2164,6 +2180,13 @@
       const correct = allBtns[test.correct];
       if (correct) correct.classList.add('show-correct');
     }
+
+    try {
+      void _submitStandaloneExerciseToBackend(slug, 300 + qIdx, optIdx, {
+        is_correct: isCorrect,
+        source: 'final_test'
+      });
+    } catch (e) {}
 
     checkTestComplete(slug);
   }
@@ -2229,6 +2252,56 @@
     try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch (e) {}
   }
 
+  function getStandaloneLessonScoreSummary(slug) {
+    const lesson = lessons[slug];
+    if (!lesson) {
+      return { correct_answers: 0, total_questions: 1 };
+    }
+
+    if (slug === 'pronomes') {
+      const anchorBlanks = (ANCHOR_DIALOGS[slug] && ANCHOR_DIALOGS[slug].blanks) || [];
+      const scaffoldedExercises = SCAFFOLDED_EXERCISES[slug] || [];
+      const finalTests = FINAL_TESTS[slug] || [];
+
+      const anchorCorrect = anchorBlanks.filter((_, index) =>
+        document.getElementById(`blank-${slug}-${index}`)?.classList.contains('is-filled')
+      ).length;
+      const scaffoldedCorrect = scaffoldedExercises.filter((_, index) =>
+        document.querySelector(`#exercise-${slug}-${index} .lp-exercise-option.is-correct`)
+      ).length;
+      const finalCorrect = Math.min(Number(window._testScore || 0), finalTests.length);
+
+      const totalQuestions = anchorBlanks.length + scaffoldedExercises.length + finalTests.length;
+      const correctAnswers = anchorCorrect + scaffoldedCorrect + finalCorrect;
+
+      return {
+        correct_answers: Math.max(correctAnswers, 0),
+        total_questions: Math.max(totalQuestions, 1)
+      };
+    }
+
+    const sectionScores = Object.entries(exerciseScores)
+      .filter(([key]) => key.startsWith(`${slug}-`))
+      .map(([, value]) => value);
+
+    if (sectionScores.length > 0) {
+      return {
+        correct_answers: sectionScores.reduce((sum, value) => sum + (value.correct || 0), 0),
+        total_questions: Math.max(sectionScores.reduce((sum, value) => sum + (value.total || 0), 0), 1)
+      };
+    }
+
+    const totalQuestions = (lesson.sections || []).reduce(
+      (sum, section) => sum + (((section && section.exercises) || []).length),
+      0
+    );
+
+    return {
+      correct_answers: 0,
+      total_questions: Math.max(totalQuestions, 1)
+    };
+  }
+
   function markLessonBackendSynced(slug) {
     const p = getProgress();
     if (!p[slug]) return;
@@ -2242,6 +2315,7 @@
     const authToken = getAuthToken();
     const currentUserId = getCurrentUserId();
     const status = getLessonStatus(slug);
+    const scoreSummary = status.scoreSummary || getStandaloneLessonScoreSummary(slug);
 
     if (!lessonId || !authToken || !status.completed || status.backendSynced) return;
     if (status.ownerId && currentUserId && status.ownerId !== currentUserId) return;
@@ -2253,7 +2327,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
         },
-        body: JSON.stringify({ correct_answers: 1, total_questions: 1 })
+        body: JSON.stringify(scoreSummary)
       });
 
       if (res.ok) {
@@ -2291,9 +2365,11 @@
   function setLessonCompleted(slug) {
     const p = getProgress();
     const currentUserId = getCurrentUserId();
+    const scoreSummary = getStandaloneLessonScoreSummary(slug);
     if (!p[slug]) p[slug] = {};
     p[slug].visited = true;
     p[slug].completed = true;
+    p[slug].scoreSummary = scoreSummary;
     if (currentUserId) p[slug].ownerId = currentUserId;
     saveProgress(p);
     renderLessonsCards();
@@ -2580,7 +2656,21 @@
     const num    = String(index + 1).padStart(2, '0');
     const status = getLessonStatus(slug);
 
-    setLessonVisited(slug);
+      setLessonVisited(slug);
+
+      // Track access in backend for standalone lessons when authenticated
+      try {
+        const standaloneLessonId = STANDALONE_BACKEND_IDS[slug];
+        const token = getAuthToken();
+        if (standaloneLessonId && token) {
+          fetch(`${API_BASE_URL}/api/lessons/${standaloneLessonId}/track-access`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          }).catch(err => console.warn('[LESSONS-STANDALONE] track-access failed:', err));
+        }
+      } catch (e) {
+        console.warn('[LESSONS-STANDALONE] track-access error:', e);
+      }
 
     // ── topbar breadcrumb ──
     if (crumb) {
@@ -2758,6 +2848,32 @@
 
   // ========== INITIALIZE ==========
 
+  function _getStandaloneSectionExerciseIndex(slug, secIdx, exIdx) {
+    const lesson = lessons[slug];
+    if (!lesson || !Array.isArray(lesson.sections)) return exIdx;
+    let exerciseIndex = 0;
+    for (let s = 0; s < secIdx; s++) {
+      const secExercises = (lesson.sections[s] && lesson.sections[s].exercises) || [];
+      exerciseIndex += secExercises.length;
+    }
+    return exerciseIndex + exIdx;
+  }
+
+  async function _submitStandaloneExerciseToBackend(slug, exerciseIndex, optIdx, extra = {}) {
+    try {
+      const lessonId = STANDALONE_BACKEND_IDS[slug];
+      const token = getAuthToken();
+      if (!lessonId || !token) return;
+      await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/submit-exercise`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ exercise_index: exerciseIndex, selected_index: optIdx, ...extra })
+      });
+    } catch (e) {
+      console.warn('[LESSONS-STANDALONE] submit-exercise error:', e);
+    }
+  }
+
   window._griloAnswer = function(btn, slug, secIdx, exIdx, optIdx) {
     const item = btn.closest('.lp-exr-interactive');
     if (!item || item.dataset.answered) return;
@@ -2778,6 +2894,16 @@
       if (feedback) feedback.classList.add('is-visible');
     }
     updateSectionScore(slug, secIdx, isCorrect);
+
+    // Fire-and-forget: submit exercise to backend so analytics reflect standalone submissions
+    try {
+      void _submitStandaloneExerciseToBackend(
+        slug,
+        _getStandaloneSectionExerciseIndex(slug, secIdx, exIdx),
+        optIdx,
+        { is_correct: isCorrect, source: 'section_exercise' }
+      );
+    } catch (e) {}
   };
 
   window._griloMarkComplete = function(slug, btn) {

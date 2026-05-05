@@ -19,6 +19,17 @@ from backend.quiz_questions import (
 router = APIRouter(tags=["lessons"])
 logger = logging.getLogger(__name__)
 
+_STANDALONE_LESSON_SLUGS = {
+    1001: "pronomes",
+    1002: "perguntas",
+    1003: "negativa",
+    1004: "passado",
+    1005: "futuro",
+    1006: "gerundio",
+    1007: "preposicoes",
+    1008: "verbos",
+}
+
 
 def _exercise_option_to_text(option):
     if isinstance(option, str):
@@ -56,11 +67,17 @@ def _resolve_correct_index(exercise):
 class _ExerciseSubmitBody(BaseModel):
     exercise_index: int
     selected_index: int
+    is_correct: bool | None = None
+    source: str | None = None
 
 
 class _SaveProgressBody(BaseModel):
     correct_answers: int
     total_questions: int
+
+
+def _get_standalone_lesson_slug(lesson_id: int) -> str | None:
+    return _STANDALONE_LESSON_SLUGS.get(int(lesson_id))
 
 
 @router.get("/api/lessons/all")
@@ -138,12 +155,23 @@ async def track_lesson_access(
         from lessons_v2 import get_lesson_by_id
 
         lesson = get_lesson_by_id(lesson_id)
-        if not lesson:
+        standalone_slug = _get_standalone_lesson_slug(lesson_id)
+        if not lesson and not standalone_slug:
             raise HTTPException(status_code=404, detail="Lesson not found")
 
         uid = int(user_id)
         mark_activity(db, uid, "lesson")
-        track_metric_event(db, uid, "lesson", "lesson_access", lesson_id=lesson_id)
+        track_metric_event(
+            db,
+            uid,
+            "lesson",
+            "lesson_access",
+            lesson_id=lesson_id,
+            details={
+                "source": "standalone" if standalone_slug else "catalog",
+                "standalone_slug": standalone_slug,
+            },
+        )
         return {"success": True, "lesson_id": lesson_id}
     except HTTPException:
         raise
@@ -164,24 +192,30 @@ async def submit_lesson_exercise(
         from lessons_v2 import get_lesson_by_id
 
         lesson = get_lesson_by_id(lesson_id)
-        if not lesson:
+        standalone_slug = _get_standalone_lesson_slug(lesson_id)
+        if not lesson and not standalone_slug:
             raise HTTPException(status_code=404, detail="Lesson not found")
 
-        exercises = lesson.get("content", {}).get("exercises", [])
-        if body.exercise_index < 0 or body.exercise_index >= len(exercises):
-            raise HTTPException(status_code=400, detail="Invalid exercise index")
+        if lesson:
+            exercises = lesson.get("content", {}).get("exercises", [])
+            if body.exercise_index < 0 or body.exercise_index >= len(exercises):
+                raise HTTPException(status_code=400, detail="Invalid exercise index")
 
-        exercise = exercises[body.exercise_index]
-        options = exercise.get("options") or []
-        if not isinstance(options, list):
-            options = []
+            exercise = exercises[body.exercise_index]
+            options = exercise.get("options") or []
+            if not isinstance(options, list):
+                options = []
 
-        correct_index = _resolve_correct_index(exercise)
-        if correct_index < 0:
-            raise HTTPException(status_code=422, detail="Exercise answer key unavailable")
+            correct_index = _resolve_correct_index(exercise)
+            if correct_index < 0:
+                raise HTTPException(status_code=422, detail="Exercise answer key unavailable")
 
-        is_correct = body.selected_index == correct_index
-        xp_earned = 10 if is_correct else 0
+            is_correct = body.selected_index == correct_index
+            xp_earned = 10 if is_correct else 0
+        else:
+            # Standalone lessons are authored in the frontend and sync analytics here.
+            is_correct = body.is_correct
+            xp_earned = 0
 
         xp_result = {"xp_earned": 0, "new_total": 0, "level_up": False, "new_level": 1}
         if xp_earned > 0:
@@ -197,6 +231,8 @@ async def submit_lesson_exercise(
             details={
                 "exercise_index": body.exercise_index,
                 "is_correct": is_correct,
+                "source": body.source or ("standalone" if standalone_slug else "catalog"),
+                "standalone_slug": standalone_slug,
             },
         )
 
@@ -566,6 +602,21 @@ async def submit_quiz_answer(
             question_id,
             "✓" if is_correct else "✗",
         )
+
+        try:
+            # Record user activity and analytics event for quiz submissions
+            mark_activity(db, int(user_id), "quiz")
+            track_metric_event(
+                db,
+                int(user_id),
+                "quiz",
+                "quiz_question_submitted",
+                lesson_id=None,
+                count=1,
+                details={"question_id": question_id, "answer_index": answer_index, "is_correct": is_correct},
+            )
+        except Exception:
+            logger.warning("[QUIZ-TRACK] Could not record analytics for quiz submission")
 
         return {
             "success": True,
