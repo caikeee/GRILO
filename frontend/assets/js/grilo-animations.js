@@ -39,6 +39,7 @@
       if (!token) { if (errorEl) errorEl.textContent = 'Erro inesperado.'; return; }
       localStorage.setItem('grilo_token', token);
       if (r.data.user) localStorage.setItem('grilo_user', JSON.stringify(r.data.user));
+      localStorage.setItem('grilo_analytics_ping', String(Date.now()));
       if (typeof showToast === 'function') showToast('Bem-vindo de volta! 👋', 'success');
       setTimeout(function() { window.location.href = 'home.html'; }, 600);
     })

@@ -140,7 +140,7 @@ async def get_session_summary(
     """
     from db_models import Conversation
     from datetime import timedelta
-    from lessons_v2 import find_lessons_for_error_type
+    from backend.lessons_v2 import find_lessons_for_error_type
 
     logger.info("[SESSION-SUMMARY] user_id=%s session_start=%s", user_id, request.session_start)
 

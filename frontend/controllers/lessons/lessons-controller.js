@@ -64,13 +64,32 @@ async function loadLessonProgress() {
     } catch (e) { console.error('[LESSONS-V2] Progress load error:', e); }
 }
 
+async function trackLessonsPageView(source = 'home_lessons_view') {
+    if (!authToken) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/lessons/page-view`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            body: JSON.stringify({ source })
+        });
+        if (res.ok) {
+            try { localStorage.setItem('grilo_analytics_ping', String(Date.now())); } catch (e) {}
+        }
+    } catch (e) {
+        console.error('[LESSONS-V2] Page view track error:', e);
+    }
+}
+
 async function trackLessonAccess(lessonId) {
     if (!authToken || !lessonId) return;
     try {
-        await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/track-access`, {
+        const res = await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/track-access`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
+        if (res.ok) {
+            try { localStorage.setItem('grilo_analytics_ping', String(Date.now())); } catch (e) {}
+        }
     } catch (e) {
         console.error('[LESSONS-V2] Access track error:', e);
     }
@@ -119,6 +138,7 @@ async function showLessonsView() {
         if (el) el.style.display = 'none';
     });
     document.getElementById('lessonsView').style.display = 'block';
+    void trackLessonsPageView();
     if (lessonsDataV2.length === 0)  await loadLessonsV2();
     if (allCategories.length === 0)  await loadCategoriesV2();
     await loadLessonProgress();

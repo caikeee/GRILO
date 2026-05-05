@@ -65,6 +65,7 @@ async function handleLogin() {
             // Save to localStorage
             localStorage.setItem("grilo_token", authToken);
             localStorage.setItem("grilo_user", JSON.stringify(currentUser));
+            localStorage.setItem('grilo_analytics_ping', String(Date.now()));
             
             // Show main content
             showMainContent();

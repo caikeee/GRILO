@@ -14,7 +14,7 @@ from backend.auth import (
 )
 from backend.database import get_db
 from backend.db_models import User, UserProgress
-from backend.utils import update_streak, award_xp
+from backend.utils import update_streak, award_xp, mark_activity, track_metric_event
 from backend.schemas import (
     TokenResponse,
     UserLogin,
@@ -123,6 +123,15 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
             5 + streak_result["streak_bonus_xp"],
             source="daily_login",
         )
+
+    mark_activity(db, user.id, "login")
+    track_metric_event(
+        db,
+        user.id,
+        "auth",
+        "login_success",
+        details={"username": user.username},
+    )
 
     db.refresh(user)
 

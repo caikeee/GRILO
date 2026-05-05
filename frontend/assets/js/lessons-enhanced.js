@@ -2243,6 +2243,28 @@
     }
   }
 
+  async function trackLessonsPageView(source = 'lessons_html') {
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/lessons/page-view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ source })
+      });
+
+      if (response.ok) {
+        try { localStorage.setItem('grilo_analytics_ping', String(Date.now())); } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('[LESSONS-STANDALONE] page-view error:', e);
+    }
+  }
+
   function getProgress() {
     try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; }
     catch (e) { return {}; }
@@ -2666,6 +2688,10 @@
           fetch(`${API_BASE_URL}/api/lessons/${standaloneLessonId}/track-access`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
+          }).then((response) => {
+            if (response.ok) {
+              try { localStorage.setItem('grilo_analytics_ping', String(Date.now())); } catch (err) {}
+            }
           }).catch(err => console.warn('[LESSONS-STANDALONE] track-access failed:', err));
         }
       } catch (e) {
@@ -2928,6 +2954,7 @@
   updateHeroProgress();
   initLessonsChrome();
   syncPendingLessonCompletions();
+  void trackLessonsPageView();
   window.renderAnchorDialog = renderAnchorDialog;
   window.renderInteractiveTable = renderInteractiveTable;
   window.renderScaffoldedExercises = renderScaffoldedExercises;

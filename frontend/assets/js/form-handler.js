@@ -98,6 +98,7 @@ const AuthForm = {
         }
         localStorage.setItem('grilo_token', token);
         localStorage.setItem('grilo_user', JSON.stringify(data.user));
+        localStorage.setItem('grilo_analytics_ping', String(Date.now()));
         console.log('[GRILO] Token salvo:', token.substring(0, 20) + '...');
         console.log('[GRILO] User salvo:', data.user.username);
         console.log('[GRILO] localStorage keys:', Object.keys(localStorage));

@@ -76,8 +76,35 @@ class _SaveProgressBody(BaseModel):
     total_questions: int
 
 
+class _LessonsPageViewBody(BaseModel):
+    source: str | None = None
+
+
 def _get_standalone_lesson_slug(lesson_id: int) -> str | None:
     return _STANDALONE_LESSON_SLUGS.get(int(lesson_id))
+
+
+@router.post("/api/lessons/page-view")
+async def track_lessons_page_view(
+    body: _LessonsPageViewBody | None = None,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Persist each lessons page access so the dashboard reflects page visits."""
+    try:
+        uid = int(user_id)
+        mark_activity(db, uid, "lesson")
+        track_metric_event(
+            db,
+            uid,
+            "lesson",
+            "lessons_page_view",
+            details={"source": (body.source if body and body.source else "lessons_page")},
+        )
+        return {"success": True}
+    except Exception as exc:
+        logger.error("[LESSONS-PAGE] Error tracking page view: %s", str(exc))
+        raise HTTPException(status_code=500, detail="Error tracking lessons page view")
 
 
 @router.get("/api/lessons/all")
@@ -87,7 +114,7 @@ async def get_all_lessons_v2(
 ):
     """Get all A1 lessons in V2 format."""
     try:
-        from lessons_v2 import get_all_lessons
+        from backend.lessons_v2 import get_all_lessons
 
         lessons = get_all_lessons()
         logger.info("[LESSONS-V2] Retrieved %s lessons for user %s", len(lessons), user_id)
@@ -104,7 +131,7 @@ async def get_lesson_categories(
 ):
     """Get all available lesson categories."""
     try:
-        from lessons_v2 import get_all_categories, get_lessons_count
+        from backend.lessons_v2 import get_all_categories, get_lessons_count
 
         categories = get_all_categories()
         total_lessons = get_lessons_count()
@@ -152,7 +179,7 @@ async def track_lesson_access(
 ):
     """Persist every lesson open so dashboard access counters reflect real usage."""
     try:
-        from lessons_v2 import get_lesson_by_id
+        from backend.lessons_v2 import get_lesson_by_id
 
         lesson = get_lesson_by_id(lesson_id)
         standalone_slug = _get_standalone_lesson_slug(lesson_id)
@@ -189,7 +216,7 @@ async def submit_lesson_exercise(
 ):
     """Submit answer to a lesson exercise using selected option index."""
     try:
-        from lessons_v2 import get_lesson_by_id
+        from backend.lessons_v2 import get_lesson_by_id
 
         lesson = get_lesson_by_id(lesson_id)
         standalone_slug = _get_standalone_lesson_slug(lesson_id)

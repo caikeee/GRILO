@@ -195,6 +195,25 @@ def _get_event_count(
     return int(query.scalar() or 0)
 
 
+def _get_event_count_by_detail(
+    db: Session,
+    *,
+    event_name: str,
+    detail_key: str,
+    detail_value: str,
+) -> int:
+    total = 0
+    rows = (
+        db.query(AnalyticsEvent.details, AnalyticsEvent.count)
+        .filter(AnalyticsEvent.event_name == event_name)
+        .all()
+    )
+    for details, count in rows:
+        if isinstance(details, dict) and details.get(detail_key) == detail_value:
+            total += int(count or 0)
+    return total
+
+
 def _get_voice_user_ids(db: Session, start_day: date | None = None, end_day: date | None = None) -> Set[int]:
     user_ids: Set[int] = set()
 
@@ -307,6 +326,14 @@ def _get_business_health(db: Session) -> Dict[str, Any]:
 
     retention_d7 = _calculate_retention(db, days=7)
     retention_d30 = _calculate_retention(db, days=30)
+    _, _, today_start, tomorrow_start = _activity_window(today, today)
+    total_logins = _get_event_count(db, event_name="login_success")
+    logins_today = _get_event_count(
+        db,
+        event_name="login_success",
+        start_dt=today_start,
+        end_dt=tomorrow_start,
+    )
 
     last_seen = _get_last_seen_by_user(db)
     churned_users = 0
@@ -329,6 +356,8 @@ def _get_business_health(db: Session) -> Dict[str, Any]:
         "users_with_streak": int(users_with_streak),
         "avg_xp_per_user": int(avg_xp),
         "avg_conversations_per_user": avg_conversations,
+        "total_logins": int(total_logins),
+        "logins_today": int(logins_today),
         "retention_d7_percent": retention_d7,
         "retention_d30_percent": retention_d30,
         "churn_rate_percent": churn_rate,
@@ -339,6 +368,13 @@ def _get_learning_metrics(db: Session) -> Dict[str, Any]:
     """Métricas de aprendizado baseadas em acessos rastreados e progresso salvo."""
 
     lessons_accessed = _get_event_count(db, event_name="lesson_access")
+    standalone_lessons_accessed = _get_event_count_by_detail(
+        db,
+        event_name="lesson_access",
+        detail_key="source",
+        detail_value="standalone",
+    )
+    lessons_page_views = _get_event_count(db, event_name="lessons_page_view")
     unique_lessons_accessed = (
         db.query(func.count(func.distinct(AnalyticsEvent.lesson_id)))
         .filter(
@@ -421,7 +457,9 @@ def _get_learning_metrics(db: Session) -> Dict[str, Any]:
     unique_badges = db.query(func.count(func.distinct(UserBadge.badge_id))).scalar() or 0
 
     return {
+        "lessons_page_views": int(lessons_page_views),
         "lessons_accessed": int(lessons_accessed),
+        "standalone_lessons_accessed": int(standalone_lessons_accessed),
         "unique_lessons_accessed": int(unique_lessons_accessed),
         "lessons_completed": int(lessons_completed_total),
         "avg_completion_rate_percent": avg_score,

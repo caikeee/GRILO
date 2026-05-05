@@ -4,7 +4,7 @@
  */
 
 const API_BASE = window.location.origin;
-const DASHBOARD_REFRESH_MS = 15 * 1000;
+const DASHBOARD_REFRESH_MS = 3 * 1000;
 let chartsInstances = {};
 let analyticsRequestInFlight = false;
 
@@ -18,12 +18,17 @@ document.addEventListener('visibilitychange', () => {
 });
 
 window.addEventListener('focus', loadAnalytics);
+window.addEventListener('storage', (event) => {
+    if (event.key === 'grilo_analytics_ping') {
+        loadAnalytics();
+    }
+});
 
 async function loadAnalytics() {
     if (analyticsRequestInFlight) return;
     analyticsRequestInFlight = true;
     try {
-        const response = await fetch(`${API_BASE}/api/analytics/dashboard`);
+        const response = await fetch(`${API_BASE}/api/analytics/dashboard`, { cache: 'no-store' });
         if (!response.ok) throw new Error('Erro ao buscar analytics');
         
         const result = await response.json();
@@ -82,6 +87,8 @@ function renderBusinessHealth(health) {
     const stickiness = health.stickiness_percent;
     const retention = health.retention_d7_percent;
     const churn = health.churn_rate_percent;
+    const totalLogins = health.total_logins || 0;
+    const loginsToday = health.logins_today || 0;
 
     return `
         <div class="section-title">💰 Saúde do Negócio</div>
@@ -141,6 +148,12 @@ function renderBusinessHealth(health) {
                 <div class="card-value">${health.avg_conversations_per_user}</div>
                 <div class="card-label">Texto + voice por usuário ativo</div>
             </div>
+
+            <div class="card">
+                <div class="card-title">Logins</div>
+                <div class="card-value">${formatNumber(totalLogins)}</div>
+                <div class="card-label">${formatNumber(loginsToday)} hoje</div>
+            </div>
         </div>
     `;
 }
@@ -150,12 +163,26 @@ function renderLearningMetrics(learning) {
     const difficulty = learning.difficulty_distribution;
     const uniqueLessons = learning.unique_lessons_accessed || 0;
     const exerciseSubmissions = learning.exercise_submissions || 0;
+    const lessonsPageViews = learning.lessons_page_views || 0;
+    const standaloneLessonsAccessed = learning.standalone_lessons_accessed || 0;
 
     return `
         <div class="section-title">📚 Qualidade de Aprendizado</div>
         <div class="dashboard-grid">
             <div class="card">
-                <div class="card-title">Acessos a Aulas</div>
+                <div class="card-title">Página Lessons</div>
+                <div class="card-value">${lessonsPageViews}</div>
+                <div class="card-label">Cada acesso à área de lições</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Acessos às 8 Lições</div>
+                <div class="card-value">${standaloneLessonsAccessed}</div>
+                <div class="card-label">Aberturas das lições da página lessons</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Acessos Totais a Aulas</div>
                 <div class="card-value">${learning.lessons_accessed}</div>
                 <div class="card-label">${uniqueLessons} aulas únicas abertas</div>
             </div>
