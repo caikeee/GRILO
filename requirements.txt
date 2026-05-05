@@ -9,6 +9,7 @@ uvicorn
 python-dotenv
 groq
 sqlalchemy>=2.0
+psycopg2-binary>=2.9.0
 alembic
 python-jose[cryptography]
 bcrypt
@@ -30,5 +31,3 @@ PyPDF2
 tiktoken
 sentence-transformers
 chromadb
-
-
