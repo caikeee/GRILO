@@ -96,7 +96,7 @@
         {
           id: 'de-quem-e',
           title: 'De quem é isso? my/your/his/her vs mine/yours/his/hers',
-          explanation: 'Para dizer que algo pertence a alguém, o inglês tem dois jeitos. O primeiro é colocar uma palavra antes do objeto: "my bag" (minha bolsa), "his car" (o carro dele). O segundo é substituir o objeto inteiro: "the bag is mine" (a bolsa é minha), "the car is his". A diferença prática: se o objeto aparece na frase, use o primeiro jeito (my, your, his, her, its, our, their). Se o objeto já foi mencionado ou está claro no contexto, use o segundo (mine, yours, his, hers, ours, theirs). "Its" não tem forma separada — não existe "its own" no sentido possessivo isolado.',
+          explanation: 'Para dizer que algo pertence a alguém, o inglês tem dois jeitos. O primeiro é colocar uma palavra antes do objeto: "my bag" (minha bolsa), "his car" (o carro dele). O segundo é substituir o objeto inteiro: "the bag is mine" (a bolsa é minha), "the car is his". A diferença prática: se o objeto aparece na frase, use o primeiro jeito (my, your, his, her, its, our, their). Se o objeto já foi mencionado ou está claro no contexto, use o segundo (mine, yours, his, hers, ours, theirs). "Its" não tem forma independente — em inglês não existe "the bag is its" (ao contrário de "mine", "yours", "hers").',
           examples: [
             { en: 'This is my phone.', pt: 'Esse é o meu celular.' },
             { en: 'This phone is mine.', pt: 'Esse celular é meu.' },
@@ -755,10 +755,10 @@
 
   const ANCHOR_DIALOGS = {
     pronomes: {
-      dialogue: 'I see that ___1___ are going to the park. Can ___2___ come with me?',
+      dialogue: 'I see that ___1___ are going to the park. Can you come with ___2___?',
       blanks: [
-        { answer: 'you', hint: 'Quem vai? "_____ são". Sujeito = você.' },
-        { answer: 'me', hint: 'Depois de preposição: "come with _____".' }
+        { answer: 'you', hint: 'Quem vai ao parque? Sujeito antes do verbo = você.' },
+        { answer: 'me', hint: 'Depois de preposição "with": "come with _____".' }
       ]
     }
   };
@@ -772,8 +772,8 @@
         { pt: 'Ela', en: 'She', category: 'subject', example: 'She loves coffee.' },
         { pt: 'Me/mim', en: 'Me', category: 'object', example: 'She called me yesterday.' },
         { pt: 'Você (objeto)', en: 'You', category: 'object', example: 'I saw you at the store.' },
-        { pt: 'O/O dele', en: 'Him', category: 'object', example: 'I saw him.' },
-        { pt: 'A/A dela', en: 'Her', category: 'object', example: 'I helped her.' }
+        { pt: 'Ele (objeto)', en: 'Him', category: 'object', example: 'I saw him.' },
+        { pt: 'Ela (objeto)', en: 'Her', category: 'object', example: 'I helped her.' }
       ]
     }
   };
@@ -806,46 +806,46 @@
   const PEDAGOGICAL_EDITORIAL = {
     pronomes: {
       kicker: 'Trilha guiada',
-      headline: 'Pronomes sem atrito: quem faz, quem recebe e de quem e cada coisa.',
-      intro: 'Em vez de decorar listas soltas, esta aula organiza os pronomes pelo uso real. Primeiro voce identifica o papel da palavra na frase. Depois compara, testa e fixa com pratica curta.',
-      journey: ['Quem faz a acao', 'Quem recebe a acao', 'Como mostrar posse'],
+      headline: 'Pronomes sem atrito: quem faz, quem recebe e de quem é cada coisa.',
+      intro: 'Em vez de decorar listas soltas, esta aula organiza os pronomes pelo uso real. Primeiro você identifica o papel da palavra na frase. Depois compara, testa e fixa com prática curta.',
+      journey: ['Quem faz a ação', 'Quem recebe a ação', 'Como mostrar posse'],
       sections: [
         {
           label: 'Bloco 1',
           focus: 'Sujeito',
-          summary: 'Comece pelo papel mais importante da frase: quem executa a acao. Se a palavra vem antes do verbo e carrega a acao, ela precisa estar no grupo de sujeito.'
+          summary: 'Comece pelo papel mais importante da frase: quem executa a ação. Se a palavra vem antes do verbo e carrega a ação, ela precisa estar no grupo de sujeito.'
         },
         {
           label: 'Bloco 2',
           focus: 'Objeto',
-          summary: 'Agora muda a lente: a pessoa nao faz a acao, ela recebe. E aqui que brasileiros costumam travar ao trocar I por me, he por him, she por her.'
+          summary: 'Agora muda a lente: a pessoa não faz a ação, ela recebe. É aqui que brasileiros costumam travar ao trocar I por me, he por him, she por her.'
         },
         {
           label: 'Bloco 3',
           focus: 'Posse',
-          summary: 'Por fim, voce separa duas ideias que parecem iguais em portugues: dizer que algo e meu antes do objeto e dizer que aquilo e meu sem repetir o objeto.'
+          summary: 'Por fim, você separa duas ideias que parecem iguais em português: dizer que algo é meu antes do objeto e dizer que aquilo é meu sem repetir o objeto.'
         }
       ],
       phases: {
         anchor: {
           kicker: 'Aquecimento',
-          title: 'Leia a cena e complete como quem ja entendeu o papel de cada pronome.',
-          copy: 'Aqui a ideia nao e acertar por acaso. E olhar para a frase e decidir: quem esta fazendo a acao e quem esta entrando depois da preposicao?'
+          title: 'Leia a cena e complete como quem já entendeu o papel de cada pronome.',
+          copy: 'Aqui a ideia não é acertar por acaso. É olhar para a frase e decidir: quem está fazendo a ação e quem está entrando depois da preposição?'
         },
         table: {
-          kicker: 'Mapa rapido',
-          title: 'Veja o quadro completo antes de avancar para a pratica.',
-          copy: 'Use esta tabela como folha de apoio. Ela junta significado em portugues, forma em ingles e um exemplo curto para voce bater o olho e comparar.'
+          kicker: 'Mapa rápido',
+          title: 'Veja o quadro completo antes de avançar para a prática.',
+          copy: 'Use esta tabela como folha de apoio. Ela junta significado em português, forma em inglês e um exemplo curto para você bater o olho e comparar.'
         },
         exercises: {
-          kicker: 'Pratica guiada',
-          title: 'Agora a teoria vira decisao rapida.',
-          copy: 'As questoes foram organizadas do mais direto para o mais traiçoeiro. A ideia e ganhar criterio, nao apenas pontuar.'
+          kicker: 'Prática guiada',
+          title: 'Agora a teoria vira decisão rápida.',
+          copy: 'As questões foram organizadas do mais direto para o mais traiçoeiro. A ideia é ganhar critério, não apenas pontuar.'
         },
         test: {
           kicker: 'Fechamento',
-          title: 'Valide se a logica ficou clara sem depender da tabela.',
-          copy: 'Se voce passa aqui, significa que ja consegue distinguir funcao na frase e escolher a forma certa com mais naturalidade.'
+          title: 'Valide se a lógica ficou clara sem depender da tabela.',
+          copy: 'Se você passa aqui, significa que já consegue distinguir função na frase e escolher a forma certa com mais naturalidade.'
         }
       }
     },
@@ -1022,6 +1022,152 @@
     }
   };
 
+  const GRILO_COACH_GUIDES = {
+    pronomes: {
+      anchor: 'Olhe só a posição da lacuna. Antes do verbo costuma morar quem faz; depois de "with" mora quem acompanha ou recebe a ação.',
+      scaffolded: 'Antes de tocar nas opções, abra três gavetas na cabeça: quem faz, quem recebe e de quem é.',
+      finalTest: [
+        'Pergunte o papel de "me" na cena: ele não puxa o verbo, ele recebe a ligação.',
+        'Depois de preposição como "for", o inglês chama a forma que recebe, não a forma que manda no verbo.',
+        'Antes de "am", você precisa da forma que entra como sujeito. Objeto e posse não encaixam aí.'
+      ],
+      sections: {
+        'quem-faz': {
+          content: 'Brasileirando: aqui você caça o personagem principal da frase. Se a palavrinha empurra o verbo, ela entrou no time do sujeito.',
+          exercise: 'Colinha: antes do verbo mora quem faz. Se uma opção parece posse ou alguém recebendo algo, ela já nasce suspeita.'
+        },
+        'quem-recebe': {
+          content: 'Pensa no português falado: não é quem faz, é quem leva a ligação, a ajuda ou o convite. Esse pedaço do inglês gosta de aparecer depois do verbo ou da preposição.',
+          exercise: 'Colinha: verbo ou preposição acendem alerta de objeto. Se a frase tiver "for", "with", "to" ou "help", procure a forma que recebe a ação.'
+        },
+        'de-quem-e': {
+          content: 'Aqui a pergunta é só uma: o objeto ainda aparece na frase ou já sumiu? Se o nome está ali, a posse vai grudada nele; se sumiu, a posse anda sozinha.',
+          exercise: 'Colinha: posse colada no substantivo é uma família; posse no fim da frase é outra. Primeiro veja se o objeto ainda está escrito.'
+        }
+      }
+    },
+    perguntas: {
+      sections: {
+        'pergunta-simou-nao': {
+          content: 'Inglês não gosta de pergunta no improviso. Quase sempre ele abre a frase com uma muleta: do, does ou did.',
+          exercise: 'Colinha: troque o sujeito pelo pronome-resumo antes de decidir o auxiliar. Depois deixe o verbo principal pelado, sem -s e sem -ed.'
+        },
+        'palavras-de-pergunta': {
+          content: 'Primeiro escolha o tipo de informação que você quer puxar: lugar, tempo, motivo, pessoa ou quantidade. Depois encaixe o resto da frase no trilho.',
+          exercise: 'Colinha: decida o assunto da pergunta antes de olhar para o auxiliar. Se "who" for a própria pessoa que faz a ação, ele pode ir direto no verbo.'
+        },
+        'perguntinhas-ne': {
+          content: 'Isso aqui é o nosso "né?" com espelho. A frase fala uma coisa e o rabinho vem do lado oposto para pedir confirmação.',
+          exercise: 'Colinha: não invente um auxiliar novo. Repita o que a frase já usou e só vire o sinal: positivo chama negativo, negativo chama positivo.'
+        }
+      }
+    },
+    negativa: {
+      sections: {
+        'negar-ser-estar': {
+          content: 'Quando a frase usa am, is ou are, o inglês não pede ajudante. O próprio verbo já segura o não.',
+          exercise: 'Colinha: com to be, o não cola no próprio verbo. Se apareceu don\'t/doesn\'t, desconfie na hora.'
+        },
+        'negar-acoes-presente': {
+          content: 'Aqui o inglês joga o "não" num ajudante. O verbo principal fica magro, sem marca extra.',
+          exercise: 'Colinha: don\'t e doesn\'t carregam o peso da negativa. O verbo depois deles volta para a forma base.'
+        },
+        'negar-passado': {
+          content: 'Didn\'t já entrega passado e negação ao mesmo tempo. Por isso o verbo principal volta zerado, como no dicionário.',
+          exercise: 'Colinha: se o passado já apareceu no auxiliar, não repita passado no verbo. Didn\'t + base é o caminho limpo.'
+        },
+        'never-nobody-nothing': {
+          content: 'Essas palavras já nascem negativas. Quando elas entram, a frase não precisa de outro "não" junto.',
+          exercise: 'Colinha: escolha entre "palavra negativa" ou "don\'t + anything". Os dois juntos pesam demais e viram erro no inglês padrão.'
+        }
+      }
+    },
+    passado: {
+      sections: {
+        'passado-simples-regular': {
+          content: 'Se a cena acabou, o inglês costuma fechar com -ed. É o pacote básico para contar fato concluído.',
+          exercise: 'Colinha: pense em ação encerrada. Se o verbo é regular, olhe se ele só ganhou -ed, trocou y por ied ou dobrou a consoante final.'
+        },
+        'verbos-irregulares': {
+          content: 'Os irregulares fogem do -ed, mas não fogem da lógica. Na negativa e na pergunta, todos voltam para a base com did.',
+          exercise: 'Colinha: no afirmativo você lembra a forma irregular; com did/didn\'t, a fantasia cai e o verbo volta ao normal.'
+        },
+        'estava-acontecendo': {
+          content: 'Pensa em filme: uma ação era o fundo da cena e outra entrou cortando. O fundo vai em was/were + ing.',
+          exercise: 'Colinha: ache primeiro o que estava rolando por mais tempo. Essa parte pede was/were + ing; o corte pontual fica no passado simples.'
+        }
+      }
+    },
+    futuro: {
+      sections: {
+        'will-na-hora': {
+          content: 'Will é futuro que nasce na boca: decisão da hora, promessa ou palpite sem prova na frente dos olhos.',
+          exercise: 'Colinha: se a ideia parece resposta instantânea, oferta ou promessa, incline para will. Se já vinha sendo pensada, desconfie de outra estrutura.'
+        },
+        'going-to-plano': {
+          content: 'Going to é futuro com história antes da frase. Ou já era plano, ou a evidência está gritando na sua frente.',
+          exercise: 'Colinha: pergunte se isso já estava decidido ou visível antes da fala. Se sim, going to fica mais natural do que will.'
+        },
+        'compromissos-marcados': {
+          content: 'Aqui o futuro tem cara de agenda: encontro marcado, passagem comprada, horário combinado.',
+          exercise: 'Colinha: quando parece calendário de verdade, o inglês trata como compromisso em andamento e usa presente contínuo.'
+        }
+      }
+    },
+    gerundio: {
+      sections: {
+        'o-que-e-ing': {
+          content: 'O -ing pode ser ação rolando agora ou o nome da ação. O segredo é olhar a moldura da frase, não só o final da palavra.',
+          exercise: 'Colinha: se a palavra vier depois de preposição ou funcionar como ideia geral, o -ing costuma ganhar força.'
+        },
+        'verbos-que-pedem-ing': {
+          content: 'Alguns verbos gostam de enxergar a próxima ação como atividade em curso. Por isso puxam o -ing naturalmente.',
+          exercise: 'Colinha: enjoy, finish, avoid, mind e companhia costumam pedir a ação seguinte em versão -ing.'
+        },
+        'verbos-que-pedem-to': {
+          content: 'Outros verbos abrem um corredor para "to + verbo base". Eles enxergam a próxima ação como intenção, plano ou objetivo.',
+          exercise: 'Colinha: want, need, decide, plan, refuse e vários parecidos pedem to antes do verbo que vem depois.'
+        },
+        'mudanca-de-significado': {
+          content: 'Aqui a escolha muda a história. Não é só uma forma diferente: é uma intenção diferente dentro da frase.',
+          exercise: 'Colinha: antes de escolher, pergunte se a frase fala de parar a ação, parar para outra ação, lembrar do passado ou lembrar algo que ainda falta fazer.'
+        }
+      }
+    },
+    preposicoes: {
+      sections: {
+        'lugar-in-on-at': {
+          content: 'Imagine três cenas: dentro da caixa, em cima da superfície ou num pontinho do mapa. In, on e at seguem esse desenho mental.',
+          exercise: 'Colinha: pergunte se o lugar parece interior, superfície ou ponto específico. A preposição quase sempre cai dessa imagem.'
+        },
+        'tempo-in-on-at': {
+          content: 'A mesma lógica vira calendário: período grande, dia marcado ou hora exata. O inglês reaproveita o mesmo mapa.',
+          exercise: 'Colinha: mês, ano e estação costumam abrir espaço para in; dias puxam on; relógio e momento exato puxam at.'
+        },
+        'movimento-to-from': {
+          content: 'Pergunta de movimento é sempre isso: indo para, vindo de, entrando, saindo? Cada resposta chama uma preposição diferente.',
+          exercise: 'Colinha: primeiro descubra a direção do movimento. Destino, origem, entrada e saída quase nunca usam a mesma palavrinha.'
+        }
+      }
+    },
+    verbos: {
+      sections: {
+        'to-be': {
+          content: 'To be é o coringa do inglês: identidade, estado, idade, horário e pergunta. Ele faz muita coisa sozinho.',
+          exercise: 'Colinha: se a frase fala de ser, estar, idade, hora ou condição, veja se o verbo principal já é o próprio to be.'
+        },
+        'can-must-should': {
+          content: 'Aqui você não escolhe tempo; escolhe força. Pode, deve, deveria, talvez: o modal muda o peso da frase inteira.',
+          exercise: 'Colinha: modal não leva -s e não chama to depois dele. Primeiro sinta a intenção: habilidade, obrigação, conselho ou possibilidade.'
+        },
+        'phrasal-verbs': {
+          content: 'Phrasal verb não é quebra-cabeça de palavra solta. O sentido mora no bloco inteiro, como expressão pronta do dia a dia.',
+          exercise: 'Colinha: não traduza cada pedaço sozinho. Compare a ideia em português com o bloco inteiro e pense na situação real da frase.'
+        }
+      }
+    }
+  };
+
   function shortenEditorialSentence(text) {
     const normalized = String(text || '').replace(/\s+/g, ' ').trim();
     if (!normalized) return '';
@@ -1073,11 +1219,203 @@
     }[char]));
   }
 
+  function formatGriloHintText(text) {
+    return escapePedagogicalHtml(String(text || '').trim()).replace(/\n+/g, '<br>');
+  }
+
+  const GRILO_HINT_ICON = `
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <g fill="none">
+        <path fill="#86d72f" d="M7 10.85v1.685A4 4 0 0 1 9 12c1.8 0 3.984.663 4.733 2.53h1.818L15.5 14l4.742-2l2.448-2.75c.28-.31.75-.34 1.06-.06c.184.163.27.4.25.634V12l1 2.5l-.246.615a5.5 5.5 0 0 1 2.756 3.215c.26.83-.36 1.67-1.23 1.67H24v4.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75V20h-4.48l-1.17 1.96A2.068 2.068 0 0 1 13.215 20H11.11v4.25a.749.749 0 1 1-1.5 0V20H9q-.255 0-.5-.03v1.49c0 .63-.25 1.22-.69 1.67L6.14 24.8c-.15.14-.34.21-.53.21s-.38-.07-.53-.22a.754.754 0 0 1 0-1.06l1.67-1.67a.84.84 0 0 0 .25-.6v-1.995a4 4 0 0 1-1-6.11V10.85C6 9.28 7.28 8 8.85 8H19.5c.28 0 .5.22.5.5s-.22.5-.5.5H8.85C7.83 9 7 9.83 7 10.85"></path>
+        <path fill="#c3ef3c" d="M5.96 12c.57 0 1.04.47 1.04 1.05v5.9C7 19.53 6.53 20 5.96 20C3.77 20 2 18.21 2 16s1.77-4 3.96-4m3.17 0h11.112l-4.45 5h-2.918a4 4 0 0 0-3.744-4.998zm13.37 5h-2.692l2.692-4.513zm1.5-5v5h.28c2.27 0 4.37-1.19 5.54-3.14c.49-.82-.1-1.86-1.05-1.86z"></path>
+        <path fill="#212121" d="M4.5 15c-.28 0-.5.22-.5.5v1c0 .28.22.5.5.5s.5-.22.5-.5v-1c0-.28-.22-.5-.5-.5"></path>
+      </g>
+    </svg>`;
+
+  function renderGriloHint(text, options = {}) {
+    const copy = String(text || '').trim();
+    if (!copy) return '';
+
+    const title = options.title || 'Ajuda do GRILO';
+    const className = options.wide ? ' lp-grilo-hint--content' : '';
+
+    return `
+      <span class="lp-grilo-hint${className}" tabindex="0" aria-label="${escapePedagogicalHtml(options.ariaLabel || title)}">
+        <span class="lp-grilo-hint__icon" aria-hidden="true">${GRILO_HINT_ICON}</span>
+        <span class="lp-grilo-hint__tooltip" role="tooltip">
+          <strong class="lp-grilo-hint__title">${escapePedagogicalHtml(title)}</strong>
+          <span class="lp-grilo-hint__body">${formatGriloHintText(copy)}</span>
+        </span>
+      </span>`;
+  }
+
+  function getSectionCoachGuide(slug, sectionId) {
+    return GRILO_COACH_GUIDES[slug]?.sections?.[sectionId] || null;
+  }
+
+  function cleanQuestionCue(token) {
+    let cleaned = String(token || '').replace(/\s+/g, ' ').trim();
+    cleaned = cleaned.split(/\s+—\s+/)[0].trim();
+    cleaned = cleaned.split(/\s+-\s+/)[0].trim();
+    cleaned = cleaned.replace(/^use\s+/i, '').trim();
+    cleaned = cleaned.replace(/^correto:\s*/i, '').trim();
+
+    if (cleaned.length > 72) {
+      cleaned = `${cleaned.slice(0, 69).trim()}...`;
+    }
+
+    return cleaned;
+  }
+
+  function looksLikePortugueseCue(token) {
+    const value = String(token || '').trim();
+    if (!value) return false;
+
+    if (/^(i|me|my|mine|you|your|yours|he|him|his|she|her|hers|we|us|our|ours|they|them|their|theirs|do|does|did|was|were|will|won't|can|could|should|must)$/i.test(value)) {
+      return false;
+    }
+
+    if (/\b(use|going to|turn off|turn down|look up|saw|called|does|did)\b/i.test(value) && !/[áéíóúãõç]/i.test(value)) {
+      return false;
+    }
+
+    return /[áéíóúãõç]/i.test(value)
+      || /\b(eu|você|voce|ele|ela|nós|nos|dela|dele|onde|quando|como|ninguém|nada|nunca|talvez|trabalho|hospital|parque|verdade|inglês|ingles|desligar|estudar|horário|horario|plano|passado|frango|cadeira|professor|cliente)\b/i.test(value);
+  }
+
+  function extractQuestionCues(question) {
+    const normalized = String(question || '').replace(/\s+/g, ' ').trim();
+    const candidates = [];
+
+    Array.from(normalized.matchAll(/\[([^\]]+)\]/g)).forEach((match) => candidates.push(match[1]));
+    Array.from(normalized.matchAll(/\(([^)]+)\)/g)).forEach((match) => candidates.push(match[1]));
+    Array.from(normalized.matchAll(/"([^"]+)"/g)).forEach((match) => candidates.push(match[1]));
+
+    return Array.from(new Set(candidates
+      .map(cleanQuestionCue)
+      .filter(looksLikePortugueseCue)
+    )).slice(0, 3);
+  }
+
+  function buildQuestionCueHint(question) {
+    const cues = extractQuestionCues(question);
+    if (!cues.length) return '';
+
+    if (cues.length === 1) {
+      return `Tradução-pista: pense em "${cues[0]}" antes de olhar para o inglês.`;
+    }
+
+    return `Pistas em português: ${cues.map((cue) => `"${cue}"`).join(' • ')}.`;
+  }
+
+  function buildOptionCoachHint(options = []) {
+    const compact = options.join(' | ').toLowerCase();
+    if (!compact) return '';
+
+    if (options.some((option) => option.includes('/'))) {
+      return 'Tem mais de uma lacuna disfarçada aí. Resolva um pedaço da frase por vez antes de montar o conjunto.';
+    }
+
+    if (/\b(i|he|she|we|they)\b/.test(compact) && /\b(me|him|her|us|them)\b/.test(compact)) {
+      return 'As opções misturam quem faz com quem recebe. Primeiro descubra o papel da palavra na frase.';
+    }
+
+    if ((/\bmy\b/.test(compact) && /\bmine\b/.test(compact))
+      || (/\byour\b/.test(compact) && /\byours\b/.test(compact))
+      || (/\bher\b/.test(compact) && /\bhers\b/.test(compact))) {
+      return 'Uma opção quer vir grudada no substantivo; a outra quer andar sozinha no fim da ideia.';
+    }
+
+    if ((/\bdo\b/.test(compact) && /\bdoes\b/.test(compact))
+      || (/don't/.test(compact) && /doesn't/.test(compact))) {
+      return 'Encolha o sujeito para um pronome na cabeça. He/she/it puxam um trilho; I/you/we/they puxam outro.';
+    }
+
+    if (/\bdid\b/.test(compact) || /didn't/.test(compact)) {
+      return 'Se o auxiliar já trouxe o passado, o verbo principal volta para a forma base.';
+    }
+
+    if (/\bwas\b/.test(compact) && /\bwere\b/.test(compact)) {
+      return 'Decida antes se o sujeito soa singular ou plural. A escolha do auxiliar vem daí.';
+    }
+
+    if (/\bwill\b/.test(compact) && /going to/.test(compact)) {
+      return 'A briga aqui não é de futuro: é de intenção. Decisão da hora e plano antigo não soam iguais.';
+    }
+
+    if (/\bin\b/.test(compact) && /\bon\b/.test(compact) && /\bat\b/.test(compact)) {
+      return 'Imagine a cena: dentro, em cima ou num ponto exato. A preposição costuma cair dessa imagem.';
+    }
+
+    if (/\b(can|could|must|should|might|may)\b/.test(compact)) {
+      return 'Olhe o peso da frase: habilidade, obrigação, conselho ou possibilidade. O modal certo nasce dessa intenção.';
+    }
+
+    if (/turn off/.test(compact) && /turn down/.test(compact)) {
+      return 'Uma opção corta de vez; a outra só abaixa. A pista em português diz qual intensidade a frase quer.';
+    }
+
+    if (/run out of|give up|give out|turn down|show up|break up|look after|look up/.test(compact)) {
+      return 'Aqui o bloco inteiro manda mais do que cada palavra sozinha. Pense na situação, não na tradução literal.';
+    }
+
+    if (/\bto\b/.test(compact) && /ing\b/.test(compact)) {
+      return 'A pista não está no verbo final; está no verbo anterior. Ele decide se a continuação vem em -ing ou em to + base.';
+    }
+
+    return '';
+  }
+
+  function getContentCoachHint(slug, section) {
+    return getSectionCoachGuide(slug, section?.id)?.content
+      || 'GRILO traduzindo: esqueça o nome técnico por um minuto e pergunte qual trabalho essa peça está fazendo na frase.';
+  }
+
+  function getExerciseCoachHint(slug, section, question, options = []) {
+    const guide = getSectionCoachGuide(slug, section?.id);
+
+    return [
+      buildQuestionCueHint(question),
+      guide?.exercise || 'Colinha: antes de comparar as alternativas, descubra o papel da palavra ou a lógica da estrutura pedida.',
+      buildOptionCoachHint(options)
+    ].filter(Boolean).join(' ');
+  }
+
+  function getScaffoldedCoachHint(slug, exercise) {
+    const question = String(exercise?.q || '');
+    let focusHint = GRILO_COACH_GUIDES[slug]?.scaffolded || '';
+
+    if (/enjoy cooking.*help/i.test(question)) {
+      focusHint = 'Colinha: a primeira lacuna faz a ação de cozinhar; a segunda entra depois de "help" e recebe a ajuda.';
+    } else if (/called|with|help/i.test(question)) {
+      focusHint = GRILO_COACH_GUIDES.pronomes.sections['quem-recebe'].exercise;
+    } else if (/your|yours|mine|my|book is your|bag is/i.test(question)) {
+      focusHint = GRILO_COACH_GUIDES.pronomes.sections['de-quem-e'].exercise;
+    } else {
+      focusHint = GRILO_COACH_GUIDES.pronomes.sections['quem-faz'].exercise;
+    }
+
+    return [
+      buildQuestionCueHint(question),
+      focusHint,
+      buildOptionCoachHint(exercise?.options || [])
+    ].filter(Boolean).join(' ');
+  }
+
+  function getFinalTestCoachHint(slug, test, questionIndex) {
+    return [
+      buildQuestionCueHint(test?.q || ''),
+      GRILO_COACH_GUIDES[slug]?.finalTest?.[questionIndex] || 'Colinha: o teste continua cobrando a função da palavra e a lógica da estrutura, não a sua memória decorada.',
+      buildOptionCoachHint(test?.options || [])
+    ].filter(Boolean).join(' ');
+  }
+
   function renderAnchorDialog(slug) {
     const anchor = ANCHOR_DIALOGS[slug];
     if (!anchor) return '';
     const editorial = getPedagogicalEditorial(slug, lessons[slug]);
     const phase = editorial.phases?.anchor || {};
+    const coachHint = GRILO_COACH_GUIDES[slug]?.anchor || '';
 
     let dialogue = escapePedagogicalHtml(anchor.dialogue);
     anchor.blanks.forEach((blank, blankIndex) => {
@@ -1112,6 +1450,7 @@
           <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Aquecimento')}</span>
           <h3 class="lp-phase-title">${escapePedagogicalHtml(phase.title || 'Complete a cena com os pronomes certos.')}</h3>
           <p class="lp-phase-copy">${escapePedagogicalHtml(phase.copy || '')}</p>
+          ${renderGriloHint(coachHint, { wide: true, title: 'Ajuda do GRILO', ariaLabel: 'Ajuda do GRILO para o aquecimento' })}
         </div>
         <div class="lp-anchor-dialogue">
           <div class="lp-anchor-text">${dialogue}</div>
@@ -1129,6 +1468,7 @@
     const sectionCards = (lesson.sections || []).map((section, index) => {
       const sectionEditorial = editorial.sections?.[index] || {};
       const example = Array.isArray(section.examples) && section.examples.length > 0 ? section.examples[0] : null;
+      const coachHint = getContentCoachHint(slug, section);
       const exampleHtml = example
         ? `<div class="lp-peda-example"><strong>${escapePedagogicalHtml(typeof example === 'string' ? example : example.en)}</strong>${typeof example === 'object' && example.pt ? `<span>${escapePedagogicalHtml(example.pt)}</span>` : ''}</div>`
         : '';
@@ -1138,6 +1478,7 @@
           <div class="lp-peda-section-top">
             <div class="lp-peda-section-index">${escapePedagogicalHtml(sectionEditorial.label || `Bloco ${index + 1}`)}</div>
             <div class="lp-peda-section-chip">${escapePedagogicalHtml(sectionEditorial.focus || 'Conceito')}</div>
+            ${renderGriloHint(coachHint, { wide: true, title: 'Ajuda do GRILO', ariaLabel: 'Resumo simplificado do GRILO' })}
           </div>
           <h3 class="lp-peda-section-title">${escapePedagogicalHtml(section.title)}</h3>
           ${sectionEditorial.summary ? `<p class="lp-peda-section-lead">${escapePedagogicalHtml(sectionEditorial.summary)}</p>` : ''}
@@ -1168,7 +1509,7 @@
     return `
       <div class="lp-table-wrap" id="table-${slug}">
         <div class="lp-phase-head">
-          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Mapa rapido')}</span>
+          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Mapa rápido')}</span>
           <h3 class="lp-phase-title">${escapePedagogicalHtml(phase.title || 'Tabela de apoio')}</h3>
           <p class="lp-phase-copy">${escapePedagogicalHtml(phase.copy || '')}</p>
         </div>
@@ -1191,7 +1532,7 @@
             </tbody>
           </table>
           <aside class="lp-table-side-note">
-            <div class="lp-table-side-kicker">Leitura pratica</div>
+            <div class="lp-table-side-kicker">Leitura prática</div>
             <p>Se a palavra vem antes do verbo, pense em sujeito. Se aparece depois do verbo ou de uma preposição, pense em objeto.</p>
           </aside>
         </div>
@@ -1207,16 +1548,18 @@
     return `
       <div class="lp-exercises-wrap" id="exercises-${slug}">
         <div class="lp-phase-head">
-          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Pratica guiada')}</span>
-          <h3 class="lp-phase-title">${escapePedagogicalHtml(phase.title || 'Aplique a logica da aula')}</h3>
+          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Prática guiada')}</span>
+          <h3 class="lp-phase-title">${escapePedagogicalHtml(phase.title || 'Aplique a lógica da aula')}</h3>
           <p class="lp-phase-copy">${escapePedagogicalHtml(phase.copy || '')}</p>
         </div>
         ${exercises.map((exercise, exIndex) => `
           <div class="lp-exercise lp-difficulty-${escapePedagogicalHtml(exercise.difficulty)}" id="exercise-${slug}-${exIndex}">
-            <div class="lp-exercise-q">${exIndex + 1}. ${escapePedagogicalHtml(exercise.q)}</div>
+            <div class="lp-exercise-q-row">
+              <div class="lp-exercise-q">${exIndex + 1}. ${escapePedagogicalHtml(exercise.q)}</div>
+              ${renderGriloHint(getScaffoldedCoachHint(slug, exercise), { title: 'Ajuda do GRILO', ariaLabel: 'Dica do GRILO para o exercício' })}
+            </div>
             <div class="lp-exercise-meta-row">
               <div class="lp-glossary-highlight">Nível: ${escapePedagogicalHtml(({ easy: 'Fácil', moderate: 'Médio', hard: 'Desafio' }[exercise.difficulty] || exercise.difficulty))}</div>
-              <div class="lp-exercise-meta-copy">Decida primeiro a função da palavra. Depois escolha a forma.</div>
             </div>
             <div class="lp-exercise-options" id="options-${slug}-${exIndex}">
               ${exercise.options.map((option, optionIndex) => `<button class="lp-exercise-option" type="button" onclick="window.checkScaffoldedAnswer('${slug}', ${exIndex}, ${optionIndex}, this)">${escapePedagogicalHtml(option)}</button>`).join('')}
@@ -1242,7 +1585,10 @@
         </div>
         ${tests.map((test, qIdx) => `
           <div class="lp-test-question" id="test-q-${slug}-${qIdx}">
-            <div class="lp-test-q-label">${qIdx + 1}. ${escapePedagogicalHtml(test.q)}</div>
+            <div class="lp-test-q-row">
+              <div class="lp-test-q-label">${qIdx + 1}. ${escapePedagogicalHtml(test.q)}</div>
+              ${renderGriloHint(getFinalTestCoachHint(slug, test, qIdx), { title: 'Ajuda do GRILO', ariaLabel: 'Dica do GRILO para a validação final' })}
+            </div>
             ${test.options.map((option, optionIndex) => `<button class="lp-test-option" type="button" onclick="window.checkFinalTest('${slug}', ${qIdx}, ${optionIndex}, this)">${escapePedagogicalHtml(option)}</button>`).join('')}
           </div>`).join('')}
         <div class="lp-test-result" id="test-result-${slug}" style="display:none;"></div>
@@ -1722,8 +2068,8 @@
         { options: ['São sinônimos — ambos significam desistir.', '"give up" = desistir; "give out" = distribuir ou parar de funcionar.', '"give up" é britânico; "give out" é americano.'], correct: 1,
           explanation: '"I gave up sugar" = desisti. "My phone gave out" = parou de funcionar.',
           tip: 'give up = desistir. give out = acabar/parar OU distribuir. Contexto decide.' },
-        { options: ['Can you turn off the music? It\'s too loud.', 'Can you turn down the music? It\'s too loud.', 'Ambas corretas — turn off ou turn down dependem da intenção.'], correct: 2,
-          explanation: '"turn off" = desligar completamente. "turn down" = abaixar o volume.',
+        { options: ['Can you turn off the music? It\'s too loud.', 'Can you turn down the music? It\'s too loud.', 'Ambas corretas — turn off ou turn down dependem da intenção.'], correct: 0,
+          explanation: '"turn off" = desligar completamente. "turn down" = abaixar o volume. A questão pede "desligar", então a resposta correta é "turn off".',
           tip: 'turn off = desligar. turn down = abaixar. turn up = aumentar.' },
         { options: ['She turned off the offer.', 'She turned up the offer.', 'She turned down the offer.'], correct: 2,
           explanation: '"turn down" = rejeitar/recusar (oferta, convite, pedido).',
@@ -1969,7 +2315,7 @@
     if (!modal || modal.hasAttribute('hidden') || modal.classList.contains('is-closing')) return;
     modal.classList.remove('active');
     modal.classList.add('is-closing');
-    document.title = 'Modulo - Licoes';
+    document.title = 'Módulo - Lições';
 
     window.clearTimeout(lessonModalCloseTimer);
     lessonModalCloseTimer = window.setTimeout(() => {
@@ -2197,9 +2543,9 @@
         main.innerHTML = `
           ${renderPedagogicalOverview(slug, lesson)}
           <div class="lp-peda-phase" id="anchor-${slug}">${renderAnchorDialog(slug)}</div>
-          <div class="lp-peda-phase" id="table-${slug}">${renderInteractiveTable(slug)}</div>
-          <div class="lp-peda-phase" id="exercises-${slug}">${renderScaffoldedExercises(slug)}</div>
-          <div class="lp-peda-phase" id="test-${slug}">${renderFinalTest(slug)}</div>
+          <div class="lp-peda-phase" id="phase-table-${slug}">${renderInteractiveTable(slug)}</div>
+          <div class="lp-peda-phase" id="phase-exercises-${slug}">${renderScaffoldedExercises(slug)}</div>
+          <div class="lp-peda-phase" id="phase-test-${slug}">${renderFinalTest(slug)}</div>
         `;
       } else {
         if (slug === 'pronomes') {
@@ -2213,11 +2559,13 @@
           secEl.className = 'lp-msec';
           secEl.id = `msec-${slug}-${idx}`;
           const editorialSection = getPedagogicalEditorial(slug, lesson).sections?.[idx] || {};
+          const coachHint = getContentCoachHint(slug, sec);
 
           let html = `
             <div class="lp-msec-header">
               <div class="lp-msec-num">${String(idx + 1).padStart(2, '0')}</div>
               <h2 class="lp-msec-title">${sec.title}</h2>
+              ${renderGriloHint(coachHint, { wide: true, title: 'Ajuda do GRILO', ariaLabel: 'Resumo simplificado do GRILO' }) || '<span></span>'}
               <div class="lp-msec-score" id="score-${slug}-${idx}"></div>
             </div>
           `;
@@ -2263,7 +2611,8 @@
                 <div class="lp-exr-interactive" data-sec="${idx}" data-ex="${ei}">
                   <div class="lp-exr-q">
                     <span class="lp-exr-num">${ei + 1}</span>
-                    <span>${ex}</span>
+                    <span class="lp-exr-q-text">${ex}</span>
+                    ${mc ? renderGriloHint(getExerciseCoachHint(slug, sec, ex, mc.options), { title: 'Ajuda do GRILO', ariaLabel: 'Dica do GRILO para a questão' }) : ''}
                   </div>
                   ${mc ? `<div class="lp-exr-options">${optionsHtml}</div>${feedbackHtml}` : ''}
                 </div>`;
