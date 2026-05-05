@@ -125,20 +125,20 @@
 
     perguntas: {
       title: 'Como fazer perguntas em inglês sem travar',
-      objective: 'Domine os três tipos de perguntas mais usados no inglês do dia a dia — desde o simples "você gosta?" até o "onde você estava quando isso aconteceu?".',
+      objective: 'Aprenda a montar perguntas com clareza e ritmo natural — das mais diretas às que pedem informação específica ou confirmação no fim da frase.',
       icon: 'Q?',
       highlight: 'Do / Does / Did • What / Where / Who / How • Isn\'t it?',
       teachingPoints: [
-        'Entender por que o inglês precisa de uma "palavrinha de apoio" (do/does) para fazer perguntas.',
-        'Montar perguntas de sim/não com a ordem certa.',
-        'Usar as palavras de pergunta (what, where, who, when, how) da forma correta.',
-        'Fazer perguntas rápidas de confirmação no final da frase — igual ao "né?" do português.',
-        'Reconhecer quando "who" é quem pergunta e quando "who" é sobre quem você pergunta.'
+        'Perceber que, em inglês, pergunta não depende só de entonação: ela precisa de estrutura visível.',
+        'Dominar a base do do, does e did para abrir perguntas simples sem tropeçar na ordem da frase.',
+        'Guiar a conversa com what, where, who, when e how sem desmontar a lógica que veio antes.',
+        'Usar tag questions para soar mais natural em conversa, no lugar do nosso "né?" automático.',
+        'Distinguir quando "who" funciona como sujeito e quando entra como parte da pergunta sobre outra pessoa.'
       ],
       sections: [
         {
           id: 'pergunta-simou-nao',
-          title: 'Perguntas de "sim ou não" — o segredo do Do/Does/Did',
+          title: 'Quando a pergunta precisa nascer montada — do, does e did',
           explanation: 'No português, pra fazer uma pergunta basta mudar o tom de voz: "você gosta de café" vira "você gosta de café?" só com a entonação. Em inglês isso não funciona assim. É obrigatório colocar uma "palavrinha de apoio" antes de tudo. Essa palavrinha é "do" (para eu, você, nós, eles) ou "does" (para ele, ela, isso). No passado, usa-se "did" para qualquer pessoa. Depois dessa palavra, o restante da frase fica na forma base — sem o "-s" que aparece no "he likes".',
           examples: [
             { en: 'Do you like coffee? — Yes, I do.', pt: 'Você gosta de café? — Sim, gosto.' },
@@ -159,7 +159,7 @@
         },
         {
           id: 'palavras-de-pergunta',
-          title: 'Perguntas com "o quê", "onde", "quem", "quando" e "como"',
+          title: 'Puxando a informação certa — what, where, who, when e how',
           explanation: 'As palavras de pergunta em inglês são: What (o quê / qual), Where (onde), Who (quem), When (quando), Why (por quê), How (como), How much/many (quanto/s), Which (qual entre opções). Elas sempre vêm no começo da frase. Depois delas, a estrutura segue o mesmo padrão das perguntas de sim/não: palavra de apoio (do/does/did/is/are) + pessoa + ação. Atenção: quando "who" ou "what" são a resposta da pergunta (o sujeito), não precisa do "do/does" — a estrutura muda!',
           examples: [
             { en: 'What do you want for dinner?', pt: 'O que você quer pro jantar?' },
@@ -181,7 +181,7 @@
         },
         {
           id: 'perguntinhas-ne',
-          title: 'As perguntinhas de confirmação — o "né?" do inglês',
+          title: 'O inglês confirmando no final — o equivalente do nosso "né?"',
           explanation: 'O português tem o "né?" que coloca no final de qualquer frase para pedir confirmação. O inglês tem o equivalente, mas ele muda dependendo do que veio antes. A lógica é sempre a oposta: se a frase foi positiva, a perguntinha é negativa. Se foi negativa, é positiva. E a palavrinha usada espelha o que já apareceu na frase — se usou "is", repete "is"; se usou "can", repete "can". Parece complicado, mas depois que você pega o ritmo, vira automático.',
           examples: [
             { en: 'It\'s cold today, isn\'t it?', pt: 'Tá frio hoje, né?' },
@@ -209,20 +209,20 @@
 
     negativa: {
       title: 'Como dizer "não" em inglês sem confundir',
-      objective: 'Aprenda todas as formas de negar algo em inglês — no presente, no passado, com "ser/estar" e com palavras que mudam o sentido da frase inteira.',
+      objective: 'Entenda como o inglês organiza a negação em cada tipo de frase, para parar de aplicar uma única lógica onde o idioma trabalha com mecanismos diferentes.',
       icon: 'NO',
       highlight: 'don\'t / doesn\'t / didn\'t • isn\'t / aren\'t • never / nobody',
       teachingPoints: [
-        'Entender por que em inglês você precisa de uma "palavra de apoio" pra negar uma ação.',
-        'Saber a diferença entre negar "ser/estar" e negar qualquer outra ação.',
-        'Usar contrações naturais como "don\'t", "isn\'t", "won\'t" — que é como nativos falam.',
-        'Usar palavras como "never", "nobody" e "nothing" — e evitar o erro da dupla negação.',
-        'Negar no passado com "didn\'t" — e entender por que o verbo principal volta à forma base.'
+        'Separar com clareza a negação de "ser/estar" da negação de ações comuns.',
+        'Usar don\'t, doesn\'t e didn\'t sem duplicar marca de tempo ou de pessoa no verbo principal.',
+        'Adotar as contrações que realmente aparecem na fala natural, em vez de montar frases duras e literais.',
+        'Entender por que palavras como never, nobody e nothing já negam a frase sozinhas.',
+        'Evitar a dupla negação que parece natural para quem pensa em português, mas quebra a lógica do inglês padrão.'
       ],
       sections: [
         {
           id: 'negar-ser-estar',
-          title: 'Negando "ser" e "estar" — am not, isn\'t, aren\'t',
+          title: 'Quando o próprio verbo já segura o não — am not, isn\'t, aren\'t',
           explanation: 'Quando a frase envolve "ser" ou "estar" em inglês (am, is, are), a negação é simples: você coloca "not" logo depois. "I am not" → "I\'m not". "She is not" → "She isn\'t". "They are not" → "They aren\'t". Não precisa de nenhuma palavra de apoio extra — o próprio "am/is/are" já faz o trabalho. Nas formas contraídas — que é como todo mundo fala no dia a dia — "am not" não tem contração para "amn\'t" (exceto em algumas variantes do inglês britânico). O jeito comum é "I\'m not".',
           examples: [
             { en: 'I\'m not ready yet.', pt: 'Eu ainda não estou pronto.' },
@@ -243,7 +243,7 @@
         },
         {
           id: 'negar-acoes-presente',
-          title: 'Negando ações no dia a dia — don\'t e doesn\'t',
+          title: 'O não das ações comuns — don\'t e doesn\'t em uso real',
           explanation: 'Pra negar qualquer ação no presente (que não seja "ser/estar"), você precisa de "don\'t" ou "doesn\'t" antes da ação na forma base. Use "don\'t" para I, you, we e they. Use "doesn\'t" para he, she e it. Importante: quando você usa "doesn\'t", o verbo principal PERDE o "-s" que ele normalmente teria. Então "she likes" vira "she doesn\'t like" — e não "she doesn\'t likes". O "-s" vai pra palavrinha de apoio, não pro verbo principal.',
           examples: [
             { en: 'I don\'t eat meat.', pt: 'Eu não como carne.' },
@@ -264,7 +264,7 @@
         },
         {
           id: 'negar-passado',
-          title: 'Negando o que não aconteceu — didn\'t',
+          title: 'O passado que não aconteceu — a lógica limpa do didn\'t',
           explanation: 'Para negar ações no passado, usa-se "didn\'t" (a forma curta de "did not") para qualquer pessoa — I, you, he, she, it, we, they. Depois de "didn\'t", o verbo principal volta à forma base, sem "-ed" ou forma irregular. Então "she went" vira "she didn\'t go", não "she didn\'t went". Pense assim: o "didn\'t" já carrega toda a informação de passado + negação. O verbo principal fica "neutro".',
           examples: [
             { en: 'I didn\'t sleep well.', pt: 'Eu não dormi bem.' },
@@ -285,7 +285,7 @@
         },
         {
           id: 'never-nobody-nothing',
-          title: 'Nunca, ninguém, nada — never, nobody, nothing',
+          title: 'Quando a própria palavra já nega a frase — never, nobody, nothing',
           explanation: 'O inglês tem palavras que já carregam negação dentro delas: "never" (nunca), "nobody/no one" (ninguém), "nothing" (nada), "nowhere" (em lugar nenhum), "no longer" (não mais). A diferença crucial com o português: em inglês, quando você usa essas palavras, a frase fica POSITIVA — sem o "don\'t" ou "doesn\'t". No português dizemos "eu não faço nada" — duas negações. Em inglês, é "I do nothing" ou "I don\'t do anything". Nunca "I don\'t do nothing" — isso é dupla negação e soa errado.',
           examples: [
             { en: 'I never drink soda.', pt: 'Eu nunca bebo refrigerante.' },
@@ -313,20 +313,20 @@
 
     passado: {
       title: 'Falar sobre o que já aconteceu — ontem, semana passada, antes',
-      objective: 'Entenda como o inglês organiza o tempo passado: ações que terminaram, ações que estavam rolando e os verbos que mudam completamente de forma.',
+      objective: 'Aprenda a narrar o passado em inglês com mais precisão, separando ação concluída, cena em andamento e verbos que fogem do padrão sem depender de chute.',
       icon: 'PA',
       highlight: 'worked / went / saw • was doing • had done',
       teachingPoints: [
-        'Saber quando a ação no passado precisa do "-ed" no final e quando muda completamente.',
-        'Entender a diferença entre "I worked" (acabou) e "I was working" (estava acontecendo).',
-        'Combinar ações: uma que estava em andamento e outra que interrompeu.',
-        'Memorizar os verbos irregulares mais usados no dia a dia.',
-        'Usar "had + ação passada" para falar de algo que aconteceu antes de outra coisa no passado.'
+        'Reconhecer quando o passado simples resolve a frase e quando ele não dá conta sozinho.',
+        'Distinguir uma ação concluída de uma ação que estava em andamento em um momento do passado.',
+        'Ganhar segurança com os verbos irregulares mais frequentes, sem misturar forma afirmativa, negativa e pergunta.',
+        'Combinar uma cena em progresso com outra ação que entra e interrompe o fluxo.',
+        'Perceber como o inglês empacota sequência temporal para contar o que veio antes e o que veio depois.'
       ],
       sections: [
         {
           id: 'passado-simples-regular',
-          title: 'Ações que terminaram — acrescente -ed (nos regulares)',
+          title: 'Quando o passado fecha a cena — o caminho regular do -ed',
           explanation: 'Para ações que aconteceram e terminaram no passado, usamos o passado simples. Nos verbos regulares, você só adiciona "-ed" no final — sem se importar com quem fez. "I worked", "she worked", "they worked" — é tudo igual. Atenção: se o verbo já termina em "e", só adicione "d": "love" → "loved". Se termina em consoante + vogal + consoante curta, dobra a última: "stop" → "stopped". Se termina em "y" precedido de consoante, troca por "-ied": "study" → "studied".',
           examples: [
             { en: 'I walked to work yesterday.', pt: 'Eu fui caminhando pro trabalho ontem.' },
@@ -347,7 +347,7 @@
         },
         {
           id: 'verbos-irregulares',
-          title: 'Os verbos que mudam completamente — irregulares',
+          title: 'Os verbos que escapam do padrão — o núcleo dos irregulares',
           explanation: 'Cerca de 200 verbos em inglês são irregulares: eles não ganham "-ed" no passado — mudam de forma. Não há regra única, mas os mais usados aparecem tanto que você vai absorvendo naturalmente. Alguns ficam completamente diferentes (go → went, buy → bought), outros ficam iguais (cut → cut, put → put). A boa notícia: no negativo e na pergunta de todos eles, você usa "didn\'t + forma base", então não precisa se preocupar com a forma irregular nesses casos.',
           examples: [
             { en: 'I went to the mall. (go → went)', pt: 'Eu fui ao shopping.' },
@@ -368,7 +368,7 @@
         },
         {
           id: 'estava-acontecendo',
-          title: 'O que estava acontecendo enquanto algo interrompeu',
+          title: 'A cena em andamento que é cortada por outra ação',
           explanation: 'Às vezes queremos dizer que algo estava em andamento — um processo em curso — quando outra coisa aconteceu. Em inglês, isso é expresso com "was/were + ação com -ing". "Was" para I, he, she, it. "Were" para you, we, they. O padrão clássico combina dois eventos: o que estava acontecendo (was/were + -ing) e o que interrompeu (passado simples). É exatamente o "estava fazendo algo quando X aconteceu" do português.',
           examples: [
             { en: 'I was sleeping when the alarm went off.', pt: 'Eu estava dormindo quando o alarme tocou.' },
@@ -396,20 +396,20 @@
 
     futuro: {
       title: 'Falar sobre o que vai acontecer — planos, decisões e previsões',
-      objective: 'Entenda as três formas principais de falar sobre o futuro em inglês e aprenda a escolher a certa dependendo do contexto.',
+      objective: 'Aprenda a escolher a forma de futuro que combina com a intenção da frase — decisão do momento, plano já pensado ou compromisso que já parece marcado.',
       icon: 'FU',
       highlight: 'will • going to • am/is/are doing',
       teachingPoints: [
-        'Saber quando usar "will" — para decisões na hora e para promessas.',
-        'Usar "going to" para planos que você já decidiu antes.',
-        'Usar o presente contínuo (am doing) para compromissos marcados.',
-        'Fazer previsões com "will" (achismo) ou "going to" (evidência visível).',
-        'Evitar o erro de achar que "will" é a única forma de futuro em inglês.'
+        'Entender por que "will" não é sinônimo automático de futuro em inglês.',
+        'Usar "will" quando a frase pede decisão imediata, promessa ou previsão sem evidência concreta.',
+        'Usar "going to" quando a intenção já existia antes ou quando há um sinal claro diante de você.',
+        'Usar o presente contínuo para compromissos que já soam agendados, combinados ou confirmados.',
+        'Escolher a forma de futuro pelo contexto, e não por tradução literal do português.'
       ],
       sections: [
         {
           id: 'will-na-hora',
-          title: 'Decisões na hora e promessas — will',
+          title: 'O futuro que nasce no instante — decisões, promessas e will',
           explanation: '"Will" é usado para três situações principais. Primeira: você acabou de tomar uma decisão na hora — não estava planejado. "The phone is ringing." "I\'ll get it!" (Vou atender! — decisão tomada agora). Segunda: promessas e ofertas espontâneas. "I\'ll help you with that." Terceira: previsões sobre o futuro sem evidência concreta — palpites. "I think it will rain tomorrow." Estrutura: will + verbo na forma base. Negativa: won\'t (will not). Para qualquer pessoa — I will, you will, he will — nunca muda.',
           examples: [
             { en: 'I\'ll call you later. (decidi agora)', pt: 'Eu te ligo mais tarde.' },
@@ -430,7 +430,7 @@
         },
         {
           id: 'going-to-plano',
-          title: 'Planos e intenções já decididas — going to',
+          title: 'Quando o plano já existe antes da fala — going to',
           explanation: '"Going to" é usado quando você já tinha a intenção ou o plano antes de falar. Não é uma decisão nova — é algo que você já pensou. "Are you busy this weekend?" "Yes, I\'m going to visit my parents." (Já estava planejado). Também é usado para previsões quando você tem uma evidência na sua frente: "Look at those clouds — it\'s going to rain." Você está vendo as nuvens escuras — não é um palpite, é uma conclusão. Estrutura: am/is/are + going to + verbo base. Para qualquer pessoa, o que muda é só o am/is/are.',
           examples: [
             { en: 'I\'m going to study tonight.', pt: 'Eu vou estudar hoje à noite. (já planejei)' },
@@ -451,7 +451,7 @@
         },
         {
           id: 'compromissos-marcados',
-          title: 'Compromissos já agendados — usando o presente com contexto futuro',
+          title: 'O futuro que já parece marcado no calendário',
           explanation: 'Em inglês, quando algo está firmemente agendado — você já marcou, comprou passagem, fez reserva — você pode usar a forma de "estar fazendo" (am/is/are + -ing) para falar de futuro. Isso é comum para eventos que têm hora, local e confirmação: "I\'m meeting John at 3pm tomorrow." (já está marcado no calendário). É diferente de "going to" porque implica que já tem tudo combinado — não é só intenção. No dia a dia, é muito usada para viagens, reuniões, consultas e eventos.',
           examples: [
             { en: 'I\'m flying to New York next Tuesday.', pt: 'Vou voar para Nova York na próxima terça. (passagem comprada)' },
@@ -478,20 +478,20 @@
 
     gerundio: {
       title: 'A forma -ING e o "to" — quando usar cada uma depois de uma ação',
-      objective: 'Descubra quando colocar -ING e quando colocar "to" depois de certas palavras — e por que alguns mudam de sentido completamente dependendo do que vem depois.',
+      objective: 'Aprenda a decidir entre -ing e to com mais critério, entendendo quando a escolha segue padrão e quando ela muda o sentido inteiro da frase.',
       icon: 'IG',
       highlight: 'enjoy + -ing • want + to • stop + -ing vs stop + to',
       teachingPoints: [
-        'Entender o que é a forma -ing e quando ela aparece no inglês.',
-        'Memorizar os verbos mais comuns que pedem -ing depois deles.',
-        'Memorizar os verbos que pedem "to" antes da próxima ação.',
-        'Entender os casos em que a escolha muda o significado da frase.',
-        'Usar -ing depois de preposições como "in", "at", "on", "after", "before", "by".'
+        'Separar os usos mais comuns da forma -ing antes de tentar decorar listas de verbos.',
+        'Reconhecer os verbos que naturalmente puxam -ing na ação seguinte.',
+        'Reconhecer os verbos que exigem "to + verbo base" e não aceitam troca livre.',
+        'Perceber os casos em que trocar -ing por to muda o que a frase quer dizer.',
+        'Usar -ing com segurança depois de preposições e em blocos que aparecem o tempo todo na fala real.'
       ],
       sections: [
         {
           id: 'o-que-e-ing',
-          title: 'O que é a forma -ing e onde ela aparece',
+          title: 'Antes de escolher, entenda o que a forma -ing está fazendo',
           explanation: 'A forma -ing no inglês aparece em três situações diferentes e é fácil confundir. Primeira: no "está fazendo" — quando a ação está em andamento agora. "She is working." Segunda: como um jeito de nomear uma ação — transformando ela num "conceito". "Swimming is fun" (Nadar é divertido). Terceira: depois de certas palavras e depois de preposições. Nessa aula, o foco é no segundo e terceiro casos. Regras de formação: verbo + -ing. Se termina em "e", tira o "e": "write" → "writing". Se termina em consoante curta + vogal + consoante, dobra: "run" → "running".',
           examples: [
             { en: 'Swimming is great exercise.', pt: 'Nadar é um ótimo exercício. (-ing como conceito)' },
@@ -511,7 +511,7 @@
         },
         {
           id: 'verbos-que-pedem-ing',
-          title: 'Verbos que pedem -ing depois deles',
+          title: 'Os verbos que puxam naturalmente o -ing',
           explanation: 'Alguns verbos, quando seguidos de outra ação, exigem o -ing. Não há uma lógica perfeita — é questão de memorizar os mais usados. Os principais: enjoy (curtir), love/like/hate (quando expressam sentimento geral), finish (terminar), avoid (evitar), suggest (sugerir), consider (considerar), keep (continuar), mind (se importar), deny (negar), practice (praticar), miss (sentir saudade de), risk (arriscar), imagine (imaginar), can\'t stand (não suportar), stop (parar uma ação), remember (lembrar de algo que já aconteceu).',
           examples: [
             { en: 'I enjoy running in the morning.', pt: 'Eu curto correr de manhã.' },
@@ -532,7 +532,7 @@
         },
         {
           id: 'verbos-que-pedem-to',
-          title: 'Verbos que pedem "to" antes da próxima ação',
+          title: 'Os verbos que abrem espaço para o to + verbo',
           explanation: 'Outros verbos pedem "to + verbo base" depois deles. Os mais usados: want (querer), need (precisar), would like (gostar de), hope (esperar), decide (decidir), plan (planejar), promise (prometer), agree (concordar), refuse (recusar), manage (conseguir), afford (poder financeiramente), seem (parecer), expect (esperar/prever), learn (aprender), try (tentar — com sentido de esforço), forget (esquecer de fazer algo), remember (lembrar de fazer algo no futuro).',
           examples: [
             { en: 'I want to learn English.', pt: 'Eu quero aprender inglês.' },
@@ -553,7 +553,7 @@
         },
         {
           id: 'mudanca-de-significado',
-          title: 'Quando a escolha muda o significado — stop, remember, forget, try',
+          title: 'Quando trocar a forma troca o sentido inteiro da frase',
           explanation: 'Quatro verbos têm significados completamente diferentes dependendo de usar -ing ou to: STOP: "stop + -ing" = parar de fazer algo ("He stopped smoking" = ele parou de fumar). "stop + to" = parar para fazer outra coisa ("He stopped to smoke" = ele parou para fumar — ou seja, estava fazendo outra coisa e parou para acender um cigarro). REMEMBER: "-ing" = lembrar de algo que já aconteceu ("I remember meeting her" = lembro de quando a conheci). "to" = lembrar de fazer algo ainda ("Remember to send the email" = não esqueça de mandar). TRY: "-ing" = experimentar algo para ver o resultado. "to" = tentar com esforço. FORGET: "-ing" = não consegue esquecer algo do passado. "to" = esquecer de fazer algo.',
           examples: [
             { en: 'She stopped smoking. (parou de fumar)', pt: 'Ela parou de fumar.' },
@@ -581,20 +581,20 @@
 
     preposicoes: {
       title: 'In, on, at, to — as palavrinhas que indicam onde, quando e para onde',
-      objective: 'Domine as preposições mais confusas do inglês e entenda a lógica por trás de cada escolha — lugar, tempo e movimento.',
+      objective: 'Aprenda a usar as preposições mais confusas do inglês pela lógica de espaço, tempo e direção, em vez de depender de tradução solta palavra por palavra.',
       icon: 'IN',
       highlight: 'in / on / at para lugar • in / on / at para tempo • to / into / from',
       teachingPoints: [
-        'Entender a lógica dos três níveis: in (dentro de algo maior), on (superfície ou linha), at (ponto específico).',
-        'Aplicar essa mesma lógica para tempo: in (períodos longos), on (dias e datas), at (horas e momentos).',
-        'Saber quando usar "to" (movimento em direção), "in/into" e "from" (origem).',
-        'Memorizar expressões fixas onde a preposição não segue lógica aparente.',
-        'Evitar as trocas mais comuns feitas por brasileiros.'
+        'Visualizar a lógica de in, on e at como níveis diferentes de localização, e não como equivalentes diretos de "em".',
+        'Reaplicar essa mesma lógica quando a conversa sai do espaço e entra no tempo.',
+        'Distinguir destino, origem e entrada em movimento com to, from, into e out of.',
+        'Reconhecer expressões fixas em que a preposição precisa ser aprendida como bloco.',
+        'Reduzir as trocas automáticas que nascem da interferência do português.'
       ],
       sections: [
         {
           id: 'lugar-in-on-at',
-          title: 'Onde a coisa está — in, on, at',
+          title: 'Localizar no espaço sem traduzir no automático — in, on, at',
           explanation: 'A lógica das três preposições de lugar: IN é para espaços com volume — você está dentro de algo: dentro de um país, cidade, sala, caixa, bolsa. ON é para superfícies — algo está sobre ou em contato com uma superfície: em cima da mesa, na parede, no ônibus (você está sobre o assento), na rua (você está sobre o asfalto). AT é para pontos específicos — um endereço, uma localização precisa, um evento: no aeroporto, na escola, no trabalho, no médico. Dica: quanto mais específico o lugar, mais provável que seja "at".',
           examples: [
             { en: 'I live in Brazil. / She\'s in the kitchen.', pt: 'Eu moro no Brasil. / Ela está na cozinha.' },
@@ -615,7 +615,7 @@
         },
         {
           id: 'tempo-in-on-at',
-          title: 'Quando algo acontece — in, on, at no tempo',
+          title: 'Organizando o tempo com a mesma lógica de espaço',
           explanation: 'A mesma lógica dos três níveis funciona para tempo. IN é para períodos longos: meses (in March), anos (in 2024), décadas (in the 90s), estações (in summer), partes do dia (in the morning, in the afternoon, in the evening). ON é para dias: dias da semana (on Monday), datas (on March 15th), feriados que têm "day" (on Christmas Day). AT é para momentos precisos: horas (at 3pm), refeições (at lunch, at dinner), momentos específicos (at the weekend — britânico, at night, at noon, at midnight). Exceção: "at night" mas "in the morning/afternoon/evening".',
           examples: [
             { en: 'I was born in 1995.', pt: 'Eu nasci em 1995.' },
@@ -636,7 +636,7 @@
         },
         {
           id: 'movimento-to-from',
-          title: 'Para onde vai e de onde vem — to, from, into, out of',
+          title: 'Destino, origem e entrada em movimento — to, from, into, out of',
           explanation: 'Para indicar destino ou direção, use TO: "I\'m going to the store", "She walked to school". Para indicar origem, use FROM: "She\'s from Brazil", "He came from the meeting". A diferença entre ON e INTO: "on" é estático (está em cima), "into" implica movimento para dentro. "He walked into the room" (entrou no quarto — movimento). Compare com "He is in the room" (está dentro). OUT OF é o oposto de INTO: "She walked out of the building". Atenção: "go home" — sem "to"! Em inglês, "home" funciona diferente.',
           examples: [
             { en: 'I\'m going to the gym.', pt: 'Estou indo para a academia.' },
@@ -665,20 +665,20 @@
 
     verbos: {
       title: 'Os verbos mais poderosos do inglês — ser, poder, ter que e muito mais',
-      objective: 'Domine os verbos que aparecem em praticamente toda frase em inglês: "to be", "to have", verbos de poder e obrigação, e aqueles que mudam de sentido quando ganham uma palavra extra.',
+      objective: 'Domine os verbos que sustentam o inglês do cotidiano — os que montam identidade, obrigação, possibilidade e também aqueles que mudam de sentido quando aparecem em bloco.',
       icon: 'VB',
       highlight: 'to be • can / must / should • get up / give up / look up',
       teachingPoints: [
-        'Usar "to be" (ser/estar) corretamente — o verbo mais usado do inglês.',
-        'Entender "to have" como "ter" e como parte de frases do tipo "acabou de acontecer".',
-        'Usar "can", "must", "should", "may" para habilidade, obrigação, conselho e possibilidade.',
-        'Descobrir como funcionam os "verbos de duas peças" — como get up, give up, look up.',
-        'Evitar erros clássicos como "I am agree" (errado) ou "Can you explain me" (errado).'
+        'Ganhar domínio sobre o "to be", que aparece em identidade, estado, pergunta e várias estruturas centrais do idioma.',
+        'Usar verbos modais para ajustar habilidade, obrigação, conselho e possibilidade com o peso certo.',
+        'Entender que modais pedem verbo base e por isso mudam a montagem da frase inteira.',
+        'Ler phrasal verbs como blocos de sentido, e não como soma literal de duas palavras isoladas.',
+        'Evitar erros clássicos que soam traduzidos do português e travam a naturalidade da fala.'
       ],
       sections: [
         {
           id: 'to-be',
-          title: 'To be — o mais importante de todos',
+          title: 'O verbo que sustenta o idioma inteiro — to be',
           explanation: '"To be" significa ser E estar — o inglês não distingue. "I am tired" (Estou cansado) e "I am Brazilian" (Sou brasileiro) usam o mesmo verbo. As formas são: I am, you are, he/she/it is, we are, you are, they are. Passado: I was, you were, he/she/it was, we were, they were. Forma negativa: am not, is not (isn\'t), are not (aren\'t). "To be" não usa "do/does/did" — ele mesmo se inverte para fazer pergunta: "Are you ready?" "Is she here?" É também o auxiliar das formas contínuas e passivas.',
           examples: [
             { en: 'I\'m 28 years old.', pt: 'Tenho 28 anos. (em inglês: "sou de 28 anos")' },
@@ -699,7 +699,7 @@
         },
         {
           id: 'can-must-should',
-          title: 'Can, must, should, may — poder, ter que, dever, talvez',
+          title: 'Ajustando força, obrigação e possibilidade com modais',
           explanation: 'Esses verbos especiais (chamados "modais") modificam o sentido da ação. CAN = habilidade ("I can swim" — sei nadar) ou permissão ("Can I sit here?"). COULD = passado de can ou pedido mais educado ("Could you help me?" — mais gentil que "can you"). MUST = obrigação forte, regra ("You must wear a seatbelt") ou certeza ("She must be tired" — ela deve estar cansada). SHOULD = conselho, o que seria ideal ("You should see a doctor"). MAY/MIGHT = possibilidade ("It may rain" — pode ser que chova). Regra importante: depois de todos eles, o verbo vem na forma base — sem -s, sem -ing, sem -ed.',
           examples: [
             { en: 'I can speak three languages.', pt: 'Eu sei falar três idiomas.' },
@@ -720,7 +720,7 @@
         },
         {
           id: 'phrasal-verbs',
-          title: 'Verbos de duas peças — quando uma palavrinha muda tudo',
+          title: 'Quando o verbo vem em bloco e o sentido vira outro',
           explanation: 'Um dos maiores desafios do inglês para brasileiros: verbos que ganham uma segunda palavra (como "up", "out", "on", "off", "in", "away") e mudam completamente de sentido. "Give" sozinho = dar. "Give up" = desistir. "Give out" = distribuir. "Look" sozinho = olhar. "Look up" = pesquisar (num dicionário ou no Google). "Look after" = cuidar de. "Look for" = procurar. Não há como adivinhar — é aprender como expressão fixa. A boa notícia: eles seguem padrões que você vai perceber com o tempo. Os mais importantes para o dia a dia estão abaixo.',
           examples: [
             { en: 'Wake up! It\'s 8am! (acordar)', pt: 'Acorda! São 8h!' },
@@ -802,6 +802,475 @@
       { q: 'Complete: "___ am going to the party."', options: ['Me', 'I', 'My'], correct: 1 }
     ]
   };
+
+  const PEDAGOGICAL_EDITORIAL = {
+    pronomes: {
+      kicker: 'Trilha guiada',
+      headline: 'Pronomes sem atrito: quem faz, quem recebe e de quem e cada coisa.',
+      intro: 'Em vez de decorar listas soltas, esta aula organiza os pronomes pelo uso real. Primeiro voce identifica o papel da palavra na frase. Depois compara, testa e fixa com pratica curta.',
+      journey: ['Quem faz a acao', 'Quem recebe a acao', 'Como mostrar posse'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'Sujeito',
+          summary: 'Comece pelo papel mais importante da frase: quem executa a acao. Se a palavra vem antes do verbo e carrega a acao, ela precisa estar no grupo de sujeito.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Objeto',
+          summary: 'Agora muda a lente: a pessoa nao faz a acao, ela recebe. E aqui que brasileiros costumam travar ao trocar I por me, he por him, she por her.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Posse',
+          summary: 'Por fim, voce separa duas ideias que parecem iguais em portugues: dizer que algo e meu antes do objeto e dizer que aquilo e meu sem repetir o objeto.'
+        }
+      ],
+      phases: {
+        anchor: {
+          kicker: 'Aquecimento',
+          title: 'Leia a cena e complete como quem ja entendeu o papel de cada pronome.',
+          copy: 'Aqui a ideia nao e acertar por acaso. E olhar para a frase e decidir: quem esta fazendo a acao e quem esta entrando depois da preposicao?'
+        },
+        table: {
+          kicker: 'Mapa rapido',
+          title: 'Veja o quadro completo antes de avancar para a pratica.',
+          copy: 'Use esta tabela como folha de apoio. Ela junta significado em portugues, forma em ingles e um exemplo curto para voce bater o olho e comparar.'
+        },
+        exercises: {
+          kicker: 'Pratica guiada',
+          title: 'Agora a teoria vira decisao rapida.',
+          copy: 'As questoes foram organizadas do mais direto para o mais traiçoeiro. A ideia e ganhar criterio, nao apenas pontuar.'
+        },
+        test: {
+          kicker: 'Fechamento',
+          title: 'Valide se a logica ficou clara sem depender da tabela.',
+          copy: 'Se voce passa aqui, significa que ja consegue distinguir funcao na frase e escolher a forma certa com mais naturalidade.'
+        }
+      }
+    },
+    perguntas: {
+      kicker: 'Trilha guiada',
+      headline: 'Perguntas em inglês sem congelar: estrutura primeiro, naturalidade depois.',
+      intro: 'Esta aula reorganiza as perguntas do inglês como uma progressão de uso real. Você começa pela engrenagem do do e does, abre o leque com what, where e who, e fecha com o equivalente do nosso "né?".',
+      journey: ['Abrir perguntas simples', 'Guiar a pergunta com a palavra certa', 'Fechar com confirmação natural'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'Estrutura base',
+          summary: 'O primeiro passo é aceitar uma diferença central entre português e inglês: a pergunta não nasce só da entonação. Ela precisa de uma engrenagem visível.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Perguntas abertas',
+          summary: 'Depois da base, você aprende a conduzir a conversa. Aqui entram as palavras que puxam informação específica sem desmontar a ordem da frase.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Confirmação',
+          summary: 'Por fim, a aula entra no inglês mais conversado. Essas perguntinhas curtas dão tom de naturalidade e mostram como o idioma pede espelhamento e contraste.'
+        }
+      ]
+    },
+    negativa: {
+      kicker: 'Trilha guiada',
+      headline: 'Negação sem ruído: como o inglês diz não em cada tipo de frase.',
+      intro: 'Em vez de tratar toda negação como se fosse igual, esta aula separa quatro situações que o inglês resolve de modos diferentes. Isso reduz erro mecânico e dá muito mais controle na hora de falar.',
+      journey: ['Negar ser e estar', 'Negar ações no presente', 'Negar o passado e limpar a dupla negação', 'Usar palavras que já negam sozinhas'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'Ser e estar',
+          summary: 'A entrada mais direta da aula mostra que am, is e are já carregam a negação sem pedir ajuda externa. Aqui o foco é simplicidade e forma natural.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Ações no presente',
+          summary: 'Depois entra o ponto em que mais gente escorrega: negar ações comuns com don\'t e doesn\'t sem duplicar marca de pessoa no verbo principal.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Passado',
+          summary: 'No passado, a lógica fica até mais limpa. O didn\'t assume o tempo e libera o verbo para voltar ao formato base.'
+        },
+        {
+          label: 'Bloco 4',
+          focus: 'Never, nobody, nothing',
+          summary: 'A aula fecha mostrando que algumas palavras já nascem negativas. É aqui que o inglês se distancia do português e obriga você a abandonar a dupla negação.'
+        }
+      ]
+    },
+    passado: {
+      kicker: 'Trilha guiada',
+      headline: 'Passado com clareza: terminou, estava acontecendo ou já tinha acontecido?',
+      intro: 'Esta lição organiza o passado do inglês em cenas, não em tabelas soltas. Primeiro você aprende a encerrar ações, depois lida com verbos que mudam de forma e, por fim, monta situações em andamento que são interrompidas.',
+      journey: ['Encerrar ações', 'Lidar com verbos irregulares', 'Narrar uma cena em andamento'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'Passado simples',
+          summary: 'O começo da aula fixa a ideia mais útil: quando o fato terminou, o inglês o empacota no passado simples. A discussão aqui é forma, padrão e acabamento.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Irregulares',
+          summary: 'Depois vem o grupo que não segue o -ed. Em vez de tentar forçar regra onde não existe, a aula aproxima esses verbos pelos usos mais frequentes.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Cena interrompida',
+          summary: 'O fechamento troca lista por narrativa. Você aprende a contar o que estava rolando quando outra ação entrou em cena e cortou o fluxo.'
+        }
+      ]
+    },
+    futuro: {
+      kicker: 'Trilha guiada',
+      headline: 'Futuro em inglês sem chute: decisão da hora, plano ou compromisso marcado.',
+      intro: 'A ideia desta aula é desmontar o mito de que will resolve tudo. O inglês distribui futuro por intenção, evidência e grau de compromisso, e essa distinção muda o que você soa para quem ouve.',
+      journey: ['Decidir na hora', 'Falar de planos já pensados', 'Mostrar compromisso que já está no calendário'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'Will',
+          summary: 'A primeira camada da aula trata do futuro mais espontâneo. Aqui entram decisão imediata, promessa e previsão sem evidência concreta.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Going to',
+          summary: 'Depois a aula desloca o foco para intenção prévia. Você não decide agora; você já vinha com isso na cabeça ou está reagindo a um sinal visível.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Agenda confirmada',
+          summary: 'O último bloco mostra o inglês mais concreto do futuro: aquilo que já parece compromisso, reserva ou encontro marcado e por isso usa a forma de presente contínuo.'
+        }
+      ]
+    },
+    gerundio: {
+      kicker: 'Trilha guiada',
+      headline: 'ING ou to: a escolha pequena que muda o ritmo e o sentido da frase.',
+      intro: 'Esta aula organiza um dos pontos mais traiçoeiros do inglês em quatro movimentos. Primeiro você entende o que é a forma -ing, depois separa os verbos que pedem -ing, os que pedem to e os casos em que a escolha muda tudo.',
+      journey: ['Entender a forma -ing', 'Reconhecer verbos que puxam -ing', 'Reconhecer verbos que puxam to', 'Perceber quando a escolha muda o sentido'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'Forma -ing',
+          summary: 'A abertura limpa a confusão inicial. A mesma terminação aparece em lugares diferentes, e a aula separa esses usos antes de exigir memorização.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Verbos com -ing',
+          summary: 'Aqui o foco sai da teoria e entra no padrão de combinação. Alguns verbos puxam naturalmente a ação seguinte em -ing, e o ouvido precisa começar a reconhecer isso.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Verbos com to',
+          summary: 'Na sequência, a aula coloca em contraste os verbos que exigem to antes da próxima ação. O ganho aqui é parar de misturar duas lógicas diferentes.'
+        },
+        {
+          label: 'Bloco 4',
+          focus: 'Mudança de sentido',
+          summary: 'O fechamento é o mais fino: alguns verbos aceitam as duas formas, mas dizem coisas diferentes. É aqui que o inglês deixa de ser fórmula e vira nuance.'
+        }
+      ]
+    },
+    preposicoes: {
+      kicker: 'Trilha guiada',
+      headline: 'In, on, at, to: menos tradução literal, mais lógica de espaço, tempo e direção.',
+      intro: 'Esta aula reorganiza as preposições mais confusas do inglês por uma lógica visual. Em vez de decorar caso por caso, você aprende a pensar em nível, superfície, ponto e movimento.',
+      journey: ['Localizar no espaço', 'Posicionar no tempo', 'Marcar direção e origem'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'Lugar',
+          summary: 'O primeiro bloco transforma preposição em imagem mental. A pergunta deixa de ser “qual palavra combina?” e vira “estou dentro, sobre ou num ponto específico?”.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Tempo',
+          summary: 'Depois a aula reaproveita a mesma lógica para o calendário. O que era espaço vira escala temporal: período amplo, dia marcado ou momento exato.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Movimento',
+          summary: 'O fechamento entra na ideia de deslocamento. Você passa a distinguir destino, origem e entrada em um espaço em vez de traduzir tudo como “para” ou “em”.'
+        }
+      ]
+    },
+    verbos: {
+      kicker: 'Trilha guiada',
+      headline: 'Os verbos que sustentam quase toda conversa: identidade, obrigação, possibilidade e ação em bloco.',
+      intro: 'Esta aula junta verbos que aparecem o tempo todo, mas por razões diferentes. Primeiro vem o to be, depois os modais que mudam o peso da frase e, por fim, os phrasal verbs que exigem leitura por bloco.',
+      journey: ['Dominar o verbo base do idioma', 'Ajustar força e intenção com modais', 'Aprender verbos que mudam ao ganhar uma partícula'],
+      sections: [
+        {
+          label: 'Bloco 1',
+          focus: 'To be',
+          summary: 'A aula começa pelo verbo mais estrutural do inglês. Ele serve para identidade, estado, pergunta e várias outras construções que se espalham pelo idioma inteiro.'
+        },
+        {
+          label: 'Bloco 2',
+          focus: 'Modais',
+          summary: 'Em seguida entram os verbos que ajustam poder, obrigação, conselho e possibilidade. O ponto central aqui é perceber que eles mexem no tom da frase inteira.'
+        },
+        {
+          label: 'Bloco 3',
+          focus: 'Phrasal verbs',
+          summary: 'O fechamento assume um fato importante do inglês real: muitas ações do cotidiano aparecem em blocos de duas peças. O sentido não se deduz palavra por palavra.'
+        }
+      ]
+    }
+  };
+
+  function shortenEditorialSentence(text) {
+    const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+    if (!normalized) return '';
+
+    const firstPeriod = normalized.indexOf('. ');
+    if (firstPeriod >= 0) {
+      return normalized.slice(0, firstPeriod + 1).trim();
+    }
+
+    return normalized.length > 180 ? `${normalized.slice(0, 177).trim()}...` : normalized;
+  }
+
+  function getSectionFocus(title) {
+    const normalized = String(title || '').trim();
+    if (!normalized) return 'Conceito';
+
+    const focus = normalized.split(':')[0].split('—')[0].trim();
+    return focus.length > 34 ? `${focus.slice(0, 31).trim()}...` : focus;
+  }
+
+  function getPedagogicalEditorial(slug, lesson) {
+    const base = PEDAGOGICAL_EDITORIAL[slug] || {};
+    const defaultSections = (lesson?.sections || []).map((section, index) => ({
+      label: `Bloco ${index + 1}`,
+      focus: getSectionFocus(section.title),
+      summary: shortenEditorialSentence(section.explanation)
+    }));
+
+    return {
+      kicker: base.kicker || 'Roteiro editorial',
+      headline: base.headline || lesson?.title || '',
+      intro: base.intro || lesson?.objective || '',
+      journey: base.journey || defaultSections.map((section) => section.focus).slice(0, 4),
+      sections: defaultSections.map((section, index) => ({
+        ...section,
+        ...(base.sections?.[index] || {})
+      })),
+      phases: base.phases || {}
+    };
+  }
+
+  function escapePedagogicalHtml(text) {
+    return String(text ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char]));
+  }
+
+  function renderAnchorDialog(slug) {
+    const anchor = ANCHOR_DIALOGS[slug];
+    if (!anchor) return '';
+    const editorial = getPedagogicalEditorial(slug, lessons[slug]);
+    const phase = editorial.phases?.anchor || {};
+
+    let dialogue = escapePedagogicalHtml(anchor.dialogue);
+    anchor.blanks.forEach((blank, blankIndex) => {
+      dialogue = dialogue.replace(
+        `___${blankIndex + 1}___`,
+        `<span class="lp-anchor-blank" id="blank-${slug}-${blankIndex}">_____</span>`
+      );
+    });
+
+    const buttons = anchor.blanks.map((blank, blankIndex) => {
+      const options = Array.from(new Set([
+        blank.answer,
+        ...anchor.blanks.map(item => item.answer),
+        'I',
+        'me',
+        'my',
+        'you',
+        'him',
+        'her'
+      ])).slice(0, 6);
+
+      return `
+        <div class="lp-anchor-buttons" id="buttons-${slug}-${blankIndex}">
+          <span class="lp-blank-label">Lacuna ${blankIndex + 1}</span>
+          ${options.map((option) => `<button class="lp-anchor-option" type="button" onclick="window.checkAnchorBlank('${slug}', ${blankIndex}, '${escapePedagogicalHtml(option)}', this)">${escapePedagogicalHtml(option)}</button>`).join('')}
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="lp-anchor-wrap">
+        <div class="lp-phase-head">
+          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Aquecimento')}</span>
+          <h3 class="lp-phase-title">${escapePedagogicalHtml(phase.title || 'Complete a cena com os pronomes certos.')}</h3>
+          <p class="lp-phase-copy">${escapePedagogicalHtml(phase.copy || '')}</p>
+        </div>
+        <div class="lp-anchor-dialogue">
+          <div class="lp-anchor-text">${dialogue}</div>
+        </div>
+        ${buttons}
+        <button class="lp-anchor-continue" id="anchor-continue-${slug}" type="button" onclick="window.nextPhase('${slug}', 'table')" disabled>Ir para a tabela de apoio</button>
+      </div>`;
+  }
+
+  function renderPedagogicalOverview(slug, lesson, options = {}) {
+    if (!lesson) return '';
+    const editorial = getPedagogicalEditorial(slug, lesson);
+    const sectionIdPrefix = options.sectionIdPrefix || 'concept';
+
+    const sectionCards = (lesson.sections || []).map((section, index) => {
+      const sectionEditorial = editorial.sections?.[index] || {};
+      const example = Array.isArray(section.examples) && section.examples.length > 0 ? section.examples[0] : null;
+      const exampleHtml = example
+        ? `<div class="lp-peda-example"><strong>${escapePedagogicalHtml(typeof example === 'string' ? example : example.en)}</strong>${typeof example === 'object' && example.pt ? `<span>${escapePedagogicalHtml(example.pt)}</span>` : ''}</div>`
+        : '';
+
+      return `
+        <article class="lp-peda-section-card" id="${sectionIdPrefix}-${slug}-${index}">
+          <div class="lp-peda-section-top">
+            <div class="lp-peda-section-index">${escapePedagogicalHtml(sectionEditorial.label || `Bloco ${index + 1}`)}</div>
+            <div class="lp-peda-section-chip">${escapePedagogicalHtml(sectionEditorial.focus || 'Conceito')}</div>
+          </div>
+          <h3 class="lp-peda-section-title">${escapePedagogicalHtml(section.title)}</h3>
+          ${sectionEditorial.summary ? `<p class="lp-peda-section-lead">${escapePedagogicalHtml(sectionEditorial.summary)}</p>` : ''}
+          <p class="lp-peda-section-copy">${escapePedagogicalHtml(section.explanation || '')}</p>
+          ${exampleHtml}
+        </article>`;
+    }).join('');
+
+    return `
+      <section class="lp-peda-overview" id="overview-${slug}">
+        <div class="lp-peda-overview-hero">
+          <span class="lp-peda-kicker">${escapePedagogicalHtml(editorial.kicker || 'Antes de praticar')}</span>
+          <h2 class="lp-peda-overview-title">${escapePedagogicalHtml(editorial.headline || lesson.title)}</h2>
+          <p class="lp-peda-overview-copy">${escapePedagogicalHtml(editorial.intro || lesson.objective || '')}</p>
+          ${lesson.highlight ? `<div class="lp-card-tag">${escapePedagogicalHtml(lesson.highlight)}</div>` : ''}
+          ${(editorial.journey || []).length ? `<div class="lp-peda-journey">${editorial.journey.map((item, index) => `<span class="lp-peda-journey-step">${index + 1}. ${escapePedagogicalHtml(item)}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="lp-peda-section-stack">${sectionCards}</div>
+      </section>`;
+  }
+
+  function renderInteractiveTable(slug) {
+    const table = INTERACTIVE_TABLES[slug];
+    if (!table) return '';
+    const editorial = getPedagogicalEditorial(slug, lessons[slug]);
+    const phase = editorial.phases?.table || {};
+
+    return `
+      <div class="lp-table-wrap" id="table-${slug}">
+        <div class="lp-phase-head">
+          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Mapa rapido')}</span>
+          <h3 class="lp-phase-title">${escapePedagogicalHtml(phase.title || 'Tabela de apoio')}</h3>
+          <p class="lp-phase-copy">${escapePedagogicalHtml(phase.copy || '')}</p>
+        </div>
+        <div class="lp-table-shell">
+          <table class="lp-interactive-table">
+            <thead>
+              <tr>
+                <th>Função</th>
+                <th>Pronome</th>
+                <th>Exemplo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${table.rows.map((row) => `
+                <tr class="${row.category === 'subject' ? 'lp-table-subject' : 'lp-table-object'}">
+                  <td><span class="lp-glossary-trigger" onmouseenter="window.showGlossary('${row.category === 'subject' ? 'sujeito' : 'objeto'}', event)" onmouseleave="window.hideGlossary()">${escapePedagogicalHtml(row.pt)}</span></td>
+                  <td>${escapePedagogicalHtml(row.en)}</td>
+                  <td>${escapePedagogicalHtml(row.example)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+          <aside class="lp-table-side-note">
+            <div class="lp-table-side-kicker">Leitura pratica</div>
+            <p>Se a palavra vem antes do verbo, pense em sujeito. Se aparece depois do verbo ou de uma preposição, pense em objeto.</p>
+          </aside>
+        </div>
+        <button class="lp-anchor-continue" type="button" onclick="window.nextPhase('${slug}', 'exercises')">Ir para a pratica guiada</button>
+      </div>`;
+  }
+
+  function renderScaffoldedExercises(slug) {
+    const exercises = SCAFFOLDED_EXERCISES[slug] || [];
+    const editorial = getPedagogicalEditorial(slug, lessons[slug]);
+    const phase = editorial.phases?.exercises || {};
+
+    return `
+      <div class="lp-exercises-wrap" id="exercises-${slug}">
+        <div class="lp-phase-head">
+          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Pratica guiada')}</span>
+          <h3 class="lp-phase-title">${escapePedagogicalHtml(phase.title || 'Aplique a logica da aula')}</h3>
+          <p class="lp-phase-copy">${escapePedagogicalHtml(phase.copy || '')}</p>
+        </div>
+        ${exercises.map((exercise, exIndex) => `
+          <div class="lp-exercise lp-difficulty-${escapePedagogicalHtml(exercise.difficulty)}" id="exercise-${slug}-${exIndex}">
+            <div class="lp-exercise-q">${exIndex + 1}. ${escapePedagogicalHtml(exercise.q)}</div>
+            <div class="lp-exercise-meta-row">
+              <div class="lp-glossary-highlight">Nível: ${escapePedagogicalHtml(({ easy: 'Fácil', moderate: 'Médio', hard: 'Desafio' }[exercise.difficulty] || exercise.difficulty))}</div>
+              <div class="lp-exercise-meta-copy">Decida primeiro a função da palavra. Depois escolha a forma.</div>
+            </div>
+            <div class="lp-exercise-options" id="options-${slug}-${exIndex}">
+              ${exercise.options.map((option, optionIndex) => `<button class="lp-exercise-option" type="button" onclick="window.checkScaffoldedAnswer('${slug}', ${exIndex}, ${optionIndex}, this)">${escapePedagogicalHtml(option)}</button>`).join('')}
+            </div>
+            <div class="lp-exercise-hints" id="hints-${slug}-${exIndex}" style="display:none;"></div>
+            <div class="lp-exercise-feedback" id="feedback-${slug}-${exIndex}" style="display:none;"></div>
+          </div>`).join('')}
+        <button class="lp-exercises-continue" type="button" onclick="window.nextPhase('${slug}', 'test')">Ir para a validação final</button>
+      </div>`;
+  }
+
+  function renderFinalTest(slug) {
+    const tests = FINAL_TESTS[slug] || [];
+    const editorial = getPedagogicalEditorial(slug, lessons[slug]);
+    const phase = editorial.phases?.test || {};
+
+    return `
+      <div class="lp-test-wrap" id="test-${slug}">
+        <div class="lp-phase-head">
+          <span class="lp-phase-kicker">${escapePedagogicalHtml(phase.kicker || 'Fechamento')}</span>
+          <div class="lp-test-header">${escapePedagogicalHtml(phase.title || 'Validação final')}</div>
+          <p class="lp-phase-copy">${escapePedagogicalHtml(phase.copy || '')}</p>
+        </div>
+        ${tests.map((test, qIdx) => `
+          <div class="lp-test-question" id="test-q-${slug}-${qIdx}">
+            <div class="lp-test-q-label">${qIdx + 1}. ${escapePedagogicalHtml(test.q)}</div>
+            ${test.options.map((option, optionIndex) => `<button class="lp-test-option" type="button" onclick="window.checkFinalTest('${slug}', ${qIdx}, ${optionIndex}, this)">${escapePedagogicalHtml(option)}</button>`).join('')}
+          </div>`).join('')}
+        <div class="lp-test-result" id="test-result-${slug}" style="display:none;"></div>
+        <button class="lp-test-complete" id="test-complete-${slug}" type="button" onclick="window.completeLesson('${slug}')" style="display:none;">Concluir lição</button>
+      </div>`;
+  }
+
+  function showGlossary(term, event) {
+    const entry = GLOSSARY_TERMS[term];
+    if (!entry) return;
+
+    hideGlossary();
+    const tooltip = document.createElement('div');
+    tooltip.id = 'lpGlossaryTooltip';
+    tooltip.className = 'lp-glossary-tooltip';
+    tooltip.innerHTML = `
+      <div class="lp-glossary-pt">${escapePedagogicalHtml(entry.pt)}</div>
+      <div class="lp-glossary-en">${escapePedagogicalHtml(entry.en)}</div>
+      ${entry.highlight ? `<div class="lp-glossary-highlight">${escapePedagogicalHtml(entry.highlight)}</div>` : ''}
+    `;
+    document.body.appendChild(tooltip);
+    tooltip.style.left = `${(event?.clientX ?? 0) + 12}px`;
+    tooltip.style.top = `${(event?.clientY ?? 0) + 12}px`;
+  }
+
+  function hideGlossary() {
+    document.getElementById('lpGlossaryTooltip')?.remove();
+  }
 
   // ========== EXERCISE ANSWERS ==========
 
@@ -1275,14 +1744,20 @@
 
   function checkAnchorBlank(slug, blankIndex, selected, button) {
     const blank = ANCHOR_DIALOGS[slug].blanks[blankIndex];
+    const buttonGroup = document.getElementById(`buttons-${slug}-${blankIndex}`);
+    if (!blank || !buttonGroup) return;
+
     if (selected === blank.answer) {
       button.classList.add('is-correct');
-      button.disabled = true;
+      buttonGroup.querySelectorAll('.lp-anchor-option').forEach((optionBtn) => {
+        optionBtn.disabled = true;
+      });
       document.getElementById(`blank-${slug}-${blankIndex}`).textContent = selected;
       document.getElementById(`blank-${slug}-${blankIndex}`).classList.add('is-filled');
-      const allCorrect = document.querySelectorAll(`#buttons-${slug}-${blankIndex} .is-correct`).length > 0 &&
-        document.querySelectorAll(`#buttons-${slug}-*:not(.is-correct)`).length === 0;
-      if (allCorrect && blankIndex === ANCHOR_DIALOGS[slug].blanks.length - 1) {
+      const allCorrect = ANCHOR_DIALOGS[slug].blanks.every((_, index) =>
+        document.getElementById(`blank-${slug}-${index}`)?.classList.contains('is-filled')
+      );
+      if (allCorrect) {
         document.getElementById(`anchor-continue-${slug}`).disabled = false;
       }
     } else {
@@ -1320,11 +1795,10 @@
   }
 
   function nextPhase(slug, phase) {
-    const phaseMap = { anchor: 0, table: 1, exercises: 2, test: 3 };
-    document.querySelectorAll(`[id*="${slug}"]`).forEach(el => {
-      el.style.display = el.id.includes(phase) ? 'block' : 'none';
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const targetEl = document.getElementById(`${phase}-${slug}`);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   function checkFinalTest(slug, qIdx, optIdx, button) {
@@ -1362,6 +1836,8 @@
     const resultEl = document.getElementById(`test-result-${slug}`);
     resultEl.innerHTML = `<div class="lp-result-box ${passed ? 'is-passed' : 'is-failed'}"><h3>${passed ? '🎉 Parabéns!' : '📚 Continue praticando'}</h3><p>Você acertou ${score} de ${totalQ}</p><p>${passed ? 'Você desbloqueou esta lição!' : 'Tente novamente!'}</p></div>`;
     resultEl.style.display = 'block';
+    const completeBtn = document.getElementById(`test-complete-${slug}`);
+    if (completeBtn) completeBtn.style.display = passed ? 'block' : 'none';
   }
 
   function completeLesson(slug) {
@@ -1662,11 +2138,24 @@
 
     // ── sidebar ──
     if (aside) {
-      const navItems = (lesson.sections || []).map((sec, i) => `
-        <a class="lp-aside-nav-item" href="#msec-${slug}-${i}"
-           onclick="event.preventDefault();document.getElementById('msec-${slug}-${i}').scrollIntoView({behavior:'smooth'})">
-          <span class="lp-aside-nav-dot"></span>${sec.title}
-        </a>`).join('');
+      const editorialNav = slug === 'pronomes'
+        ? [
+            { id: `overview-${slug}`, label: 'Visão da aula' },
+            { id: `concept-${slug}-0`, label: 'Quem faz a ação' },
+            { id: `concept-${slug}-1`, label: 'Quem recebe a ação' },
+            { id: `concept-${slug}-2`, label: 'Como mostrar posse' },
+            { id: `table-${slug}`, label: 'Tabela de apoio' },
+            { id: `exercises-${slug}`, label: 'Prática guiada' },
+            { id: `test-${slug}`, label: 'Validação final' }
+          ]
+        : [{ id: `overview-${slug}`, label: 'Visão da aula' }, ...(lesson.sections || []).map((sec, i) => ({ id: `msec-${slug}-${i}`, label: sec.title }))];
+
+      const navItems = editorialNav
+        .map((item) => `
+          <a class="lp-aside-nav-item" href="#${item.id}"
+             onclick="event.preventDefault();document.getElementById('${item.id}')?.scrollIntoView({behavior:'smooth', block:'start'})">
+            <span class="lp-aside-nav-dot"></span>${item.label}
+          </a>`).join('');
 
       const points = (lesson.teachingPoints || [])
         .map(p => `<li class="lp-aside-point">${p}</li>`).join('');
@@ -1698,107 +2187,106 @@
     if (main) {
       main.innerHTML = '';
 
-      // ── PEDAGOGICAL MODE for pronomes ──
-        const hasPedagogicalRenderer = typeof renderAnchorDialog === 'function'
-          && typeof renderInteractiveTable === 'function'
-          && typeof renderScaffoldedExercises === 'function'
-          && typeof renderFinalTest === 'function';
+      const hasPedagogicalRenderer = typeof renderAnchorDialog === 'function'
+        && typeof renderInteractiveTable === 'function'
+        && typeof renderScaffoldedExercises === 'function'
+        && typeof renderFinalTest === 'function';
 
-        if (slug === 'pronomes' && hasPedagogicalRenderer) {
+      if (slug === 'pronomes' && hasPedagogicalRenderer) {
         window._testScore = 0;
         main.innerHTML = `
-          <div class=\"lp-peda-phase\" id=\"anchor-${slug}\">${renderAnchorDialog(slug)}</div>
-          <div class=\"lp-peda-phase\" id=\"table-${slug}\" style=\"display:none;\">${renderInteractiveTable(slug)}</div>
-          <div class=\"lp-peda-phase\" id=\"exercises-${slug}\" style=\"display:none;\">${renderScaffoldedExercises(slug)}</div>
-          <div class=\"lp-peda-phase\" id=\"test-${slug}\" style=\"display:none;\">${renderFinalTest(slug)}</div>
+          ${renderPedagogicalOverview(slug, lesson)}
+          <div class="lp-peda-phase" id="anchor-${slug}">${renderAnchorDialog(slug)}</div>
+          <div class="lp-peda-phase" id="table-${slug}">${renderInteractiveTable(slug)}</div>
+          <div class="lp-peda-phase" id="exercises-${slug}">${renderScaffoldedExercises(slug)}</div>
+          <div class="lp-peda-phase" id="test-${slug}">${renderFinalTest(slug)}</div>
         `;
-        modal.removeAttribute('hidden');
-        window.requestAnimationFrame(() => {
-
-        if (slug === 'pronomes' && !hasPedagogicalRenderer) {
+      } else {
+        if (slug === 'pronomes') {
           console.warn('[LESSONS] Pedagogical renderer unavailable for pronomes. Falling back to standard lesson view.');
         }
-          modal.classList.add('active');
-        });
-        document.body.style.overflow = 'hidden';
-        document.title = `${lesson.title} — GRILO`;
-        if (main) main.scrollTop = 0;
-        if (aside) aside.scrollTop = 0;
-        return;
-      }
 
-      (lesson.sections || []).forEach((sec, idx) => {
-        const secEl = document.createElement('div');
-        secEl.className = 'lp-msec';
-        secEl.id = `msec-${slug}-${idx}`;
+        main.innerHTML = renderPedagogicalOverview(slug, lesson, { sectionIdPrefix: 'overview-concept' });
 
-        let html = `
-          <div class="lp-msec-header">
-            <div class="lp-msec-num">${String(idx + 1).padStart(2, '0')}</div>
-            <h2 class="lp-msec-title">${sec.title}</h2>
-            <div class="lp-msec-score" id="score-${slug}-${idx}"></div>
-          </div>
-        `;
+        (lesson.sections || []).forEach((sec, idx) => {
+          const secEl = document.createElement('div');
+          secEl.className = 'lp-msec';
+          secEl.id = `msec-${slug}-${idx}`;
+          const editorialSection = getPedagogicalEditorial(slug, lesson).sections?.[idx] || {};
 
-        if (sec.explanation) {
-          html += `<p class="lp-msec-explanation">${sec.explanation}</p>`;
-        }
+          let html = `
+            <div class="lp-msec-header">
+              <div class="lp-msec-num">${String(idx + 1).padStart(2, '0')}</div>
+              <h2 class="lp-msec-title">${sec.title}</h2>
+              <div class="lp-msec-score" id="score-${slug}-${idx}"></div>
+            </div>
+          `;
 
-        if (sec.examples && sec.examples.length) {
-          html += `
-            <div class="lp-mex">
-              <div class="lp-mex-label">📝 Exemplos</div>
-              <ul class="lp-mex-list">
-                ${sec.examples.map(ex => {
-                  if (typeof ex === 'string')
-                    return `<li class="lp-mex-item"><span class="lp-ex-en">${ex}</span></li>`;
-                  return `<li class="lp-mex-item"><span class="lp-ex-en">${ex.en}</span>${ex.pt ? `<span class="lp-ex-pt">${ex.pt}</span>` : ''}</li>`;
-                }).join('')}
-              </ul>
-            </div>`;
-        }
+          if (editorialSection.summary) {
+            html += `<p class="lp-peda-section-lead">${editorialSection.summary}</p>`;
+          }
 
-        if (sec.exercises && sec.exercises.length) {
-          const mcSec = (EXERCISE_MC[slug] || [])[idx] || [];
-          const safeSlug = slug.replace(/'/g, "\\'");
-          const items = sec.exercises.map((ex, ei) => {
-            const mc = mcSec[ei];
-            const optionsHtml = mc ? mc.options.map((opt, oi) =>
-              `<button class="lp-exr-option" onclick="window._griloAnswer&&window._griloAnswer(this,'${safeSlug}',${idx},${ei},${oi})">${opt}</button>`
-            ).join('') : '';
-            const feedbackHtml = mc ? `
-              <div class="lp-exr-feedback">
-                <div class="lp-exr-feedback-correct">✓ Correto: <strong>${mc.options[mc.correct]}</strong></div>
-                <div class="lp-exr-feedback-text">${mc.explanation}</div>
-                <div class="lp-exr-feedback-tip">💡 <strong>Como lembrar:</strong> ${mc.tip}</div>
-              </div>` : '';
-            return `
-              <div class="lp-exr-interactive" data-sec="${idx}" data-ex="${ei}">
-                <div class="lp-exr-q">
-                  <span class="lp-exr-num">${ei + 1}</span>
-                  <span>${ex}</span>
-                </div>
-                ${mc ? `<div class="lp-exr-options">${optionsHtml}</div>${feedbackHtml}` : ''}
+          if (sec.explanation) {
+            html += `<p class="lp-msec-explanation">${sec.explanation}</p>`;
+          }
+
+          if (sec.examples && sec.examples.length) {
+            html += `
+              <div class="lp-mex">
+                <div class="lp-mex-label">📝 Exemplos</div>
+                <ul class="lp-mex-list">
+                  ${sec.examples.map(ex => {
+                    if (typeof ex === 'string') {
+                      return `<li class="lp-mex-item"><span class="lp-ex-en">${ex}</span></li>`;
+                    }
+                    return `<li class="lp-mex-item"><span class="lp-ex-en">${ex.en}</span>${ex.pt ? `<span class="lp-ex-pt">${ex.pt}</span>` : ''}</li>`;
+                  }).join('')}
+                </ul>
               </div>`;
-          }).join('');
+          }
 
-          html += `<div class="lp-mexr"><div class="lp-mexr-label">✏️ Pratique agora</div>${items}</div>`;
+          if (sec.exercises && sec.exercises.length) {
+            const mcSec = (EXERCISE_MC[slug] || [])[idx] || [];
+            const safeSlug = slug.replace(/'/g, "\\'");
+            const items = sec.exercises.map((ex, ei) => {
+              const mc = mcSec[ei];
+              const optionsHtml = mc ? mc.options.map((opt, oi) =>
+                `<button class="lp-exr-option" onclick="window._griloAnswer&&window._griloAnswer(this,'${safeSlug}',${idx},${ei},${oi})">${opt}</button>`
+              ).join('') : '';
+              const feedbackHtml = mc ? `
+                <div class="lp-exr-feedback">
+                  <div class="lp-exr-feedback-correct">✓ Correto: <strong>${mc.options[mc.correct]}</strong></div>
+                  <div class="lp-exr-feedback-text">${mc.explanation}</div>
+                  <div class="lp-exr-feedback-tip">💡 <strong>Como lembrar:</strong> ${mc.tip}</div>
+                </div>` : '';
+              return `
+                <div class="lp-exr-interactive" data-sec="${idx}" data-ex="${ei}">
+                  <div class="lp-exr-q">
+                    <span class="lp-exr-num">${ei + 1}</span>
+                    <span>${ex}</span>
+                  </div>
+                  ${mc ? `<div class="lp-exr-options">${optionsHtml}</div>${feedbackHtml}` : ''}
+                </div>`;
+            }).join('');
+
+            html += `<div class="lp-mexr"><div class="lp-mexr-label">✏️ Pratique agora</div>${items}</div>`;
+          }
+
+          secEl.innerHTML = html;
+          main.appendChild(secEl);
+        });
+
+        if (lesson.curiosities && lesson.curiosities.length) {
+          const cur = document.createElement('div');
+          cur.className = 'lp-mcur';
+          cur.innerHTML = `
+            <div class="lp-mcur-label">💡 Sabia que…</div>
+            <ul class="lp-mcur-list">
+              ${lesson.curiosities.map(c => `<li class="lp-mcur-item">${c}</li>`).join('')}
+            </ul>
+          `;
+          main.appendChild(cur);
         }
-
-        secEl.innerHTML = html;
-        main.appendChild(secEl);
-      });
-
-      if (lesson.curiosities && lesson.curiosities.length) {
-        const cur = document.createElement('div');
-        cur.className = 'lp-mcur';
-        cur.innerHTML = `
-          <div class="lp-mcur-label">💡 Sabia que…</div>
-          <ul class="lp-mcur-list">
-            ${lesson.curiosities.map(c => `<li class="lp-mcur-item">${c}</li>`).join('')}
-          </ul>
-        `;
-        main.appendChild(cur);
       }
     }
 
@@ -1857,6 +2345,17 @@
   renderLessonsCards();
   updateHeroProgress();
   initLessonsChrome();
+  window.renderAnchorDialog = renderAnchorDialog;
+  window.renderInteractiveTable = renderInteractiveTable;
+  window.renderScaffoldedExercises = renderScaffoldedExercises;
+  window.renderFinalTest = renderFinalTest;
+  window.showGlossary = showGlossary;
+  window.hideGlossary = hideGlossary;
+  window.checkAnchorBlank = checkAnchorBlank;
+  window.checkScaffoldedAnswer = checkScaffoldedAnswer;
+  window.checkFinalTest = checkFinalTest;
+  window.nextPhase = nextPhase;
+  window.completeLesson = completeLesson;
   window.closeLessonModal = closeLessonModal;
   window.showLessonContent = showLessonContent;
 })();

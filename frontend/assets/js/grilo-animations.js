@@ -80,11 +80,49 @@
     }
   }
 
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var motionTicking = false;
+
+  function updateLandingMotion() {
+    if (prefersReducedMotion) return;
+
+    var sections = document.querySelectorAll('body.landing-page .section');
+    if (!sections.length) return;
+
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    var viewportCenter = viewportHeight * 0.5;
+
+    sections.forEach(function (section) {
+      var rect = section.getBoundingClientRect();
+      var sectionCenter = rect.top + (rect.height * 0.5);
+      var distance = (sectionCenter - viewportCenter) / viewportHeight;
+      var clamped = Math.max(-1, Math.min(1, distance));
+      var sectionShift = Math.round(clamped * -18);
+      var cardShift = Math.round(clamped * -12);
+
+      section.style.setProperty('--section-parallax', sectionShift + 'px');
+      section.style.setProperty('--section-card-parallax', cardShift + 'px');
+    });
+  }
+
+  function requestMotionUpdate() {
+    if (motionTicking) return;
+
+    motionTicking = true;
+    window.requestAnimationFrame(function () {
+      updateScrollProgress();
+      updateNavbar();
+      updateLoginStrip();
+      updateLandingMotion();
+      motionTicking = false;
+    });
+  }
+
   window.addEventListener('scroll', function () {
-    updateScrollProgress();
-    updateNavbar();
-    updateLoginStrip();
+    requestMotionUpdate();
   }, { passive: true });
+
+  window.addEventListener('resize', requestMotionUpdate, { passive: true });
 
   // ── 4. [data-reveal] IntersectionObserver ──────────────────────────────
   var DELAYS = [0, 100, 200, 300, 400, 500]; // maps to data-reveal-delay="0..5"
@@ -176,7 +214,164 @@
     }
   }
 
-  // ── 6. Quiz Response Handler ─────────────────────────────────────────────
+  // ── 6. Hero Slider ────────────────────────────────────────────────────
+  function initHeroSlider() {
+    var slider = document.querySelector('[data-hero-slider]');
+    if (!slider) return;
+
+    var slides = Array.prototype.slice.call(slider.querySelectorAll('[data-hero-slide]'));
+    var dots = Array.prototype.slice.call(slider.querySelectorAll('[data-hero-dot]'));
+    var prevBtn = slider.querySelector('[data-hero-prev]');
+    var nextBtn = slider.querySelector('[data-hero-next]');
+    if (!slides.length) return;
+
+    var activeIndex = slides.findIndex(function (slide) {
+      return slide.classList.contains('is-active');
+    });
+    if (activeIndex < 0) activeIndex = 0;
+
+    var autoTimer = null;
+    var AUTO_DELAY = 5200;
+
+    function render(index) {
+      activeIndex = (index + slides.length) % slides.length;
+
+      slides.forEach(function (slide, slideIndex) {
+        slide.classList.toggle('is-active', slideIndex === activeIndex);
+      });
+
+      dots.forEach(function (dot, dotIndex) {
+        var isActive = dotIndex === activeIndex;
+        dot.classList.toggle('is-active', isActive);
+        dot.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    }
+
+    function stopAuto() {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+    }
+
+    function startAuto() {
+      stopAuto();
+      autoTimer = setInterval(function () {
+        render(activeIndex + 1);
+      }, AUTO_DELAY);
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function () {
+        render(activeIndex - 1);
+        startAuto();
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function () {
+        render(activeIndex + 1);
+        startAuto();
+      });
+    }
+
+    dots.forEach(function (dot, index) {
+      dot.addEventListener('click', function () {
+        render(index);
+        startAuto();
+      });
+    });
+
+    slider.addEventListener('mouseenter', stopAuto);
+    slider.addEventListener('mouseleave', startAuto);
+    slider.addEventListener('focusin', stopAuto);
+    slider.addEventListener('focusout', startAuto);
+
+    render(activeIndex);
+    startAuto();
+  }
+
+  // ── 7. Content Sliders (system, results, CTA) ────────────────────────
+  function initContentSliders() {
+    var sliders = document.querySelectorAll('[data-content-slider]');
+    if (!sliders.length) return;
+
+    sliders.forEach(function (slider) {
+      var slides = Array.prototype.slice.call(slider.querySelectorAll('[data-content-slide]'));
+      var dots = Array.prototype.slice.call(slider.querySelectorAll('[data-content-dot]'));
+      var prevBtn = slider.querySelector('[data-content-prev]');
+      var nextBtn = slider.querySelector('[data-content-next]');
+      if (!slides.length) return;
+
+      var activeIndex = slides.findIndex(function (slide) {
+        return slide.classList.contains('is-active');
+      });
+      if (activeIndex < 0) activeIndex = 0;
+
+      var autoTimer = null;
+      var autoDelay = parseInt(slider.getAttribute('data-slider-delay') || '5000', 10);
+
+      function render(index) {
+        activeIndex = (index + slides.length) % slides.length;
+
+        slides.forEach(function (slide, slideIndex) {
+          slide.classList.toggle('is-active', slideIndex === activeIndex);
+        });
+
+        dots.forEach(function (dot, dotIndex) {
+          var isActive = dotIndex === activeIndex;
+          dot.classList.toggle('is-active', isActive);
+          dot.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+      }
+
+      function stopAuto() {
+        if (autoTimer) {
+          clearInterval(autoTimer);
+          autoTimer = null;
+        }
+      }
+
+      function startAuto() {
+        stopAuto();
+        if (slides.length < 2) return;
+        autoTimer = setInterval(function () {
+          render(activeIndex + 1);
+        }, autoDelay);
+      }
+
+      dots.forEach(function (dot, index) {
+        dot.addEventListener('click', function () {
+          render(index);
+          startAuto();
+        });
+      });
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+          render(activeIndex - 1);
+          startAuto();
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+          render(activeIndex + 1);
+          startAuto();
+        });
+      }
+
+      slider.addEventListener('mouseenter', stopAuto);
+      slider.addEventListener('mouseleave', startAuto);
+      slider.addEventListener('focusin', stopAuto);
+      slider.addEventListener('focusout', startAuto);
+
+      render(activeIndex);
+      startAuto();
+    });
+  }
+
+  // ── 8. Quiz Response Handler ─────────────────────────────────────────────
   function checkAnswer(isCorrect) {
     const popup = document.getElementById("popup");
     if (isCorrect) {
@@ -192,16 +387,16 @@
     document.addEventListener('DOMContentLoaded', function () {
       initReveal();
       initChatDemo();
-      updateScrollProgress();
-      updateNavbar();
-      updateLoginStrip();
+      initHeroSlider();
+      initContentSliders();
+      requestMotionUpdate();
     });
   } else {
     initReveal();
     initChatDemo();
-    updateScrollProgress();
-    updateNavbar();
-    updateLoginStrip();
+    initHeroSlider();
+    initContentSliders();
+    requestMotionUpdate();
   }
 
 })();

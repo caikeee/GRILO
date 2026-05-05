@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GRILO Voice — treino conversacional de ingles com IA, feedback de pronuncia e progresso semanal para brasileiros.">
+    <meta name="description" content="GRILO — ensino de inglês com aulas de qualidade, aprendizado mapeado e conversação com IA para brasileiros.">
     <meta name="theme-color" content="#0a0a0a">
-    <meta property="og:title" content="GRILO Voice — Fale ingles com confianca">
-    <meta property="og:description" content="Treino de voz com IA, correcoes em tempo real e dashboard de evolucao. Foco total em conversacao real.">
+    <meta property="og:title" content="GRILO — Inglês com aulas, trilha e conversação com IA">
+    <meta property="og:description" content="Aulas de qualidade, progresso mapeado e prática de conversação com IA em uma experiência contínua de aprendizagem.">
     <meta property="og:image" content="/assets/og-image.png">
 
-    <title>GRILO Voice — Treino de conversacao em ingles com IA</title>
+    <title>GRILO — Ensino de inglês com aulas e conversação com IA</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- CSS -->
     <link rel="stylesheet" href="assets/css/variables.css">
     <link rel="stylesheet" href="assets/css/base.css">
-    <link rel="stylesheet" href="assets/css/grilo-v3.css">
+    <link rel="stylesheet" href="assets/css/grilo-v3.css?v=3">
 
     <style>
       .toast { padding:14px 22px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:0.92rem; font-weight:500; color:#fff; box-shadow:0 8px 32px rgba(0,0,0,.3); animation:toastIn .3s ease; transition:opacity .3s,transform .3s; max-width:380px; }
@@ -29,11 +27,10 @@
       @keyframes toastIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
     </style>
 </head>
-<body>
+<body class="landing-page">
 
     <div class="scroll-progress" id="scrollProgress"></div>
 
-    <!-- NAVBAR -->
     <nav class="navbar" id="navbar">
         <div class="navbar-container">
             <a href="#" class="navbar-logo">
@@ -45,19 +42,16 @@
             </button>
             <div class="navbar-content" id="navContent">
                 <ul class="navbar-nav">
-                    <li><a href="#sistema">Produto</a></li>
-                    <li><a href="#como-funciona">Metodo</a></li>
-                    <li><a href="#historias">Prova</a></li>
+                    <li><a href="#sistema">Por que GRILO</a></li>
+                    <li><a href="#simbolos">Experiência</a></li>
                 </ul>
                 <div class="navbar-actions">
-                    <a href="#" class="navbar-cta-link" id="navEntrarBtn">Entrar</a>
-                    <button class="navbar-cta-btn" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Começar agora →</button>
+                    <button class="navbar-cta-btn" id="navEntrarBtn" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Entrar no GRILO →</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- LOGIN STRIP -->
     <div class="login-strip" id="loginStrip" role="complementary" aria-label="Login rápido">
         <div class="login-strip-inner">
             <span class="login-strip-label">Já tem conta?</span>
@@ -69,174 +63,248 @@
         </div>
     </div>
 
-    <!-- HERO -->
-    <section class="hero">
+    <section class="hero hero--editorial">
         <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
         <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
+        <div class="hero-grid-lines" aria-hidden="true"></div>
 
-        <div class="hero-content">
-            <div class="hero-tag" data-reveal>
-                <span class="hero-tag-dot" aria-hidden="true"></span>
-                Produto de voz para acelerar sua fluencia em ingles
-            </div>
-
-            <h1 class="hero-headline" data-reveal data-reveal-delay="1">
-                Voce nao precisa de mais teoria.<br>
-                <em>Precisa praticar voz todos os dias com feedback real.</em>
-            </h1>
-
-            <p class="hero-sub" data-reveal data-reveal-delay="2">
-                O GRILO Voice transforma estudo passivo em conversacao ativa: voce fala, recebe correcao na hora e acompanha seu score de evolucao. Um ciclo diario feito para brasileiros que precisam falar ingles no mundo real.
-            </p>
-
-            <div class="hero-buttons" data-reveal data-reveal-delay="3">
-                <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
-                    Quero começar agora →
-                </button>
-                <button class="btn-secondary" onclick="document.getElementById('como-funciona').scrollIntoView({behavior:'smooth'})">
-                    Ver metodo
-                </button>
-            </div>
-
-
-        </div>
-    </section>
-
-    <!-- SISTEMA -->
-    <section id="sistema" class="section" style="background: linear-gradient(135deg, #f8faff 0%, #fff 50%);">
-        <div class="container" style="max-width: 900px; text-align: center;">
-            <div data-reveal>
-                <span class="section-eyebrow">O produto</span>
-                <h2 class="section-title" style="margin-bottom: 48px;">
-                    Conversa + Correcao + Replay + Score<br>
-                    <strong>no mesmo ciclo de voz.</strong>
-                </h2>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; margin-top: 40px;">
-                    <div style="text-align: left;">
-                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">🎤 Conversa real</div>
-                        <p style="font-size: 0.95rem; opacity: 0.8;">Fale em cenarios praticos com IA em tempo real.</p>
-                    </div>
-                    <div style="text-align: left;">
-                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">🛠️ Correcao guiada</div>
-                        <p style="font-size: 0.95rem; opacity: 0.8;">Veja e ouca a forma correta para repetir na hora.</p>
-                    </div>
-                    <div style="text-align: left;">
-                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">📈 Score de sessao</div>
-                        <p style="font-size: 0.95rem; opacity: 0.8;">Qualidade, trocas e erros para medir sua evolucao.</p>
-                    </div>
-                    <div style="text-align: left;">
-                        <div style="font-weight: 600; margin-bottom: 8px; color: #2563eb;">🔥 Desafio 7 dias</div>
-                        <p style="font-size: 0.95rem; opacity: 0.8;">Trilha de consistencia para manter ritmo e fluencia.</p>
-                    </div>
+        <div class="hero-content hero-content--editorial">
+            <div class="hero-editorial-copy">
+                <div class="hero-tag" data-reveal>
+                    <span class="hero-tag-dot" aria-hidden="true"></span>
+                    Inglês com método, prática e progresso
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- COMO FUNCIONA -->
-    <section id="como-funciona" class="section" style="background: linear-gradient(135deg, #f0f2f7 0%, #e8ecf5 100%);">
-        <div class="container" style="max-width: 1000px;">
-            <div data-reveal style="text-align: center;">
-                <span class="section-eyebrow">Metodo de evolucao</span>
-                <h2 class="section-title" style="margin-bottom: 48px;">
-                    Fale → Corrija → Repita<br>
-                    <strong>todos os dias.</strong>
-                </h2>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;">
-                <div data-reveal style="background: #fff; padding: 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
-                    <div style="font-size: 2.5rem; margin-bottom: 12px;">1️⃣</div>
-                    <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #0a0a0a;">Falar</h3>
-                    <p style="color: #525252; font-size: 0.95rem;">Converse por voz com IA em cenarios reais.</p>
-                </div>
-                <div data-reveal data-reveal-delay="1" style="background: #fff; padding: 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
-                    <div style="font-size: 2.5rem; margin-bottom: 12px;">2️⃣</div>
-                    <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #0a0a0a;">Ajustar</h3>
-                    <p style="color: #525252; font-size: 0.95rem;">Receba correcao, replay e dica de estudo.</p>
-                </div>
-                <div data-reveal data-reveal-delay="2" style="background: #fff; padding: 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
-                    <div style="font-size: 2.5rem; margin-bottom: 12px;">3️⃣</div>
-                    <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: #0a0a0a;">Evoluir</h3>
-                    <p style="color: #525252; font-size: 0.95rem;">Siga o desafio semanal e destrave novos modos.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+                <h1 class="hero-headline" data-reveal data-reveal-delay="1">
+                    Inglês para quem quer avançar com segurança.
+                </h1>
 
-    <section class="section">
-        <div class="container" style="max-width: 900px;">
-            <div data-reveal>
-                <span class="section-eyebrow">Progresso</span>
-                <h2 class="section-title" style="margin-bottom: 32px;">
-                    Menos travas. Mais fluidez.<br>
-                    <strong>Ingles para situacoes reais.</strong>
-                </h2>
-                <p class="section-body" style="font-size: 1.1rem; margin-bottom: 24px;">
-                    Com ciclos curtos de voz e feedback, voce melhora pronuncia, velocidade de resposta e confianca para entrevistas, reunioes e viagens.
+                <p class="hero-sub" data-reveal data-reveal-delay="2">
+                    Estude com profundidade, pratique com IA e acompanhe seu progresso em uma plataforma feita para transformar esforço em evolução real.
                 </p>
+
+                <div class="hero-buttons" data-reveal data-reveal-delay="3">
+                    <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+                        Começar agora
+                    </button>
+                    <button class="btn-secondary" onclick="document.getElementById('sistema').scrollIntoView({behavior:'smooth'})">
+                        Conhecer a plataforma
+                    </button>
+                </div>
+
+
+            </div>
+
+            <div class="hero-editorial-art" data-reveal data-reveal-delay="2">
+                <div class="hero-art-card hero-art-card--main hero-slider" data-hero-slider>
+                    <div class="hero-slider-track">
+                        <article class="hero-slide is-active" data-hero-slide data-theme="blue">
+                            <div class="hero-art-eyebrow">Aulas com estrutura real</div>
+                            <img class="hero-art-illustration hero-art-image" src="./assets/illustrations/storyset-company.svg" alt="Equipe estudando e colaborando com foco em progresso e comunicação" loading="eager" decoding="async">
+                            <div class="hero-slide-body">
+                                <h3 class="hero-slide-title">Aprenda inglês com trilha, método e direção</h3>
+                                <p class="hero-art-caption">Cada aula tem lugar na sua jornada. O GRILO organiza conteúdo, vocabulário e gramática para que você avance com clareza, sem repetir o que já sabe.</p>
+                            </div>
+                        </article>
+
+                        <article class="hero-slide" data-hero-slide data-theme="teal">
+                            <div class="hero-art-eyebrow">Conversação com IA</div>
+                            <img class="hero-art-illustration hero-art-image" src="./assets/illustrations/storyset-problem-solving.svg" alt="Pessoa resolvendo problemas e avançando com apoio visual" loading="lazy" decoding="async">
+                            <div class="hero-slide-body">
+                                <h3 class="hero-slide-title">Pratique inglês com IA que corrige e explica</h3>
+                                <p class="hero-art-caption">Converse em inglês com a IA do GRILO e receba feedback em tempo real. Cada sessão reforça o que você aprendeu nas aulas e expande seu vocabulário ativo.</p>
+                            </div>
+                        </article>
+
+                        <article class="hero-slide" data-hero-slide data-theme="indigo">
+                            <div class="hero-art-eyebrow">Progresso sempre visível</div>
+                            <img class="hero-art-illustration hero-art-image" src="./assets/illustrations/storyset-team-goals.svg" alt="Grupo celebrando metas e progresso em conjunto" loading="lazy" decoding="async">
+                            <div class="hero-slide-body">
+                                <h3 class="hero-slide-title">Acompanhe sua evolução sessão a sessão</h3>
+                                <p class="hero-art-caption">Veja onde está, o que já consolidou e o que vem a seguir. O GRILO mapeia seu progresso para que você nunca perca o fio da sua evolução.</p>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="hero-slider-footer">
+                        <div class="hero-slider-dots" role="tablist" aria-label="Destaques da hero">
+                            <button class="hero-slider-dot is-active" type="button" data-hero-dot aria-label="Mostrar destaque 1" aria-pressed="true"></button>
+                            <button class="hero-slider-dot" type="button" data-hero-dot aria-label="Mostrar destaque 2" aria-pressed="false"></button>
+                            <button class="hero-slider-dot" type="button" data-hero-dot aria-label="Mostrar destaque 3" aria-pressed="false"></button>
+                        </div>
+
+                        <div class="hero-slider-arrows">
+                            <button class="hero-slider-arrow" type="button" data-hero-prev aria-label="Slide anterior">←</button>
+                            <button class="hero-slider-arrow" type="button" data-hero-next aria-label="Próximo slide">→</button>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     </section>
 
-    <!-- HISTÓRIAS -->
-    <section id="historias" class="section section--proof">
-        <div class="container">
-            <div class="proof-header" data-reveal>
-                <span class="section-eyebrow">Prova</span>
-                <h2 class="section-title">Quando estudo e pratica se conectam,<br>o tempo de resposta muda.</h2>
+    <div class="section-transition" aria-hidden="true">
+        <svg viewBox="0 0 1440 180" preserveAspectRatio="none" role="presentation">
+            <path d="M0 82 C170 140, 316 12, 522 54 S887 182, 1074 108 S1318 24, 1440 66 V180 H0 Z" fill="rgba(37, 99, 235, 0.08)"></path>
+            <path d="M0 102 C196 166, 356 38, 586 72 S962 188, 1188 112 S1352 46, 1440 88" fill="none" stroke="rgba(14, 165, 233, 0.28)" stroke-width="3"></path>
+        </svg>
+    </div>
+
+    <section id="sistema" class="section section--editorial-system">
+        <div class="container split-section split-section--reverse">
+            <div class="split-visual split-visual--system" data-reveal>
+                <div class="split-illustration-card split-illustration-card--slider" data-content-slider data-slider-delay="4800">
+                    <div class="content-slider-track content-slider-track--system">
+                        <article class="content-slide is-active" data-content-slide>
+                            <span class="content-slide-kicker">Aulas fortes</span>
+                            <img class="split-illustration-image" src="./assets/illustrations/storyset-team-goals.svg" alt="Ilustração de equipe colaborando com metas e progresso" loading="lazy" decoding="async">
+                            <div class="content-slide-copy">
+                                <strong>Conteúdo organizado por nível, contexto e uso real</strong>
+                                <p>Cada aula aprofunda vocabulário, gramática e compreensão de forma aplicada. Você aprende com profundidade e sai preparado para usar o idioma, não apenas entendê-lo.</p>
+                            </div>
+                        </article>
+                        <article class="content-slide" data-content-slide>
+                            <span class="content-slide-kicker">Trilha personalizada</span>
+                            <img class="split-illustration-image" src="./assets/illustrations/storyset-online-learning.svg" alt="Ilustração de estudo online com foco em acompanhamento" loading="lazy" decoding="async">
+                            <div class="content-slide-copy">
+                                <strong>Saiba exatamente o que estudar e por quê</strong>
+                                <p>O sistema mapeia o que você já sabe e indica o próximo passo com clareza. Menos confusão, mais foco &mdash; e uma rotina de estudo que se sustenta sozinha.</p>
+                            </div>
+                        </article>
+                        <article class="content-slide" data-content-slide>
+                            <span class="content-slide-kicker">Prática com IA</span>
+                            <img class="split-illustration-image" src="./assets/illustrations/storyset-webinar.svg" alt="Ilustração de interação guiada e prática acompanhada" loading="lazy" decoding="async">
+                            <div class="content-slide-copy">
+                                <strong>Converse em inglês com IA que responde de verdade</strong>
+                                <p>A IA do GRILO simula situações reais de uso do inglês. Você pratica, recebe correções e sai de cada sessão com mais vocabulário ativo e mais segurança para falar.</p>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="content-slider-footer">
+                        <div class="content-slider-dots" role="tablist" aria-label="Destaques da seção de método">
+                            <button class="content-slider-dot is-active" type="button" data-content-dot aria-label="Mostrar destaque de método 1" aria-pressed="true"></button>
+                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de método 2" aria-pressed="false"></button>
+                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de método 3" aria-pressed="false"></button>
+                        </div>
+                        <div class="content-slider-arrows">
+                            <button class="content-slider-arrow" type="button" data-content-prev aria-label="Slide anterior da seção de método">←</button>
+                            <button class="content-slider-arrow" type="button" data-content-next aria-label="Próximo slide da seção de método">→</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="proof-grid">
-                <article class="proof-card proof-card--featured" data-reveal>
-                    <blockquote>"Antes eu estudava bastante, mas nao conseguia responder com naturalidade. Aqui, eu consegui conectar estudo com pratica, e isso mudou meu tempo de resposta."</blockquote>
-                    <footer>
-                        <span class="proof-avatar" aria-hidden="true">🧑‍💼</span>
-                        <div><strong>Camila R.</strong><span>Product Designer</span></div>
-                    </footer>
-                </article>
-                <article class="proof-card" data-reveal data-reveal-delay="1">
-                    <blockquote>"Ter correcao na hora faz diferenca. Voce ajusta e ja usa melhor na proxima frase. Isso deixa a pratica muito mais viva e muito mais util."</blockquote>
-                    <footer>
-                        <span class="proof-avatar" aria-hidden="true">🧑‍💻</span>
-                        <div><strong>Rafael M.</strong><span>Desenvolvedor</span></div>
-                    </footer>
-                </article>
-                <article class="proof-card" data-reveal data-reveal-delay="2">
-                    <blockquote>"O que faltava nao era mais conteudo. Era um sistema que me colocasse para usar o ingles com frequencia, contexto e ajuste. Foi isso que fez diferenca."</blockquote>
-                    <footer>
-                        <span class="proof-avatar" aria-hidden="true">🧳</span>
-                        <div><strong>Júlia S.</strong><span>Consultora</span></div>
-                    </footer>
-                </article>
+            <div class="split-copy" data-reveal data-reveal-delay="1">
+                <span class="section-eyebrow">O que você encontra no GRILO</span>
+                <h2 class="section-title section-title--editorial">
+                    Aulas, trilha e prática com IA em um único lugar.
+                </h2>
+                <p class="section-lead section-lead--left">
+                    Cada recurso foi pensado para que seu esforço produza resultado real. Você estuda com estrutura, avança em uma trilha personalizada e pratica com IA &mdash; tudo conectado para sustentar sua evolução.
+                </p>
+
+
             </div>
         </div>
     </section>
 
-    <!-- CTA / AUTH -->
+    <section id="simbolos" class="section section--proof section--editorial-belonging">
+        <div class="container split-section">
+            <div class="split-copy" data-reveal>
+                <span class="section-eyebrow">O que muda quando você estuda com método</span>
+                <h2 class="section-title section-title--editorial">
+                    Consistência e direção produzem fluência real.
+                </h2>
+                <p class="section-lead section-lead--left">
+                    No GRILO você não depende de motivação passageira. Tem um sistema que te leva adiante: aulas certas para o seu nível, prática guiada com IA e progresso sempre visível.
+                </p>
+
+
+            </div>
+
+            <div class="split-visual split-visual--proof" data-reveal data-reveal-delay="1">
+                <div class="split-illustration-card split-illustration-card--warm split-illustration-card--slider" data-content-slider data-slider-delay="5100">
+                    <div class="content-slider-track content-slider-track--proof">
+                        <article class="content-slide is-active" data-content-slide>
+                            <span class="content-slide-kicker">Mais segurança</span>
+                            <img class="split-illustration-image split-illustration-image--book" src="./assets/illustrations/storyset-problem-solving.svg" alt="Ilustração de resolução de problemas com autonomia crescente" loading="lazy" decoding="async">
+                            <div class="content-slide-copy">
+                                <strong>Fale inglês sem travar quando o idioma for exigido</strong>
+                                <p>A prática regular com feedback imediato reduz a insegurança na fala. Você começa a responder com calma, sem pausar para montar cada frase mentalmente.</p>
+                            </div>
+                        </article>
+                        <article class="content-slide" data-content-slide>
+                            <span class="content-slide-kicker">Mais clareza</span>
+                            <img class="split-illustration-image split-illustration-image--book" src="./assets/illustrations/storyset-learning.svg" alt="Ilustração de aprendizagem guiada e organizada" loading="lazy" decoding="async">
+                            <div class="content-slide-copy">
+                                <strong>Estude sabendo exatamente o que fazer e por quê</strong>
+                                <p>Chega de abrir o app sem saber por onde começar. Sua trilha mostra o que praticar, quanto já avançou e o que vem a seguir &mdash; para o esforço sempre ter destino claro.</p>
+                            </div>
+                        </article>
+                        <article class="content-slide" data-content-slide>
+                            <span class="content-slide-kicker">Mais constância</span>
+                            <img class="split-illustration-image split-illustration-image--book" src="./assets/illustrations/storyset-book-lover.svg" alt="Ilustração de hábito de estudo e constância" loading="lazy" decoding="async">
+                            <div class="content-slide-copy">
+                                <strong>Sessões curtas que constroem fluência de verdade</strong>
+                                <p>Estude em sessões de 15 a 30 minutos e veja o inglês ganhar forma. Cada sessão é registrada, cada avanço é visível e cada etapa se conecta à próxima.</p>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="content-slider-footer">
+                        <div class="content-slider-dots" role="tablist" aria-label="Destaques da seção de resultados">
+                            <button class="content-slider-dot is-active" type="button" data-content-dot aria-label="Mostrar destaque de resultado 1" aria-pressed="true"></button>
+                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de resultado 2" aria-pressed="false"></button>
+                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de resultado 3" aria-pressed="false"></button>
+                        </div>
+                        <div class="content-slider-arrows">
+                            <button class="content-slider-arrow" type="button" data-content-prev aria-label="Slide anterior da seção de resultados">←</button>
+                            <button class="content-slider-arrow" type="button" data-content-next aria-label="Próximo slide da seção de resultados">→</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="cta" class="section section--cta">
         <div class="cta-container">
             <div class="cta-text" data-reveal>
-                <span class="section-eyebrow section-eyebrow--light">Quebra final</span>
+                <span class="cta-eyebrow-badge">Seu progresso é o foco</span>
                 <h2 class="cta-headline">
-                    Sua voz em ingles comeca hoje.<br>Treine com IA, veja seu score e evolua toda semana.
+                    Aprenda.<br>
+                    Avance.<br>
+                    Continue.
                 </h2>
                 <p class="cta-body">
-                    Entre agora e faca sua primeira sessao de voz em minutos. Sem agenda, sem vergonha e sem depender de professor ao vivo.
+                    Cada sessão no GRILO reforça o que você aprendeu, mostra o próximo passo e mantém seu inglês em movimento — com método real, sem adivinhar o que estudar a seguir.
                 </p>
-                <div class="cta-promo">
-                    <span class="promo-badge">Voice First</span>
-                    <p>Desafio de 7 dias para criar consistencia real.</p>
-                    <p class="promo-timer">Comece gratis e acompanhe seu progresso de voz.</p>
-                </div>
+                <p class="cta-body cta-body--sub">
+                    Crie sua conta em segundos e comece de onde faz sentido para você.
+                </p>
             </div>
 
             <div class="auth-card-v2" data-reveal data-reveal-delay="1">
-                <h3 id="formTitle">Entre e inicie seu treino de voz</h3>
-                <p class="auth-subtitle" id="formSubtitle">Crie sua conta e faca sua primeira conversa em ingles agora.</p>
+                <div class="auth-card-topline">
+                    <span class="auth-kicker-badge">Acesso direto</span>
+                    <span class="auth-kicker-note">Plano, pratica e progresso.</span>
+                </div>
+
+                <div class="auth-card-head">
+                    <h3 id="formTitle">Entrar</h3>
+                    <p class="auth-subtitle" id="formSubtitle">Acesse seu plano.</p>
+                </div>
+
+                <div class="auth-card-benefits" aria-hidden="true">
+                    <span>Plano</span>
+                    <span>Pratica</span>
+                    <span>Historico</span>
+                </div>
 
                 <div id="authError" class="auth-error-v2" style="display:none;" role="alert"></div>
 
-                <form id="authForm" novalidate>
+                <form id="authForm" class="auth-form-shell" novalidate>
                     <div class="form-group form-group-v2" id="registerFields" style="display:none;">
                         <label class="form-label-v2" for="email">E-mail</label>
                         <input type="email" id="email" class="form-input-v2" placeholder="você@email.com" autocomplete="email">
@@ -254,24 +322,26 @@
                     </button>
                 </form>
 
-                <div class="auth-toggle-v2">
-                    <span id="toggleText">Novo por aqui?</span>
-                    <button type="button" id="toggleBtn">Criar conta</button>
-                </div>
+                <div class="auth-meta-row">
+                    <div class="auth-toggle-v2">
+                        <span id="toggleText">Novo aqui?</span>
+                        <button type="button" id="toggleBtn">Criar conta</button>
+                    </div>
 
-                <p class="auth-footer-note">🔒 Seus dados ficam protegidos. Powered by <strong>Groq AI</strong></p>
+                    <p class="auth-footer-note">Acesso seguro</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-inner">
             <div class="footer-brand">
                 <span class="logo-icon" aria-hidden="true">🦗</span>
                 <span class="logo-text">GRILO</span>
             </div>
-            <p class="footer-copy">Ganhe voz no mundo com aprendizado conversacional · © 2026 GRILO</p>
+            <p class="footer-copy">Ensino de inglês com aulas, percurso e conversação integrada · © 2026 GRILO</p>
+                <p class="footer-copy footer-copy--credit">Ilustrações da landing por Storyset by Freepik.</p>
             <nav class="footer-links" aria-label="Links do rodapé">
                 <a href="#">Privacidade</a>
                 <a href="#">Termos</a>
@@ -279,7 +349,6 @@
         </div>
     </footer>
 
-    <!-- Prevent default form submission -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         var f = document.getElementById('authForm');
@@ -326,16 +395,9 @@
 
             var navEntrarBtn = document.getElementById('navEntrarBtn');
             if (navEntrarBtn) {
-                navEntrarBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    var strip = document.getElementById('loginStrip');
-                    if (strip && strip.classList.contains('is-scrolled')) {
-                        var u = document.getElementById('navbarUsername');
-                        if (u) u.focus();
-                    } else {
-                        var cta = document.getElementById('cta');
-                        if (cta) cta.scrollIntoView({ behavior: 'smooth' });
-                    }
+                navEntrarBtn.addEventListener('click', function() {
+                    var cta = document.getElementById('cta');
+                    if (cta) cta.scrollIntoView({ behavior: 'smooth' });
                 });
             }
         });

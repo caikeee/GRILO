@@ -137,16 +137,16 @@ const AuthForm = {
 
     if (this.isLogin) {
       document.getElementById('formTitle').textContent    = 'Entrar';
-      document.getElementById('formSubtitle').textContent = 'Continue seu treino de voz em inglês';
+      document.getElementById('formSubtitle').textContent = 'Acesse seu plano.';
       document.getElementById('submitText').textContent   = 'Entrar';
       document.getElementById('toggleText').textContent   = 'Novo aqui?';
       this.toggleBtn.textContent    = 'Criar conta';
       document.getElementById('registerFields').style.display = 'none';
       this.email.removeAttribute('required');
     } else {
-      document.getElementById('formTitle').textContent    = 'Criar Conta';
-      document.getElementById('formSubtitle').textContent = 'Comece hoje seu desafio de 7 dias de voz';
-      document.getElementById('submitText').textContent   = 'Criar Conta';
+      document.getElementById('formTitle').textContent    = 'Criar conta';
+      document.getElementById('formSubtitle').textContent = 'Crie e comece hoje.';
+      document.getElementById('submitText').textContent   = 'Criar';
       document.getElementById('toggleText').textContent   = 'Já tem conta?';
       this.toggleBtn.textContent    = 'Entrar';
       document.getElementById('registerFields').style.display = 'block';
@@ -194,7 +194,7 @@ const AuthForm = {
     const span = document.getElementById('submitText');
     if (!span) return;
     if (on) span.textContent = this.isLogin ? 'Entrando…' : 'Criando…';
-    else     span.textContent = this.isLogin ? 'Entrar' : 'Criar Conta';
+    else     span.textContent = this.isLogin ? 'Entrar' : 'Criar';
   },
 
   showError(msg) {
