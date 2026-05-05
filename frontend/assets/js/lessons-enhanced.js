@@ -2255,6 +2255,7 @@
   const LESSON_MODAL_ANIM_MS = 620;
   let lessonModalCloseTimer = null;
   let lastLessonTriggerRect = null;
+  let lessonAsideCollapsed = false;
 
   function revealLessonsStage() {
     const cosmos = document.getElementById('lessonsCosmos');
@@ -2310,6 +2311,26 @@
     modal.style.setProperty('--lp-modal-start-radius', radius);
   }
 
+  function syncLessonAsideState() {
+    const modal = document.getElementById('lessonContent');
+    const toggle = document.getElementById('lessonAsideToggle');
+    if (!modal || !toggle) return;
+
+    modal.classList.toggle('is-aside-collapsed', lessonAsideCollapsed);
+    toggle.textContent = lessonAsideCollapsed ? 'Mostrar painel' : 'Ocultar painel';
+    toggle.setAttribute('aria-expanded', String(!lessonAsideCollapsed));
+    toggle.classList.toggle('is-collapsed', lessonAsideCollapsed);
+  }
+
+  function setLessonAsideCollapsed(collapsed) {
+    lessonAsideCollapsed = Boolean(collapsed);
+    syncLessonAsideState();
+  }
+
+  function toggleLessonAside() {
+    setLessonAsideCollapsed(!lessonAsideCollapsed);
+  }
+
   function closeLessonModal() {
     const modal = document.getElementById('lessonContent');
     if (!modal || modal.hasAttribute('hidden') || modal.classList.contains('is-closing')) return;
@@ -2329,6 +2350,7 @@
     const banner = document.getElementById('lessonsBanner');
     const cosmos = document.getElementById('lessonsCosmos');
     const closeBtn = document.getElementById('lessonModalClose');
+    const asideToggle = document.getElementById('lessonAsideToggle');
     const modal = document.getElementById('lessonContent');
 
     if (cosmos) {
@@ -2345,6 +2367,10 @@
       closeBtn.addEventListener('click', closeLessonModal);
     }
 
+    if (asideToggle) {
+      asideToggle.addEventListener('click', toggleLessonAside);
+    }
+
     if (modal) {
       modal.addEventListener('click', (event) => {
         if (event.target === modal) {
@@ -2358,6 +2384,8 @@
         closeLessonModal();
       }
     });
+
+    syncLessonAsideState();
   }
 
   function updateSectionScore(slug, secIdx, isCorrect) {
@@ -2639,6 +2667,8 @@
       }
     }
 
+    syncLessonAsideState();
+
     modal.removeAttribute('hidden');
     window.requestAnimationFrame(() => {
       modal.classList.add('active');
@@ -2707,4 +2737,5 @@
   window.completeLesson = completeLesson;
   window.closeLessonModal = closeLessonModal;
   window.showLessonContent = showLessonContent;
+  window.toggleLessonAside = toggleLessonAside;
 })();

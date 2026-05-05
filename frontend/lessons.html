@@ -46,7 +46,10 @@
     <div class="lp-modal-shell">
       <div class="lp-modal-topbar">
         <div id="lessonModalCrumb" class="lp-modal-crumb">Módulo A1</div>
-        <button id="lessonModalClose" class="lp-modal-close" type="button" aria-label="Fechar aula">Fechar</button>
+        <div class="lp-modal-actions">
+          <button id="lessonAsideToggle" class="lp-modal-aside-toggle" type="button" aria-controls="lessonModalAside" aria-expanded="true">Ocultar painel</button>
+          <button id="lessonModalClose" class="lp-modal-close" type="button" aria-label="Fechar aula">Fechar</button>
+        </div>
       </div>
       <div class="lp-modal-body">
         <aside id="lessonModalAside" class="lp-modal-aside"></aside>

@@ -637,8 +637,18 @@ body.app-lessons {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--lp-muted);
+  min-width: 0;
 }
 
+.lp-modal-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.lp-modal-aside-toggle,
 .lp-modal-close {
   min-height: 44px;
   padding: 0 16px;
@@ -648,16 +658,28 @@ body.app-lessons {
   font-weight: 700;
 }
 
+.lp-modal-aside-toggle {
+  background: rgba(219, 234, 254, 0.72);
+  color: #1d4ed8;
+}
+
+.lp-modal-aside-toggle.is-collapsed {
+  background: rgba(29, 78, 216, 0.12);
+  color: #1e3a8a;
+}
+
 .lp-modal-body {
   min-height: 0;
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
+  transition: grid-template-columns 0.28s var(--lp-ease);
 }
 
 .lp-modal-aside,
 .lp-modal-main {
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: clip;
 }
 
 .lp-modal-aside {
@@ -668,6 +690,14 @@ body.app-lessons {
 
 .lp-modal-main {
   padding: 32px 34px 56px;
+}
+
+.lp-modal.is-aside-collapsed .lp-modal-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lp-modal.is-aside-collapsed .lp-modal-aside {
+  display: none;
 }
 
 .lp-aside-title {
@@ -979,6 +1009,10 @@ body.app-lessons {
     border-right: none;
     border-bottom: 1px solid rgba(226, 232, 240, 0.82);
   }
+
+  .lp-modal.is-aside-collapsed .lp-modal-aside {
+    display: none;
+  }
 }
 
 @media (max-width: 720px) {
@@ -1039,20 +1073,26 @@ body.app-lessons {
     padding-right: 18px;
   }
 
+  .lp-modal-topbar {
+    flex-wrap: wrap;
+  }
+
+  .lp-modal-actions {
+    width: 100%;
+  }
+
   .lp-msec-header {
     grid-template-columns: 1fr;
   }
 
   .lp-grilo-hint__tooltip,
   .lp-grilo-hint--content .lp-grilo-hint__tooltip {
-    left: auto;
     right: 0;
     transform: translateY(6px);
-    width: min(320px, calc(100vw - 32px));
+    width: min(320px, calc(100vw - 40px), calc(100dvw - 40px));
   }
 
   .lp-grilo-hint__tooltip::after {
-    left: auto;
     right: 12px;
     transform: none;
   }
@@ -1564,11 +1604,13 @@ body.app-lessons {
   opacity: 0;
   position: absolute;
   bottom: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%) translateY(6px);
-  width: min(292px, calc(100vw - 32px));
-  max-width: calc(100vw - 32px);
+  right: 0;
+  left: auto;
+  transform: translateY(6px);
+  width: min(320px, calc(100vw - 48px), calc(100dvw - 48px));
+  max-width: min(320px, calc(100vw - 48px), calc(100dvw - 48px));
   padding: 13px 15px;
+  box-sizing: border-box;
   border-radius: 16px;
   background: linear-gradient(180deg, #18324f 0%, #0f2236 100%);
   color: #eaf2ff;
@@ -1580,6 +1622,7 @@ body.app-lessons {
   transition: opacity 0.18s ease, transform 0.18s ease;
   white-space: normal;
   text-align: left;
+  overflow-wrap: anywhere;
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.28);
 }
 
@@ -1601,8 +1644,9 @@ body.app-lessons {
   content: '';
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 12px;
+  left: auto;
+  transform: none;
   border: 6px solid transparent;
   border-top-color: #1a2e4a;
 }
@@ -1611,12 +1655,13 @@ body.app-lessons {
 .lp-grilo-hint:focus-visible .lp-grilo-hint__tooltip {
   visibility: visible;
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 /* Wider tooltip for content hints */
 .lp-grilo-hint--content .lp-grilo-hint__tooltip {
-  width: min(360px, calc(100vw - 32px));
+  width: min(360px, calc(100vw - 48px), calc(100dvw - 48px));
+  max-width: min(360px, calc(100vw - 48px), calc(100dvw - 48px));
 }
 
 .lp-exercise-option {
