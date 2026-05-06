@@ -180,8 +180,8 @@ const AuthForm = {
 
     if (!this.password.value) {
       this.setFieldError(this.password, 'Campo obrigatório'); ok = false;
-    } else if (this.password.value.length < 6) {
-      this.setFieldError(this.password, 'Mínimo 6 caracteres'); ok = false;
+    } else if (this.password.value.length < 8) {
+      this.setFieldError(this.password, 'Mínimo 8 caracteres'); ok = false;
     } else {
       this.clearFieldError(this.password);
     }
