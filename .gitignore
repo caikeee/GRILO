@@ -113,12 +113,15 @@ dmypy.json
 output/
 results/
 
-# GRILO Específico (QW9-QW12)
-groq_quota.json                 # QW11: Groq quota tracking (sensível)
-backend/groq_quota.json         # Alternative location
-*.key                           # SSH keys
-*.pem                           # SSL certificates
-*.p12                           # Certificate archives
+# GRILO Específico
+groq_quota.json
+backend/groq_quota.json
+*.key
+*.pem
+*.p12
+
+# PDFs de gramática (indexados no ChromaDB, não precisam no repo)
+*.pdf
 
 # ChromaDB cache (RAG)
 backend/rag/chromadb_data/      # Vector database (local cache)
