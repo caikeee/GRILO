@@ -44,6 +44,7 @@ class UserResponse(BaseModel):
     xp: int
     streak: int
     created_at: datetime
+    is_admin: bool
     
     class Config:
         from_attributes = True
@@ -380,3 +381,25 @@ class CombinarRequest(BaseModel):
 
 class TranslationRequest(BaseModel):
     text: str
+
+
+# ==================== ADMIN SCHEMAS ====================
+
+class PasswordResetRequest(BaseModel):
+    """Request to reset a user's password (admin only)"""
+    username: str = Field(..., min_length=1, max_length=50)
+    new_password: str = Field(..., min_length=8, max_length=255, description="New password min 8 chars")
+
+
+class UserAdminResponse(BaseModel):
+    """User info for admin view"""
+    id: int
+    username: str
+    email: str
+    level: int
+    xp: int
+    created_at: datetime
+    is_admin: bool
+
+    class Config:
+        from_attributes = True

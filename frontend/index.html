@@ -55,8 +55,8 @@
     <div class="login-strip" id="loginStrip" role="complementary" aria-label="Login rápido">
         <div class="login-strip-inner">
             <span class="login-strip-label">Já tem conta?</span>
-            <input type="text" class="login-strip-input" id="navbarUsername" placeholder="Usuário" autocomplete="username">
-            <input type="password" class="login-strip-input" id="navbarPassword" placeholder="Senha" autocomplete="current-password">
+            <input type="text" class="login-strip-input" id="navbarUsername" placeholder="👤 Usuário" autocomplete="username">
+            <input type="password" class="login-strip-input" id="navbarPassword" placeholder="🔐 Senha" autocomplete="current-password">
             <button class="login-strip-btn" id="navbarLoginBtn" onclick="handleNavbarLogin()">Entrar →</button>
             <a href="#cta" class="login-strip-signup" onclick="closeNavbarMenu()">Criar conta</a>
             <span id="navbarLoginError" class="login-strip-error" aria-live="polite"></span>
@@ -304,18 +304,36 @@
 
                 <div id="authError" class="auth-error-v2" style="display:none;" role="alert"></div>
 
-                <form id="authForm" class="auth-form-shell" novalidate>
+                <form id="authForm" class="auth-form-shell auth-form-stacked" novalidate>
                     <div class="form-group form-group-v2" id="registerFields" style="display:none;">
-                        <label class="form-label-v2" for="email">E-mail</label>
-                        <input type="email" id="email" class="form-input-v2" placeholder="você@email.com" autocomplete="email">
+                        <div class="form-label-wrapper">
+                            <label class="form-label-v2" for="email">
+                                <span class="form-icon">📧</span> E-mail
+                            </label>
+                            <span class="form-hint">Seu endereço de e-mail</span>
+                        </div>
+                        <input type="email" id="email" class="form-input-v2" placeholder="seu.email@gmail.com" autocomplete="email">
+                        <p class="form-helper-text">Usaremos para recuperar sua conta se necessário</p>
                     </div>
                     <div class="form-group form-group-v2">
-                        <label class="form-label-v2" for="username">Usuário</label>
-                        <input type="text" id="username" class="form-input-v2" placeholder="seu_nome" required autocomplete="username">
+                        <div class="form-label-wrapper">
+                            <label class="form-label-v2" for="username">
+                                <span class="form-icon">👤</span> Usuário
+                            </label>
+                            <span class="form-hint">Como você quer ser chamado</span>
+                        </div>
+                        <input type="text" id="username" class="form-input-v2" placeholder="ex: joão_silva" required autocomplete="username">
+                        <p class="form-helper-text">Seu nome de usuário para login (sem espaços)</p>
                     </div>
                     <div class="form-group form-group-v2">
-                        <label class="form-label-v2" for="password">Senha</label>
-                        <input type="password" id="password" class="form-input-v2" placeholder="••••••••" required autocomplete="current-password">
+                        <div class="form-label-wrapper">
+                            <label class="form-label-v2" for="password">
+                                <span class="form-icon">🔐</span> Senha
+                            </label>
+                            <span class="form-hint">Mínimo 8 caracteres</span>
+                        </div>
+                        <input type="password" id="password" class="form-input-v2" placeholder="Digite uma senha segura" required autocomplete="current-password">
+                        <p class="form-helper-text">Mínimo 8 caracteres com letras, números e símbolos</p>
                     </div>
                     <button type="submit" class="btn-primary btn-primary--full">
                         <span id="submitText">Entrar</span> →

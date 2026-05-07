@@ -1544,7 +1544,8 @@ function switchTab(tabName) {
     const tabMap = {
         'painel':       'painelTab',
         'chat-voice':   'chatVoiceTab',
-        'lessons':      'lessonsTab'
+        'lessons':      'lessonsTab',
+        'admin':        'adminTab'
     };
 
     const actualTabId = tabMap[tabName];

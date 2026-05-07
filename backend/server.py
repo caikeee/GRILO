@@ -17,6 +17,7 @@ from backend.controllers.chat_text_controller import router as chat_text_router
 from backend.controllers.chat_voice_controller import router as chat_voice_router
 from backend.controllers.lessons_controller import router as lessons_router
 from backend.controllers.analytics_controller import router as analytics_router
+from backend.admin_controller import router as admin_router
 
 from backend.database import Base, engine
 from backend.config import settings, validate_settings
@@ -95,11 +96,36 @@ def _run_migrations():
                     conn.execute(text("ALTER TABLE conversations ADD COLUMN new_vocabulary TEXT"))
                     conn.commit()
                     logger.info("Migration: added new_vocabulary to conversations")
+
+            # is_admin on users
+            if "is_admin" not in cols_users:
+                conn.execute(text("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0"))
+                conn.commit()
+                logger.info("Migration: added is_admin to users")
+
     except Exception as exc:
         logger.warning("Migration check failed (non-fatal): %s", exc)
 
 
+def _seed_admin():
+    """Ensure 'caike' user is marked as admin."""
+    from backend.database import SessionLocal
+    from backend.db_models import User as _User
+    db = SessionLocal()
+    try:
+        caike = db.query(_User).filter(_User.username == "caike").first()
+        if caike and not caike.is_admin:
+            caike.is_admin = True
+            db.commit()
+            logger.info("Seed: 'caike' marked as admin")
+    except Exception as exc:
+        logger.warning("Admin seed failed (non-fatal): %s", exc)
+    finally:
+        db.close()
+
+
 _run_migrations()
+_seed_admin()
 
 app = FastAPI(
     title="GRILO API",
@@ -243,6 +269,7 @@ app.include_router(chat_text_router)
 app.include_router(chat_voice_router)
 app.include_router(lessons_router)
 app.include_router(analytics_router)
+app.include_router(admin_router)
 
 # Static files should be mounted last to avoid intercepting API routes.
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")

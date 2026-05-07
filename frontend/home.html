@@ -690,6 +690,206 @@ body {
     display: flex;
 }
 
+/* ========== ADMIN TAB ========== */
+.admin-section {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    background: linear-gradient(180deg, rgba(245, 249, 255, 0.7) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.admin-header {
+    margin-bottom: 24px;
+}
+
+.admin-header h2 {
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.admin-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.admin-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.admin-users-section,
+.admin-reset-section {
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(var(--glass-blur));
+}
+
+.admin-users-section h3,
+.admin-reset-section h3 {
+    margin-bottom: 14px;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+}
+
+.admin-input {
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0 14px;
+    background: #fff;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.admin-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.admin-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.admin-user-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.admin-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.admin-user-name {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.admin-user-email {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-user-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.admin-stat,
+.admin-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.admin-stat {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.admin-badge {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+}
+
+.btn-admin-small,
+.btn-admin {
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-admin-small {
+    height: 40px;
+    padding: 0 14px;
+}
+
+.btn-admin {
+    width: 100%;
+    height: 46px;
+}
+
+.btn-admin-small:hover,
+.btn-admin:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+.admin-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-message {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.admin-message--success {
+    display: block;
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+}
+
+.admin-message--error {
+    display: block;
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+}
+
+@media (max-width: 980px) {
+    .admin-content {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-user-item {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .admin-user-stats {
+        justify-content: flex-start;
+    }
+}
+
 /* ========== CHAT TAB ========== */
 .chat-wrapper {
     flex: 1;
@@ -8000,6 +8200,11 @@ body.beta-modal-open .main-content.active {
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 0 6.5 17H20V5H6.5A2.5 2.5 0 0 0 4 7.5z"/><path d="M20 21V5"/></svg>
                         Aulas
                     </a>
+
+                    <button class="nav-btn" id="adminNavBtn" data-tab="admin" onclick="switchTab('admin')" style="display:none;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0 1 12 0v1"/><path d="M19 8h2m-2 4h2m-2-8h2"/></svg>
+                        Admin
+                    </button>
                 </div>
 
                 <!-- Footer Action -->
@@ -8022,6 +8227,9 @@ body.beta-modal-open .main-content.active {
                     <a class="tab-btn" href="voice.html">
                         🎤 Chat de Voz
                     </a>
+                    <button class="tab-btn" id="adminTabBtn" data-tab="admin" onclick="switchTab('admin')" style="display:none;">
+                        🔧 Admin
+                    </button>
                 </div>
 
                 <!-- Meu Painel Tab -->
@@ -8696,6 +8904,36 @@ body.beta-modal-open .main-content.active {
                     </div>
                 </div>
 
+                <!-- Admin Tab (hidden by default, shown if is_admin=true) -->
+                <div class="tab-content" id="adminTab" style="display:none;">
+                    <div class="admin-section">
+                        <div class="admin-header">
+                            <h2>🔧 Painel Administrativo</h2>
+                            <p>Gerenciamento de usuários e senhas</p>
+                        </div>
+
+                        <div class="admin-content">
+                            <!-- Users List Section -->
+                            <div class="admin-users-section">
+                                <h3>👥 Lista de Usuários</h3>
+                                <input type="text" id="adminSearchUser" placeholder="Buscar usuário..." class="admin-input">
+                                <div id="adminUsersList" class="admin-users-list"></div>
+                            </div>
+
+                            <!-- Password Reset Section -->
+                            <div class="admin-reset-section">
+                                <h3>🔐 Redefinir Senha</h3>
+                                <div class="admin-form-group">
+                                    <input type="text" id="adminUsername" placeholder="Usuário" class="admin-input">
+                                    <input type="password" id="adminNewPassword" placeholder="Nova senha (mínimo 8 caracteres)" class="admin-input">
+                                    <button onclick="adminResetPassword()" class="btn-primary btn-admin">Redefinir Senha</button>
+                                </div>
+                                <div id="adminResetMessage" class="admin-message"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div><!-- /main-panel -->
         </div><!-- /app-layout -->
     </div><!-- /main-content -->
@@ -8705,6 +8943,7 @@ body.beta-modal-open .main-content.active {
     <script src="controllers/lessons/quiz-controller.js?v=3"></script>
     <script src="controllers/lessons/lessons-controller.js?v=9"></script>
     <script src="controllers/chat/chat-text-controller.js?v=21"></script>
+    <script src="controllers/dashboard/admin-controller.js?v=1"></script>
 
 
 

@@ -16,6 +16,7 @@ class User(Base):
     last_active = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_admin = Column(Boolean, default=False)  # Admin flag (only "caike")
     
     # QW9: JWT Refresh Token
     refresh_token = Column(String(500), nullable=True)

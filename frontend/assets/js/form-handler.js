@@ -144,6 +144,9 @@ const AuthForm = {
       this.toggleBtn.textContent    = 'Criar conta';
       document.getElementById('registerFields').style.display = 'none';
       this.email.removeAttribute('required');
+      // Update placeholders for login mode
+      this.username.placeholder = 'ex: joão_silva';
+      this.password.placeholder = 'Digite sua senha';
     } else {
       document.getElementById('formTitle').textContent    = 'Criar conta';
       document.getElementById('formSubtitle').textContent = 'Crie e comece hoje.';
@@ -152,6 +155,9 @@ const AuthForm = {
       this.toggleBtn.textContent    = 'Entrar';
       document.getElementById('registerFields').style.display = 'block';
       this.email.setAttribute('required', 'required');
+      // Update placeholders for signup mode
+      this.username.placeholder = 'escolha seu usuário';
+      this.password.placeholder = 'crie uma senha segura';
     }
     this.clearForm();
   },

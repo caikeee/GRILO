@@ -146,6 +146,7 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
             "level": user.level,
             "xp": user.xp,
             "streak": user.streak,
+            "is_admin": user.is_admin,
         },
     )
 

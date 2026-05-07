@@ -3095,6 +3095,14 @@ body.landing-page .auth-form-shell {
   align-items: end;
 }
 
+body.landing-page .auth-form-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  grid-template-columns: unset;
+  align-items: unset;
+}
+
 body.landing-page .form-group-v2 {
   margin-bottom: 0;
   min-width: 0;
@@ -3104,16 +3112,42 @@ body.landing-page #registerFields {
   grid-column: 1 / -1;
 }
 
+body.landing-page .form-label-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
 body.landing-page .form-label-v2 {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+  position: static;
+  width: auto;
+  height: auto;
   padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  margin: 0;
+  overflow: visible;
+  clip: unset;
+  white-space: normal;
   border: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0a0a0a;
+  letter-spacing: 0.2px;
+}
+
+body.landing-page .form-icon {
+  font-size: 1.1rem;
+  display: inline-block;
+}
+
+body.landing-page .form-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+  letter-spacing: 0px;
 }
 
 body.landing-page .form-input-v2 {
@@ -3127,17 +3161,44 @@ body.landing-page .form-input-v2 {
   padding: 0 13px;
   font-size: 0.92rem;
   color: #0f172a;
+  transition: all 0.2s ease;
+}
+
+body.landing-page .form-input-v2::placeholder {
+  color: #94a3b8;
+}
+
+body.landing-page .form-input-v2:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background: white;
+}
+
+body.landing-page .form-helper-text {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 4px;
+  margin-bottom: 0;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 body.landing-page .btn-primary--full {
-  width: 122px;
-  min-width: 122px;
-  height: 42px;
-  margin-top: 0;
+  width: auto;
+  min-width: auto;
+  height: 44px;
+  margin-top: 8px;
   border-radius: 12px;
   box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
-  padding: 0 16px;
+  padding: 0 24px;
   font-weight: 700;
+  font-size: 0.95rem;
+}
+
+body.landing-page .auth-form-stacked .btn-primary--full {
+  width: 100%;
+  align-self: stretch;
 }
 
 body.landing-page .auth-meta-row {
@@ -3145,8 +3206,16 @@ body.landing-page .auth-meta-row {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding-top: 8px;
+  padding-top: 12px;
   border-top: 1px solid rgba(226, 232, 240, 0.9);
+  margin-top: 8px;
+}
+
+body.landing-page .auth-form-stacked .auth-meta-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 16px;
 }
 
 body.landing-page .auth-toggle-v2 {
