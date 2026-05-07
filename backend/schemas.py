@@ -383,6 +383,22 @@ class TranslationRequest(BaseModel):
     text: str
 
 
+# ==================== VOICE VOCABULARY ANALYTICS ====================
+
+class WordUsageItem(BaseModel):
+    word: str
+    uses: int
+    accuracy: float  # 0.0 – 1.0
+    was_new: bool    # Primeira vez que esta palavra apareceu para o usuário
+
+
+class VocabularySnapshot(BaseModel):
+    new_words_count: int           # Palavras vistas pela primeira vez nesta sessão
+    mastered_this_session: int     # Palavras que atingiram mastery (accuracy >= 0.85, >= 5 usos)
+    avg_word_accuracy: float       # Média de accuracy de todas as palavras na sessão
+    top_words: List[WordUsageItem] # Top 5 palavras com mais uso na sessão
+
+
 # ==================== ADMIN SCHEMAS ====================
 
 class PasswordResetRequest(BaseModel):

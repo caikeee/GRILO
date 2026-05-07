@@ -175,3 +175,32 @@ class ShadowModeAnalytic(Base):
     voice_mode = Column(String(20), nullable=True)  # "free", "guided", etc
     user_level = Column(String(5), nullable=True)  # "a1", "a2", "b1", etc
     conversation_topic = Column(String(50), nullable=True)  # "restaurant", "airport", etc
+
+
+class WordOccurrence(Base):
+    """Atomic record: one row per distinct word used in a voice turn."""
+    __tablename__ = "word_occurrences"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    session_id = Column(String(36), nullable=False, index=True)  # UUID da sessão de voz
+    word = Column(String(100), nullable=False, index=True)
+    was_correct = Column(Boolean, nullable=False, default=True)
+    error_type = Column(String(50), nullable=True)  # verb_tense, article, preposition, etc.
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class WordProfile(Base):
+    """Aggregated per-user vocabulary stats — upserted at recap time."""
+    __tablename__ = "word_profiles"
+    __table_args__ = (UniqueConstraint("user_id", "word", name="unique_user_word"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    word = Column(String(100), nullable=False)
+    total_uses = Column(Integer, default=0)
+    correct_uses = Column(Integer, default=0)
+    last_error_type = Column(String(50), nullable=True)
+    first_seen_at = Column(DateTime, default=datetime.utcnow)
+    last_seen_at = Column(DateTime, default=datetime.utcnow)
+    mastered = Column(Boolean, default=False)  # True quando accuracy >= 0.85 com >= 5 usos

@@ -752,6 +752,102 @@ async def voice_recap(
         session_analytics = _summarize_voice_turn_analytics(body.turn_analytics, body.help_summary)
         result["session_analytics"] = session_analytics
 
+        # ======== PERSIST WORD OCCURRENCES & UPSERT WORD PROFILES ========
+        from backend.db_models import WordOccurrence, WordProfile
+        from backend.services import extract_words_from_turn
+        from sqlalchemy import and_
+        import uuid as _uuid
+
+        session_uuid = str(_uuid.uuid4())
+
+        # Map turn_index → correction for quick lookup
+        turn_corrections: dict[int, dict] = {}
+        for t in (body.turn_analytics or []):
+            if isinstance(t, dict) and t.get("had_correction") and isinstance(t.get("correction"), dict):
+                turn_corrections[int(t.get("turn_index") or 0)] = t["correction"]
+
+        # Build one WordOccurrence per distinct word per user turn
+        word_rows: list[WordOccurrence] = []
+        user_turn_index = 0
+        for msg in (body.history or []):
+            if msg.get("role") != "user":
+                continue
+            user_turn_index += 1
+            correction = turn_corrections.get(user_turn_index)
+            for w in extract_words_from_turn(msg.get("content", ""), correction):
+                word_rows.append(WordOccurrence(
+                    user_id=uid,
+                    session_id=session_uuid,
+                    word=w["word"],
+                    was_correct=w["was_correct"],
+                    error_type=w["error_type"],
+                ))
+
+        if word_rows:
+            db.bulk_save_objects(word_rows)
+
+        # Aggregate per-word stats from this session
+        word_stats: dict[str, dict] = {}
+        for row in word_rows:
+            ws = word_stats.setdefault(row.word, {"uses": 0, "correct": 0, "last_error": None})
+            ws["uses"] += 1
+            if row.was_correct:
+                ws["correct"] += 1
+            else:
+                ws["last_error"] = row.error_type
+
+        # Upsert WordProfile rows
+        existing_profiles: dict[str, WordProfile] = {}
+        if word_stats:
+            existing_profiles = {
+                p.word: p
+                for p in db.query(WordProfile).filter(
+                    and_(WordProfile.user_id == uid, WordProfile.word.in_(word_stats.keys()))
+                ).all()
+            }
+
+        now_dt = datetime.utcnow()
+        new_words_in_session = 0
+        mastered_this_session = 0
+
+        for word, stats in word_stats.items():
+            if word in existing_profiles:
+                prof = existing_profiles[word]
+                was_mastered_before = prof.mastered
+                prof.total_uses += stats["uses"]
+                prof.correct_uses += stats["correct"]
+                if stats["last_error"]:
+                    prof.last_error_type = stats["last_error"]
+                prof.last_seen_at = now_dt
+            else:
+                new_words_in_session += 1
+                was_mastered_before = False
+                prof = WordProfile(
+                    user_id=uid,
+                    word=word,
+                    total_uses=stats["uses"],
+                    correct_uses=stats["correct"],
+                    last_error_type=stats["last_error"],
+                    first_seen_at=now_dt,
+                    last_seen_at=now_dt,
+                )
+                db.add(prof)
+
+            acc = prof.correct_uses / prof.total_uses if prof.total_uses else 1.0
+            now_mastered = acc >= 0.85 and prof.total_uses >= 5
+            if now_mastered and not was_mastered_before:
+                mastered_this_session += 1
+            prof.mastered = now_mastered
+
+        # Patch vocabulary_snapshot with real DB-backed counts
+        vocab_snap = result.get("vocabulary_snapshot", {})
+        vocab_snap["new_words_count"] = new_words_in_session
+        vocab_snap["mastered_this_session"] = mastered_this_session
+        # Mark top_words as new/existing based on DB lookup
+        for item in vocab_snap.get("top_words", []):
+            item["was_new"] = item["word"] not in existing_profiles
+        result["vocabulary_snapshot"] = vocab_snap
+
         # Persist this session snapshot to DB
         snapshot = {
             "quality": result.get("quality_score", 50),
@@ -772,8 +868,9 @@ async def voice_recap(
         db.commit()
 
         logger.info(
-            "[VOICE-RECAP] Generated | user=%s | exchanges=%s | quality=%s",
+            "[VOICE-RECAP] Generated | user=%s | exchanges=%s | quality=%s | new_words=%s | mastered=%s",
             user_id, result.get("exchanges"), result.get("quality_score"),
+            new_words_in_session, mastered_this_session,
         )
         return result
     except Exception as exc:

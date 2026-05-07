@@ -1165,6 +1165,52 @@ async def _call_groq_with_retry(
                 raise
 
 
+# ==================== VOICE WORD TRACKING ====================
+
+_STOPWORDS_EN = frozenset({
+    "i", "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
+    "do", "does", "did", "to", "of", "in", "on", "at", "it", "its", "for",
+    "and", "or", "but", "not", "no", "so", "my", "me", "he", "she", "we",
+    "you", "they", "that", "this", "have", "has", "had", "can", "will",
+    "would", "could", "should", "may", "might", "with", "from", "by", "as",
+    "up", "if", "then", "than", "what", "which", "who", "when", "where", "how",
+    "just", "also", "very", "really", "ok", "okay", "yes", "yeah", "well",
+    "like", "um", "uh", "oh", "got", "get", "go", "went", "come", "came",
+    "know", "think", "want", "need", "see", "say", "said", "tell", "told",
+})
+
+
+def extract_words_from_turn(user_text: str, correction: dict | None) -> list[dict]:
+    """
+    Extract meaningful English words from a user voice turn.
+    Returns list of {word, was_correct, error_type}.
+    Words found in the correction's 'wrong' field are marked was_correct=False.
+    """
+    words_raw = re.findall(r"[a-zA-Z']+", (user_text or "").lower())
+    words = [w.strip("'") for w in words_raw if len(w.strip("'")) > 1 and w.strip("'") not in _STOPWORDS_EN]
+
+    wrong_words: set[str] = set()
+    error_type: str = "unknown"
+    if isinstance(correction, dict):
+        wrong_text = correction.get("wrong", "")
+        error_type = correction.get("error_type") or "unknown"
+        wrong_words = {w.strip("'").lower() for w in re.findall(r"[a-zA-Z']+", wrong_text) if len(w) > 1}
+
+    result = []
+    seen: set[str] = set()
+    for word in words:
+        if word in seen:
+            continue
+        seen.add(word)
+        is_wrong = word in wrong_words
+        result.append({
+            "word": word,
+            "was_correct": not is_wrong,
+            "error_type": error_type if is_wrong else None,
+        })
+    return result
+
+
 # ==================== VOICE SESSION RECAP ====================
 
 async def generate_voice_recap(
@@ -1282,9 +1328,55 @@ Regras CRÍTICAS:
         for axis in ("fluency", "grammar", "vocabulary", "rhythm", "progress"):
             data["radar"][axis] = max(0, min(100, int(data["radar"].get(axis, 50))))
 
+        # ======== VOCABULARY SNAPSHOT (in-memory, sem BD) ========
+        # Agrega palavras de todos os turns do usuário no histórico
+        vocab_counter: dict[str, dict] = {}
+        for msg in history:
+            if msg.get("role") != "user":
+                continue
+            words = extract_words_from_turn(msg.get("content", ""), None)
+            for w in words:
+                entry = vocab_counter.setdefault(w["word"], {"uses": 0, "correct": 0})
+                entry["uses"] += 1
+                if w["was_correct"]:
+                    entry["correct"] += 1
+
+        # Decrementar accuracy das palavras que aparecem nas corrections do LLM
+        for corr in data.get("corrections", []):
+            wrong_text = corr.get("wrong", "")
+            wrong_words = {w.strip("'").lower() for w in re.findall(r"[a-zA-Z']+", wrong_text) if len(w.strip("'")) > 1}
+            for w in wrong_words:
+                if w in vocab_counter and vocab_counter[w]["correct"] > 0:
+                    vocab_counter[w]["correct"] -= 1
+
+        total_uses_all = sum(v["uses"] for v in vocab_counter.values())
+        total_correct_all = sum(v["correct"] for v in vocab_counter.values())
+        avg_acc = round(total_correct_all / total_uses_all, 3) if total_uses_all else 1.0
+
+        top_words = sorted(vocab_counter.items(), key=lambda x: x[1]["uses"], reverse=True)[:5]
+        top_words_out = [
+            {
+                "word": word,
+                "uses": v["uses"],
+                "accuracy": round(v["correct"] / v["uses"], 2) if v["uses"] else 1.0,
+                "was_new": True,  # Refinado pelo controller com dados reais do BD
+            }
+            for word, v in top_words
+        ]
+
+        data["vocabulary_snapshot"] = {
+            "new_words_count": len(vocab_counter),
+            "mastered_this_session": sum(
+                1 for v in vocab_counter.values()
+                if v["uses"] >= 2 and (v["correct"] / v["uses"]) >= 0.85
+            ),
+            "avg_word_accuracy": avg_acc,
+            "top_words": top_words_out,
+        }
+
         data["exchanges"] = exchanges
         data["duration_seconds"] = duration_seconds
-        print(f"[VOICE-RECAP] Generated | score={data['quality_score']} | corrections={len(data['corrections'])}")
+        print(f"[VOICE-RECAP] Generated | score={data['quality_score']} | corrections={len(data['corrections'])} | vocab_words={len(vocab_counter)}")
         return data
     except Exception as e:
         print(f"[VOICE-RECAP] Error: {e}")

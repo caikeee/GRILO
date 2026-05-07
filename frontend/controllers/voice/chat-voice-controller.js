@@ -3339,6 +3339,38 @@ function renderVoiceRecap(data) {
 
     const qualityBar = Math.max(6, Math.min(100, qualityScore));
 
+    // ======== VOCABULARY SNAPSHOT ========
+    const vocabSnap = data.vocabulary_snapshot || null;
+    const vocabSectionHTML = vocabSnap ? `
+        <section class="recap-v4-card recap-vocab-card">
+            <h3 class="recap-v4-card-title">Vocabulário desta sessão</h3>
+            <div class="recap-vocab-chips">
+                <div class="recap-vocab-chip">
+                    <span class="recap-vocab-chip-value">${vocabSnap.new_words_count || 0}</span>
+                    <span class="recap-vocab-chip-label">Palavras únicas</span>
+                </div>
+                <div class="recap-vocab-chip">
+                    <span class="recap-vocab-chip-value">${vocabSnap.mastered_this_session || 0}</span>
+                    <span class="recap-vocab-chip-label">Dominadas</span>
+                </div>
+                <div class="recap-vocab-chip">
+                    <span class="recap-vocab-chip-value">${Math.round((vocabSnap.avg_word_accuracy || 0) * 100)}%</span>
+                    <span class="recap-vocab-chip-label">Precisão média</span>
+                </div>
+            </div>
+            ${vocabSnap.top_words && vocabSnap.top_words.length ? `
+            <div class="recap-vocab-list">
+                ${vocabSnap.top_words.map(w => `
+                    <div class="recap-vocab-row">
+                        <span class="recap-vocab-word">${_escapeHtml(w.word)}</span>
+                        <div class="recap-vocab-bar"><span style="width:${Math.round(w.accuracy * 100)}%;background:${w.accuracy >= 0.85 ? '#16a34a' : w.accuracy >= 0.6 ? '#d97706' : '#dc2626'}"></span></div>
+                        <span class="recap-vocab-acc">${Math.round(w.accuracy * 100)}%</span>
+                        ${w.was_new ? '<span class="recap-vocab-new">nova</span>' : ''}
+                    </div>`).join('')}
+            </div>` : ''}
+        </section>
+    ` : '';
+
     const strengthsHTML = highlights.length
         ? highlights.map(h => `<li>${_escapeHtml(h)}</li>`).join("")
         : `<li>Você manteve consistência na prática hoje.</li>`;
@@ -3456,6 +3488,7 @@ function renderVoiceRecap(data) {
             <div class="recap-v4-quality-track"><span style="width:${qualityBar}%"></span></div>
             ${realtimeStatsHTML}
             ${languageBreakdownHTML}
+            ${vocabSectionHTML}
             <div class="recap-v4-grid">
                 <section class="recap-v4-card">
                     <h3 class="recap-v4-card-title">Pontos fortes</h3>
