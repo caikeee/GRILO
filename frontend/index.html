@@ -287,56 +287,39 @@
 
             <div class="auth-card-v2" data-reveal data-reveal-delay="1">
                 <div class="auth-card-topline">
-                    <span class="auth-kicker-badge">Acesso direto</span>
-                    <span class="auth-kicker-note">Plano, pratica e progresso.</span>
+                    <span class="auth-kicker-badge"><span class="auth-kicker-dot" aria-hidden="true"></span>Acesso direto</span>
+                    <span class="auth-kicker-note">Plano, prática e progresso.</span>
                 </div>
 
                 <div class="auth-card-head">
                     <h3 id="formTitle">Entrar</h3>
-                    <p class="auth-subtitle" id="formSubtitle">Acesse seu plano.</p>
-                </div>
-
-                <div class="auth-card-benefits" aria-hidden="true">
-                    <span>Plano</span>
-                    <span>Pratica</span>
-                    <span>Historico</span>
+                    <p class="auth-subtitle" id="formSubtitle">Acesse sua conta para continuar.</p>
                 </div>
 
                 <div id="authError" class="auth-error-v2" style="display:none;" role="alert"></div>
 
                 <form id="authForm" class="auth-form-shell auth-form-stacked" novalidate>
                     <div class="form-group form-group-v2" id="registerFields" style="display:none;">
-                        <div class="form-label-wrapper">
-                            <label class="form-label-v2" for="email">
-                                <span class="form-icon">📧</span> E-mail
-                            </label>
-                            <span class="form-hint">Seu endereço de e-mail</span>
-                        </div>
-                        <input type="email" id="email" class="form-input-v2" placeholder="seu.email@gmail.com" autocomplete="email">
-                        <p class="form-helper-text">Usaremos para recuperar sua conta se necessário</p>
+                        <label class="form-label-v2" for="email">E-mail</label>
+                        <input type="email" id="email" class="form-input-v2" placeholder="seu@email.com" autocomplete="email">
                     </div>
                     <div class="form-group form-group-v2">
-                        <div class="form-label-wrapper">
-                            <label class="form-label-v2" for="username">
-                                <span class="form-icon">👤</span> Usuário
-                            </label>
-                            <span class="form-hint">Como você quer ser chamado</span>
+                        <div class="form-field-header">
+                            <label class="form-label-v2" for="username">Nome de usuário</label>
+                            <span class="form-field-hint">Como você quer ser chamado</span>
                         </div>
                         <input type="text" id="username" class="form-input-v2" placeholder="ex: joão_silva" required autocomplete="username">
-                        <p class="form-helper-text">Seu nome de usuário para login (sem espaços)</p>
                     </div>
                     <div class="form-group form-group-v2">
-                        <div class="form-label-wrapper">
-                            <label class="form-label-v2" for="password">
-                                <span class="form-icon">🔐</span> Senha
-                            </label>
-                            <span class="form-hint">Mínimo 8 caracteres</span>
+                        <div class="form-field-header">
+                            <label class="form-label-v2" for="password">Senha</label>
+                            <span class="form-field-hint">Mínimo 8 caracteres</span>
                         </div>
-                        <input type="password" id="password" class="form-input-v2" placeholder="Digite uma senha segura" required autocomplete="current-password">
-                        <p class="form-helper-text">Mínimo 8 caracteres com letras, números e símbolos</p>
+                        <input type="password" id="password" class="form-input-v2" placeholder="••••••••" required autocomplete="current-password">
                     </div>
                     <button type="submit" class="btn-primary btn-primary--full">
-                        <span id="submitText">Entrar</span> →
+                        <span id="submitText">Entrar</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="btn-arrow-svg"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>
                 </form>
 
@@ -345,8 +328,10 @@
                         <span id="toggleText">Novo aqui?</span>
                         <button type="button" id="toggleBtn">Criar conta</button>
                     </div>
-
-                    <p class="auth-footer-note">Acesso seguro</p>
+                    <p class="auth-footer-note">
+                        <svg width="11" height="12" viewBox="0 0 11 12" fill="none" aria-hidden="true" class="auth-lock-svg"><rect x="1" y="5.5" width="9" height="6" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0V5.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                        Acesso seguro
+                    </p>
                 </div>
             </div>
         </div>
