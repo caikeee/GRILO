@@ -9,6 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Sage Color System - Universal ========== -->
+    <link rel="stylesheet" href="assets/css/sage-color-system.css">
+
+    <!-- Sage Elegance Theme Override -->
+    <link rel="stylesheet" href="assets/css/sage-elegance.css">
+    <link rel="stylesheet" href="assets/css/sage-premium-polish.css">
+
     <!-- Guard: redirect to landing if not logged in -->
     <script>
       (function() {
@@ -26,52 +33,59 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+    /* === PALETA VERDE SÁLVIA (Elegante & Sofisticado) === */
+    --sage-light: #C5D9C4;
+    --sage-pale: #B5CDB0;
+    --sage-primary: #7A9E84;
+    --sage-medium: #5A7E66;
+    --sage-dark: #3A5E47;
+
     /* --- Color Palette (Light Theme) --- */
-    --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --bg-tertiary: #f0f4f8;
-    --bg-accent: #f5f9ff;
-    --text-primary: #0a1628;
-    --text-secondary: #475569;
-    --text-light: #94a3b8;
-    --text-muted: #cbd5e1;
-    
-    /* --- Accent Colors --- */
-    --accent-primary: #2563eb;
-    --accent-secondary: #0ea5e9;
-    --accent-tertiary: #06b6d4;
-    --accent-light: #7dd3fc;
-    --accent-warm: #f59e0b;
-    --accent-warm-light: #fbbf24;
-    --accent-success: #10b981;
-    --accent-danger: #ef4444;
-    
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F7FAF9;
+    --bg-tertiary: #EEF2EF;
+    --bg-accent: #F9FDFB;
+    --text-primary: #1F3B2D;
+    --text-secondary: #354839;
+    --text-light: #6A7B71;
+    --text-muted: #A8B5AA;
+
+    /* --- Accent Colors (Green Sage-based) --- */
+    --accent-primary: #7A9E84;
+    --accent-secondary: #5A7E66;
+    --accent-tertiary: #3A5E47;
+    --accent-light: #B5CDB0;
+    --accent-warm: #C9916B;
+    --accent-warm-light: #DBA87D;
+    --accent-success: #7A9E84;
+    --accent-danger: #C9716C;
+
     /* --- Borders & Dividers --- */
-    --border-color: #e2e8f0;
-    --border-light: #f1f5f9;
-    --divider: rgba(10, 22, 40, 0.06);
-    
+    --border-color: #D9E7DC;
+    --border-light: #EDF8F0;
+    --divider: rgba(122, 158, 132, 0.08);
+
     /* --- Glass Morphism --- */
-    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-bg: rgba(255, 255, 255, 0.74);
     --glass-bg-strong: rgba(255, 255, 255, 0.88);
-    --glass-border: rgba(37, 99, 235, 0.08);
+    --glass-border: rgba(122, 158, 132, 0.12);
     --glass-blur: 16px;
-    
-    /* --- Shadows --- */
-    --shadow-xs: 0 1px 2px rgba(10, 22, 40, 0.04);
-    --shadow-sm: 0 2px 8px rgba(10, 22, 40, 0.06);
-    --shadow-md: 0 4px 16px rgba(10, 22, 40, 0.08);
-    --shadow-lg: 0 12px 40px rgba(10, 22, 40, 0.12);
-    --shadow-xl: 0 20px 60px rgba(10, 22, 40, 0.16);
-    --shadow-card: 0 1px 3px rgba(10, 22, 40, 0.04), 0 6px 24px rgba(10, 22, 40, 0.06);
-    --shadow-card-hover: 0 4px 12px rgba(10, 22, 40, 0.06), 0 20px 48px rgba(10, 22, 40, 0.12);
-    --glow-primary: 0 0 60px rgba(37, 99, 235, 0.2);
-    
+
+    /* --- Shadows (Subtle, Green-tinted, Elegant) --- */
+    --shadow-xs: 0 1px 2px rgba(122, 158, 132, 0.04);
+    --shadow-sm: 0 2px 8px rgba(122, 158, 132, 0.07);
+    --shadow-md: 0 4px 16px rgba(122, 158, 132, 0.09);
+    --shadow-lg: 0 12px 40px rgba(122, 158, 132, 0.12);
+    --shadow-xl: 0 20px 60px rgba(122, 158, 132, 0.15);
+    --shadow-card: 0 1px 3px rgba(122, 158, 132, 0.04), 0 6px 24px rgba(122, 158, 132, 0.07);
+    --shadow-card-hover: 0 4px 12px rgba(122, 158, 132, 0.08), 0 20px 48px rgba(122, 158, 132, 0.12);
+    --glow-primary: 0 0 60px rgba(122, 158, 132, 0.16);
+
     /* --- Gradients --- */
-    --gradient-primary: linear-gradient(135deg, #2563eb 0%, #0ea5e9 50%, #06b6d4 100%);
-    --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-    --gradient-text: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
-    --gradient-card: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, rgba(14, 165, 233, 0.06) 100%);
+    --gradient-primary: linear-gradient(135deg, #7A9E84 0%, #5A7E66 100%);
+    --gradient-warm: linear-gradient(135deg, #C9916B 0%, #C9716C 100%);
+    --gradient-text: linear-gradient(135deg, #7A9E84 0%, #3A5E47 100%);
+    --gradient-card: linear-gradient(135deg, rgba(122, 158, 132, 0.02) 0%, rgba(122, 158, 132, 0.04) 100%);
     
     /* --- Typography --- */
     --font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -99,11 +113,12 @@
     --radius-2xl: 28px;
     --radius-full: 9999px;
     
-    /* --- Transitions --- */
+    /* --- Transitions (Smooth, Elegant) --- */
     --transition-fast: 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-    --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-subtle: 0.2s ease-in-out;
 }
 
 html, body {

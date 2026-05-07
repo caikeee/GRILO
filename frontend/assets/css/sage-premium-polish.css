@@ -1,0 +1,352 @@
+/* ====================================================================
+   GRILO - Sage Premium Polish (Final Layer)
+   Última camada de refinamento — feel premium em toda aplicação
+   Carregar SEMPRE por último para garantir prioridade
+==================================================================== */
+
+/* ========== FONTES — HIERARQUIA PREMIUM ========== */
+:root {
+    --font-display: 'Manrope', 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    /* Easing curves premium */
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+
+    /* Tempos de transição refinados */
+    --duration-instant: 100ms;
+    --duration-fast: 180ms;
+    --duration-base: 280ms;
+    --duration-smooth: 420ms;
+    --duration-slow: 600ms;
+}
+
+body {
+    font-family: var(--font-body) !important;
+    font-feature-settings: "ss01", "ss02", "cv11", "calt" !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+/* Display headlines em Manrope com tracking apertado */
+h1, h2, h3,
+.headline, .title, .display, .hero-headline, .section-title,
+.lp-banner-title, .lp-card-title, .voice-page-title {
+    font-family: var(--font-display) !important;
+    font-feature-settings: "ss01", "cv11" !important;
+}
+
+h1, .display, .hero-headline {
+    font-weight: 800 !important;
+    letter-spacing: -0.035em !important;
+    line-height: 1.08 !important;
+}
+
+h2, .section-title, .lp-banner-title {
+    font-weight: 700 !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.18 !important;
+}
+
+h3, .card-title, .lp-card-title {
+    font-weight: 700 !important;
+    letter-spacing: -0.018em !important;
+    line-height: 1.3 !important;
+}
+
+/* Body text — manter Space Grotesk com tracking sutil */
+p, .text, .body, .lead, .description {
+    font-family: var(--font-body) !important;
+    letter-spacing: -0.005em !important;
+    line-height: 1.65 !important;
+}
+
+/* Eyebrows / kickers — uppercase com tracking aberto */
+.eyebrow, .kicker, .lp-banner-kicker, .lp-card-kicker,
+.section-eyebrow, .voice-page-badge, .hero-tag {
+    font-family: var(--font-body) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    font-size: 0.72rem !important;
+}
+
+/* ========== OPACIDADES SEMÂNTICAS ========== */
+:root {
+    --alpha-subtle: 0.04;
+    --alpha-soft: 0.08;
+    --alpha-medium: 0.14;
+    --alpha-strong: 0.22;
+    --alpha-bold: 0.36;
+}
+
+/* ========== TRANSITIONS UNIVERSAIS ========== */
+button:not(.navbar-toggle),
+a, .btn, .card, .panel, input, textarea, select,
+.lp-card, .voice-help-option, .session-item,
+.feature-card, .painel-card {
+    transition:
+        background-color var(--duration-base) var(--ease-out-quart),
+        border-color var(--duration-base) var(--ease-out-quart),
+        color var(--duration-fast) var(--ease-out-quart),
+        box-shadow var(--duration-base) var(--ease-out-quart),
+        transform var(--duration-base) var(--ease-out-expo),
+        opacity var(--duration-fast) var(--ease-out-quart) !important;
+}
+
+/* ========== BOTÕES PREMIUM — Pressionar suave ========== */
+button:not(.navbar-toggle):active,
+.btn:active {
+    transform: translateY(0) scale(0.98) !important;
+    transition-duration: var(--duration-instant) !important;
+}
+
+/* ========== CARDS — Hover com elevação cinematográfica ========== */
+.card:hover,
+.feature-card:hover,
+.painel-card:hover,
+.lp-card:hover {
+    transform: translateY(-3px) !important;
+}
+
+/* ========== INPUTS — Focus ring premium ========== */
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus,
+.form-input:focus,
+.form-control:focus {
+    box-shadow:
+        0 0 0 3px rgba(122, 158, 132, 0.12),
+        0 1px 2px rgba(122, 158, 132, 0.06) !important;
+    border-color: #7A9E84 !important;
+}
+
+/* ========== LINKS — Underline animado premium ========== */
+a:not(.btn):not(.navbar-cta-btn):not(.navbar-logo):not(.lessons-back) {
+    background-image: linear-gradient(90deg, currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--duration-base) var(--ease-out-quart),
+                color var(--duration-fast) var(--ease-out-quart) !important;
+    text-decoration: none !important;
+}
+
+a:not(.btn):not(.navbar-cta-btn):not(.navbar-logo):not(.lessons-back):hover {
+    background-size: 100% 1px;
+    text-decoration: none !important;
+}
+
+/* ========== SCROLLBAR PREMIUM ========== */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122, 158, 132, 0.3) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(122, 158, 132, 0.25);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: background var(--duration-base) var(--ease-out-quart);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(122, 158, 132, 0.5);
+    background-clip: content-box;
+}
+
+/* ========== SELECTION ========== */
+::selection {
+    background: rgba(122, 158, 132, 0.22) !important;
+    color: #1F3B2D !important;
+    text-shadow: none !important;
+}
+
+/* ========== BACKDROPS / OVERLAYS PREMIUM ========== */
+.modal-overlay,
+.overlay,
+.backdrop,
+[class*="modal-backdrop"] {
+    backdrop-filter: blur(12px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(1.4) !important;
+    background: rgba(31, 59, 45, 0.5) !important;
+}
+
+/* ========== DIVIDERS / SEPARADORES SUTIS ========== */
+hr, .divider, .separator {
+    border: none !important;
+    height: 1px !important;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(122, 158, 132, 0.18) 50%,
+        transparent 100%) !important;
+    margin: 1.5rem 0 !important;
+}
+
+/* ========== IMAGES / MEDIA ========== */
+img, video, picture {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* ========== AJUSTES VOICE.HTML — REFINAMENTO ========== */
+body .voice-app-root {
+    background: linear-gradient(180deg, #FAFCFB 0%, #F4F8F5 100%) !important;
+}
+
+.voice-topbar {
+    backdrop-filter: blur(20px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.4) !important;
+    background: rgba(255, 255, 255, 0.86) !important;
+}
+
+/* AI Orb glow verde refinado */
+.ai-orb-glow,
+.orb-glow {
+    background: radial-gradient(circle,
+        rgba(122, 158, 132, 0.25) 0%,
+        rgba(122, 158, 132, 0.08) 40%,
+        transparent 70%) !important;
+}
+
+/* Estados de listening/speaking em verde */
+.ink-listening .ink-drop-main,
+.voice-state-listening .orb-glow {
+    background: radial-gradient(circle,
+        rgba(122, 158, 132, 0.35) 0%,
+        rgba(90, 126, 102, 0.12) 50%,
+        transparent 75%) !important;
+}
+
+.ink-speaking .ink-drop-main,
+.voice-state-speaking .orb-glow {
+    background: radial-gradient(circle,
+        rgba(181, 205, 176, 0.4) 0%,
+        rgba(122, 158, 132, 0.15) 50%,
+        transparent 75%) !important;
+}
+
+/* ========== AJUSTES LESSONS.HTML — REFINAMENTO ========== */
+.lp-banner {
+    backdrop-filter: blur(22px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(1.4) !important;
+    border: 1px solid rgba(122, 158, 132, 0.14) !important;
+}
+
+.lp-card {
+    border: 1px solid rgba(122, 158, 132, 0.12) !important;
+    box-shadow:
+        0 1px 2px rgba(122, 158, 132, 0.04),
+        0 8px 24px rgba(122, 158, 132, 0.06) !important;
+}
+
+.lp-card:hover {
+    border-color: rgba(122, 158, 132, 0.28) !important;
+    box-shadow:
+        0 4px 12px rgba(122, 158, 132, 0.08),
+        0 24px 56px rgba(122, 158, 132, 0.14) !important;
+    transform: translateY(-4px) !important;
+}
+
+.lp-card-ambient {
+    background: radial-gradient(circle,
+        rgba(122, 158, 132, 0.18) 0%,
+        rgba(181, 205, 176, 0.06) 60%,
+        transparent 100%) !important;
+}
+
+/* Card icons em verde refinado */
+.lp-card-icon {
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), rgba(247, 250, 249, 0.7)),
+        linear-gradient(135deg, rgba(122, 158, 132, 0.06), rgba(90, 126, 102, 0.04)) !important;
+    border: 1px solid rgba(122, 158, 132, 0.18) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 2px 6px rgba(122, 158, 132, 0.08) !important;
+}
+
+/* ========== STATUS CHIPS — Mantém semântica funcional ========== */
+.lp-card-status--new,
+.badge.warning,
+.tag.new {
+    background: rgba(245, 158, 11, 0.1) !important;
+    color: #B45309 !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.lp-card-status--completed,
+.badge.success,
+.tag.completed {
+    background: rgba(122, 158, 132, 0.12) !important;
+    color: #3A5E47 !important;
+    border: 1px solid rgba(122, 158, 132, 0.25) !important;
+}
+
+.lp-card-status--visited,
+.badge.info,
+.tag.visited {
+    background: rgba(181, 205, 176, 0.18) !important;
+    color: #5A7E66 !important;
+    border: 1px solid rgba(181, 205, 176, 0.3) !important;
+}
+
+/* ========== AJUSTES INDEX.HTML — Hero polish ========== */
+body.landing-page .hero {
+    background:
+        radial-gradient(ellipse at top right, rgba(122, 158, 132, 0.06), transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(181, 205, 176, 0.04), transparent 50%),
+        linear-gradient(180deg, #FCFDFB 0%, #F7FAF9 100%) !important;
+}
+
+/* ========== ACESSIBILIDADE ========== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --sage-primary: #3A5E47;
+        --text-secondary: #1F3B2D;
+    }
+}
+
+/* ========== FOCUS VISIBLE — Apenas teclado ========== */
+:focus:not(:focus-visible) {
+    outline: none !important;
+}
+
+:focus-visible {
+    outline: 2px solid #7A9E84 !important;
+    outline-offset: 3px !important;
+    border-radius: 6px;
+}
+
+/* ========== MOBILE — Touch targets ========== */
+@media (max-width: 768px) {
+    button:not(.navbar-toggle),
+    .btn,
+    a.btn,
+    [role="button"] {
+        min-height: 44px !important;
+    }
+}

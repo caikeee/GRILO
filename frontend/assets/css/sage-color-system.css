@@ -1,0 +1,361 @@
+/* ====================================================================
+   GRILO - Sage Color System
+   Sistema de cores centralizado - Verde Sálvia
+   Aplicar em TODAS as páginas para consistência visual
+==================================================================== */
+
+:root {
+    /* ========== PALETA VERDE SÁLVIA - PRIMÁRIA ========== */
+    --sage-light: #C5D9C4;
+    --sage-pale: #B5CDB0;
+    --sage-primary: #7A9E84;
+    --sage-medium: #5A7E66;
+    --sage-dark: #3A5E47;
+
+    /* ========== BACKGROUNDS ========== */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F7FAF9;
+    --bg-tertiary: #EEF2EF;
+    --bg-light: #F9FDFB;
+
+    /* ========== TEXTS ========== */
+    --text-primary: #1F3B2D;
+    --text-secondary: #354839;
+    --text-tertiary: #6A7B71;
+    --text-light: #A8B5AA;
+
+    /* ========== BORDERS ========== */
+    --border-color: #D9E7DC;
+    --border-light: #EDF8F0;
+
+    /* ========== SHADOWS - Green-tinted ========== */
+    --shadow-sm: 0 2px 8px rgba(122, 158, 132, 0.07);
+    --shadow-md: 0 4px 16px rgba(122, 158, 132, 0.09);
+    --shadow-lg: 0 12px 40px rgba(122, 158, 132, 0.12);
+    --shadow-xl: 0 20px 60px rgba(122, 158, 132, 0.15);
+
+    /* ========== GRADIENTS ========== */
+    --gradient-primary: linear-gradient(135deg, #7A9E84 0%, #5A7E66 100%);
+    --gradient-light: linear-gradient(135deg, #B5CDB0 0%, #7A9E84 100%);
+    --gradient-dark: linear-gradient(135deg, #5A7E66 0%, #3A5E47 100%);
+
+    /* ========== TRANSITIONS ========== */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ====================================================================
+   APLICAR CORES UNIVERSALMENTE
+==================================================================== */
+
+/* ========== BUTTONS - Todos os tipos ========== */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-danger,
+.btn-warning,
+.btn-info,
+.btn-cta,
+.btn-action,
+button:not(.navbar-toggle):not([class*="modal"]) {
+    transition: all var(--transition-fast);
+}
+
+.btn-primary,
+.btn-primary--full,
+.btn-cta,
+.btn-action,
+.navbar-cta-btn,
+.btn[type="submit"],
+button[type="submit"]:not(.navbar-toggle) {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(122, 158, 132, 0.18) !important;
+}
+
+.btn-primary:hover,
+.btn-primary--full:hover,
+.btn-cta:hover,
+.btn-action:hover,
+.navbar-cta-btn:hover,
+button[type="submit"]:hover {
+    background: var(--gradient-dark) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(122, 158, 132, 0.28) !important;
+}
+
+.btn-secondary,
+.btn[type="button"]:not(.btn-primary):not(.navbar-toggle) {
+    background: transparent !important;
+    color: var(--sage-primary) !important;
+    border: 2px solid var(--sage-primary) !important;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, rgba(122, 158, 132, 0.08) 0%, rgba(122, 158, 132, 0.04) 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(122, 158, 132, 0.12) !important;
+}
+
+/* ========== FORM INPUTS - Todos os tipos ========== */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select,
+.input,
+.form-input,
+.form-control,
+.auth-field input,
+.form-input-v2 {
+    border: 1px solid var(--border-light) !important;
+    border-radius: 8px !important;
+    background: white !important;
+    color: var(--text-primary) !important;
+    transition: all var(--transition-base) !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus,
+.input:focus,
+.form-input:focus,
+.form-control:focus,
+.auth-field input:focus,
+.form-input-v2:focus {
+    outline: none !important;
+    border-color: var(--sage-primary) !important;
+    box-shadow: 0 0 0 3px rgba(122, 158, 132, 0.1) !important;
+}
+
+/* ========== LABELS ========== */
+label,
+.form-label,
+.form-label-v2,
+.label {
+    color: var(--text-secondary) !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+}
+
+/* ========== CARDS & CONTAINERS ========== */
+.card,
+.card-item,
+.feature-card,
+.painel-card,
+.content-card,
+.lesson-card,
+.chat-card {
+    background: white !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(122, 158, 132, 0.04), 0 6px 24px rgba(122, 158, 132, 0.06) !important;
+    transition: all var(--transition-base) !important;
+}
+
+.card:hover,
+.card-item:hover,
+.feature-card:hover,
+.painel-card:hover,
+.content-card:hover,
+.lesson-card:hover,
+.chat-card:hover {
+    border-color: var(--sage-primary) !important;
+    box-shadow: 0 4px 16px rgba(122, 158, 132, 0.10), 0 20px 48px rgba(122, 158, 132, 0.12) !important;
+    transform: translateY(-4px) !important;
+}
+
+/* ========== HEADERS & TYPOGRAPHY ========== */
+h1, h2, h3, h4, h5, h6,
+.heading,
+.title,
+.headline {
+    color: var(--text-primary) !important;
+    font-family: 'Manrope', 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    letter-spacing: -0.02em !important;
+}
+
+h1 {
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    line-height: 1.15 !important;
+}
+
+h2 {
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    line-height: 1.25 !important;
+}
+
+h3 {
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.35 !important;
+}
+
+/* ========== LINKS ========== */
+a,
+.link {
+    color: var(--sage-primary) !important;
+    transition: color var(--transition-fast) !important;
+    text-decoration: none !important;
+}
+
+a:hover,
+.link:hover {
+    color: var(--sage-dark) !important;
+    text-decoration: underline !important;
+}
+
+/* ========== BADGES & TAGS ========== */
+.badge,
+.tag,
+.chip,
+.label-tag,
+.eyebrow,
+.kicker {
+    background: linear-gradient(135deg, rgba(122, 158, 132, 0.08) 0%, rgba(122, 158, 132, 0.04) 100%) !important;
+    border: 1px solid rgba(122, 158, 132, 0.12) !important;
+    color: var(--sage-dark) !important;
+    border-radius: 20px !important;
+    padding: 6px 14px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+}
+
+/* ========== SECTIONS & PANELS ========== */
+section,
+.section,
+.panel,
+.painel-container {
+    background: var(--bg-primary) !important;
+}
+
+section.bg-light,
+.section--light,
+.panel--light {
+    background: var(--bg-secondary) !important;
+}
+
+section.bg-lighter,
+.section--lighter,
+.panel--lighter {
+    background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%) !important;
+}
+
+/* ========== BORDERS & DIVIDERS ========== */
+hr,
+.divider,
+.separator {
+    border-color: var(--border-light) !important;
+    opacity: 0.5 !important;
+}
+
+/* ========== FOCUS STATES ========== */
+:focus-visible {
+    outline: 2px solid var(--sage-primary) !important;
+    outline-offset: 2px !important;
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--sage-primary), var(--sage-medium));
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--sage-medium), var(--sage-dark));
+}
+
+/* ========== SELECTION ========== */
+::selection {
+    background: rgba(122, 158, 132, 0.2) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ====================================================================
+   DARK MODE - Automático via preferência do SO
+==================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Backgrounds Dark */
+        --bg-primary: #0F1B17;
+        --bg-secondary: #141F1A;
+        --bg-tertiary: #1A2622;
+        --bg-light: #1F2E28;
+
+        /* Texts Dark */
+        --text-primary: #E8F1ED;
+        --text-secondary: #D4E1DA;
+        --text-tertiary: #9BA9A0;
+        --text-light: #6B7B72;
+
+        /* Borders Dark */
+        --border-color: #2A3D35;
+        --border-light: #1F3028;
+
+        /* Shadows Dark */
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+        --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    body {
+        background: linear-gradient(135deg, #0F1B17 0%, #141F1A 40%, #1A2622 100%) !important;
+        color: var(--text-primary) !important;
+    }
+}
+
+/* ====================================================================
+   ACCESSIBILITY - Reduced Motion
+==================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ====================================================================
+   RESPONSIVE - Mobile
+==================================================================== */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+    }
+
+    h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .btn,
+    button {
+        padding: 12px 24px !important;
+        font-size: 0.95rem !important;
+    }
+
+    .card,
+    .feature-card {
+        padding: 1.5rem !important;
+    }
+}
