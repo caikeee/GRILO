@@ -208,11 +208,10 @@ body.app-lessons::before {
 .lp-banner {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0,1.6fr) minmax(280px,0.88fr);
-  align-items: stretch;
-  gap: 24px;
-  min-height: 280px;
-  padding: 48px 52px;
+  grid-template-columns: minmax(0,1.55fr) minmax(260px,0.82fr);
+  align-items: center;
+  gap: 20px;
+  padding: 36px 44px;
   overflow: hidden;
   border-radius: var(--lp-r-2xl);
   background:
@@ -284,13 +283,13 @@ body.app-lessons::before {
 .lp-banner-title {
   margin: 0;
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: clamp(2.6rem, 4.5vw, 4.6rem);
+  font-size: clamp(2rem, 3.4vw, 3.4rem);
   font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: -0.07em;
+  line-height: 0.94;
+  letter-spacing: -0.06em;
   color: var(--lp-text);
   text-wrap: balance;
-  max-width: 14ch;
+  max-width: 18ch;
 }
 
 /* Gradient on last word */
@@ -303,10 +302,10 @@ body.app-lessons::before {
 }
 
 .lp-banner-sub {
-  margin: 22px 0 0;
-  max-width: 54ch;
-  font-size: 1rem;
-  line-height: 1.72;
+  margin: 14px 0 0;
+  max-width: 52ch;
+  font-size: 0.95rem;
+  line-height: 1.68;
   color: var(--lp-muted);
   font-weight: 400;
 }
@@ -314,9 +313,9 @@ body.app-lessons::before {
 .lp-banner-stats {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-top: 28px;
+  margin-top: 20px;
 }
 
 .lp-stat-pill {
@@ -347,8 +346,8 @@ body.app-lessons::before {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 20px;
-  padding: 28px;
+  gap: 14px;
+  padding: 22px 24px;
   border-radius: var(--lp-r-xl);
   background: linear-gradient(160deg,
     rgba(255,255,255,0.88) 0%,
@@ -370,19 +369,19 @@ body.app-lessons::before {
 }
 
 .lp-banner-panel-title {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: clamp(1.15rem, 1.8vw, 1.55rem);
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
   font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+  line-height: 1.14;
+  letter-spacing: -0.03em;
   color: var(--lp-text);
 }
 
 .lp-banner-panel-sub {
-  margin: 12px 0 0;
-  font-size: 0.9rem;
-  line-height: 1.65;
+  margin: 10px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.62;
   color: var(--lp-muted);
 }
 
@@ -2530,8 +2529,7 @@ body.app-lessons::before {
 @media (max-width: 1100px) {
   .lp-banner {
     grid-template-columns: 1fr;
-    padding: 40px;
-    min-height: auto;
+    padding: 32px 36px;
   }
 
   .lp-banner-panel {
@@ -2577,9 +2575,8 @@ body.app-lessons::before {
   .lessons-brand { display: none; }
 
   .lp-banner {
-    padding: 28px 24px;
+    padding: 24px 22px;
     border-radius: var(--lp-r-xl);
-    min-height: auto;
   }
 
   .lp-banner-title {
