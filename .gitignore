@@ -131,3 +131,4 @@ backend/voice_cache/            # Cached voice files
 
 # Migrations (local)
 backend/migrations/versions/    # Database migration files
+.claude/settings.local.json
