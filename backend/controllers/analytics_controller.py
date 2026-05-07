@@ -11,6 +11,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, status
 from backend.database import get_db
+from backend.admin_controller import verify_admin
 from backend.db_models import (
     AnalyticsEvent,
     User,
@@ -27,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/api/analytics/dashboard")
-async def get_dashboard_analytics(db: Session = Depends(get_db)):
+async def get_dashboard_analytics(db: Session = Depends(get_db), _: any = Depends(verify_admin)):
     """
     Retorna agregação completa de métricas para o dashboard.
     Inclui: usuários, retenção, engagement, qualidade, padrões de uso, técnica.

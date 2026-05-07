@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import hashlib
 import os
 import bcrypt
 from jose import JWTError, jwt
@@ -16,6 +17,11 @@ SECRET_KEY: str = _secret_key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 REFRESH_TOKEN_EXPIRE_DAYS = 30  # QW9: Refresh token válido por 30 dias
+
+
+def hash_refresh_token(token: str) -> str:
+    """SHA-256 hash of a refresh token for safe DB storage."""
+    return hashlib.sha256(token.encode()).hexdigest()
 
 
 def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

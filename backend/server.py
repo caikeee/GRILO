@@ -157,25 +157,7 @@ def _run_migrations():
         logger.warning("Migration check failed (non-fatal): %s", exc)
 
 
-def _seed_admin():
-    """Ensure 'caike' user is marked as admin."""
-    from backend.database import SessionLocal
-    from backend.db_models import User as _User
-    db = SessionLocal()
-    try:
-        caike = db.query(_User).filter(_User.username == "caike").first()
-        if caike and not caike.is_admin:
-            caike.is_admin = True
-            db.commit()
-            logger.info("Seed: 'caike' marked as admin")
-    except Exception as exc:
-        logger.warning("Admin seed failed (non-fatal): %s", exc)
-    finally:
-        db.close()
-
-
 _run_migrations()
-_seed_admin()
 
 app = FastAPI(
     title="GRILO API",

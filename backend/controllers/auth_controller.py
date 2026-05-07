@@ -8,6 +8,7 @@ from backend.auth import (
     create_access_token,
     create_refresh_token,
     hash_password,
+    hash_refresh_token,
     verify_password,
     verify_token,
     REFRESH_TOKEN_EXPIRE_DAYS,
@@ -55,7 +56,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"user_id": new_user.id})
     refresh_token = create_refresh_token(data={"user_id": new_user.id})
 
-    new_user.refresh_token = refresh_token
+    new_user.refresh_token = hash_refresh_token(refresh_token)
     new_user.refresh_token_expiry = datetime.utcnow() + timedelta(
         days=REFRESH_TOKEN_EXPIRE_DAYS
     )
@@ -109,7 +110,7 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"user_id": user.id})
     refresh_token = create_refresh_token(data={"user_id": user.id})
 
-    user.refresh_token = refresh_token
+    user.refresh_token = hash_refresh_token(refresh_token)
     user.refresh_token_expiry = datetime.utcnow() + timedelta(
         days=REFRESH_TOKEN_EXPIRE_DAYS
     )
@@ -165,7 +166,7 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
     user_id = payload.get("user_id")
     user = db.query(User).filter(User.id == user_id).first()
 
-    if not user or user.refresh_token != request.refresh_token:
+    if not user or user.refresh_token != hash_refresh_token(request.refresh_token):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token not found or invalid",
