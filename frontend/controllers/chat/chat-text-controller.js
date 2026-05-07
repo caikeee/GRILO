@@ -1571,6 +1571,11 @@ function switchTab(tabName) {
         showLessonsView().catch(err => console.error('[switchTab] Erro ao abrir aulas:', err));
     }
 
+    if (tabName === 'admin') {
+        if (typeof loadAdminUsers === 'function') loadAdminUsers();
+        if (typeof setupAdminSearch === 'function') setupAdminSearch();
+    }
+
     // Show/hide session submenus
     const voiceSubmenu = document.getElementById('voiceSessionsSubmenu');
     if (voiceSubmenu) voiceSubmenu.classList.toggle('active', tabName === 'chat-voice');

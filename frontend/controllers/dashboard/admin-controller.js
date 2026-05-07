@@ -168,16 +168,4 @@ function setupAdminSearch() {
 // Initialize admin section when tab is switched
 document.addEventListener('DOMContentLoaded', () => {
     checkAdminStatus();
-
-    // Override switchTab to load users when admin tab is activated
-    const originalSwitchTab = window.switchTab;
-    if (originalSwitchTab) {
-        window.switchTab = function(tabName) {
-            originalSwitchTab(tabName);
-            if (tabName === 'admin') {
-                loadAdminUsers();
-                setupAdminSearch();
-            }
-        };
-    }
 });
