@@ -39,7 +39,7 @@ async def write_chat(
     """
     Writing mode chat - user writes in English, gets natural response + grammar feedback.
     """
-    from services import evaluate_writing_response
+    from backend.services import evaluate_writing_response
 
     logger.info("[WRITE-CHAT] START | user_id=%s", user_id)
     start_time = datetime.now()
@@ -81,7 +81,7 @@ async def translate_immersion(
     """
     Translate immersion text between configured source and target languages.
     """
-    from services import translate_with_direction
+    from backend.services import translate_with_direction
 
     logger.info(
         "[TRANSLATE-IMMERSION] START | user_id=%s | %s -> %s",
@@ -113,7 +113,7 @@ async def detect_language(
     user_id: int = Depends(get_current_user_id),
 ):
     """Detect language for short user inputs when frontend confidence is low."""
-    from services import detect_language_from_text
+    from backend.services import detect_language_from_text
 
     logger.info("[LANG-DETECT] START | user_id=%s", user_id)
 

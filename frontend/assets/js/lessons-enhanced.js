@@ -2826,30 +2826,35 @@
         statusBadge = `<span class="lp-card-status lp-card-status--new">Nova</span>`;
       }
 
+      const highlightPreview = lesson.highlight
+        ? `<div class="lp-card-tag"><span class="lp-card-tag-quote" aria-hidden="true">"</span>${lesson.highlight}</div>`
+        : '';
+
       card.innerHTML = `
-        <span class="lp-card-ambient"></span>
         <div class="lp-card-top">
-          <span class="lp-card-kicker">LIÇÃO ${num}</span>
-          <span class="lp-card-icon">${renderLessonIcon(lesson.icon)}</span>
+          <div class="lp-card-top-left">
+            <span class="lp-card-icon">${renderLessonIcon(lesson.icon)}</span>
+            <div>
+              <span class="lp-card-kicker">Aula ${num}</span>
+              <div class="lp-card-title">${lesson.title}</div>
+            </div>
+          </div>
+          <span class="lp-card-num">${num}</span>
         </div>
         <div class="lp-card-body">
-          <div class="lp-card-brow">
+          <div class="lp-card-desc">${objectivePreview}</div>
+          ${highlightPreview}
+        </div>
+        <div class="lp-card-footer">
+          <div class="lp-card-meta">
             ${statusBadge}
             <span class="lp-card-chip">${sectionCount} seções</span>
           </div>
-          <div class="lp-card-title">${lesson.title}</div>
-          <div class="lp-card-desc">${objectivePreview}</div>
-          ${lesson.highlight ? `<div class="lp-card-preview"><span class="lp-card-preview-label">Você vai praticar</span><div class="lp-card-tag">${lesson.highlight}</div></div>` : ''}
-          <div class="lp-card-meta">
-            <span class="lp-card-chip lp-card-chip--soft">A1 guiado</span>
-            <span class="lp-card-chip lp-card-chip--soft">uso imediato</span>
-          </div>
-        </div>
-        <div class="lp-card-footer">
           <div class="lp-card-progress-wrap">
-            <span class="lp-card-cta">${ctaText}</span>
+            <span class="lp-card-progress-label">${progressPct > 0 ? Math.round(progressPct) + '%' : 'Iniciar'}</span>
             <span class="lp-card-progress"><span class="lp-card-progress-fill" style="width:${progressPct}%"></span></span>
           </div>
+          <span class="lp-card-cta" aria-hidden="true">→</span>
         </div>
       `;
 
@@ -2911,9 +2916,8 @@
       }
 
     // ── topbar breadcrumb ──
-    if (crumb) {
-      crumb.innerHTML = `Módulo A1 &rsaquo; <span>Lição ${num}</span>`;
-    }
+    const crumbLesson = document.getElementById('lessonModalCrumbLesson');
+    if (crumbLesson) crumbLesson.textContent = `Aula ${num} — ${lesson.title}`;
 
     // ── sidebar ──
     if (aside) {
@@ -3163,9 +3167,42 @@
     window.location.href = 'home.html';
   };
 
+  // ── Category bar ──────────────────────────────────────────
+  function initCategoryBar() {
+    const bar = document.getElementById('categoryBar');
+    if (!bar) return;
+    bar.addEventListener('click', (e) => {
+      const tab = e.target.closest('.lp-cat-tab');
+      if (!tab) return;
+      bar.querySelectorAll('.lp-cat-tab').forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      // category filtering is visual-only for now — cards come from backend per category
+      // TODO: wire to backend category filter when API supports it
+    });
+  }
+
+  // ── Lesson search ─────────────────────────────────────────
+  function initLessonSearch() {
+    const input = document.getElementById('lessonSearch');
+    if (!input) return;
+    input.addEventListener('input', () => {
+      const q = input.value.toLowerCase().trim();
+      const container = document.getElementById('lessonsCardsContainer');
+      if (!container) return;
+      Array.from(container.children).forEach(card => {
+        const title = (card.querySelector('.lp-card-title') || {}).textContent || '';
+        const desc  = (card.querySelector('.lp-card-desc')  || {}).textContent || '';
+        const match = !q || title.toLowerCase().includes(q) || desc.toLowerCase().includes(q);
+        card.style.display = match ? '' : 'none';
+      });
+    });
+  }
+
   renderLessonsCards();
   updateHeroProgress();
   initLessonsChrome();
+  initCategoryBar();
+  initLessonSearch();
   syncPendingLessonCompletions();
   void trackLessonsPageView();
   window.renderAnchorDialog = renderAnchorDialog;

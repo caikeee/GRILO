@@ -230,7 +230,7 @@ async def health_check():
         
         # Test Groq API availability
         try:
-            from services import client
+            from backend.services import client
             client.models.list()
             groq_status = "ok"
         except Exception as e:
@@ -273,6 +273,16 @@ async def landing():
 @app.get("/index.html")
 async def index():
     return FileResponse(_frontend_file("index.html"))
+
+
+@app.get("/privacidade.html")
+async def privacidade():
+    return FileResponse(_frontend_file("privacidade.html"))
+
+
+@app.get("/termos.html")
+async def termos():
+    return FileResponse(_frontend_file("termos.html"))
 
 
 @app.get("/lessons")

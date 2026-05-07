@@ -20,7 +20,6 @@
     <script>
       (function() {
         var t = localStorage.getItem('grilo_token');
-        console.log('[GRILO] home guard — token:', t ? 'exists' : 'NULL');
         if (!t) window.location.replace('/');
       })();
     </script>
@@ -9108,11 +9107,9 @@ body.beta-modal-open .main-content.active {
         // Auto-open voice sessions panel when entering voice tab
         const _origSwitchTab = window.switchTab;
         window.switchTab = function(tabName) {
-            console.log('[switchTab wrapper] Chamado com:', tabName);
             try {
                 if (typeof _origSwitchTab === 'function') {
                     _origSwitchTab(tabName);
-                    console.log('[switchTab wrapper] Original switchTab executado');
                 } else {
                     console.error('[switchTab wrapper] _origSwitchTab não é função:', typeof _origSwitchTab);
                     return;

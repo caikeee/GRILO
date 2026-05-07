@@ -3,58 +3,135 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Módulo — Lições</title>
+  <title>Módulo A1 — Lições · GRILO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Sage Color System - Universal ========== -->
   <link rel="stylesheet" href="assets/css/sage-color-system.css">
   <link rel="stylesheet" href="assets/css/sage-overrides.css">
-
   <link rel="stylesheet" href="assets/css/lessons.css">
   <link rel="stylesheet" href="assets/css/sage-premium-polish.css">
 </head>
 <body class="app-lessons">
   <main class="lessons-shell">
+
+    <!-- ── Topbar ─────────────────────────────────────────── -->
     <header class="lessons-topbar">
-      <a href="home.html" class="lessons-back">&larr; Início</a>
+      <a href="home.html" class="lessons-back">Início</a>
       <div class="lessons-brand">GRILO</div>
       <div class="lessons-module-pill">Módulo A1</div>
     </header>
 
     <section class="lessons-cosmos is-revealed" id="lessonsCosmos">
+
+      <!-- ── Hero Banner ───────────────────────────────────── -->
       <header class="lp-banner" id="lessonsBanner">
         <div class="lp-banner-copy">
-          <p class="lp-banner-kicker">Módulo A1 • base de uso real</p>
-          <h1 class="lp-banner-title">Conteúdo de qualidade e estrutura clara para elevar o seu inglês.</h1>
-          <p class="lp-banner-sub">Cada passo da trilha foi organizado para destravar uso real, consolidar fundamentos e preparar você para o próximo nível com mais segurança.</p>
+          <p class="lp-banner-kicker">Módulo A1 · base de uso real</p>
+          <h1 class="lp-banner-title">Inglês que você <em>usa</em> de verdade.</h1>
+          <p class="lp-banner-sub">50 aulas organizadas para destravar fundamentos, gerar repertório e preparar você para conversas reais — com estrutura clara e progressão pensada.</p>
+          <div class="lp-banner-stats">
+            <span class="lp-stat-pill"><span class="lp-stat-pill-dot"></span>50 aulas</span>
+            <span class="lp-stat-pill"><span class="lp-stat-pill-dot"></span>10 categorias</span>
+            <span class="lp-stat-pill"><span class="lp-stat-pill-dot"></span>Nível A1</span>
+          </div>
         </div>
 
         <div class="lp-banner-panel" aria-label="Resumo da trilha">
-          <p class="lp-banner-panel-kicker">Trilha essencial</p>
-          <h2 class="lp-banner-panel-title">Uma base guiada, consistente e feita para gerar evolução real.</h2>
-          <p class="lp-banner-panel-sub">Explicação clara, progressão estruturada e prática aplicada para você avançar com repertório e confiança.</p>
+          <div>
+            <p class="lp-banner-panel-kicker">Trilha essencial</p>
+            <h2 class="lp-banner-panel-title">Uma base guiada, consistente e feita para gerar evolução real.</h2>
+            <p class="lp-banner-panel-sub">Explicação clara, progressão estruturada e prática aplicada para você avançar com repertório e confiança.</p>
+          </div>
           <div id="heroProgress" class="lp-hero-progress" style="display:none;">
-            <span class="lp-hero-progress-track"><span id="heroProgressFill" class="lp-hero-progress-fill"></span></span>
+            <span class="lp-hero-progress-track">
+              <span id="heroProgressFill" class="lp-hero-progress-fill"></span>
+            </span>
             <span id="heroProgressLabel" class="lp-hero-progress-label"></span>
           </div>
         </div>
       </header>
 
+      <!-- ── Category Tabs ─────────────────────────────────── -->
+      <nav class="lp-category-bar" id="categoryBar" aria-label="Filtrar por categoria">
+        <button class="lp-cat-tab is-active" data-category="all" type="button">
+          <span class="lp-cat-tab-emoji">📚</span>
+          Todas
+          <span class="lp-cat-tab-count" id="count-all">50</span>
+        </button>
+        <button class="lp-cat-tab" data-category="saudacoes" type="button">
+          <span class="lp-cat-tab-emoji">👋</span>
+          Saudações
+        </button>
+        <button class="lp-cat-tab" data-category="informacoes" type="button">
+          <span class="lp-cat-tab-emoji">🪪</span>
+          Pessoal
+        </button>
+        <button class="lp-cat-tab" data-category="familia" type="button">
+          <span class="lp-cat-tab-emoji">👨‍👩‍👧</span>
+          Família
+        </button>
+        <button class="lp-cat-tab" data-category="numeros" type="button">
+          <span class="lp-cat-tab-emoji">🔢</span>
+          Números
+        </button>
+        <button class="lp-cat-tab" data-category="comidas" type="button">
+          <span class="lp-cat-tab-emoji">🍽️</span>
+          Comidas
+        </button>
+        <button class="lp-cat-tab" data-category="lugares" type="button">
+          <span class="lp-cat-tab-emoji">📍</span>
+          Lugares
+        </button>
+        <button class="lp-cat-tab" data-category="verbos" type="button">
+          <span class="lp-cat-tab-emoji">⚡</span>
+          Verbos
+        </button>
+        <button class="lp-cat-tab" data-category="adjetivos" type="button">
+          <span class="lp-cat-tab-emoji">🎨</span>
+          Adjetivos
+        </button>
+        <button class="lp-cat-tab" data-category="rotinas" type="button">
+          <span class="lp-cat-tab-emoji">🌅</span>
+          Rotinas
+        </button>
+        <button class="lp-cat-tab" data-category="hobbies" type="button">
+          <span class="lp-cat-tab-emoji">🎯</span>
+          Hobbies
+        </button>
+        <div class="lp-search-wrap">
+          <div class="lp-search">
+            <span class="lp-search-icon" aria-hidden="true">🔍</span>
+            <input type="text" id="lessonSearch" placeholder="Buscar aula…" autocomplete="off" aria-label="Buscar aulas">
+          </div>
+        </div>
+      </nav>
+
+      <!-- ── Cards Grid ────────────────────────────────────── -->
       <section class="lp-card-stage" aria-live="polite">
         <div id="lessonsCardsContainer" class="lp-card-cloud"></div>
       </section>
+
     </section>
   </main>
 
+  <!-- ── Lesson Modal ───────────────────────────────────────── -->
   <section id="lessonContent" class="lp-modal" hidden>
     <div class="lp-modal-shell">
       <div class="lp-modal-topbar">
-        <div id="lessonModalCrumb" class="lp-modal-crumb">Módulo A1</div>
+        <div id="lessonModalCrumb" class="lp-modal-crumb">
+          <span>Módulo A1</span>
+          <span class="lp-modal-crumb-sep">›</span>
+          <span class="lp-modal-crumb-lesson" id="lessonModalCrumbLesson">Aula</span>
+        </div>
         <div class="lp-modal-actions">
-          <button id="lessonAsideToggle" class="lp-modal-aside-toggle" type="button" aria-controls="lessonModalAside" aria-expanded="true">Ocultar painel</button>
-          <button id="lessonModalClose" class="lp-modal-close" type="button" aria-label="Fechar aula">Fechar</button>
+          <button id="lessonAsideToggle" class="lp-modal-aside-toggle" type="button" aria-controls="lessonModalAside" aria-expanded="true">
+            Ocultar painel
+          </button>
+          <button id="lessonModalClose" class="lp-modal-close" type="button" aria-label="Fechar aula">
+            Fechar
+          </button>
         </div>
       </div>
       <div class="lp-modal-body">
@@ -64,6 +141,6 @@
     </div>
   </section>
 
-  <script src="assets/js/lessons-enhanced.js?v=3" defer></script>
+  <script src="assets/js/lessons-enhanced.js?v=4" defer></script>
 </body>
 </html>

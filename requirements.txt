@@ -1,9 +1,6 @@
-openai-whisper
-moviepy
 Pillow
 requests
 httpx
-torch
 fastapi
 uvicorn
 python-dotenv
@@ -25,9 +22,7 @@ pydantic[email]>=2.0
 slowapi>=0.1.9
 # QW12: JSON Logging
 python-json-logger>=2.0.0
-# RAG / PDF pipeline
+# RAG / PDF pipeline (disabled until import path fixed)
 pdfplumber
 PyPDF2
 tiktoken
-sentence-transformers
-chromadb
