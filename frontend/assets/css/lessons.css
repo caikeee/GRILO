@@ -838,6 +838,20 @@ body.app-lessons {
   font-weight: 700;
 }
 
+.lp-ex-pron {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--lp-blue);
+  opacity: 0.65;
+  letter-spacing: 0.01em;
+}
+
+.lp-peda-example .lp-ex-pron {
+  font-size: 0.75rem;
+}
+
 .lp-ex-pt {
   display: block;
   margin-top: 4px;

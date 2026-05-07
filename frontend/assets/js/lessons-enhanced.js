@@ -750,6 +750,217 @@
     }
   };
 
+  // ========== PRONUNCIAÇÃO ESCRITA ==========
+  // Fonética aproximada usando sons do português.
+  // MAIÚSCULAS = sílaba tônica.
+  // "d"/"t" = th | "ai" = I | "u" = oo/w | "ei" = ay | "ou" = long-o
+  // "ch" = sh | "dj" = j | "tch" = ch
+
+  const EXAMPLE_PRON = {
+    // --- pronomes: quem faz a ação ---
+    'I work every day.':                       'ai UORK Év-ri dei',
+    'You speak very fast.':                    'iu SPIK vé-ri fest',
+    'He lives in Rio.':                        'ri LIVZ in RÍ-ou',
+    'She loves coffee.':                       'chi LAVZ KÓ-fi',
+    'It is very cold today.':                  'it iz VÉ-ri kould tê-DEI',
+    'We are a team.':                          'ui ar ê TIM',
+    'They eat lunch together.':                'dei it LANTCH tê-GÉ-der',
+    // --- pronomes: quem recebe a ação ---
+    'She called me yesterday.':                'chi KOLD mi IÉS-ter-dei',
+    'Can you help us?':                        'kén iu RÉLP as?',
+    'I saw him at the store.':                 'ai so RIM ét dê STOR',
+    'He gave her a gift.':                     'ri GHEIV rer ê gift',
+    'They invited them to the party.':         'dei in-VAIT-id dém tu dê PAR-ti',
+    'This is between you and me.':             'dis iz bi-TUÍN iu énd MI',
+    'Tell him the truth.':                     'tél rim dê TRUTS',
+    // --- pronomes: de quem é ---
+    'This is my phone.':                       'dis iz mai FOUN',
+    'This phone is mine.':                     'dis foun iz MAIN',
+    'Her jacket is on the chair.':             'rer DJÉ-kit iz on dê TCHER',
+    'That jacket is hers.':                    'dét djé-kit iz RERS',
+    'Our house is small, but theirs is huge.': 'aur RAUS iz smol bat DERS iz riuDJ',
+    "Is this your coffee? — Yes, it's mine.":  'iz dis ior KÓ-fi? iés, its MAIN',
+    'The dog hurt its paw.':                   'dê dog RERT its po',
+    // --- perguntas: sim ou não ---
+    'Do you like coffee? — Yes, I do.':        'du iu LAIK kó-fi? iés, ai DU',
+    "Does she work here? — No, she doesn't.":  'daz chi UORK rir? nou, chi DAZ-ent',
+    'Do they have a dog?':                     'du dei RÉV ê dog?',
+    'Did you sleep well?':                     'did iu SLIP uél?',
+    'Did he call you?':                        'did ri KOL iu?',
+    'Does it hurt?':                           'daz it RERT?',
+    'Do we need an umbrella today?':           'du ui NID én am-BRÉ-lê tê-DEI?',
+    // --- perguntas: palavras de pergunta ---
+    'What do you want for dinner?':            'uot du iu UONT for DÍ-ner?',
+    'Where does she live?':                    'uér daz chi LIV?',
+    'When did they arrive?':                   'uén did dei ê-RAIV?',
+    'Why are you laughing?':                   'uai ar iu LÉF-ing?',
+    'How do you say this in English?':         'rau du iu SEI dis in ÍNG-glitch?',
+    'Who called you? (quem ligou = sujeito, sem "do")':            'ru KOLD iu?',
+    'Who did you call? (você ligou pra quem = objeto, com "did")': 'ru did iu KOL?',
+    'How many people were there?':             'rau MÉ-ni PÍ-pol uor DER?',
+    // --- perguntas: tag questions ---
+    "It's cold today, isn't it?":              'its kold tê-DEI, IZ-ent it?',
+    "You like pizza, don't you?":              'iu laik PÍT-zê, DONT iu?',
+    "She can drive, can't she?":               'chi kén DRAIV, KÉANT chi?',
+    "They didn't call, did they?":             'dei DID-ent kol, did DEI?',
+    "You're from Brazil, aren't you?":         'ior from brê-ZIL, AR-ent iu?',
+    "He won't come, will he?":                 'ri UONT kam, uil RI?',
+    // --- negativa: ser e estar ---
+    "I'm not ready yet.":                      'aim not RÉ-di iét',
+    "She isn't at home.":                      'chi IZ-ent ét roum',
+    "They aren't from here.":                  'dei AR-ent from rir',
+    "It isn't raining.":                       'it IZ-ent REIN-ing',
+    "We aren't hungry.":                       'ui AR-ent RANG-gri',
+    "He's not my boss.":                       'riz not mai BOS',
+    "That's not what I meant.":                'déts not uot ai MENT',
+    // --- negativa: ações no presente ---
+    "I don't eat meat.":                       'ai DONT it MIT',
+    "She doesn't like loud music.":            'chi DAZ-ent laik laud MIÚ-zik',
+    "They don't have a car.":                  'dei DONT rév ê kar',
+    "He doesn't work on weekends.":            'ri DAZ-ent uork on UIK-endz',
+    "We don't need help.":                     'ui DONT nid RÉLP',
+    "It doesn't make sense.":                  'it DAZ-ent meik SENS',
+    "You don't have to go.":                   'iu DONT rév tu GOU',
+    // --- negativa: passado ---
+    "I didn't sleep well.":                    'ai DID-ent slip UÉL',
+    "He didn't call me back.":                 'ri DID-ent kol mi BÉK',
+    "We didn't go to the party.":              'ui DID-ent gou tu dê PAR-ti',
+    "She didn't finish the report.":           'chi DID-ent FÍ-nitch dê ri-PORT',
+    "They didn't know about it.":              'dei DID-ent nou ê-BAUT it',
+    "I didn't mean to hurt you.":              'ai DID-ent min tu RERT iu',
+    "It didn't work out.":                     'it DID-ent uork AUT',
+    // --- negativa: never / nobody / nothing ---
+    'I never drink soda.':                     'ai NÉ-ver drink SÓU-dê',
+    'Nobody called while you were out.':       'NOU-bo-di kold uail iu uor AUT',
+    "There's nothing in the fridge.":          'ders NA-ting in dê FRIDJ',
+    'I have nothing to say.':                  'ai rév NA-ting tu SEI',
+    'She never complains.':                    'chi NÉ-ver kom-PLEINZ',
+    'No one knew the answer.':                 'nou UAN niu di ÉN-ser',
+    // --- passado: regular ---
+    'I walked to work yesterday.':             'ai UOKT tu uork IÉS-ter-dei',
+    'She cooked dinner last night.':           'chi KUKT DÍ-ner lest NAIT',
+    'They played football on Saturday.':       'dei pleid FUT-bol on SÉ-ter-dei',
+    'He called me this morning.':              'ri kold mi dis MOR-ning',
+    'We watched a movie together.':            'ui UOTCHT ê MÚ-vi tê-GÉ-der',
+    'She studied all night.':                  'chi STÁ-did ol NAIT',
+    'It stopped raining around noon.':         'it STOPT REIN-ing ê-RAUND nun',
+    // --- passado: irregulares ---
+    'I went to the mall. (go → went)':         'ai UENT tu dê MOL',
+    'She bought a new phone. (buy → bought)':  'chi BOT ê niu FOUN',
+    'He saw her at the gym. (see → saw)':      'ri SO rer ét dê DJIM',
+    'We ate pizza for lunch. (eat → ate)':     'ui EIT PÍT-zê for LANTCH',
+    'They came home late. (come → came)':      'dei KEIM roum LEIT',
+    'I told you! (tell → told)':               'ai TOULD iu!',
+    // --- passado: estava acontecendo ---
+    'I was sleeping when the alarm went off.':            'ai uoz SLÍ-ping uén di ê-LARM uent OF',
+    'She was cooking when he arrived.':                   'chi uoz KÚK-ing uén ri ê-RAIVD',
+    'They were playing outside when it started to rain.': 'dei uor PLEI-ing aut-SAID uén it STAR-tid tu rein',
+    'I was watching TV at 9pm.':                          'ai uoz UOTCH-ing ti-VI ét nain pi-EM',
+    'What were you doing when I called?':                 'uot uor iu DÚ-ing uén ai KOLD?',
+    'We were having dinner when the power went out.':     'ui uor RÉV-ing DÍ-ner uén dê PAU-er uent AUT',
+    // --- futuro: will ---
+    "I'll call you later. (decidi agora)":     'ail KOL iu LEI-ter',
+    "Don't worry, I'll help you.":             'dont UÓ-ri, ail RÉLP iu',
+    'I think it will be cold tomorrow.':       'ai tink it uil bi KOULD tê-MÓ-rou',
+    "She won't like this idea.":               'chi UONT laik dis ai-DÍ-ê',
+    'Will you marry me?':                      'uil iu MÉ-ri mi?',
+    "I'll have the chicken, please.":          'ail rév dê TCHÍ-ken, PLIZ',
+    "He'll probably be late again.":           'ril PRÓ-ba-bli bi leit ê-GUEN',
+    // --- futuro: going to ---
+    "I'm going to study tonight.":                    'aim GÓU-ing tu STÁ-di tê-NAIT',
+    "She's going to start a new job next month.":     'chiz GÓU-ing tu start ê niu djob nékst MANTCH',
+    "We're going to move to a bigger apartment.":     'uir GÓU-ing tu muv tu ê BÍ-ger ê-PART-ment',
+    "Look at those clouds — it's going to rain!":     'luk ét douz klaudz, its GÓU-ing tu REIN!',
+    'Are you going to tell him the truth?':            'ar iu GÓU-ing tu tél rim dê TRUTS?',
+    "He's not going to like this.":                   'riz not GÓU-ing tu LAIK dis',
+    "They're going to get married in December.":      'der GÓU-ing tu guét MÉ-rid in di-SEM-ber',
+    // --- futuro: compromissos marcados ---
+    "I'm flying to New York next Tuesday.":           'aim FLAI-ing tu niu IORK nékst TIUZ-dei',
+    "She's having lunch with her boss tomorrow.":     'chiz RÉV-ing LANTCH uit rer bos tê-MÓ-rou',
+    "We're starting the new project on Monday.":      'uir STAR-ting dê niu PRÓ-djekt on MAN-dei',
+    'Are you doing anything tonight?':                'ar iu DÚ-ing ÉNI-ting tê-NAIT?',
+    "They're getting married in June.":               'der GÉT-ing MÉ-rid in DJUN',
+    // --- gerúndio: o que é -ing ---
+    'Swimming is great exercise.':             'SUÍM-ing iz greit ÉK-ser-saiz',
+    'I love cooking for friends.':             'ai lav KÚK-ing for frendz',
+    'Smoking is not allowed here.':            'SMÓK-ing iz not ê-LAUD rir',
+    'She is good at singing.':                 'chi iz gud ét SÍN-ging',
+    "He's thinking about moving abroad.":      'riz TÍN-king ê-BAUT MÚV-ing ê-BROOD',
+    'Before leaving, check your bag.':         'bi-FOR LÍV-ing, tchék ior BÉG',
+    // --- gerúndio: verbos que pedem -ing ---
+    'I enjoy running in the morning.':         'ai en-DJÓI RAN-ing in dê MOR-ning',
+    'He finished reading the book.':           'ri FÍ-nitcht RÍD-ing dê buk',
+    'Avoid eating too much sugar.':            'ê-VOID ÍT-ing tu mátch CHÚ-ger',
+    "She keeps talking about her trip.":       'chi kips TOK-ing ê-BAUT rer trip',
+    'Do you mind waiting a moment?':           'du iu MAIND UEIT-ing ê MÓU-ment?',
+    'I miss living in Rio.':                   'ai mis LÍV-ing in RÍ-ou',
+    "I can't stand waiting in line.":          'ai kéant stend UEIT-ing in LAIN',
+    // --- gerúndio: verbos que pedem to ---
+    'I want to learn English.':                'ai UONT tu lern ÍNG-glitch',
+    'She decided to quit her job.':            'chi di-SAI-did tu KUÍT rer djob',
+    'He promised to call back.':               'ri PRÓ-mist tu kol BÉK',
+    'They refused to sign the contract.':      'dei ri-FIUZD tu sain dê KON-trékt',
+    "I can't afford to travel right now.":     'ai kéant ê-FORD tu TRÉ-vel rait NAU',
+    'Remember to lock the door.':              'ri-MÉM-ber tu lok dê DOR',
+    'She managed to finish on time.':          'chi MÉ-nedjd tu FÍ-nitch on TAIM',
+    // --- gerúndio: mudança de significado ---
+    'She stopped smoking. (parou de fumar)':                        'chi STOPT SMÓK-ing',
+    'She stopped to smoke. (parou para acender um cigarro)':        'chi stopt tu SMOUK',
+    'I remember locking the door. (lembro que fiz isso)':           'ai ri-MÉM-ber LÓK-ing dê dor',
+    'Remember to lock the door. (não esqueça de fazer)':            'ri-MÉM-ber tu LOK dê DOR',
+    'Try adding salt — maybe it improves. (experimente)':           'trai ÉD-ing solt, MÉI-bi it im-PRUVZ',
+    'I tried to open it, but it was stuck. (tentei com esforço)':   'ai traid tu ÓU-pen it, bat it uoz STAK',
+    // --- preposições: lugar ---
+    "I live in Brazil. / She's in the kitchen.":     'ai liv in brê-ZIL / chiz in dê KÍ-tchin',
+    'The cup is on the table.':                      'dê kap iz on dê TEI-bel',
+    "There's a fly on the wall.":                    'ders ê flai on dê UOL',
+    "I'm at the airport.":                           'aim ét di ÉR-port',
+    "She's at work / at school / at the doctor's.":  'chiz ét UORK / ét SKUL / ét dê DOK-terz',
+    "He's on the bus / on the train / on the plane.":'riz on dê BAS / on dê TREIN / on dê PLEIN',
+    'Meet me at the corner of the street.':          'mit mi ét dê KOR-ner ov dê STRIT',
+    // --- preposições: tempo ---
+    'I was born in 1995.':                           'ai uoz born in nain-TIN-nain-ti-FAIV',
+    'The meeting is on Friday.':                     'dê MÍT-ing iz on FRAI-dei',
+    'She called at 7pm.':                            'chi kold ét SÉ-ven pi-EM',
+    'We always go out on weekends.':                 'ui OL-ueiz gou aut on UIK-endz',
+    "It's cold in winter here.":                     'its kold in UÍN-ter rir',
+    'I study in the morning and work in the afternoon.': 'ai STÁ-di in dê MOR-ning énd uork in di éf-ter-NUN',
+    'See you at noon! / at midnight!':               'si iu ét NUN! / ét MID-nait!',
+    // --- preposições: movimento ---
+    "I'm going to the gym.":                         'aim GÓU-ing tu dê DJIM',
+    "She's from São Paulo.":                         'chiz from SAUM PÁU-lou',
+    'He walked into the office.':                    'ri uokt ÍN-tu di Ó-fis',
+    'The cat jumped out of the box.':                'dê két DJAMPT aut ov dê BOKS',
+    'She commutes from Campinas to São Paulo.':      'chi kê-MIUTS from KAM-pi-naz tu saum PÁU-lou',
+    'Come to me.':                                   'kam tu MI',
+    // --- verbos: to be ---
+    "I'm 28 years old.":                             'aim TUÉN-ti-eit iers OLD',
+    "She's a nurse.":                                'chiz ê NERS',
+    'Are you tired? — Yes, I am.':                   'ar iu TAIRD? iés, ai EM',
+    "It's 3pm.":                                     'its TRI pi-EM',
+    'We were at home last night.':                   'ui uor ét roum lest NAIT',
+    "He's not feeling well.":                        'riz not FÍL-ing UÉL',
+    'They were surprised by the news.':              'dei uor ser-PRAIZD bai dê NIUZ',
+    // --- verbos: can / must / should ---
+    'I can speak three languages.':                  'ai kén SPIK tri LÉNG-uê-djiz',
+    'Can I open the window?':                        'kén ai ÓU-pen dê UÍN-dou?',
+    'You must show your ID here.':                   'iu mast TCHOU ior ai-DI rir',
+    'You should drink more water.':                  'iu TCHUD drink mor UÓ-ter',
+    'She might be late.':                            'chi MAIT bi LEIT',
+    'Could you repeat that, please?':                'kud iu ri-PIT DÉT, pliz?',
+    "You don't have to come if you don't want to.":  'iu dont rév tu KAM if iu dont UONT tu',
+    // --- verbos: phrasal verbs ---
+    "Wake up! It's 8am! (acordar)":                        'UEIK AP! its eit ei-EM!',
+    'I give up — this puzzle is impossible. (desistir)':    'ai GUIV AP, dis PÁ-zel iz im-PÓ-si-bel',
+    'Can you look after my dog this weekend? (cuidar)':     'kén iu LUK ÉF-ter mai dog dis UIK-end?',
+    "I'm looking for my keys. (procurar)":                  'aim LUK-ing for mai KIZ',
+    'Look it up on Google. (pesquisar)':                    'luk it AP on GÚ-gel',
+    'Turn off the lights before you leave. (desligar)':     'tern OF dê LAITS bi-FOR iu LIV',
+    'She turned down the job offer. (recusar)':             'chi ternd DAUN dê djob Ó-fer',
+    'He showed up two hours late. (aparecer)':              'ri TCHOUD AP tu AUERS leit',
+    "Let's figure this out together. (resolver/descobrir)": 'lets FÍ-guer dis AUT tê-GÉ-der',
+  };
+
   // ========== PEDAGOGICAL DATA STRUCTURES ==========
   // 5-layer system: Anchor → Table → Glossary → Exercises → Test
 
@@ -1469,8 +1680,9 @@
       const sectionEditorial = editorial.sections?.[index] || {};
       const example = Array.isArray(section.examples) && section.examples.length > 0 ? section.examples[0] : null;
       const coachHint = getContentCoachHint(slug, section);
+      const _ep = typeof example === 'object' ? (EXAMPLE_PRON[example.en] || '') : '';
       const exampleHtml = example
-        ? `<div class="lp-peda-example"><strong>${escapePedagogicalHtml(typeof example === 'string' ? example : example.en)}</strong>${typeof example === 'object' && example.pt ? `<span>${escapePedagogicalHtml(example.pt)}</span>` : ''}</div>`
+        ? `<div class="lp-peda-example"><strong>${escapePedagogicalHtml(typeof example === 'string' ? example : example.en)}</strong>${_ep ? `<span class="lp-ex-pron">/ ${escapePedagogicalHtml(_ep)} /</span>` : ''}${typeof example === 'object' && example.pt ? `<span>${escapePedagogicalHtml(example.pt)}</span>` : ''}</div>`
         : '';
 
       return `
@@ -2808,7 +3020,8 @@
                     if (typeof ex === 'string') {
                       return `<li class="lp-mex-item"><span class="lp-ex-en">${ex}</span></li>`;
                     }
-                    return `<li class="lp-mex-item"><span class="lp-ex-en">${ex.en}</span>${ex.pt ? `<span class="lp-ex-pt">${ex.pt}</span>` : ''}</li>`;
+                    const _p = EXAMPLE_PRON[ex.en] || '';
+                    return `<li class="lp-mex-item"><span class="lp-ex-en">${ex.en}</span>${_p ? `<span class="lp-ex-pron">/ ${_p} /</span>` : ''}${ex.pt ? `<span class="lp-ex-pt">${ex.pt}</span>` : ''}</li>`;
                   }).join('')}
                 </ul>
               </div>`;
