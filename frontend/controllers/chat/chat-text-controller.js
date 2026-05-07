@@ -1564,8 +1564,12 @@ function switchTab(tabName) {
     // Show correct tab content
     const tabContent = document.getElementById(actualTabId);
     if (!tabContent) { console.error('[switchTab] Conteúdo de aba não encontrado:', actualTabId); return; }
-    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => {
+        c.classList.remove("active");
+        c.style.display = "none";
+    });
     tabContent.classList.add("active");
+    tabContent.style.display = "flex";
 
     if (tabName === 'lessons' && typeof showLessonsView === 'function') {
         showLessonsView().catch(err => console.error('[switchTab] Erro ao abrir aulas:', err));
