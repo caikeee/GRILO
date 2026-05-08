@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from backend.auth import (
     create_access_token,
     create_refresh_token,
+    get_current_user_id,
     hash_password,
     hash_refresh_token,
     verify_password,
