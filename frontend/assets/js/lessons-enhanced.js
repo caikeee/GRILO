@@ -2750,6 +2750,26 @@
       banner.addEventListener('mouseenter', revealLessonsStage, { once: true });
     }
 
+    // Botão "🎙 Treinar 5 frases" — abre o phrase voice trainer da aula atual
+    const phraseVoiceBtn = document.getElementById('lessonPhraseVoiceBtn');
+    if (phraseVoiceBtn && !phraseVoiceBtn.dataset.bound) {
+      phraseVoiceBtn.dataset.bound = '1';
+      phraseVoiceBtn.addEventListener('click', () => {
+        const slug = window._currentLessonSlug;
+        const title = window._currentLessonTitle || 'Aula';
+        const backendId = STANDALONE_BACKEND_IDS[slug];
+        if (!backendId) {
+          alert('Esta aula ainda não tem banco de frases.');
+          return;
+        }
+        if (typeof window.openPhraseVoiceTrainer !== 'function') {
+          alert('Trainer de voz não carregou. Recarregue a página.');
+          return;
+        }
+        window.openPhraseVoiceTrainer(backendId, title);
+      });
+    }
+
     if (closeBtn) {
       closeBtn.addEventListener('click', closeLessonModal);
     }
@@ -2878,6 +2898,10 @@
   function showLessonContent(slug, triggerEl) {
     const lesson = lessons[slug];
     if (!lesson) return;
+
+    // Rastreia a aula aberta para o botão "Treinar 5 frases"
+    window._currentLessonSlug = slug;
+    window._currentLessonTitle = lesson.title;
 
     revealLessonsStage();
 

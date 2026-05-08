@@ -71,6 +71,9 @@
           <span class="lp-modal-crumb-lesson" id="lessonModalCrumbLesson">Aula</span>
         </div>
         <div class="lp-modal-actions">
+          <button id="lessonPhraseVoiceBtn" class="lp-modal-phrase-voice-btn" type="button" aria-label="Treinar 5 frases por voz">
+            🎙 Treinar 5 frases
+          </button>
           <button id="lessonAsideToggle" class="lp-modal-aside-toggle" type="button" aria-controls="lessonModalAside" aria-expanded="true">
             Ocultar painel
           </button>
@@ -79,6 +82,22 @@
           </button>
         </div>
       </div>
+      <style>
+        .lp-modal-phrase-voice-btn {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 8px 16px;
+          background: linear-gradient(135deg, #c44a2c 0%, #e88a3c 100%);
+          color: #fff; border: 0; border-radius: 8px;
+          font-weight: 700; font-size: 0.85rem; cursor: pointer;
+          box-shadow: 0 4px 12px rgba(196, 74, 44, 0.28);
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+          font-family: inherit;
+        }
+        .lp-modal-phrase-voice-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 7px 18px rgba(196, 74, 44, 0.4);
+        }
+      </style>
       <div class="lp-modal-body">
         <aside id="lessonModalAside" class="lp-modal-aside"></aside>
         <div id="lessonModalMain" class="lp-modal-main"></div>
