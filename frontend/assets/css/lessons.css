@@ -10,10 +10,10 @@
   --lp-surface-strong: rgba(255,255,255,0.96);
   --lp-border: rgba(122,158,132,0.13);
   --lp-border-strong: rgba(122,158,132,0.22);
-  --lp-text: #172a20;
-  --lp-text-2: #3d5447;
-  --lp-muted: #6a7f72;
-  --lp-muted-2: #93a89b;
+  --lp-text: #172a20;        /* primary — headings, questions */
+  --lp-text-2: #334a3d;      /* secondary — body prose, descriptions */
+  --lp-muted: #5e7268;       /* supporting — captions, meta, progress */
+  --lp-muted-2: #93a89b;     /* disabled / placeholder */
 
   /* Brand */
   --lp-green: #4a7c5e;
@@ -62,6 +62,30 @@
   --lp-dur-smooth: 440ms;
   --lp-dur-slow: 640ms;
 }
+
+/* ============================================================
+   TYPE SCALE — 5 levels
+   --lp-ts-xs:  0.68rem  → kickers, labels, micro-text
+   --lp-ts-sm:  0.84rem  → captions, secondary meta
+   --lp-ts-md:  0.9rem   → body copy, option buttons
+   --lp-ts-base:1.0rem   → strong body, nav items
+   --lp-ts-lg:  1.15rem  → section titles, card titles
+   --lp-ts-xl:  1.4rem   → aside title, phase title
+   --lp-ts-2xl: 1.6rem   → overview hero title
+
+   WEIGHT ROLES
+   800 → display headings + kickers (authority mark)
+   700 → card/section titles + interactive labels
+   600 → body with emphasis, nav items
+   500 → passive options, prose reading
+   400 → long-form explanation body
+
+   COLOR ROLES
+   --lp-text    → primary headings (darkest, high contrast)
+   --lp-text-2  → secondary body, item labels
+   --lp-muted   → supporting copy, captions, meta
+   --lp-green   → kickers, accent labels only (never body)
+   ============================================================ */
 
 /* ============================================================
    RESET & BASE
@@ -134,8 +158,9 @@ body.app-lessons::before {
   gap: 7px;
   padding: 8px 14px 8px 10px;
   border-radius: var(--lp-r-pill);
-  color: var(--lp-muted);
-  text-decoration: none;
+  color: var(--lp-muted) !important;
+  text-decoration: none !important;
+  background-image: none !important;
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -152,7 +177,7 @@ body.app-lessons::before {
 }
 
 .lessons-back:hover {
-  color: var(--lp-green);
+  color: var(--lp-green) !important;
   background: rgba(255,255,255,0.92);
   border-color: var(--lp-border-strong);
   transform: translateX(-2px);
@@ -263,7 +288,7 @@ body.app-lessons::before {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -283,10 +308,10 @@ body.app-lessons::before {
 .lp-banner-title {
   margin: 0;
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: clamp(2rem, 3.4vw, 3.4rem);
+  font-size: clamp(2rem, 3.4vw, 3.2rem);
   font-weight: 800;
-  line-height: 0.94;
-  letter-spacing: -0.06em;
+  line-height: 0.96;
+  letter-spacing: -0.055em;
   color: var(--lp-text);
   text-wrap: balance;
   max-width: 18ch;
@@ -302,11 +327,11 @@ body.app-lessons::before {
 }
 
 .lp-banner-sub {
-  margin: 12px 0 0;
-  max-width: 50ch;
-  font-size: 0.94rem;
-  line-height: 1.7;
-  color: var(--lp-muted);
+  margin: 14px 0 0;
+  max-width: 52ch;
+  font-size: 0.92rem;
+  line-height: 1.72;
+  color: var(--lp-text-2);
   font-weight: 400;
 }
 
@@ -322,14 +347,15 @@ body.app-lessons::before {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 36px;
+  height: 34px;
   padding: 0 14px;
   border-radius: var(--lp-r-pill);
   background: rgba(255,255,255,0.72);
   border: 1px solid rgba(122,158,132,0.14);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--lp-text-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--lp-text);
+  letter-spacing: -0.01em;
   box-shadow: var(--lp-shadow-xs);
 }
 
@@ -371,18 +397,18 @@ body.app-lessons::before {
 .lp-banner-panel-title {
   margin: 6px 0 0;
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+  font-size: clamp(1.0rem, 1.4vw, 1.22rem);
   font-weight: 700;
-  line-height: 1.14;
+  line-height: 1.2;
   letter-spacing: -0.03em;
   color: var(--lp-text);
 }
 
 .lp-banner-panel-sub {
   margin: 10px 0 0;
-  font-size: 0.86rem;
-  line-height: 1.62;
-  color: var(--lp-muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--lp-text-2);
 }
 
 /* Hero progress */
@@ -745,20 +771,20 @@ body.app-lessons::before {
   gap: 10px;
 }
 
-.lp-card-title {
+.lp-card-title { /* heading level 3 role — Manrope display */
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
   color: var(--lp-text);
   text-wrap: balance;
 }
 
 .lp-card-desc {
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: var(--lp-muted);
+  font-size: 0.86rem;
+  line-height: 1.62;
+  color: var(--lp-text-2);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -778,10 +804,10 @@ body.app-lessons::before {
     rgba(74,124,94,0.06) 0%,
     rgba(122,174,138,0.09) 100%);
   border: 1px solid rgba(74,124,94,0.1);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.84rem;
+  font-weight: 500;
   color: var(--lp-text-2);
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .lp-card-tag-quote {
@@ -814,12 +840,12 @@ body.app-lessons::before {
 .lp-card-status {
   display: inline-flex;
   align-items: center;
-  height: 28px;
+  height: 26px;
   padding: 0 10px;
   border-radius: var(--lp-r-pill);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
 }
 
 .lp-card-chip {
@@ -1057,8 +1083,8 @@ body.app-lessons::before {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--lp-muted);
   letter-spacing: -0.01em;
   min-width: 0;
@@ -1070,7 +1096,8 @@ body.app-lessons::before {
 }
 
 .lp-modal-crumb-lesson {
-  color: var(--lp-text-2);
+  color: var(--lp-text);
+  font-weight: 700;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1093,7 +1120,7 @@ body.app-lessons::before {
   border-radius: var(--lp-r-pill);
   font-size: 0.82rem;
   font-weight: 700;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   font-family: inherit;
   transition: all var(--lp-dur-base) var(--lp-ease);
@@ -1101,28 +1128,31 @@ body.app-lessons::before {
 }
 
 .lp-modal-aside-toggle {
-  background: rgba(74,124,94,0.1);
-  color: var(--lp-green-mid);
+  background: rgba(74,124,94,0.12) !important;
+  color: var(--lp-green-mid) !important;
+  border-color: rgba(74,124,94,0.18) !important;
 }
 
 .lp-modal-aside-toggle:hover {
-  background: rgba(74,124,94,0.16);
-  color: var(--lp-green-dark);
+  background: rgba(74,124,94,0.2) !important;
+  color: var(--lp-green-dark) !important;
 }
 
 .lp-modal-aside-toggle.is-collapsed {
-  background: rgba(74,124,94,0.08);
-  color: var(--lp-green);
+  background: rgba(74,124,94,0.08) !important;
+  color: var(--lp-green) !important;
 }
 
 .lp-modal-close {
-  background: rgba(122,158,132,0.08);
-  color: var(--lp-text-2);
+  background: rgba(15,30,20,0.06) !important;
+  color: var(--lp-text-2) !important;
+  border-color: rgba(15,30,20,0.08) !important;
 }
 
 .lp-modal-close:hover {
-  background: rgba(224,72,72,0.1);
-  color: var(--lp-danger);
+  background: rgba(224,72,72,0.1) !important;
+  color: var(--lp-danger) !important;
+  border-color: rgba(224,72,72,0.2) !important;
 }
 
 /* Body split */
@@ -1220,9 +1250,9 @@ body.app-lessons::before {
 
 .lp-aside-title {
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: 1.45rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  line-height: 1.06;
+  line-height: 1.1;
   letter-spacing: -0.04em;
   color: var(--lp-text);
   margin: 0 0 8px;
@@ -1230,8 +1260,8 @@ body.app-lessons::before {
 
 .lp-aside-obj {
   font-size: 0.88rem;
-  line-height: 1.62;
-  color: var(--lp-muted);
+  line-height: 1.66;
+  color: var(--lp-text-2);
 }
 
 .lp-aside-sep {
@@ -1266,16 +1296,18 @@ body.app-lessons::before {
   gap: 10px;
   padding: 9px 12px;
   border-radius: var(--lp-r-md);
-  color: var(--lp-text-2);
-  text-decoration: none;
-  font-size: 0.86rem;
+  color: var(--lp-text-2) !important;
+  text-decoration: none !important;
+  background-image: none !important;
+  font-size: 0.84rem;
   font-weight: 600;
+  letter-spacing: -0.005em;
   transition: all var(--lp-dur-fast) var(--lp-ease);
 }
 
 .lp-aside-nav-item:hover {
   background: rgba(74,124,94,0.07);
-  color: var(--lp-green-dark);
+  color: var(--lp-green-dark) !important;
 }
 
 .lp-aside-nav-dot {
@@ -1301,9 +1333,9 @@ body.app-lessons::before {
   display: flex;
   align-items: flex-start;
   gap: 9px;
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: var(--lp-muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--lp-text-2);
 }
 
 .lp-aside-point::before {
@@ -1365,15 +1397,15 @@ body.app-lessons::before {
 }
 
 .lp-aside-chat-btn {
-  background: rgba(255,255,255,0.7);
-  color: var(--lp-text-2);
-  border: 1px solid rgba(122,158,132,0.18);
+  background: rgba(255,255,255,0.85) !important;
+  color: var(--lp-text-2) !important;
+  border: 1px solid rgba(122,158,132,0.22) !important;
 }
 
 .lp-aside-chat-btn:hover {
-  background: rgba(255,255,255,0.92);
-  border-color: rgba(74,124,94,0.28);
-  color: var(--lp-green-dark);
+  background: #fff !important;
+  border-color: rgba(74,124,94,0.32) !important;
+  color: var(--lp-green-dark) !important;
 }
 
 /* ============================================================
@@ -1423,9 +1455,10 @@ body.app-lessons::before {
 
 .lp-msec-title {
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.03em;
+  line-height: 1.2;
   color: var(--lp-text);
   margin: 0;
 }
@@ -1449,9 +1482,10 @@ body.app-lessons::before {
 
 .lp-msec-explanation {
   margin: 0;
-  font-size: 0.94rem;
-  line-height: 1.72;
-  color: var(--lp-muted);
+  font-size: 0.9rem;
+  line-height: 1.74;
+  color: var(--lp-text-2);
+  font-weight: 400;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
@@ -1499,16 +1533,17 @@ body.app-lessons::before {
   font-size: 0.78rem;
   font-style: italic;
   color: var(--lp-green);
-  opacity: 0.72;
+  opacity: 0.8;
   letter-spacing: 0.01em;
   margin-top: 2px;
 }
 
 .lp-ex-pt {
   display: block;
-  font-size: 0.88rem;
-  color: var(--lp-muted);
-  line-height: 1.5;
+  font-size: 0.86rem;
+  color: var(--lp-text-2);
+  line-height: 1.52;
+  font-weight: 400;
   margin-top: 1px;
 }
 
@@ -1530,9 +1565,9 @@ body.app-lessons::before {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--lp-text);
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   line-height: 1.5;
 }
 
@@ -1554,24 +1589,26 @@ body.app-lessons::before {
 
 .lp-exr-option {
   min-height: 50px;
-  padding: 12px 16px;
+  padding: 12px 18px;
   text-align: left;
   border-radius: var(--lp-r-md);
-  background: rgba(248,251,249,0.9);
-  border: 1.5px solid rgba(122,158,132,0.12);
-  color: var(--lp-text);
+  background: #fff !important;
+  border: 1.5px solid rgba(122,158,132,0.18) !important;
+  color: var(--lp-text) !important;
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   transition: all var(--lp-dur-base) var(--lp-ease);
-  line-height: 1.4;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
 }
 
 .lp-exr-option:hover,
 .lp-exr-option:focus-visible {
-  background: rgba(74,124,94,0.06);
-  border-color: rgba(74,124,94,0.2);
+  background: rgba(74,124,94,0.06) !important;
+  border-color: rgba(74,124,94,0.28) !important;
+  color: var(--lp-text) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(74,124,94,0.08);
 }
@@ -1582,15 +1619,15 @@ body.app-lessons::before {
 }
 
 .lp-exr-option.is-correct {
-  background: rgba(30,171,109,0.1);
-  border-color: rgba(30,171,109,0.3);
-  color: #0d6b47;
+  background: rgba(30,171,109,0.1) !important;
+  border-color: rgba(30,171,109,0.35) !important;
+  color: #0a5c3d !important;
 }
 
 .lp-exr-option.is-wrong {
-  background: rgba(224,72,72,0.08);
-  border-color: rgba(224,72,72,0.25);
-  color: #9b2323;
+  background: rgba(224,72,72,0.08) !important;
+  border-color: rgba(224,72,72,0.3) !important;
+  color: #8b1a1a !important;
 }
 
 .lp-exr-feedback {
@@ -1609,12 +1646,12 @@ body.app-lessons::before {
 
 .lp-exr-feedback-correct {
   font-weight: 700;
-  color: var(--lp-text-2);
-  font-size: 0.84rem;
+  color: var(--lp-text);
+  font-size: 0.86rem;
 }
 
-.lp-exr-feedback-text { color: var(--lp-muted); }
-.lp-exr-feedback-tip { color: var(--lp-muted); font-style: italic; }
+.lp-exr-feedback-text { color: var(--lp-text-2); font-size: 0.86rem; }
+.lp-exr-feedback-tip { color: var(--lp-muted); font-size: 0.84rem; font-style: italic; }
 
 /* ============================================================
    PEDAGOGICAL SECTIONS
@@ -1656,9 +1693,10 @@ body.app-lessons::before {
 }
 
 .lp-peda-overview-copy {
-  font-size: 0.94rem;
-  line-height: 1.7;
-  color: var(--lp-muted);
+  font-size: 0.9rem;
+  line-height: 1.74;
+  color: var(--lp-text-2);
+  font-weight: 400;
 }
 
 .lp-peda-journey {
@@ -1732,8 +1770,8 @@ body.app-lessons::before {
 
 .lp-peda-section-lead {
   margin: 0;
-  font-size: 0.88rem;
-  line-height: 1.58;
+  font-size: 0.9rem;
+  line-height: 1.6;
   font-weight: 600;
   color: var(--lp-text-2);
   display: -webkit-box;
@@ -1744,7 +1782,8 @@ body.app-lessons::before {
 
 .lp-peda-section-copy {
   font-size: 0.84rem;
-  line-height: 1.6;
+  line-height: 1.62;
+  font-weight: 400;
   color: var(--lp-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1793,9 +1832,10 @@ body.app-lessons::before {
 
 .lp-phase-copy {
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: var(--lp-muted);
+  font-size: 0.9rem;
+  line-height: 1.72;
+  color: var(--lp-text-2);
+  font-weight: 400;
   max-width: 68ch;
 }
 
@@ -1823,9 +1863,11 @@ body.app-lessons::before {
 }
 
 .lp-anchor-text {
-  font-size: 1.05rem;
-  line-height: 1.82;
+  font-size: 1.0rem;
+  line-height: 1.8;
   color: var(--lp-text);
+  font-weight: 400;
+  letter-spacing: -0.005em;
 }
 
 .lp-anchor-blank {
@@ -1863,33 +1905,34 @@ body.app-lessons::before {
 
 .lp-anchor-option {
   padding: 8px 16px;
-  border: 1.5px solid rgba(122,158,132,0.2);
-  background: rgba(255,255,255,0.8);
+  border: 1.5px solid rgba(122,158,132,0.22) !important;
+  background: #fff !important;
   border-radius: var(--lp-r-md);
   cursor: pointer;
   font-size: 0.88rem;
   font-weight: 600;
   font-family: inherit;
-  color: var(--lp-text);
+  color: var(--lp-text) !important;
   transition: all var(--lp-dur-base) var(--lp-ease);
 }
 
 .lp-anchor-option:hover:not(:disabled) {
-  border-color: var(--lp-green);
-  background: rgba(74,124,94,0.06);
+  border-color: var(--lp-green) !important;
+  background: rgba(74,124,94,0.06) !important;
+  color: var(--lp-green-dark) !important;
   transform: translateY(-1px);
 }
 
 .lp-anchor-option.is-correct {
-  background: rgba(30,171,109,0.1);
-  border-color: rgba(30,171,109,0.3);
-  color: #0d6b47;
+  background: rgba(30,171,109,0.1) !important;
+  border-color: rgba(30,171,109,0.35) !important;
+  color: #0a5c3d !important;
 }
 
 .lp-anchor-option.is-wrong {
-  background: rgba(224,72,72,0.08);
-  border-color: rgba(224,72,72,0.25);
-  color: #9b2323;
+  background: rgba(224,72,72,0.08) !important;
+  border-color: rgba(224,72,72,0.3) !important;
+  color: #8b1a1a !important;
 }
 
 .lp-anchor-continue {
@@ -1974,11 +2017,11 @@ body.app-lessons::before {
 
 .lp-interactive-table th {
   background: rgba(74,124,94,0.06);
-  padding: 12px 16px;
+  padding: 11px 16px;
   text-align: left;
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--lp-green-mid);
   border-bottom: 1px solid rgba(122,158,132,0.14);
@@ -1987,8 +2030,10 @@ body.app-lessons::before {
 .lp-interactive-table td {
   padding: 12px 16px;
   border-bottom: 1px solid rgba(122,158,132,0.07);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 400;
   color: var(--lp-text);
+  line-height: 1.5;
 }
 
 .lp-interactive-table tr:last-child td { border-bottom: none; }
@@ -2102,7 +2147,8 @@ body.app-lessons::before {
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.65;
-  color: var(--lp-muted);
+  color: var(--lp-text-2);
+  font-weight: 400;
 }
 
 .lp-exercise-options {
@@ -2114,34 +2160,35 @@ body.app-lessons::before {
 
 .lp-exercise-option {
   padding: 12px 16px;
-  border: 1.5px solid rgba(122,158,132,0.14);
-  background: rgba(248,251,249,0.9);
+  border: 1.5px solid rgba(122,158,132,0.18) !important;
+  background: #fff !important;
   border-radius: var(--lp-r-md);
   cursor: pointer;
   font-size: 0.88rem;
   font-weight: 600;
   font-family: inherit;
-  color: var(--lp-text);
+  color: var(--lp-text) !important;
   text-align: left;
   transition: all var(--lp-dur-base) var(--lp-ease);
 }
 
 .lp-exercise-option:hover:not(:disabled) {
-  border-color: rgba(74,124,94,0.24);
-  background: rgba(74,124,94,0.06);
+  border-color: rgba(74,124,94,0.28) !important;
+  background: rgba(74,124,94,0.06) !important;
+  color: var(--lp-text) !important;
   transform: translateY(-1px);
 }
 
 .lp-exercise-option.is-correct {
-  background: rgba(30,171,109,0.1);
-  border-color: rgba(30,171,109,0.3);
-  color: #0d6b47;
+  background: rgba(30,171,109,0.1) !important;
+  border-color: rgba(30,171,109,0.35) !important;
+  color: #0a5c3d !important;
 }
 
 .lp-exercise-option.is-wrong {
-  background: rgba(224,72,72,0.08);
-  border-color: rgba(224,72,72,0.25);
-  color: #9b2323;
+  background: rgba(224,72,72,0.08) !important;
+  border-color: rgba(224,72,72,0.3) !important;
+  color: #8b1a1a !important;
 }
 
 .lp-exercise-hints {
@@ -2209,9 +2256,10 @@ body.app-lessons::before {
 
 .lp-test-header {
   font-family: 'Manrope', 'Space Grotesk', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: 1.15rem;
+  font-weight: 700;
   letter-spacing: -0.03em;
+  line-height: 1.2;
   color: var(--lp-text);
   margin-bottom: 4px;
 }
@@ -2236,43 +2284,47 @@ body.app-lessons::before {
 .lp-test-option {
   display: block;
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 18px;
   margin-bottom: 8px;
-  border: 1.5px solid rgba(122,158,132,0.14);
-  background: rgba(248,251,249,0.9);
+  border: 1.5px solid rgba(122,158,132,0.18) !important;
+  background: #fff !important;
   border-radius: var(--lp-r-md);
   cursor: pointer;
   text-align: left;
   font-size: 0.9rem;
   font-weight: 500;
   font-family: inherit;
-  color: var(--lp-text);
+  color: var(--lp-text) !important;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
   transition: all var(--lp-dur-base) var(--lp-ease);
 }
 
 .lp-test-option:last-child { margin-bottom: 0; }
 
 .lp-test-option:hover:not(:disabled) {
-  border-color: rgba(74,124,94,0.24);
-  background: rgba(74,124,94,0.06);
+  border-color: rgba(74,124,94,0.28) !important;
+  background: rgba(74,124,94,0.06) !important;
+  color: var(--lp-text) !important;
   transform: translateX(2px);
 }
 
 .lp-test-option.is-correct {
-  background: rgba(30,171,109,0.1);
-  border-color: rgba(30,171,109,0.3);
-  color: #0d6b47;
+  background: rgba(30,171,109,0.1) !important;
+  border-color: rgba(30,171,109,0.35) !important;
+  color: #0a5c3d !important;
 }
 
 .lp-test-option.is-wrong {
-  background: rgba(224,72,72,0.08);
-  border-color: rgba(224,72,72,0.25);
-  color: #9b2323;
+  background: rgba(224,72,72,0.08) !important;
+  border-color: rgba(224,72,72,0.3) !important;
+  color: #8b1a1a !important;
 }
 
 .lp-test-option.show-correct {
-  background: rgba(30,171,109,0.08);
-  border-color: rgba(30,171,109,0.25);
+  background: rgba(30,171,109,0.08) !important;
+  border-color: rgba(30,171,109,0.28) !important;
+  color: #0a5c3d !important;
 }
 
 .lp-test-result {
@@ -2309,9 +2361,10 @@ body.app-lessons::before {
 
 .lp-result-box p {
   margin-bottom: 6px;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
+  font-weight: 400;
   color: var(--lp-text-2);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .lp-test-complete {
@@ -2529,7 +2582,7 @@ body.app-lessons::before {
 @media (max-width: 1100px) {
   .lp-banner {
     grid-template-columns: 1fr;
-    padding: 32px 36px;
+    padding: 36px 40px;
   }
 
   .lp-banner-panel {
@@ -2563,19 +2616,19 @@ body.app-lessons::before {
 
 @media (max-width: 720px) {
   .lessons-shell {
-    width: calc(100% - 32px);
-    padding-bottom: 56px;
+    width: calc(100% - 40px);
+    padding-bottom: 64px;
   }
 
   .lessons-topbar {
     grid-template-columns: 1fr auto;
-    padding: 14px 0 20px;
+    padding: 16px 0 20px;
   }
 
   .lessons-brand { display: none; }
 
   .lp-banner {
-    padding: 24px 22px;
+    padding: 28px 24px;
     border-radius: var(--lp-r-xl);
   }
 
@@ -2615,11 +2668,11 @@ body.app-lessons::before {
   }
 
   .lp-modal-main {
-    padding: 24px 20px 56px;
+    padding: 28px 24px 64px;
   }
 
   .lp-modal-topbar {
-    padding: 14px 16px;
+    padding: 14px 20px;
     flex-wrap: wrap;
   }
 

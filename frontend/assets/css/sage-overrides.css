@@ -57,15 +57,16 @@
     --glow-primary: 0 0 60px rgba(122, 158, 132, 0.2) !important;
 }
 
-/* ========== BOTÕES - VERSÃO ESCURA (VOICE.HTML + LESSONS.HTML) ========== */
-button:not(.navbar-toggle),
-.btn,
-.button,
-[role="button"],
+/* ========== BOTÕES - apenas botões de ação com fundo colorido ========== */
 .voice-start-btn,
 .btn-primary,
-.btn-secondary,
-.lp-card-action {
+.btn-cta,
+.btn-action,
+.lp-card-action,
+.lp-aside-complete-btn,
+.lp-anchor-continue,
+.lp-exercises-continue,
+.lp-test-complete {
     color: white !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
