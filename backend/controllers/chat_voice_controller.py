@@ -9,12 +9,8 @@ from collections import defaultdict
 from typing import List, Dict, Optional, Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-
-_limiter = Limiter(key_func=get_remote_address)
 from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
@@ -302,9 +298,7 @@ class _TTSRequest(BaseModel):
 
 
 @router.post("/api/voice-chat")
-@_limiter.limit("20/minute")
 async def voice_chat(
-    request: Request,
     body: ChatRequest,
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
@@ -544,9 +538,7 @@ async def get_shadow_analytics(
 
 
 @router.post("/api/voice/transcribe")
-@_limiter.limit("30/minute")
 async def voice_transcribe(
-    request: Request,
     body: _TranscribeRequest,
     user_id: int = Depends(get_current_user_id),
 ):
@@ -608,9 +600,7 @@ async def voice_transcribe(
 
 
 @router.post("/api/tts")
-@_limiter.limit("30/minute")
 async def text_to_speech(
-    request: Request,
     body: _TTSRequest,
     user_id: int = Depends(get_current_user_id),
 ):

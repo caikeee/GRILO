@@ -129,6 +129,9 @@ class ShadowModeData(BaseModel):
         return v
 
 
+ChatRequest.model_rebuild()
+
+
 class ChatResponse(BaseModel):
     response: str  # Response in opposite language
     translation: Optional[str] = None  # Translation (only when different from response)
