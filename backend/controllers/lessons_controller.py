@@ -310,6 +310,9 @@ async def save_lesson_progress(
             existing.total_questions = body.total_questions
             existing.attempts += 1
             existing.updated_at = datetime.utcnow()
+            # Se ainda não tinha learned_at, marca agora (1ª vez que conclui)
+            if not existing.learned_at:
+                existing.learned_at = datetime.utcnow()
         else:
             db.add(
                 LessonProgress(
@@ -317,6 +320,7 @@ async def save_lesson_progress(
                     lesson_id=lesson_id,
                     correct_answers=body.correct_answers,
                     total_questions=body.total_questions,
+                    learned_at=datetime.utcnow(),
                 )
             )
 

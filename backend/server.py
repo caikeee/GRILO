@@ -2,6 +2,13 @@ import logging
 import os
 from datetime import datetime
 
+# Carrega .env ANTES de qualquer import que dependa de env vars (ex.: auth.SECRET_KEY)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -16,6 +23,7 @@ from backend.controllers.auth_controller import router as auth_router
 from backend.controllers.chat_text_controller import router as chat_text_router
 from backend.controllers.chat_voice_controller import router as chat_voice_router
 from backend.controllers.lessons_controller import router as lessons_router
+from backend.controllers.phrases_controller import router as phrases_router
 from backend.controllers.analytics_controller import router as analytics_router
 from backend.admin_controller import router as admin_router
 
@@ -153,11 +161,57 @@ def _run_migrations():
                     engine,
                 )
 
+        # Aprendida x Dominada — novas colunas em lesson_progress
+        if "lesson_progress" in insp.get_table_names():
+            cols_lp = [c["name"] for c in insp.get_columns("lesson_progress")]
+            if "learned_at" not in cols_lp:
+                _run_migration_step(
+                    "added learned_at to lesson_progress",
+                    "ALTER TABLE lesson_progress ADD COLUMN learned_at TIMESTAMP",
+                    engine,
+                )
+            if "dominated_phrases_count" not in cols_lp:
+                _run_migration_step(
+                    "added dominated_phrases_count to lesson_progress",
+                    "ALTER TABLE lesson_progress ADD COLUMN dominated_phrases_count INTEGER DEFAULT 0",
+                    engine,
+                )
+            if "dominated_at" not in cols_lp:
+                _run_migration_step(
+                    "added dominated_at to lesson_progress",
+                    "ALTER TABLE lesson_progress ADD COLUMN dominated_at TIMESTAMP",
+                    engine,
+                )
+
     except Exception as exc:
         logger.warning("Migration check failed (non-fatal): %s", exc)
 
 
 _run_migrations()
+
+
+def _seed_phrase_bank_if_needed():
+    """Popula LessonPhraseBank com 5 frases iniciais por aula (idempotente)."""
+    try:
+        from backend.database import SessionLocal
+        from backend.phrase_bank_seed import seed_phrase_bank
+        db = SessionLocal()
+        try:
+            result = seed_phrase_bank(db)
+            if result["inserted_lessons"]:
+                logger.info(
+                    "Seed phrase bank: %s aulas, %s frases",
+                    len(result["inserted_lessons"]),
+                    result["total_phrases"],
+                )
+        finally:
+            db.close()
+    except Exception as exc:
+        logger.warning("Seed phrase bank skipped: %s", exc)
+
+
+_seed_phrase_bank_if_needed()
+
 
 app = FastAPI(
     title="GRILO API",
@@ -310,6 +364,7 @@ app.include_router(auth_router)
 app.include_router(chat_text_router)
 app.include_router(chat_voice_router)
 app.include_router(lessons_router)
+app.include_router(phrases_router)
 app.include_router(analytics_router)
 app.include_router(admin_router)
 

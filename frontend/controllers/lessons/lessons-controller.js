@@ -57,6 +57,16 @@ async function loadCategoriesV2() {
 
 async function loadLessonProgress() {
     try {
+        // Tenta endpoint enriquecido primeiro (com learned/dominated/contador de frases).
+        const ext = await fetch(`${API_BASE_URL}/api/lessons/progress-extended`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (ext.ok) {
+            const data = await ext.json();
+            lessonProgressMap = data.progress || {};
+            return;
+        }
+        // Fallback ao endpoint legado.
         const res = await fetch(`${API_BASE_URL}/api/lessons/progress`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
@@ -211,53 +221,69 @@ function _makeCardLessonV2(lesson) {
     const card = document.createElement('div');
     card.className = 'lesson-card-new';
     card.setAttribute('data-lesson-id', String(lesson.id));
-    
+
     const progress = lessonProgressMap[lesson.id];
+
+    // Estados: nova → aprendida (1ª conclusão) → dominada (100/100 frases)
+    const learned   = !!(progress && progress.learned);
+    const dominated = !!(progress && progress.dominated);
+    const dominatedCount = Number((progress && progress.dominated_phrases_count) || 0);
+    const totalPhrases   = Number((progress && progress.total_phrases_in_lesson) || 0);
+    // alvo de exibição: 100 quando há banco completo; total atual quando ainda em construção
+    const phraseTarget   = totalPhrases >= 100 ? 100 : Math.max(totalPhrases, 5);
+
     let status = 'new';
-    if (progress && progress.correct_answers === progress.total_questions) {
-        status = 'completed';
-    } else if (progress) {
-        status = 'progress';
-    }
-    
+    if (dominated) status = 'dominated';
+    else if (learned) status = 'learned';
+    else if (progress && progress.correct_answers >= progress.total_questions && progress.total_questions > 0) status = 'learned';
+    else if (progress) status = 'progress';
+
+    if (dominated) card.classList.add('is-dominated');
+    if (learned && !dominated) card.classList.add('is-learned');
+
     if (lessonsSearchTerm) {
         const searchMatch = lesson.title.toLowerCase().includes(lessonsSearchTerm) ||
                             (lesson.description && lesson.description.toLowerCase().includes(lessonsSearchTerm));
         if (!searchMatch) return null;
     }
-    
-    if (lessonsStatusFilter !== 'all' && lessonsStatusFilter !== status) {
-        return null;
+
+    // mantém compatibilidade com filtro antigo: 'completed' = aprendida/dominada
+    const filterMap = { 'completed': ['learned', 'dominated'], 'progress': ['progress'], 'new': ['new'] };
+    if (lessonsStatusFilter !== 'all') {
+        const allowed = filterMap[lessonsStatusFilter] || [lessonsStatusFilter];
+        if (!allowed.includes(status)) return null;
     }
-    
+
     let statusBadgeHTML = '';
     if (status === 'new') {
-        statusBadgeHTML = '<span class="lesson-card-badge badge-new">🆕 Novo</span>';
+        statusBadgeHTML = '<span class="lesson-card-badge badge-new">🆕 Nova</span>';
     } else if (status === 'progress') {
         statusBadgeHTML = '<span class="lesson-card-badge badge-progress">⏳ Em Progresso</span>';
-    } else if (status === 'completed') {
-        statusBadgeHTML = '<span class="lesson-card-badge badge-completed">✓ Completo</span>';
+    } else if (status === 'learned') {
+        statusBadgeHTML = '<span class="lesson-card-badge badge-learned">✓ Aprendida</span>';
+    } else if (status === 'dominated') {
+        statusBadgeHTML = '<span class="lesson-card-badge badge-dominated">★ Dominada</span>';
     }
-    
+
     const levelBadge = lesson.level ? `<span class="lesson-card-badge badge-level">${lesson.level}</span>` : '';
     const story = lesson.content && lesson.content.story_context;
     const hook = story ? story : (lesson.description || (lesson.content && lesson.content.introduction) || 'Clique para começar');
-    
-    let progressBarHTML = '';
-    if (progress && progress.total_questions) {
-        const pct = Math.round((progress.correct_answers / progress.total_questions) * 100);
-        progressBarHTML = `
-            <div class="lesson-card-progress">
-                <div class="lesson-card-progress-bar">
-                    <div class="lesson-card-progress-fill" style="width: ${pct}%"></div>
-                </div>
-                <div class="lesson-card-progress-text">${progress.correct_answers}/${progress.total_questions} acertos</div>
+
+    // Barra de progresso reflete contador de frases (X/100)
+    const phrasePct = phraseTarget > 0 ? Math.min(100, Math.round((dominatedCount / phraseTarget) * 100)) : 0;
+    const phraseProgressHTML = `
+        <div class="lesson-card-progress">
+            <div class="lesson-card-progress-bar">
+                <div class="lesson-card-progress-fill ${dominated ? 'is-full' : ''}" style="width: ${phrasePct}%"></div>
             </div>
-        `;
-    } else {
-        progressBarHTML = `<div class="lesson-card-progress"><div class="lesson-card-progress-text">Não iniciado</div></div>`;
-    }
-    
+            <div class="lesson-card-progress-text">
+                ${dominated
+                    ? `<strong>★ DOMINADA</strong> · ${dominatedCount}/${phraseTarget}`
+                    : `${dominatedCount}/${phraseTarget} frases`}
+            </div>
+        </div>
+    `;
+
     card.innerHTML = `
         <div class="lesson-card-header">
             <span class="lesson-card-number">Aula ${lesson.id}</span>
@@ -265,9 +291,9 @@ function _makeCardLessonV2(lesson) {
         </div>
         <h3 class="lesson-card-title">${escapeHtml(lesson.title)}</h3>
         <p class="lesson-card-intro">${escapeHtml(hook)}</p>
-        ${progressBarHTML}
+        ${phraseProgressHTML}
     `;
-    
+
     card.onclick = () => openLessonDetail(lesson);
     return card;
 }
@@ -313,7 +339,21 @@ function openLessonDetail(lesson) {
     populateLessonDetail(lesson);
     trackLessonAccess(lesson.id);
     document.getElementById('lessonDetailView').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Mostra botão de exercício de voz se a aula tiver phrase bank populado
+    const btnPV = document.getElementById('btnPhraseVoice');
+    if (btnPV) {
+        const total = (lessonProgressMap[lesson.id] && lessonProgressMap[lesson.id].total_phrases_in_lesson) || 0;
+        // Se progresso não traz total ainda (aula nunca aberta), tenta exibir mesmo assim — fetch decidirá
+        btnPV.style.display = '';
+    }
 }
+
+function openPhraseVoiceFromCurrentLesson() {
+    if (!currentLessonDetailV2 || typeof window.openPhraseVoiceTrainer !== 'function') return;
+    window.openPhraseVoiceTrainer(currentLessonDetailV2.id, currentLessonDetailV2.title);
+}
+window.openPhraseVoiceFromCurrentLesson = openPhraseVoiceFromCurrentLesson;
 
 function populateLessonDetail(lesson) {
     // Update hero section
@@ -690,8 +730,97 @@ async function loadUserStats() {
         window._lastUserStats = data;
         renderProgressDetail(data);
         loadUserActivity();
+        loadUserDifficulties();
     } catch (e) { console.error('[STATS]', e); }
 }
+
+// ── Painel Dificuldades: frases que o usuário pulou ou marcou como difícil ──
+async function loadUserDifficulties() {
+    const container = document.getElementById('dificuldadesList');
+    const counter   = document.getElementById('dificuldadesCounter');
+    const cta       = document.getElementById('dificuldadesCta');
+    if (!container || !authToken) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/user/difficulties?limit=5`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (!res.ok) {
+            container.innerHTML = `<div class="dificuldades-empty">Não conseguimos carregar as dificuldades agora.</div>`;
+            return;
+        }
+        const data = await res.json();
+        if (!data.success) return;
+        renderDifficultiesPanel(data, container, counter, cta);
+        window._lastDifficulties = data;
+    } catch (e) {
+        console.error('[DIFFICULTIES]', e);
+        container.innerHTML = `<div class="dificuldades-empty">Sem conexão para carregar dificuldades.</div>`;
+    }
+}
+
+function renderDifficultiesPanel(data, container, counter, cta) {
+    const total = Number(data.total_difficult || 0);
+    const items = Array.isArray(data.phrases) ? data.phrases : [];
+
+    if (counter) {
+        counter.textContent = total === 0
+            ? 'Nenhuma frase difícil ainda'
+            : `${total} ${total === 1 ? 'frase' : 'frases'} para praticar`;
+    }
+    if (cta) {
+        cta.style.display = total === 0 ? 'none' : '';
+    }
+
+    if (items.length === 0) {
+        container.innerHTML = `
+            <div class="dificuldades-empty">
+                <strong>Sem dificuldades registradas.</strong>
+                Faça o exercício de voz no fim de cada aula — as frases que você pular ou errar aparecem aqui automaticamente.
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = items.map(item => {
+        const wrong = Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0
+            ? `<span class="dificuldades-meta-pill" title="Palavras que erraram">${item.last_wrong_words.length} palavra${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
+            : '';
+        return `
+            <div class="dificuldades-item" data-lesson-id="${item.lesson_id}" data-phrase-id="${item.phrase_id}">
+                <div>
+                    <p class="dificuldades-en">"${escapeHtml(item.phrase_en)}"</p>
+                    <p class="dificuldades-pt">${escapeHtml(item.phrase_pt || '')} · ${escapeHtml(item.lesson_title || '')}</p>
+                </div>
+                <div class="dificuldades-meta">
+                    <span class="dificuldades-meta-pill">${item.attempts || 0}× tentou</span>
+                    ${wrong}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Click → abre a aula correspondente em lessons.html
+    container.querySelectorAll('.dificuldades-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const lid = el.getAttribute('data-lesson-id');
+            const pid = el.getAttribute('data-phrase-id');
+            if (lid) {
+                window.location.href = `lessons.html?lesson=${lid}&practice_phrase=${pid}`;
+            }
+        });
+    });
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+window.loadUserDifficulties = loadUserDifficulties;
 
 async function loadUserActivity() {
     if (!authToken) return;

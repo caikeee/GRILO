@@ -116,6 +116,47 @@ class LessonProgress(Base):
     completed_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # ── Aprendida x Dominada ─────────────────────────────────────────
+    learned_at = Column(DateTime, nullable=True)              # 1ª vez que concluiu (desbloqueia próxima)
+    dominated_phrases_count = Column(Integer, default=0)      # 0..100 — contador de frases dominadas
+    dominated_at = Column(DateTime, nullable=True)            # timestamp quando atingiu 100/100
+
+
+class LessonPhraseBank(Base):
+    """Banco de frases por aula — alimenta o exercício de voz.
+    Cada aula tem várias frases (alvo: 100). Início: 5 frases reais por aula."""
+    __tablename__ = "lesson_phrase_bank"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lesson_id = Column(Integer, nullable=False, index=True)
+    phrase_en = Column(Text, nullable=False)
+    phrase_pt = Column(Text, nullable=True)
+    phonetic = Column(String(255), nullable=True)              # "may · neym · iz · KAR-los"
+    warning_pt = Column(Text, nullable=True)                   # alerta de pronúncia (opcional)
+    difficulty_level = Column(Integer, default=1)              # 1=básico, 2=variação, 3=contexto, 4=fluência
+    source = Column(String(40), default="exercise_answer")     # exercise_answer | example | vocabulary | ai_generated
+    order_hint = Column(Integer, default=0)                    # ordem sugerida dentro da aula
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PhraseError(Base):
+    """Histórico por usuário/frase — usado pelo painel Dificuldades e remediação."""
+    __tablename__ = "phrase_errors"
+    __table_args__ = (UniqueConstraint("user_id", "phrase_id", name="unique_user_phrase"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lesson_id = Column(Integer, nullable=False, index=True)
+    phrase_id = Column(Integer, ForeignKey("lesson_phrase_bank.id"), nullable=False, index=True)
+    status = Column(String(20), default="em_progresso")        # dominada | em_progresso | dificil
+    attempts = Column(Integer, default=0)                      # total de tentativas
+    correct_sessions = Column(Integer, default=0)              # sessões em que acertou (>=2 = dominada)
+    skipped_count = Column(Integer, default=0)                 # quantas vezes pulou
+    last_wrong_words = Column(JSON, nullable=True)             # palavras erradas na última tentativa
+    last_attempted_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
 class VoicePhrase(Base):
     """Saved phrases from voice chat sessions (user's personal phrasebook)."""
