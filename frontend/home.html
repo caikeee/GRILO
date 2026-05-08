@@ -8219,6 +8219,78 @@ body.beta-modal-open .main-content.active {
 </head>
 <body>
 
+    <!-- ===== ONBOARDING MODAL ===== -->
+    <div id="griloOnboardingBackdrop" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(31,59,45,0.38);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px;">
+      <div id="griloOnboardingModal" style="background:#fff;border-radius:20px;padding:36px 32px 28px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(58,94,71,0.18);border:1px solid #D9E7DC;font-family:'Space Grotesk',sans-serif;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+          <span style="font-size:1.3rem;">🦗</span>
+          <span style="font-family:'Manrope',sans-serif;font-weight:800;font-size:1rem;color:#3A5E47;letter-spacing:.04em;">GRILO</span>
+        </div>
+        <!-- step bar -->
+        <div id="obStepBar" style="display:flex;gap:6px;margin-bottom:24px;">
+          <span style="height:4px;flex:1;border-radius:99px;background:#3A5E47;"></span>
+          <span id="obStep2Bar" style="height:4px;flex:1;border-radius:99px;background:#EEF2EF;"></span>
+        </div>
+        <!-- step 1 -->
+        <div id="obStep1">
+          <h3 style="font-family:'Manrope',sans-serif;font-size:1.2rem;font-weight:700;color:#1F3B2D;margin-bottom:6px;">Por que quer aprender inglês?</h3>
+          <p style="color:#6A7B71;font-size:.875rem;margin-bottom:20px;line-height:1.5;">Seu tutor de IA vai usar exemplos que fazem sentido pra você.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+            <button class="ob-opt" data-val="Viagem e turismo" onclick="obSelectWhy(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">✈️</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Viagem e turismo</span>
+            </button>
+            <button class="ob-opt" data-val="Trabalho e carreira" onclick="obSelectWhy(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">💼</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Trabalho e carreira</span>
+            </button>
+            <button class="ob-opt" data-val="Entretenimento e cultura" onclick="obSelectWhy(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">🎮</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Entretenimento</span>
+            </button>
+            <button class="ob-opt" data-val="Estudos e intercâmbio" onclick="obSelectWhy(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">📚</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Estudos e intercâmbio</span>
+            </button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <button onclick="obSkip()" style="background:none;border:none;color:#A8B5AA;font-size:.82rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Pular por agora</button>
+            <button onclick="obNextStep()" style="background:linear-gradient(135deg,#7A9E84,#3A5E47);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-family:'Manrope',sans-serif;font-weight:700;font-size:.875rem;cursor:pointer;">Próximo →</button>
+          </div>
+        </div>
+        <!-- step 2 -->
+        <div id="obStep2" style="display:none;">
+          <h3 style="font-family:'Manrope',sans-serif;font-size:1.2rem;font-weight:700;color:#1F3B2D;margin-bottom:6px;">O que você faz no dia a dia?</h3>
+          <p style="color:#6A7B71;font-size:.875rem;margin-bottom:20px;line-height:1.5;">Isso deixa as conversas mais naturais e contextualizadas.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+            <button class="ob-opt2" data-val="Trabalho com tecnologia" onclick="obSelectInterest(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">💻</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Tecnologia</span>
+            </button>
+            <button class="ob-opt2" data-val="Negócios e empreendedorismo" onclick="obSelectInterest(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">📈</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Negócios</span>
+            </button>
+            <button class="ob-opt2" data-val="Saúde e bem-estar" onclick="obSelectInterest(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">🏃</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Saúde</span>
+            </button>
+            <button class="ob-opt2" data-val="Arte, música ou entretenimento" onclick="obSelectInterest(this)" style="border:1.5px solid #D9E7DC;background:#F7FAF9;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;transition:all .18s;">
+              <span style="font-size:1.3rem;display:block;margin-bottom:5px;">🎵</span>
+              <span style="font-size:.8rem;font-weight:600;color:#354839;">Arte e cultura</span>
+            </button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <button onclick="obSkip()" style="background:none;border:none;color:#A8B5AA;font-size:.82rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;">Pular</button>
+            <button onclick="obFinish()" style="background:linear-gradient(135deg,#7A9E84,#3A5E47);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-family:'Manrope',sans-serif;font-weight:700;font-size:.875rem;cursor:pointer;">Começar 🚀</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== XP TOAST ===== -->
+    <div id="griloXpToast" style="display:none;position:fixed;top:80px;right:20px;z-index:8888;background:linear-gradient(135deg,#7A9E84,#3A5E47);color:#fff;border-radius:99px;padding:8px 16px 8px 12px;font-family:'Manrope',sans-serif;font-weight:700;font-size:.85rem;box-shadow:0 4px 20px rgba(58,94,71,.3);pointer-events:none;"></div>
+
     <!-- Auth container (hidden — required by chat-text-controller.js) -->
     <div class="auth-container" id="authContainer">
         <div>
@@ -8244,6 +8316,9 @@ body.beta-modal-open .main-content.active {
                 <div class="user-badge">
                     <div class="user-avatar" id="userAvatarInitials">?</div>
                     <span class="user-name-text" id="usernameDisplay">–</span>
+                </div>
+                <div id="streakTopbar" style="display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#fff5ed,#ffecd8);border:1.5px solid #f4c89a;border-radius:99px;padding:5px 12px 5px 8px;font-size:.82rem;font-weight:700;color:#a0622a;font-family:'Space Grotesk',sans-serif;">
+                    <span>🔥</span><span id="streakTopbarNum">0</span><span style="font-size:.75rem;opacity:.8;">dias</span>
                 </div>
                 <div class="xp-chip"><span id="xpDisplay">0</span> XP</div>
                 <button class="btn-logout" onclick="handleLogout()">Sair</button>
@@ -9154,6 +9229,108 @@ body.beta-modal-open .main-content.active {
                 if (typeof window.loadUserStats === 'function') window.loadUserStats();
             }, 400);
         });
+    </script>
+
+    <!-- ===== ONBOARDING + STREAK + XP TOAST LOGIC ===== -->
+    <script>
+    (function() {
+        var _obWhy = '', _obInterest = '';
+
+        function obShow() {
+            var bd = document.getElementById('griloOnboardingBackdrop');
+            if (bd) { bd.style.display = 'flex'; }
+        }
+
+        function obHide() {
+            var bd = document.getElementById('griloOnboardingBackdrop');
+            if (bd) { bd.style.display = 'none'; }
+        }
+
+        window.obSelectWhy = function(btn) {
+            document.querySelectorAll('.ob-opt').forEach(function(b) {
+                b.style.borderColor = '#D9E7DC'; b.style.background = '#F7FAF9';
+            });
+            btn.style.borderColor = '#3A5E47'; btn.style.background = '#e6f0e8';
+            _obWhy = btn.getAttribute('data-val');
+        };
+
+        window.obSelectInterest = function(btn) {
+            document.querySelectorAll('.ob-opt2').forEach(function(b) {
+                b.style.borderColor = '#D9E7DC'; b.style.background = '#F7FAF9';
+            });
+            btn.style.borderColor = '#3A5E47'; btn.style.background = '#e6f0e8';
+            _obInterest = btn.getAttribute('data-val');
+        };
+
+        window.obNextStep = function() {
+            document.getElementById('obStep1').style.display = 'none';
+            document.getElementById('obStep2').style.display = 'block';
+            document.getElementById('obStep2Bar').style.background = '#3A5E47';
+        };
+
+        window.obSkip = function() { obSave('', ''); };
+
+        window.obFinish = function() { obSave(_obWhy, _obInterest); };
+
+        function obSave(why, interest) {
+            obHide();
+            localStorage.setItem('grilo_onboarding_done', '1');
+            if (!why && !interest) return;
+            var token = localStorage.getItem('grilo_token');
+            if (!token) return;
+            fetch('/api/user/onboarding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ learning_why: why || 'Geral', daily_interests: interest || 'Geral' })
+            }).catch(function() {});
+        }
+
+        function loadProfile() {
+            var token = localStorage.getItem('grilo_token');
+            if (!token) return;
+            fetch('/api/user/profile', { headers: { 'Authorization': 'Bearer ' + token } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    // Streak pill
+                    if (data.streak && data.streak > 0) {
+                        var pill = document.getElementById('streakTopbar');
+                        var num = document.getElementById('streakTopbarNum');
+                        if (pill) { pill.style.display = 'flex'; }
+                        if (num) { num.textContent = data.streak; }
+                    }
+                    // Mostrar onboarding se nunca completou
+                    if (!localStorage.getItem('grilo_onboarding_done') && data.onboarding_step < 4) {
+                        setTimeout(obShow, 800);
+                    }
+                })
+                .catch(function() {});
+        }
+
+        // XP Toast global
+        window.griloShowXpToast = function(xp) {
+            if (!xp || xp <= 0) return;
+            var t = document.getElementById('griloXpToast');
+            if (!t) return;
+            t.textContent = '⚡ +' + xp + ' XP';
+            t.style.display = 'block';
+            t.style.animation = 'none';
+            t.offsetHeight; // reflow
+            t.style.animation = 'griloToastIn .4s cubic-bezier(.34,1.56,.64,1)';
+            setTimeout(function() { t.style.display = 'none'; }, 2500);
+        };
+
+        // Injetar keyframe se não existir
+        if (!document.getElementById('griloToastStyle')) {
+            var s = document.createElement('style');
+            s.id = 'griloToastStyle';
+            s.textContent = '@keyframes griloToastIn{from{opacity:0;transform:translateY(-8px) scale(.85)}to{opacity:1;transform:translateY(0) scale(1)}}';
+            document.head.appendChild(s);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(loadProfile, 600);
+        });
+    })();
     </script>
 
     <script>

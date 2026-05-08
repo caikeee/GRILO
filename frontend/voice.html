@@ -1613,6 +1613,22 @@ body {
                     </button>
                 </div>
                 <div id="voiceSessionsList" class="session-list-scroll"></div>
+                <!-- ===== PHRASEBOOK TOGGLE ===== -->
+                <div style="padding:10px 12px 4px;">
+                    <button onclick="griloTogglePhrasebook()" style="width:100%;background:linear-gradient(135deg,rgba(58,94,71,.08),rgba(58,94,71,.04));border:1.5px solid rgba(58,94,71,.18);border-radius:10px;padding:9px 14px;font-family:'Space Grotesk',sans-serif;font-size:.8rem;font-weight:600;color:#3A5E47;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:all .2s;">
+                        <span>✨ Minhas Expressões</span>
+                        <span id="phrasebookCountBadge" style="background:#3A5E47;color:#fff;border-radius:99px;padding:2px 8px;font-size:.7rem;font-weight:700;">0</span>
+                    </button>
+                </div>
+
+                <!-- Phrasebook panel -->
+                <div id="phrasebookPanel" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+                    <!-- topic filter -->
+                    <div id="phrasebookTopics" style="display:flex;gap:6px;padding:10px 12px 6px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;"></div>
+                    <!-- list -->
+                    <div id="phrasebookList" style="flex:1;overflow-y:auto;padding:0 12px 12px;display:flex;flex-direction:column;gap:8px;"></div>
+                </div>
+
                 <div class="voice-sidebar-stats">
                     <div class="sidebar-stat-pill" id="sidebarStreakPill">🔥 0 dias</div>
                     <div class="sidebar-stat-pill" id="sidebarLevelPill">Nv. 1</div>
@@ -1983,7 +1999,75 @@ body {
             setTimeout(function() {
                 if (typeof window.loadUserStats === 'function') window.loadUserStats();
             }, 600);
+
+            // Load phrasebook count on init
+            setTimeout(griloLoadPhrasebook, 800);
         });
+    })();
+    </script>
+
+    <!-- ===== PHRASEBOOK LOGIC ===== -->
+    <script>
+    (function() {
+        var _phrases = [];
+        var _activeTopic = 'Todas';
+        var _open = false;
+
+        window.griloTogglePhrasebook = function() {
+            _open = !_open;
+            var panel = document.getElementById('phrasebookPanel');
+            if (panel) panel.style.display = _open ? 'flex' : 'none';
+            if (_open && _phrases.length === 0) griloLoadPhrasebook();
+        };
+
+        window.griloLoadPhrasebook = function() {
+            var token = localStorage.getItem('grilo_token');
+            if (!token) return;
+            fetch('/api/voice/phrasebook', { headers: { 'Authorization': 'Bearer ' + token } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    _phrases = data.phrases || data || [];
+                    var badge = document.getElementById('phrasebookCountBadge');
+                    if (badge) badge.textContent = _phrases.length;
+                    if (_open) griloRenderPhrasebook();
+                })
+                .catch(function() {});
+        };
+
+        function griloRenderPhrasebook() {
+            var topics = ['Todas'];
+            _phrases.forEach(function(p) { if (p.topic && topics.indexOf(p.topic) < 0) topics.push(p.topic); });
+
+            var topicEl = document.getElementById('phrasebookTopics');
+            if (topicEl) {
+                topicEl.innerHTML = topics.map(function(t) {
+                    var active = t === _activeTopic;
+                    return '<span onclick="griloFilterTopic(\'' + t + '\')" style="cursor:pointer;white-space:nowrap;padding:4px 11px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid ' + (active ? '#3A5E47' : 'rgba(58,94,71,.2)') + ';background:' + (active ? '#3A5E47' : 'transparent') + ';color:' + (active ? '#fff' : '#5A7E66') + ';font-family:\'Space Grotesk\',sans-serif;">' + t + '</span>';
+                }).join('');
+            }
+
+            var listEl = document.getElementById('phrasebookList');
+            if (!listEl) return;
+            var filtered = _activeTopic === 'Todas' ? _phrases : _phrases.filter(function(p) { return p.topic === _activeTopic; });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center;padding:24px 8px;color:#A8B5AA;font-size:.82rem;">Nenhuma expressão ainda.<br>Converse por voz para acumular!</div>';
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(function(p) {
+                return '<div style="background:#F7FAF9;border:1px solid #D9E7DC;border-radius:10px;padding:11px 13px;">' +
+                    '<div style="font-weight:600;font-size:.85rem;color:#1F3B2D;margin-bottom:3px;">' + (p.phrase_en || '') + '</div>' +
+                    (p.translation_pt ? '<div style="font-size:.75rem;color:#6A7B71;">' + p.translation_pt + '</div>' : '') +
+                    (p.topic ? '<div style="margin-top:5px;display:inline-block;background:#EEF2EF;border-radius:5px;padding:1px 7px;font-size:.67rem;font-weight:600;color:#A8B5AA;">' + p.topic + '</div>' : '') +
+                    '</div>';
+            }).join('');
+        }
+
+        window.griloFilterTopic = function(topic) {
+            _activeTopic = topic;
+            griloRenderPhrasebook();
+        };
     })();
     </script>
 

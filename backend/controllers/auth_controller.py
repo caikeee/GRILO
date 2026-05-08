@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -192,3 +193,45 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
             "xp": user.xp,
         },
     )
+
+
+class OnboardingRequest(BaseModel):
+    learning_why: str
+    daily_interests: str
+
+
+@router.post("/api/user/onboarding")
+async def save_onboarding(
+    data: OnboardingRequest,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Save onboarding answers and mark onboarding as complete."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.learning_why = data.learning_why
+    user.daily_interests = data.daily_interests
+    user.onboarding_step = 4
+    db.commit()
+    return {"ok": True}
+
+
+@router.get("/api/user/profile")
+async def get_profile(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Return public profile fields needed by the frontend header."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "id": user.id,
+        "username": user.username,
+        "level": user.level,
+        "xp": user.xp,
+        "streak": user.streak,
+        "onboarding_step": user.onboarding_step,
+        "is_admin": user.is_admin,
+    }
