@@ -2,9 +2,13 @@ from datetime import datetime
 import json
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
+
+_limiter = Limiter(key_func=get_remote_address)
 
 from backend.auth import get_current_user_id
 from backend.database import get_db
@@ -31,8 +35,10 @@ _ERROR_TYPE_LABELS = {
 
 
 @router.post("/api/chat/write", response_model=ChatWriteResponse)
+@_limiter.limit("20/minute")
 async def write_chat(
-    request: WritingChatRequest,
+    request: Request,
+    body: WritingChatRequest,
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
@@ -45,7 +51,7 @@ async def write_chat(
     start_time = datetime.now()
 
     try:
-        result = await evaluate_writing_response(request, user_id, db)
+        result = await evaluate_writing_response(body, user_id, db)
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.info("[WRITE-CHAT] SUCCESS | user_id=%s | %.2fs", user_id, elapsed)
         mark_activity(db, int(user_id), "chat")
@@ -74,8 +80,10 @@ class LanguageDetectionRequest(BaseModel):
 
 
 @router.post("/api/translate/")
+@_limiter.limit("30/minute")
 async def translate_immersion(
-    request: TranslationImmersionRequest,
+    request: Request,
+    body: TranslationImmersionRequest,
     user_id: int = Depends(get_current_user_id),
 ):
     """
@@ -83,33 +91,21 @@ async def translate_immersion(
     """
     from backend.services import translate_with_direction
 
-    logger.info(
-        "[TRANSLATE-IMMERSION] START | user_id=%s | %s -> %s",
-        user_id,
-        request.from_lang,
-        request.to_lang,
-    )
+    logger.info("[TRANSLATE-IMMERSION] START | user_id=%s | %s -> %s", user_id, body.from_lang, body.to_lang)
 
     try:
-        translation = await translate_with_direction(
-            request.text,
-            from_lang=request.from_lang,
-            to_lang=request.to_lang,
-        )
-        return {
-            "translated_text": translation,
-            "original_text": request.text,
-            "from_lang": request.from_lang,
-            "to_lang": request.to_lang,
-        }
+        translation = await translate_with_direction(body.text, from_lang=body.from_lang, to_lang=body.to_lang)
+        return {"translated_text": translation, "original_text": body.text, "from_lang": body.from_lang, "to_lang": body.to_lang}
     except Exception as exc:
         logger.error("[TRANSLATE-IMMERSION] ERROR | %s", str(exc))
         raise HTTPException(status_code=500, detail=str(exc))
 
 
 @router.post("/api/detect-language/")
+@_limiter.limit("60/minute")
 async def detect_language(
-    request: LanguageDetectionRequest,
+    request: Request,
+    body: LanguageDetectionRequest,
     user_id: int = Depends(get_current_user_id),
 ):
     """Detect language for short user inputs when frontend confidence is low."""
@@ -118,7 +114,7 @@ async def detect_language(
     logger.info("[LANG-DETECT] START | user_id=%s", user_id)
 
     try:
-        return detect_language_from_text(request.text)
+        return detect_language_from_text(body.text)
     except Exception as exc:
         logger.error("[LANG-DETECT] ERROR | %s", str(exc))
         raise HTTPException(status_code=500, detail=str(exc))

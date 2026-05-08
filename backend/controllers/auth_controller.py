@@ -1,9 +1,13 @@
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+
+_limiter = Limiter(key_func=get_remote_address)
 
 from backend.auth import (
     create_access_token,
@@ -29,7 +33,8 @@ router = APIRouter(tags=["auth"])
 
 
 @router.post("/api/register", response_model=TokenResponse)
-async def register(user_data: UserRegister, db: Session = Depends(get_db)):
+@_limiter.limit("5/minute")
+async def register(request: Request, user_data: UserRegister, db: Session = Depends(get_db)):
     """Register a new user."""
     existing_user = db.query(User).filter(
         (User.username == user_data.username) | (User.email == user_data.email)
@@ -99,7 +104,8 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
 
 
 @router.post("/api/login", response_model=TokenResponse)
-async def login(user_data: UserLogin, db: Session = Depends(get_db)):
+@_limiter.limit("10/minute")
+async def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db)):
     """Login user and return JWT token."""
     user = db.query(User).filter(User.username == user_data.username).first()
 
@@ -128,13 +134,7 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
         )
 
     mark_activity(db, user.id, "login")
-    track_metric_event(
-        db,
-        user.id,
-        "auth",
-        "login_success",
-        details={"username": user.username},
-    )
+    track_metric_event(db, user.id, "auth", "login_success")
 
     db.refresh(user)
 

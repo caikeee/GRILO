@@ -314,18 +314,16 @@ async def voice_chat(
     start_time = datetime.now()
 
     try:
-        # ← NEW: Process shadow mode if present
-        if request.shadow_mode:
+        if body.shadow_mode:
             await process_shadow_mode_analytics(
                 user_id=int(user_id),
-                shadow_data=request.shadow_mode,
-                request=request,
+                shadow_data=body.shadow_mode,
+                request=body,
                 db=db
             )
 
-        result = await chat_concise_voice(request)
+        result = await chat_concise_voice(body)
 
-        # Award XP for each voice message exchange
         xp_result = award_xp(db, int(user_id), 8, source="voice")
         mark_activity(db, int(user_id), "voice")
         track_metric_event(
@@ -334,8 +332,8 @@ async def voice_chat(
             "voice",
             "voice_message_sent",
             details={
-                "voice_mode": getattr(request, "voice_mode", "free") or "free",
-                "conversation_topic": getattr(request, "conversation_topic", None),
+                "voice_mode": getattr(body, "voice_mode", "free") or "free",
+                "conversation_topic": getattr(body, "conversation_topic", None),
             },
         )
 
@@ -348,10 +346,10 @@ async def voice_chat(
         return {
             "response": result.get("reply", ""),
             "translation_pt": result.get("translation_pt"),
-            "correction": result.get("correction"),  # {wrong, correct, tip} or null
+            "correction": result.get("correction"),
             "understanding": result.get("understanding"),
             "detected_input": result.get("detected_input"),
-            "voice_mode": getattr(request, "voice_mode", "free") or "free",
+            "voice_mode": getattr(body, "voice_mode", "free") or "free",
             "success": True,
             "execution_time_ms": int(elapsed * 1000),
             "xp_earned": xp_result["xp_earned"],
@@ -546,7 +544,9 @@ async def get_shadow_analytics(
 
 
 @router.post("/api/voice/transcribe")
+@_limiter.limit("30/minute")
 async def voice_transcribe(
+    request: Request,
     body: _TranscribeRequest,
     user_id: int = Depends(get_current_user_id),
 ):
@@ -608,7 +608,9 @@ async def voice_transcribe(
 
 
 @router.post("/api/tts")
+@_limiter.limit("30/minute")
 async def text_to_speech(
+    request: Request,
     body: _TTSRequest,
     user_id: int = Depends(get_current_user_id),
 ):
