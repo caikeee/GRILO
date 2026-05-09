@@ -4,18 +4,49 @@ from datetime import datetime
 
 
 # Auth Schemas
+_COMMON_PASSWORDS = {
+    "12345678", "123456789", "1234567890", "password", "password1", "qwerty123",
+    "111111111", "abc12345", "letmein123", "iloveyou1", "welcome1", "admin123",
+    "senha123", "12341234", "qwertyuiop", "passw0rd", "123123123",
+}
+
+
+def _validate_strong_password(v: str) -> str:
+    if len(v) < 10:
+        raise ValueError('password must be at least 10 characters')
+    classes = 0
+    if any(c.isupper() for c in v):
+        classes += 1
+    if any(c.islower() for c in v):
+        classes += 1
+    if any(c.isdigit() for c in v):
+        classes += 1
+    if any(not c.isalnum() for c in v):
+        classes += 1
+    if classes < 2:
+        raise ValueError('password must mix at least two of: uppercase, lowercase, digits, symbols')
+    if v.lower() in _COMMON_PASSWORDS:
+        raise ValueError('password is too common; please choose a stronger one')
+    return v
+
+
 class UserRegister(BaseModel):
-    """User registration with validation (QW6)"""
+    """User registration with strong password validation."""
     username: str = Field(..., min_length=3, max_length=50, description="3-50 characters")
-    email: str = Field(..., pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")  # Email regex
-    password: str = Field(..., min_length=8, max_length=255, description="Min 8 characters")
-    
+    email: str = Field(..., pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+    password: str = Field(..., min_length=10, max_length=255)
+
     @field_validator('username')
     @classmethod
     def validate_username(cls, v):
         if not v.isalnum() and '_' not in v:
             raise ValueError('username must be alphanumeric with optional underscores')
         return v
+
+    @field_validator('password')
+    @classmethod
+    def validate_password_strength(cls, v):
+        return _validate_strong_password(v)
 
 
 class UserLogin(BaseModel):
@@ -407,7 +438,12 @@ class VocabularySnapshot(BaseModel):
 class PasswordResetRequest(BaseModel):
     """Request to reset a user's password (admin only)"""
     username: str = Field(..., min_length=1, max_length=50)
-    new_password: str = Field(..., min_length=8, max_length=255, description="New password min 8 chars")
+    new_password: str = Field(..., min_length=10, max_length=255)
+
+    @field_validator('new_password')
+    @classmethod
+    def validate_new_password_strength(cls, v):
+        return _validate_strong_password(v)
 
 
 class UserAdminResponse(BaseModel):

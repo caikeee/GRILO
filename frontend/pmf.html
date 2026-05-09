@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRILO - Dashboard PMF</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            background: #0b0f0d;
+            color: #e6efe9;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { margin-bottom: 32px; }
+        h1 { font-size: 1.9rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .subtitle { color: #8aa39a; font-size: 0.95rem; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+        .actions { display: flex; gap: 8px; }
+        button {
+            background: #1f2e27; color: #cfe2d8; border: 1px solid #2d4438;
+            padding: 8px 14px; border-radius: 8px; font-family: inherit;
+            font-size: 0.88rem; cursor: pointer; transition: all .15s;
+        }
+        button:hover { background: #2d4438; color: #fff; }
+        button.primary { background: #3a8264; border-color: #3a8264; color: #fff; }
+        button.primary:hover { background: #4a9774; }
+
+        .grid { display: grid; gap: 18px; }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-2 { grid-template-columns: 2fr 1fr; }
+        @media (max-width: 980px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: #131a17;
+            border: 1px solid #1e2a24;
+            border-radius: 14px;
+            padding: 20px;
+        }
+        .card h3 {
+            font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em;
+            color: #8aa39a; font-weight: 600; margin-bottom: 12px;
+        }
+        .metric-value {
+            font-size: 2.4rem; font-weight: 700; color: #fff; line-height: 1;
+            margin-bottom: 6px;
+        }
+        .metric-sub { font-size: 0.85rem; color: #8aa39a; }
+        .metric-target { font-size: 0.78rem; color: #6a8579; margin-top: 8px; }
+
+        .status-badge {
+            display: inline-block; padding: 3px 9px; border-radius: 999px;
+            font-size: 0.72rem; font-weight: 600; margin-left: 8px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .status-ok    { background: #143824; color: #6ee7a8; }
+        .status-warn  { background: #3a2f10; color: #f5c563; }
+        .status-bad   { background: #3a1818; color: #f08080; }
+
+        .section-title {
+            margin: 36px 0 14px; font-size: 1.05rem; font-weight: 600; color: #cfe2d8;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* Cohort heatmap */
+        .cohort-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        .cohort-table th, .cohort-table td {
+            padding: 10px 8px; text-align: center; border-bottom: 1px solid #1e2a24;
+        }
+        .cohort-table th { color: #8aa39a; font-weight: 500; font-size: 0.78rem; text-transform: uppercase; }
+        .cohort-table td.cohort-week { text-align: left; color: #cfe2d8; font-weight: 500; }
+        .cohort-table td.size { color: #8aa39a; font-size: 0.82rem; }
+        .heat-cell { font-weight: 600; border-radius: 4px; }
+
+        .insights { display: grid; gap: 10px; }
+        .insight {
+            padding: 12px 14px; border-radius: 8px; font-size: 0.9rem;
+            border-left: 3px solid #8aa39a; background: #0f1714;
+        }
+        .insight.ok   { border-left-color: #6ee7a8; }
+        .insight.warn { border-left-color: #f5c563; }
+        .insight.bad  { border-left-color: #f08080; }
+        .insight strong { color: #fff; }
+
+        .loading { text-align: center; padding: 60px; color: #8aa39a; }
+        .error {
+            padding: 16px; background: #3a1818; color: #f08080;
+            border-radius: 8px; margin: 20px 0;
+        }
+
+        /* Modal pagamento */
+        .modal-bg {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            display: none; align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal-bg.show { display: flex; }
+        .modal {
+            background: #131a17; border: 1px solid #2d4438; border-radius: 14px;
+            padding: 26px; width: 92%; max-width: 440px;
+        }
+        .modal h2 { color: #fff; font-size: 1.15rem; margin-bottom: 18px; }
+        .modal label { display: block; font-size: 0.82rem; color: #8aa39a; margin: 12px 0 6px; }
+        .modal input, .modal select {
+            width: 100%; background: #0b0f0d; color: #e6efe9; border: 1px solid #2d4438;
+            padding: 9px 12px; border-radius: 8px; font-family: inherit; font-size: 0.95rem;
+        }
+        .modal-actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="topbar">
+                <div>
+                    <h1>Dashboard PMF</h1>
+                    <p class="subtitle">As 6 m&eacute;tricas que decidem se voc&ecirc; tem produto. Atualize toda segunda de manh&atilde;.</p>
+                </div>
+                <div class="actions">
+                    <button id="btn-refresh">Atualizar</button>
+                    <button id="btn-record-payment" class="primary">+ Registrar pagamento</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="content" class="loading">Carregando m&eacute;tricas...</div>
+    </div>
+
+    <div id="payment-modal" class="modal-bg">
+        <div class="modal">
+            <h2>Registrar pagamento manual</h2>
+            <label>User ID</label>
+            <input type="number" id="pay-user-id" placeholder="ex: 12">
+            <label>Plano</label>
+            <select id="pay-plan">
+                <option value="pro_monthly">Pro Mensal</option>
+                <option value="pro_annual">Pro Anual</option>
+                <option value="founders">Founders (R$ 49)</option>
+            </select>
+            <label>Valor (R$)</label>
+            <input type="number" id="pay-amount" step="0.01" value="49">
+            <label>M&eacute;todo</label>
+            <select id="pay-method">
+                <option value="pix_manual">PIX manual</option>
+                <option value="boleto">Boleto</option>
+                <option value="cartao">Cart&atilde;o</option>
+                <option value="outro">Outro</option>
+            </select>
+            <div class="modal-actions">
+                <button id="pay-cancel">Cancelar</button>
+                <button id="pay-confirm" class="primary">Registrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+
+        function authHeaders() {
+            return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        }
+
+        function badge(status) {
+            const map = { ok: 'OK', warn: 'Atenção', bad: 'Crítico' };
+            return `<span class="status-badge status-${status}">${map[status] || status}</span>`;
+        }
+
+        function pct(v) { return (v == null) ? '—' : `${v}%`; }
+
+        function heatColor(value) {
+            // 0 (vermelho) -> 50 (amarelo) -> 100 (verde)
+            if (value == null) return '#0b0f0d';
+            const v = Math.max(0, Math.min(100, value));
+            const r = v < 50 ? 240 : Math.round(240 - (v - 50) * 4.4);
+            const g = v < 50 ? Math.round(80 + v * 3.2) : Math.round(220);
+            const b = 80;
+            return `rgba(${r},${g},${b},0.28)`;
+        }
+
+        function renderCohort(c) {
+            if (!c.rows.length) return '<p class="metric-sub">Sem cohorts ainda. Aguardando primeiros signups.</p>';
+            const offsets = c.week_offsets;
+            let html = '<table class="cohort-table"><thead><tr><th>Cohort</th><th>Tamanho</th>';
+            offsets.forEach(o => html += `<th>W${o}</th>`);
+            html += '</tr></thead><tbody>';
+            c.rows.forEach(row => {
+                html += `<tr><td class="cohort-week">${row.cohort_week}</td><td class="size">${row.cohort_size}</td>`;
+                offsets.forEach(o => {
+                    const v = row.cells[`W${o}`];
+                    const display = v == null ? '—' : `${v}%`;
+                    html += `<td class="heat-cell" style="background:${heatColor(v)}">${display}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function renderInsights(m) {
+            const out = [];
+            const a = m.activation_d0;
+            if (a.denominator > 0) {
+                out.push({
+                    s: a.status,
+                    text: `<strong>Ativação D0: ${a.percent}%</strong> (${a.numerator}/${a.denominator}). Meta ≥${a.target}%. ${a.status === 'bad' ? 'Onboarding ou primeira impressão estão fracos — assista 5 sessões reais.' : a.status === 'ok' ? 'Saudável: usuário entra e usa.' : 'Aceitável, mas há espaço para melhorar onboarding.'}`
+                });
+            }
+            const r = m.retention_cohort;
+            out.push({
+                s: r.status_d30,
+                text: `<strong>Retenção D30 média: ${r.avg_d30_percent}%</strong>. Meta ≥${r.target_d30}%. ${r.status_d30 === 'bad' ? 'Sem PMF ainda — produto não vira hábito. Foco em melhorar valor antes de aquisição.' : r.status_d30 === 'ok' ? 'Sinal forte de PMF. Pode acelerar aquisição.' : 'Sinal incipiente — investigue por que usuários somem.'}`
+            });
+            const s = m.sessions_per_user_week;
+            out.push({
+                s: s.status,
+                text: `<strong>${s.avg_sessions_per_user_per_week} sessões/usuário/semana</strong> (${s.active_users} ativos). Meta ≥${s.target}. ${s.status === 'bad' ? 'Hábito não formado — inglês exige prática frequente.' : 'Engajamento adequado.'}`
+            });
+            const min = m.minutes_per_user_week;
+            out.push({
+                s: min.status,
+                text: `<strong>${min.avg_minutes_per_user_per_week} min/usuário/semana</strong> falando. Meta ≥${min.target}.`
+            });
+            const p = m.paywall_conversion;
+            if (p.paywall_viewed > 0) {
+                out.push({
+                    s: p.status,
+                    text: `<strong>Conversão paywall: ${p.conversion_percent}%</strong> (${p.payment_completed}/${p.paywall_viewed}). Receita período: R$ ${p.revenue_brl_period}. ${p.paying_users_total} pagantes totais.`
+                });
+            } else {
+                out.push({ s: 'warn', text: '<strong>Paywall ainda não foi exibido.</strong> Quando começar a cobrar, instrumente o evento <code>paywall_viewed</code> no frontend.' });
+            }
+            const se = m.sean_ellis_eligibility;
+            out.push({
+                s: se.ready_to_survey ? 'ok' : 'warn',
+                text: `<strong>Pesquisa Sean Ellis:</strong> ${se.eligible_users} usuários elegíveis (≥3 sessões). ${se.ready_to_survey ? 'PRONTO para enviar a pesquisa "como você se sentiria se não pudesse mais usar?"' : `Faltam ${se.target - se.eligible_users} para ter base estatística.`}`
+            });
+            return out.map(i => `<div class="insight ${i.s}">${i.text}</div>`).join('');
+        }
+
+        function render(data) {
+            const m = data.metrics;
+            const t = data.totals;
+            const a = m.activation_d0;
+            const r = m.retention_cohort;
+            const s = m.sessions_per_user_week;
+            const min = m.minutes_per_user_week;
+            const p = m.paywall_conversion;
+
+            const html = `
+                <div class="grid grid-3">
+                    <div class="card">
+                        <h3>Ativação D0 ${badge(a.status)}</h3>
+                        <div class="metric-value">${a.percent}%</div>
+                        <div class="metric-sub">${a.numerator} de ${a.denominator} signups completaram 1 sessão no mesmo dia</div>
+                        <div class="metric-target">Meta: ≥${a.target}%</div>
+                    </div>
+                    <div class="card">
+                        <h3>Retenção D7 média ${badge(r.status_d7)}</h3>
+                        <div class="metric-value">${r.avg_d7_percent}%</div>
+                        <div class="metric-sub">Cohorts elegíveis: ${r.rows.filter(x => x.cells.W1 != null).length}</div>
+                        <div class="metric-target">Meta: ≥${r.target_d7}%</div>
+                    </div>
+                    <div class="card">
+                        <h3>Retenção D30 média ${badge(r.status_d30)}</h3>
+                        <div class="metric-value">${r.avg_d30_percent}%</div>
+                        <div class="metric-sub">Esta é a métrica norteadora de PMF</div>
+                        <div class="metric-target">Meta: ≥${r.target_d30}%</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-3" style="margin-top:18px">
+                    <div class="card">
+                        <h3>Sessões / usuário / semana ${badge(s.status)}</h3>
+                        <div class="metric-value">${s.avg_sessions_per_user_per_week}</div>
+                        <div class="metric-sub">${s.active_users} ativos · ${s.total_sessions} sessões em ${s.weeks} sem.</div>
+                        <div class="metric-target">Meta: ≥${s.target}</div>
+                    </div>
+                    <div class="card">
+                        <h3>Minutos falados / usuário / semana ${badge(min.status)}</h3>
+                        <div class="metric-value">${min.avg_minutes_per_user_per_week}</div>
+                        <div class="metric-sub">${min.total_minutes} min totais nas últimas ${min.weeks} sem.</div>
+                        <div class="metric-target">Meta: ≥${min.target} min</div>
+                    </div>
+                    <div class="card">
+                        <h3>Conversão paywall ${badge(p.status)}</h3>
+                        <div class="metric-value">${p.conversion_percent}%</div>
+                        <div class="metric-sub">${p.payment_completed} pagamentos / ${p.paywall_viewed} views · ${p.paying_users_total} pagantes totais</div>
+                        <div class="metric-target">Meta: ≥${p.target}% · Receita período: R$ ${p.revenue_brl_period}</div>
+                    </div>
+                </div>
+
+                <h2 class="section-title">Cohort heatmap (retenção por semana de signup)</h2>
+                <div class="card">
+                    ${renderCohort(r)}
+                </div>
+
+                <h2 class="section-title">Diagnóstico</h2>
+                <div class="insights">
+                    ${renderInsights(m)}
+                </div>
+
+                <p style="margin-top:24px;font-size:0.78rem;color:#6a8579;text-align:center">
+                    ${t.signups_total} signups · ${t.users_with_voice_session} com ≥1 sessão de voz · gerado ${new Date(data.generated_at).toLocaleString('pt-BR')}
+                </p>
+            `;
+            document.getElementById('content').innerHTML = html;
+            document.getElementById('content').classList.remove('loading');
+        }
+
+        async function load() {
+            document.getElementById('content').className = 'loading';
+            document.getElementById('content').textContent = 'Carregando métricas...';
+            try {
+                const res = await fetch('/api/admin/pmf/metrics', { headers: authHeaders() });
+                if (res.status === 401 || res.status === 403) {
+                    document.getElementById('content').innerHTML = '<div class="error">Acesso negado. Faça login como admin.</div>';
+                    return;
+                }
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                render(data);
+            } catch (e) {
+                document.getElementById('content').innerHTML = `<div class="error">Erro: ${e.message}</div>`;
+            }
+        }
+
+        document.getElementById('btn-refresh').addEventListener('click', load);
+
+        // Modal pagamento
+        const modal = document.getElementById('payment-modal');
+        document.getElementById('btn-record-payment').addEventListener('click', () => modal.classList.add('show'));
+        document.getElementById('pay-cancel').addEventListener('click', () => modal.classList.remove('show'));
+        document.getElementById('pay-confirm').addEventListener('click', async () => {
+            const body = {
+                user_id: parseInt(document.getElementById('pay-user-id').value, 10),
+                plan: document.getElementById('pay-plan').value,
+                amount_brl: parseFloat(document.getElementById('pay-amount').value),
+                method: document.getElementById('pay-method').value,
+            };
+            if (!body.user_id || !body.amount_brl) { alert('Preencha user_id e valor'); return; }
+            try {
+                const res = await fetch('/api/admin/pmf/payment-record', {
+                    method: 'POST', headers: authHeaders(), body: JSON.stringify(body),
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                modal.classList.remove('show');
+                load();
+            } catch (e) { alert('Erro: ' + e.message); }
+        });
+
+        load();
+    </script>
+</body>
+</html>

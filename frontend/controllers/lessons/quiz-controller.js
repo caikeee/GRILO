@@ -92,7 +92,7 @@ async function startQuiz(mode, count, category) {
         }
 
         if (quizQuestions.length === 0) {
-            alert('Nenhuma pergunta encontrada. Tente outra opção.');
+            (window.showGriloToast || alert)('Nenhuma pergunta por aqui ainda. Escolha outra categoria.', 'error');
             return;
         }
 
@@ -100,7 +100,7 @@ async function startQuiz(mode, count, category) {
         displayQuizQuestion();
     } catch (err) {
         console.error('[Quiz] Error loading questions:', err);
-        alert('Erro ao carregar perguntas. Verifique se o servidor está rodando.');
+        (window.showGriloToast || alert)('Não conseguimos carregar as perguntas agora. Tente de novo em alguns segundos.', 'error');
     }
 }
 

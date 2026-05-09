@@ -14,32 +14,90 @@
         h1 { font-size: 2rem; margin-bottom: 8px; }
         .updated { color: #6b7280; font-size: 0.9rem; margin-bottom: 40px; }
         h2 { font-size: 1.1rem; margin-top: 32px; margin-bottom: 8px; color: #3A5E47; }
-        p { line-height: 1.7; color: #374151; }
+        p, li { line-height: 1.7; color: #374151; }
+        ul { padding-left: 22px; }
+        strong { color: #1a2e1a; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; font-size: 0.95rem; }
+        th, td { border-bottom: 1px solid #e5e7eb; padding: 10px 8px; text-align: left; vertical-align: top; }
+        th { color: #3A5E47; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <a class="back" href="/">← Voltar</a>
         <h1>Política de Privacidade</h1>
-        <p class="updated">Atualizado em maio de 2026</p>
+        <p class="updated">Atualizado em maio de 2026 · Conforme a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018)</p>
 
-        <h2>Dados que coletamos</h2>
-        <p>Coletamos seu nome de usuário, e-mail e progresso de aprendizado (lições, conversas, XP). Não vendemos seus dados a terceiros.</p>
+        <p>Esta política explica quais dados o GRILO coleta sobre você, por que, por quanto tempo e quais são seus direitos. Em linguagem direta — sem jurisdiquês.</p>
 
-        <h2>Como usamos seus dados</h2>
-        <p>Seus dados são usados exclusivamente para personalizar sua experiência de aprendizado, gerar feedback de gramática e acompanhar seu progresso ao longo do tempo.</p>
+        <h2>1. Quem é o controlador</h2>
+        <p>O controlador dos seus dados pessoais é o <strong>GRILO</strong>. Para qualquer assunto relacionado a privacidade, fale com nosso encarregado em <strong>privacidade@grilo.app</strong>.</p>
 
-        <h2>Armazenamento</h2>
-        <p>Os dados são armazenados em banco de dados seguro hospedado na Railway (infraestrutura cloud). As conversas são processadas via API da Groq (modelo de linguagem) e não são armazenadas por terceiros.</p>
+        <h2>2. Dados que coletamos</h2>
+        <table>
+            <thead>
+                <tr><th>Categoria</th><th>Exemplos</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Cadastro</td><td>Nome de usuário, e-mail, senha (armazenada com hash)</td></tr>
+                <tr><td>Aprendizado</td><td>Mensagens de chat, áudios de prática, transcrições, correções, XP, progresso de aulas</td></tr>
+                <tr><td>Uso</td><td>Logs de acesso, IP, tipo de dispositivo, navegador, datas de uso</td></tr>
+                <tr><td>Preferências</td><td>Idioma, modo de voz, foco de estudo</td></tr>
+            </tbody>
+        </table>
+        <p>Não coletamos dados sensíveis (saúde, religião, orientação política/sexual, biometria) e não pedimos documentos oficiais.</p>
 
-        <h2>Cookies e armazenamento local</h2>
-        <p>Usamos <code>localStorage</code> no navegador para manter sua sessão ativa. Nenhum cookie de rastreamento de terceiros é utilizado.</p>
+        <h2>3. Por que coletamos (bases legais — LGPD art. 7º)</h2>
+        <ul>
+            <li><strong>Execução do contrato</strong> — para entregar o serviço que você contratou (cadastro, aulas, voz, progresso).</li>
+            <li><strong>Consentimento</strong> — para comunicações de marketing e melhorias opcionais. Você pode revogar a qualquer momento.</li>
+            <li><strong>Legítimo interesse</strong> — para segurança da plataforma, prevenção de fraude e melhoria do serviço, sempre respeitando seus direitos.</li>
+            <li><strong>Cumprimento de obrigação legal</strong> — quando exigido por lei (ex.: guarda de logs por 6 meses, Marco Civil da Internet).</li>
+        </ul>
 
-        <h2>Seus direitos</h2>
-        <p>Você pode solicitar a exclusão da sua conta e de todos os seus dados a qualquer momento entrando em contato pelo e-mail do suporte.</p>
+        <h2>4. Quanto tempo guardamos</h2>
+        <ul>
+            <li><strong>Conta ativa:</strong> enquanto você usar o serviço.</li>
+            <li><strong>Após exclusão da conta:</strong> apagamos dados pessoais em até <strong>30 dias</strong>, exceto o que precisamos manter por obrigação legal (logs de acesso por 6 meses).</li>
+            <li><strong>Backups:</strong> podem reter dados por até 90 dias após a exclusão antes de serem rotacionados.</li>
+        </ul>
 
-        <h2>Contato</h2>
-        <p>Dúvidas sobre privacidade? Fale conosco em <strong>caike.oliveira98@gmail.com</strong>.</p>
+        <h2>5. Com quem compartilhamos</h2>
+        <p>Compartilhamos dados apenas com fornecedores estritamente necessários para o serviço funcionar (operadores, na linguagem da LGPD). Esses fornecedores não usam seus dados para fins próprios e estão sujeitos a contratos de proteção de dados.</p>
+        <p>Categorias de operadores que usamos: provedor de hospedagem em nuvem, provedor de modelo de linguagem (IA), e-mail transacional, monitoramento de erros.</p>
+        <p><strong>Nunca vendemos seus dados.</strong></p>
+
+        <h2>6. Transferência internacional</h2>
+        <p>Alguns operadores podem processar dados fora do Brasil (ex.: EUA, UE). Nesses casos, exigimos garantias adequadas de proteção (cláusulas contratuais padrão ou equivalente), conforme LGPD art. 33.</p>
+
+        <h2>7. Seus direitos (LGPD art. 18)</h2>
+        <p>Você pode, a qualquer momento e de forma gratuita:</p>
+        <ul>
+            <li>Confirmar se tratamos seus dados.</li>
+            <li>Acessar seus dados.</li>
+            <li>Corrigir dados incompletos, inexatos ou desatualizados.</li>
+            <li>Solicitar anonimização, bloqueio ou eliminação.</li>
+            <li>Pedir a portabilidade para outro fornecedor.</li>
+            <li>Revogar consentimento.</li>
+            <li>Opor-se a tratamentos baseados em legítimo interesse.</li>
+            <li>Saber com quem compartilhamos.</li>
+        </ul>
+        <p>Para exercer qualquer um desses direitos, escreva para <strong>privacidade@grilo.app</strong>. Respondemos em até <strong>15 dias</strong>.</p>
+
+        <h2>8. Cookies e armazenamento local</h2>
+        <p>Usamos <code>localStorage</code> do navegador apenas para manter você conectado e lembrar suas preferências. Não usamos cookies de rastreamento de terceiros para publicidade.</p>
+
+        <h2>9. Segurança</h2>
+        <p>Adotamos medidas técnicas e organizacionais razoáveis: senhas com hash, conexão criptografada (HTTPS), controles de acesso e monitoramento. Nenhum sistema é 100% imune — em caso de incidente que possa causar risco a você, comunicaremos conforme exige a LGPD.</p>
+
+        <h2>10. Crianças e adolescentes</h2>
+        <p>O GRILO não é destinado a menores de 13 anos. Entre 13 e 18, é necessário consentimento de um responsável legal. Se identificarmos uma conta em desacordo, ela será encerrada.</p>
+
+        <h2>11. Alterações desta política</h2>
+        <p>Atualizações relevantes serão comunicadas por e-mail ou na plataforma com pelo menos 15 dias de antecedência.</p>
+
+        <h2>12. Contato e ANPD</h2>
+        <p>Dúvidas, pedidos ou reclamações: <strong>privacidade@grilo.app</strong>. Você também pode acionar diretamente a Autoridade Nacional de Proteção de Dados (ANPD): <a href="https://www.gov.br/anpd" target="_blank" rel="noopener">gov.br/anpd</a>.</p>
     </div>
 </body>
 </html>

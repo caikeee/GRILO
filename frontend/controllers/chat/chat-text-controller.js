@@ -39,6 +39,35 @@ const EN_DETECTION_WORDS = new Set([
 let inlineTranslationRequestCounter = 0;
 let activeInlineTranslationController = null;
 
+// ==================== TOAST (GRILO tone) ====================
+// Substitui alert() — toast no canto inferior, sem bloquear a UI.
+function showGriloToast(message, variant = "info") {
+    try {
+        let host = document.getElementById("griloToastHost");
+        if (!host) {
+            host = document.createElement("div");
+            host.id = "griloToastHost";
+            host.setAttribute("aria-live", "polite");
+            host.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none;";
+            document.body.appendChild(host);
+        }
+        const toast = document.createElement("div");
+        const palette = variant === "error"
+            ? "background:#2a1414;color:#ffd9d9;border:1px solid #6a2a2a;"
+            : variant === "success"
+                ? "background:#0f2a1a;color:#cdf5d8;border:1px solid #1f5b3a;"
+                : "background:#181a22;color:#e8eaf2;border:1px solid #2c2f3a;";
+        toast.style.cssText = `padding:12px 18px;border-radius:12px;font:500 14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:420px;pointer-events:auto;${palette}`;
+        toast.textContent = message;
+        host.appendChild(toast);
+        setTimeout(() => { toast.style.transition = "opacity .3s"; toast.style.opacity = "0"; }, 3500);
+        setTimeout(() => toast.remove(), 3900);
+    } catch (_) {
+        console.warn("toast failed:", message);
+    }
+}
+window.showGriloToast = showGriloToast;
+
 // ==================== AUTH FUNCTIONS ====================
 
 async function handleLogin() {
@@ -46,7 +75,7 @@ async function handleLogin() {
     const password = document.getElementById("loginPassword").value.trim();
 
     if (!username || !password) {
-        alert("Por favor, digite seu usuário e senha");
+        showGriloToast("Preencha usuário e senha para entrar.", "error");
         return;
     }
 
@@ -84,11 +113,11 @@ async function handleLogin() {
             // Initialize chat
             initializeChat();
         } else {
-            alert("Usuário ou senha inválidos");
+            showGriloToast("Usuário ou senha não bateram. Confira e tente de novo.", "error");
         }
     } catch (error) {
         console.error("Login error:", error);
-        alert("Erro ao fazer login");
+        showGriloToast("Não conseguimos te conectar agora. Confira sua internet e tente de novo.", "error");
     }
 }
 
@@ -98,7 +127,7 @@ async function handleRegister() {
     const password = document.getElementById("registerPassword").value.trim();
 
     if (!username || !email || !password) {
-        alert("Por favor, preencha todos os campos");
+        showGriloToast("Preencha todos os campos para criar sua conta.", "error");
         return;
     }
 
@@ -137,15 +166,26 @@ async function handleRegister() {
             initializeChat();
         } else {
             const error = await response.json();
-            alert(error.detail || "Erro no cadastro");
+            showGriloToast(error.detail || "Não conseguimos criar sua conta agora. Tente em alguns segundos.", "error");
         }
     } catch (error) {
         console.error("Register error:", error);
-        alert("Erro ao cadastrar");
+        showGriloToast("Não conseguimos te conectar agora. Confira sua internet e tente de novo.", "error");
     }
 }
 
 function handleLogout() {
+    // Best-effort server-side revocation: invalidate refresh token + bump token_version.
+    try {
+        const tk = localStorage.getItem("grilo_token");
+        if (tk) {
+            fetch("/api/logout", {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + tk }
+            }).catch(function() {});
+        }
+    } catch (e) { /* ignore */ }
+
     authToken = null;
     currentUser = null;
     writingConversationHistory = [];
@@ -816,7 +856,7 @@ async function requestInlineTranslationWithRetry(text, options = {}) {
 // ==================== VOICE CHAT (Conversational with TTS) ====================
 async function startVoiceChatLegacy() {
     if (!window.SpeechHandler) {
-        alert("Speech handler not available");
+        showGriloToast("O microfone não respondeu. Recarregue a página para tentar de novo.", "error");
         return;
     }
     
@@ -851,7 +891,7 @@ async function startVoiceChatLegacy() {
         console.log('[startVoiceChat] Chat de voz iniciado com sucesso');
     } catch (error) {
         console.error("Voice chat start error:", error);
-        alert("Erro ao iniciar chat de voz");
+        showGriloToast("Não conseguimos abrir o chat de voz. Recarregue a página e tente de novo.", "error");
         
         // Reset buttons on error
         const voiceStartBtn = document.getElementById("voiceStartBtn");
@@ -884,7 +924,7 @@ async function stopVoiceChatLegacy() {
             aiResponseText.innerHTML = "<p>Modo premium em espera. Inicie quando quiser.</p>";
         }
         if (subtitle) {
-            subtitle.textContent = "Sem distracoes visuais. So sua voz e respostas naturais.";
+            subtitle.textContent = "Sem distrações visuais. Só sua voz e respostas naturais.";
         }
 
         // Update button state
@@ -1440,7 +1480,7 @@ function renderSessionList(type) {
 function completeLesson() {
     // This should trigger from the sidebar "Completar Aula +XP" button
     // For now, just show an alert
-    alert("Parabéns por sua dedicação! Complete mais aulas para ganhar XP.");
+    showGriloToast("Parabéns pela dedicação! Conclua mais aulas para ganhar XP.", "success");
 }
 
 // ==================== LANGUAGE SELECTOR ====================
@@ -1596,12 +1636,12 @@ function switchTab(tabName) {
 
         const aiResponseText = document.getElementById("aiResponseText");
         if (aiResponseText) {
-            aiResponseText.innerHTML = "<p>Treino orientado por voz ativo. Inicie para receber feedback em tempo real e recap acionavel.</p>";
+            aiResponseText.innerHTML = "<p>Comece a falar e eu sigo a conversa. Você recebe correções em tempo real e um recap no fim.</p>";
         }
 
         const subtitle = document.getElementById("voiceDimensionSubtitle");
         if (subtitle) {
-            subtitle.textContent = "Objetivo semanal: 4 sessoes concluidas + desafio de 7 dias para desbloquear modos.";
+            subtitle.textContent = "Meta da semana: 4 sessões + desafio de 7 dias para desbloquear novos modos.";
         }
 
         renderSessionList('voice');

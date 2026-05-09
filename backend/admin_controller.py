@@ -74,10 +74,15 @@ async def reset_user_password(
             detail=f"User '{req.username}' not found"
         )
     
-    # Hash and update password
+    # Hash and update password; revoke all existing sessions for the victim
     user.password_hash = hash_password(req.new_password)
+    user.token_version = (user.token_version or 0) + 1
+    user.refresh_token = None
+    user.refresh_token_expiry = None
+    user.failed_login_count = 0
+    user.locked_until = None
     db.commit()
-    
+
     return {
         "success": True,
         "message": f"Password reset for user '{req.username}'",

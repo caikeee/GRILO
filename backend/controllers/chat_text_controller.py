@@ -66,7 +66,7 @@ async def write_chat(
     except Exception as exc:
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.error("[WRITE-CHAT] ERROR | user_id=%s | %.2fs | %s", user_id, elapsed, str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Chat unavailable. Please try again.")
 
 
 class TranslationImmersionRequest(BaseModel):
@@ -98,7 +98,7 @@ async def translate_immersion(
         return {"translated_text": translation, "original_text": body.text, "from_lang": body.from_lang, "to_lang": body.to_lang}
     except Exception as exc:
         logger.error("[TRANSLATE-IMMERSION] ERROR | %s", str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Translation service unavailable.")
 
 
 @router.post("/api/detect-language/")
@@ -117,7 +117,7 @@ async def detect_language(
         return detect_language_from_text(body.text)
     except Exception as exc:
         logger.error("[LANG-DETECT] ERROR | %s", str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Language detection failed.")
 
 
 class SessionSummaryRequest(BaseModel):
@@ -311,4 +311,4 @@ async def get_session_summary(
 
     except Exception as exc:
         logger.error("[SESSION-SUMMARY] ERROR | user_id=%s | %s", user_id, str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Session summary unavailable.")

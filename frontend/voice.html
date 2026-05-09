@@ -1647,12 +1647,12 @@ body {
                 <!-- Live Error Panel -->
                 <div class="live-error-panel" id="liveErrorPanel" aria-live="polite">
                     <div class="live-error-header">
-                        <span class="live-error-title">ERROS DA SESSÃO</span>
+                        <span class="live-error-title">Pontos para revisar</span>
                         <span class="live-error-count" id="liveErrorCount">0</span>
                     </div>
                     <div class="live-error-summary" id="liveErrorSummary"></div>
                     <div class="live-error-list" id="liveErrorList">
-                        <div class="live-error-empty" id="liveErrorEmpty">Nenhum erro ainda</div>
+                        <div class="live-error-empty" id="liveErrorEmpty">Tudo limpo até aqui — continue praticando.</div>
                     </div>
                 </div>
 
@@ -1664,8 +1664,8 @@ body {
                             <div class="voice-dimension-meta">
                                 <button class="voice-bridge-toggle" id="voiceBridgeToggle" type="button" aria-pressed="true" onclick="window.toggleVoiceBridgeMode && window.toggleVoiceBridgeMode()">
                                     <span class="voice-bridge-toggle-copy">
-                                        <span class="voice-bridge-toggle-title" id="voiceBridgeToggleLabel">Ponte ON</span>
-                                        <span class="voice-bridge-toggle-hint" id="voiceBridgeToggleHint">PT + EN</span>
+                                        <span class="voice-bridge-toggle-title" id="voiceBridgeToggleLabel">Tradução de apoio</span>
+                                        <span class="voice-bridge-toggle-hint" id="voiceBridgeToggleHint">Aceita PT e EN</span>
                                     </span>
                                     <span class="voice-bridge-toggle-switch" aria-hidden="true"></span>
                                 </button>
@@ -1824,7 +1824,7 @@ body {
                 <p class="recap-loading-text">Analisando sua sessão...</p>
             </div>
             <div class="recap-content" id="recapContent" style="display:none;"></div>
-            <button class="recap-close-btn" onclick="closeVoiceRecap()">VOLTAR PARA VOZ</button>
+            <button class="recap-close-btn" onclick="closeVoiceRecap()">Voltar para a voz</button>
         </div>
     </div>
 
@@ -2035,16 +2035,27 @@ body {
                 .catch(function() {});
         };
 
+        function _griloEscape(s) {
+            var d = document.createElement('div');
+            d.textContent = s == null ? '' : String(s);
+            return d.innerHTML;
+        }
+
         function griloRenderPhrasebook() {
             var topics = ['Todas'];
             _phrases.forEach(function(p) { if (p.topic && topics.indexOf(p.topic) < 0) topics.push(p.topic); });
 
             var topicEl = document.getElementById('phrasebookTopics');
             if (topicEl) {
-                topicEl.innerHTML = topics.map(function(t) {
+                topicEl.innerHTML = '';
+                topics.forEach(function(t) {
                     var active = t === _activeTopic;
-                    return '<span onclick="griloFilterTopic(\'' + t + '\')" style="cursor:pointer;white-space:nowrap;padding:4px 11px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid ' + (active ? '#3A5E47' : 'rgba(58,94,71,.2)') + ';background:' + (active ? '#3A5E47' : 'transparent') + ';color:' + (active ? '#fff' : '#5A7E66') + ';font-family:\'Space Grotesk\',sans-serif;">' + t + '</span>';
-                }).join('');
+                    var span = document.createElement('span');
+                    span.style.cssText = 'cursor:pointer;white-space:nowrap;padding:4px 11px;border-radius:99px;font-size:.72rem;font-weight:600;border:1.5px solid ' + (active ? '#3A5E47' : 'rgba(58,94,71,.2)') + ';background:' + (active ? '#3A5E47' : 'transparent') + ';color:' + (active ? '#fff' : '#5A7E66') + ";font-family:'Space Grotesk',sans-serif;";
+                    span.textContent = t;
+                    span.addEventListener('click', function() { griloFilterTopic(t); });
+                    topicEl.appendChild(span);
+                });
             }
 
             var listEl = document.getElementById('phrasebookList');
@@ -2058,9 +2069,9 @@ body {
 
             listEl.innerHTML = filtered.map(function(p) {
                 return '<div style="background:#F7FAF9;border:1px solid #D9E7DC;border-radius:10px;padding:11px 13px;">' +
-                    '<div style="font-weight:600;font-size:.85rem;color:#1F3B2D;margin-bottom:3px;">' + (p.phrase_en || '') + '</div>' +
-                    (p.translation_pt ? '<div style="font-size:.75rem;color:#6A7B71;">' + p.translation_pt + '</div>' : '') +
-                    (p.topic ? '<div style="margin-top:5px;display:inline-block;background:#EEF2EF;border-radius:5px;padding:1px 7px;font-size:.67rem;font-weight:600;color:#A8B5AA;">' + p.topic + '</div>' : '') +
+                    '<div style="font-weight:600;font-size:.85rem;color:#1F3B2D;margin-bottom:3px;">' + _griloEscape(p.phrase_en) + '</div>' +
+                    (p.translation_pt ? '<div style="font-size:.75rem;color:#6A7B71;">' + _griloEscape(p.translation_pt) + '</div>' : '') +
+                    (p.topic ? '<div style="margin-top:5px;display:inline-block;background:#EEF2EF;border-radius:5px;padding:1px 7px;font-size:.67rem;font-weight:600;color:#A8B5AA;">' + _griloEscape(p.topic) + '</div>' : '') +
                     '</div>';
             }).join('');
         }

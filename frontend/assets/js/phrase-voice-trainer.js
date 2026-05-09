@@ -1393,7 +1393,7 @@
 
     const token = getAuthToken();
     if (!token) {
-      alert('Você precisa estar logado para fazer o exercício de voz.');
+      (window.showGriloToast || alert)('Entre na sua conta para fazer o exercício de voz.', 'error');
       return;
     }
 
@@ -1409,7 +1409,7 @@
     }
 
     if (!payload || !Array.isArray(payload.phrases) || payload.phrases.length === 0) {
-      alert('Esta aula ainda não tem frases para o exercício de voz.');
+      (window.showGriloToast || alert)('Esta aula ainda não tem frases para o exercício de voz. Volte em breve.', 'error');
       return;
     }
 

@@ -9,12 +9,13 @@ from collections import defaultdict
 from typing import List, Dict, Optional, Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user_id
+from backend.admin_controller import verify_admin
 from backend.database import get_db
 from backend.db_models import UserProgress, VoicePhrase, ShadowModeAnalytic
 from backend.utils import mark_activity, award_xp, track_metric_event
@@ -23,6 +24,19 @@ from backend.services import chat_concise_voice, generate_voice_recap
 from backend.voice_metrics import voice_metrics
 from backend.voice_cache import voice_cache
 from backend.fallback import GraciousFallback, ErrorScenario
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+
+def _user_or_ip_key(request):
+    """Rate-limit key by authenticated user_id when present, else by IP."""
+    auth = request.headers.get("Authorization", "")
+    if auth.lower().startswith("bearer "):
+        return f"user:{auth[-32:]}"
+    return get_remote_address(request)
+
+
+_limiter = Limiter(key_func=_user_or_ip_key)
 
 router = APIRouter(tags=["chat-voice"])
 logger = logging.getLogger(__name__)
@@ -298,7 +312,9 @@ class _TTSRequest(BaseModel):
 
 
 @router.post("/api/voice-chat")
+@_limiter.limit("30/minute")
 async def voice_chat(
+    request: Request,
     body: ChatRequest,
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
@@ -354,7 +370,7 @@ async def voice_chat(
     except Exception as exc:
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.error("[VOICE-CHAT] ERROR | user_id=%s | %.2fs | %s", user_id, elapsed, str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Voice chat unavailable. Please try again.")
 
 
 @router.post("/api/voice/session-end")
@@ -393,6 +409,9 @@ async def voice_session_end(
         db.commit()
         logger.info("[VOICE-SESSION] User %s +%ds | quality=%s", uid, duration, body.quality_score)
         mark_activity(db, uid, "voice")
+        exchanges = int(body.exchanges or 0)
+        is_completed = exchanges >= 3 and duration >= 60
+        pmf_event = "voice_session_completed" if is_completed else "voice_session_abandoned"
         track_metric_event(
             db,
             uid,
@@ -402,7 +421,19 @@ async def voice_session_end(
                 "duration_seconds": duration,
                 "quality_score": body.quality_score,
                 "corrections_count": body.corrections_count or 0,
-                "exchanges": body.exchanges or 0,
+                "exchanges": exchanges,
+            },
+        )
+        track_metric_event(
+            db,
+            uid,
+            "voice",
+            pmf_event,
+            details={
+                "duration_sec": duration,
+                "exchanges": exchanges,
+                "quality_score": body.quality_score,
+                "corrections_count": body.corrections_count or 0,
             },
         )
         return {"success": True}
@@ -424,9 +455,9 @@ async def get_voice_history(
 
 
 @router.get("/api/voice/metrics")
-async def get_voice_metrics(user_id: int = Depends(get_current_user_id)):
+async def get_voice_metrics(_admin=Depends(verify_admin)):
     """Return voice chat metrics (latency, tokens, error rate, etc).
-    Requires admin or monitoring role in production.
+    Admin-only endpoint.
     """
     metrics = voice_metrics.get_summary()
     return {
@@ -538,7 +569,9 @@ async def get_shadow_analytics(
 
 
 @router.post("/api/voice/transcribe")
+@_limiter.limit("60/minute")
 async def voice_transcribe(
+    request: Request,
     body: _TranscribeRequest,
     user_id: int = Depends(get_current_user_id),
 ):
@@ -600,7 +633,9 @@ async def voice_transcribe(
 
 
 @router.post("/api/tts")
+@_limiter.limit("60/minute")
 async def text_to_speech(
+    request: Request,
     body: _TTSRequest,
     user_id: int = Depends(get_current_user_id),
 ):
@@ -729,7 +764,9 @@ async def get_phrasebook(
 
 
 @router.post("/api/voice/recap")
+@_limiter.limit("20/minute")
 async def voice_recap(
+    request: Request,
     body: _RecapRequest,
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),

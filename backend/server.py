@@ -25,6 +25,7 @@ from backend.controllers.chat_voice_controller import router as chat_voice_route
 from backend.controllers.lessons_controller import router as lessons_router
 from backend.controllers.phrases_controller import router as phrases_router
 from backend.controllers.analytics_controller import router as analytics_router
+from backend.controllers.pmf_controller import router as pmf_router
 from backend.admin_controller import router as admin_router
 
 from backend.database import Base, engine
@@ -130,6 +131,24 @@ def _run_migrations():
                 "ALTER TABLE users ADD COLUMN refresh_token_expiry TIMESTAMP",
                 engine,
             )
+        if "token_version" not in cols_users:
+            _run_migration_step(
+                "added token_version to users",
+                "ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0",
+                engine,
+            )
+        if "failed_login_count" not in cols_users:
+            _run_migration_step(
+                "added failed_login_count to users",
+                "ALTER TABLE users ADD COLUMN failed_login_count INTEGER NOT NULL DEFAULT 0",
+                engine,
+            )
+        if "locked_until" not in cols_users:
+            _run_migration_step(
+                "added locked_until to users",
+                "ALTER TABLE users ADD COLUMN locked_until TIMESTAMP",
+                engine,
+            )
 
         # activity_type on user_activity (if table exists)
         if "user_activity" in insp.get_table_names():
@@ -222,31 +241,64 @@ app = FastAPI(
 # QW10: Add rate limiting
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, lambda request, exc: {
-    "detail": "Too many requests. Please try again later.",
-    "retry_after": "60 seconds"
-})
+from fastapi.responses import JSONResponse as _JSONResponse
+
+
+def _rate_limit_handler(request, exc):
+    return _JSONResponse(
+        status_code=429,
+        content={"detail": "Too many requests. Please slow down and try again."},
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
 
 # QW4: Add Request ID tracking middleware
 app.add_middleware(RequestIDMiddleware)
 
-# QW8: Add security headers middleware
+
+# QW8: Add security headers middleware (CSP included)
+_CSP_POLICY = (
+    "default-src 'self'; "
+    "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "font-src 'self' https://fonts.gstatic.com data:; "
+    "img-src 'self' data: blob: https:; "
+    "media-src 'self' blob: data:; "
+    "connect-src 'self' https://api.elevenlabs.io https://api.groq.com; "
+    "object-src 'none'; "
+    "base-uri 'self'; "
+    "frame-ancestors 'none'; "
+    "form-action 'self';"
+)
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
-        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "microphone=(self), camera=(), geolocation=()"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["Content-Security-Policy"] = _CSP_POLICY
         return response
+
 
 app.add_middleware(SecurityHeadersMiddleware)
 
 
-# QW8: Trusted hosts (security)
+# QW8: Trusted hosts — restricted to production host(s) only
+_extra_allowed = os.getenv("ALLOWED_HOSTS", "").split(",")
+_extra_allowed = [h.strip() for h in _extra_allowed if h.strip()]
+_default_hosts = settings.cors_origins.split(",") + [
+    "localhost",
+    "127.0.0.1",
+    "web-production-6ecc2.up.railway.app",
+]
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=settings.cors_origins.split(",") + ["localhost", "127.0.0.1", "*.railway.app",  "web-production-6ecc2.up.railway.app"]
+    allowed_hosts=list({*_default_hosts, *_extra_allowed}),
 )
 
 # QW8: CORS with whitelist (security) - NOT allow_origins="*"
@@ -359,6 +411,16 @@ async def dashboard_page():
     return FileResponse(_frontend_file("dashboard.html"))
 
 
+@app.get("/pmf")
+async def pmf_alias():
+    return FileResponse(_frontend_file("pmf.html"))
+
+
+@app.get("/pmf.html")
+async def pmf_page():
+    return FileResponse(_frontend_file("pmf.html"))
+
+
 # Domain controllers
 app.include_router(auth_router)
 app.include_router(chat_text_router)
@@ -366,6 +428,7 @@ app.include_router(chat_voice_router)
 app.include_router(lessons_router)
 app.include_router(phrases_router)
 app.include_router(analytics_router)
+app.include_router(pmf_router)
 app.include_router(admin_router)
 
 # Static files should be mounted last to avoid intercepting API routes.

@@ -7,7 +7,15 @@ from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-_limiter = Limiter(key_func=get_remote_address)
+
+def _login_key(request: Request):
+    """Rate-limit by client IP (X-Forwarded-For aware) + username when present."""
+    xff = request.headers.get("x-forwarded-for", "")
+    ip = (xff.split(",")[0].strip() if xff else None) or get_remote_address(request)
+    return ip
+
+
+_limiter = Limiter(key_func=_login_key)
 
 from backend.auth import (
     create_access_token,
@@ -31,19 +39,32 @@ from backend.schemas import (
 
 router = APIRouter(tags=["auth"])
 
+# Account-lockout policy
+_MAX_FAILED_LOGINS = 8
+_LOCKOUT_MINUTES = 15
+
+
+def _issue_tokens(user: User) -> tuple[str, str]:
+    """Create access + refresh tokens carrying the current token_version."""
+    tv = int(getattr(user, "token_version", 0) or 0)
+    access_token = create_access_token(data={"user_id": user.id, "tv": tv})
+    refresh_token = create_refresh_token(data={"user_id": user.id, "tv": tv})
+    return access_token, refresh_token
+
 
 @router.post("/api/register", response_model=TokenResponse)
 @_limiter.limit("5/minute")
 async def register(request: Request, user_data: UserRegister, db: Session = Depends(get_db)):
-    """Register a new user."""
+    """Register a new user. Always returns generic error on conflict (anti-enumeration)."""
     existing_user = db.query(User).filter(
         (User.username == user_data.username) | (User.email == user_data.email)
     ).first()
 
+    # Anti-enumeration: do NOT reveal which field collided.
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username or email already registered",
+            detail="Could not complete registration with the provided details.",
         )
 
     hashed_password = hash_password(user_data.password)
@@ -60,8 +81,7 @@ async def register(request: Request, user_data: UserRegister, db: Session = Depe
     if not progress:
         db.add(UserProgress(user_id=new_user.id))
 
-    access_token = create_access_token(data={"user_id": new_user.id})
-    refresh_token = create_refresh_token(data={"user_id": new_user.id})
+    access_token, refresh_token = _issue_tokens(new_user)
 
     new_user.refresh_token = hash_refresh_token(refresh_token)
     new_user.refresh_token_expiry = datetime.utcnow() + timedelta(
@@ -72,22 +92,20 @@ async def register(request: Request, user_data: UserRegister, db: Session = Depe
         db.commit()
     except IntegrityError as exc:
         db.rollback()
-
-        existing_user = db.query(User).filter(
-            (User.username == user_data.username) | (User.email == user_data.email)
-        ).first()
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Username or email already registered",
-            ) from exc
-
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Could not complete registration",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not complete registration with the provided details.",
         ) from exc
 
     db.refresh(new_user)
+
+    track_metric_event(
+        db,
+        new_user.id,
+        "funnel",
+        "signup_completed",
+        details={"source": (request.headers.get("referer") or "")[:200]},
+    )
 
     return TokenResponse(
         access_token=access_token,
@@ -106,18 +124,34 @@ async def register(request: Request, user_data: UserRegister, db: Session = Depe
 @router.post("/api/login", response_model=TokenResponse)
 @_limiter.limit("10/minute")
 async def login(request: Request, user_data: UserLogin, db: Session = Depends(get_db)):
-    """Login user and return JWT token."""
+    """Login user. Includes per-account lockout after repeated failures."""
     user = db.query(User).filter(User.username == user_data.username).first()
 
+    # Per-account lockout check (independent of IP rate-limit)
+    if user and user.locked_until and user.locked_until > datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Account temporarily locked due to repeated failures. Try again later.",
+        )
+
     if not user or not verify_password(user_data.password, user.password_hash):
+        # Increment failure counter on the targeted account (if exists)
+        if user:
+            user.failed_login_count = (user.failed_login_count or 0) + 1
+            if user.failed_login_count >= _MAX_FAILED_LOGINS:
+                user.locked_until = datetime.utcnow() + timedelta(minutes=_LOCKOUT_MINUTES)
+                user.failed_login_count = 0
+            db.commit()
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password",
         )
 
-    access_token = create_access_token(data={"user_id": user.id})
-    refresh_token = create_refresh_token(data={"user_id": user.id})
+    # Successful login: clear lockout state
+    user.failed_login_count = 0
+    user.locked_until = None
 
+    access_token, refresh_token = _issue_tokens(user)
     user.refresh_token = hash_refresh_token(refresh_token)
     user.refresh_token_expiry = datetime.utcnow() + timedelta(
         days=REFRESH_TOKEN_EXPIRE_DAYS
@@ -155,9 +189,18 @@ async def login(request: Request, user_data: UserLogin, db: Session = Depends(ge
 
 
 @router.post("/api/auth/refresh", response_model=TokenResponse)
-async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
-    """Refresh access token using refresh token."""
-    payload = verify_token(request.refresh_token)
+@_limiter.limit("30/minute")
+async def refresh_token(
+    request: Request,
+    body: RefreshTokenRequest,
+    db: Session = Depends(get_db),
+):
+    """Refresh access token using refresh token. Rotates refresh_token on every call.
+
+    On any inconsistency (reuse of an old refresh, invalid signature, etc.) the
+    user's session is fully invalidated by bumping token_version.
+    """
+    payload = verify_token(body.refresh_token)
 
     if payload.get("type") != "refresh":
         raise HTTPException(
@@ -167,11 +210,22 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
 
     user_id = payload.get("user_id")
     user = db.query(User).filter(User.id == user_id).first()
-
-    if not user or user.refresh_token != hash_refresh_token(request.refresh_token):
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token not found or invalid",
+        )
+
+    presented_hash = hash_refresh_token(body.refresh_token)
+    if user.refresh_token != presented_hash:
+        # Possible replay/theft — revoke everything
+        user.token_version = (user.token_version or 0) + 1
+        user.refresh_token = None
+        user.refresh_token_expiry = None
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token reuse detected. Please log in again.",
         )
 
     if user.refresh_token_expiry and user.refresh_token_expiry < datetime.utcnow():
@@ -180,11 +234,26 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
             detail="Refresh token expired",
         )
 
-    new_access_token = create_access_token(data={"user_id": user.id})
+    # Token version mismatch (logout/reset since this token was issued)
+    tv_token = int(payload.get("tv", 0) or 0)
+    tv_user = int(getattr(user, "token_version", 0) or 0)
+    if tv_token != tv_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session revoked. Please log in again.",
+        )
+
+    # Rotate: new access AND new refresh, invalidate the old
+    new_access, new_refresh = _issue_tokens(user)
+    user.refresh_token = hash_refresh_token(new_refresh)
+    user.refresh_token_expiry = datetime.utcnow() + timedelta(
+        days=REFRESH_TOKEN_EXPIRE_DAYS
+    )
+    db.commit()
 
     return TokenResponse(
-        access_token=new_access_token,
-        refresh_token=request.refresh_token,
+        access_token=new_access,
+        refresh_token=new_refresh,
         token_type="bearer",
         user={
             "id": user.id,
@@ -194,6 +263,21 @@ async def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_
             "xp": user.xp,
         },
     )
+
+
+@router.post("/api/logout")
+async def logout(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Invalidate current session: bump token_version and clear refresh token."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        user.token_version = (user.token_version or 0) + 1
+        user.refresh_token = None
+        user.refresh_token_expiry = None
+        db.commit()
+    return {"ok": True}
 
 
 class OnboardingRequest(BaseModel):
@@ -207,14 +291,27 @@ async def save_onboarding(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    """Save onboarding answers and mark onboarding as complete."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    was_completed_before = (user.onboarding_step or 0) >= 4
+    started_at = user.created_at or datetime.utcnow()
     user.learning_why = data.learning_why
     user.daily_interests = data.daily_interests
     user.onboarding_step = 4
     db.commit()
+    if not was_completed_before:
+        time_to_complete = max(0, int((datetime.utcnow() - started_at).total_seconds()))
+        track_metric_event(
+            db,
+            user.id,
+            "funnel",
+            "onboarding_finished",
+            details={
+                "learning_why": (data.learning_why or "")[:80],
+                "time_to_complete_sec": time_to_complete,
+            },
+        )
     return {"ok": True}
 
 
@@ -223,7 +320,6 @@ async def get_profile(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    """Return public profile fields needed by the frontend header."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

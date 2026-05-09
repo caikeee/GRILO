@@ -3,6 +3,12 @@
  * Handles user management and password reset functionality for admins
  */
 
+function _adminEscape(s) {
+    const d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+}
+
 // Check if current user is admin and show/hide admin tab
 async function checkAdminStatus() {
     const token = localStorage.getItem('grilo_token');
@@ -49,20 +55,49 @@ async function loadAdminUsers() {
 
         if (!list) return;
 
-        list.innerHTML = users.map(u => `
-            <div class="admin-user-item">
-                <div class="admin-user-info">
-                    <span class="admin-user-name">${u.username}</span>
-                    <span class="admin-user-email">${u.email}</span>
-                </div>
-                <div class="admin-user-stats">
-                    <span class="admin-stat">Level ${u.level}</span>
-                    <span class="admin-stat">${u.xp} XP</span>
-                    ${u.is_admin ? '<span class="admin-badge">ADMIN</span>' : ''}
-                </div>
-                <button class="btn-admin-small" onclick="selectUserForReset('${u.username}')">Reset Senha</button>
-            </div>
-        `).join('');
+        list.innerHTML = '';
+        users.forEach(u => {
+            const item = document.createElement('div');
+            item.className = 'admin-user-item';
+
+            const info = document.createElement('div');
+            info.className = 'admin-user-info';
+            const nameEl = document.createElement('span');
+            nameEl.className = 'admin-user-name';
+            nameEl.textContent = u.username;
+            const emailEl = document.createElement('span');
+            emailEl.className = 'admin-user-email';
+            emailEl.textContent = u.email;
+            info.appendChild(nameEl);
+            info.appendChild(emailEl);
+
+            const stats = document.createElement('div');
+            stats.className = 'admin-user-stats';
+            const lvl = document.createElement('span');
+            lvl.className = 'admin-stat';
+            lvl.textContent = `Level ${Number(u.level) || 0}`;
+            const xp = document.createElement('span');
+            xp.className = 'admin-stat';
+            xp.textContent = `${Number(u.xp) || 0} XP`;
+            stats.appendChild(lvl);
+            stats.appendChild(xp);
+            if (u.is_admin) {
+                const badge = document.createElement('span');
+                badge.className = 'admin-badge';
+                badge.textContent = 'ADMIN';
+                stats.appendChild(badge);
+            }
+
+            const btn = document.createElement('button');
+            btn.className = 'btn-admin-small';
+            btn.textContent = 'Reset Senha';
+            btn.addEventListener('click', () => selectUserForReset(u.username));
+
+            item.appendChild(info);
+            item.appendChild(stats);
+            item.appendChild(btn);
+            list.appendChild(item);
+        });
 
         console.log('✅ Loaded', users.length, 'users');
     } catch (err) {
@@ -115,7 +150,7 @@ async function adminResetPassword() {
         }
 
         const result = await res.json();
-        showAdminMessage(`✅ Senha de "${username}" redefinida com sucesso`, 'success');
+        showAdminMessage(`Senha redefinida com sucesso`, 'success');
 
         // Clear form
         document.getElementById('adminUsername').value = '';

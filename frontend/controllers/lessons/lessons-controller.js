@@ -361,7 +361,7 @@ function populateLessonDetail(lesson) {
     document.getElementById('lessonTitleHero').textContent = lesson.title;
     const learningGoal = (lesson.content && lesson.content.learning_goal)
         || lesson.description
-        || 'Ao final desta aula, voce conseguira usar o conteudo em frases simples.';
+        || 'Ao final desta aula, você vai conseguir usar o conteúdo em frases simples.';
     document.getElementById('lessonObjective').textContent = learningGoal;
 
     // Category badges
@@ -639,7 +639,7 @@ function nextLesson() {
     if (next) {
         openLessonDetail(next);
     } else {
-        alert('Parab\u00e9ns! Voc\u00ea completou todas as aulas dispon\u00edveis!');
+        (window.showGriloToast || alert)('Voc\u00ea concluiu todas as aulas dispon\u00edveis. Parab\u00e9ns!', 'success');
         backToLessonsView();
     }
 }

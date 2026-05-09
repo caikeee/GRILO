@@ -8986,7 +8986,7 @@ body.beta-modal-open .main-content.active {
 
                 <!-- Footer Action -->
                 <div class="sidebar-footer">
-                    <button class="btn-complete" onclick="window.location.href='voice.html'">Iniciar Sessao de Voz</button>
+                    <button class="btn-complete" onclick="window.location.href='voice.html'">Falar agora</button>
                 </div>
 
             </aside>
@@ -9076,16 +9076,16 @@ body.beta-modal-open .main-content.active {
                         <section class="daily-word-panel" id="dailyWordPanel" aria-labelledby="dailyWordTitle">
                             <div class="daily-word-main">
                                 <div class="daily-word-kicker">
-                                    <span>Word pulse</span>
-                                    <span id="dailyWordDateLabel">Today</span>
+                                    <span>Palavra do dia</span>
+                                    <span id="dailyWordDateLabel">Hoje</span>
                                 </div>
 
                                 <div class="daily-word-header">
                                     <div class="daily-word-title-wrap">
-                                        <h3 id="dailyWordTitle">Loading...</h3>
+                                        <h3 id="dailyWordTitle">Carregando…</h3>
                                         <p class="daily-word-pronunciation" id="dailyWordPronunciation"></p>
                                     </div>
-                                    <div class="daily-word-tag" id="dailyWordTag">Daily focus</div>
+                                    <div class="daily-word-tag" id="dailyWordTag">Foco de hoje</div>
                                 </div>
 
                                 <p class="daily-word-definition" id="dailyWordDefinition"></p>
@@ -9251,22 +9251,22 @@ body.beta-modal-open .main-content.active {
                         <!-- Live Error Panel: real-time corrections during session -->
                         <div class="live-error-panel" id="liveErrorPanel" aria-live="polite">
                             <div class="live-error-header">
-                                <span class="live-error-title">ERROS DA SESSÃO</span>
+                                <span class="live-error-title">Pontos para revisar</span>
                                 <span class="live-error-count" id="liveErrorCount">0</span>
                             </div>
                             <div class="live-error-list" id="liveErrorList">
-                                <div class="live-error-empty" id="liveErrorEmpty">Nenhum erro ainda</div>
+                                <div class="live-error-empty" id="liveErrorEmpty">Tudo limpo até aqui — continue praticando.</div>
                             </div>
                         </div>
 
                         <!-- Immersive Voice Dimension -->
                         <div class="ai-response-overlay" id="aiResponseOverlay">
-                            <button class="voice-dimension-exit-btn" onclick="exitVoiceDimension()">Sair da dimensao</button>
+                            <button class="voice-dimension-exit-btn" onclick="exitVoiceDimension()">Sair</button>
                             <div class="ai-response-container">
                                 <div class="voice-dimension-main">
                                     <div class="voice-dimension-meta">
-                                        <span class="voice-dimension-chip">Voice Core v2</span>
-                                        <span class="voice-dimension-chip voice-dimension-chip-muted">Daily Fluency Loop</span>
+                                        <span class="voice-dimension-chip">Sessão de voz</span>
+                                        <span class="voice-dimension-chip voice-dimension-chip-muted">Prática diária</span>
                                     </div>
 
                                     <div class="ai-orb-wrapper">
@@ -9278,18 +9278,18 @@ body.beta-modal-open .main-content.active {
                                     </div>
 
                                     <div class="voice-dimension-status" id="voiceDimensionStatus">
-                                        <span class="voice-status-text"><span class="voice-indicator"></span>🎤 Pronto para sua sessao de voz.</span>
+                                        <span class="voice-status-text"><span class="voice-indicator"></span>🎤 Pronto para começar.</span>
                                     </div>
 
                                     <div class="ai-response-text" id="aiResponseText">
-                                        <p>Treino orientado por voz ativo. Inicie para receber feedback em tempo real e recap acionavel.</p>
+                                        <p>Comece a falar e eu sigo a conversa. Você recebe correções em tempo real e um recap no fim.</p>
                                     </div>
 
-                                    <p class="voice-dimension-subtitle" id="voiceDimensionSubtitle">Objetivo semanal: 4 sessoes concluidas + desafio de 7 dias para desbloquear modos.</p>
+                                    <p class="voice-dimension-subtitle" id="voiceDimensionSubtitle">Meta da semana: 4 sessões + desafio de 7 dias para desbloquear novos modos.</p>
 
                                     <div class="voice-dimension-actions">
-                                        <button class="voice-start-btn" id="voiceStartBtn" onclick="if (window.startVoiceSession) { window.startVoiceSession(); } else { console.error('startVoiceSession indisponivel'); }">Iniciar Sessao de Voz</button>
-                                        <button class="voice-stop-btn" id="voiceStopBtn" onclick="stopVoiceChat()" style="display:none;">Encerrar Sessão</button>
+                                        <button class="voice-start-btn" id="voiceStartBtn" onclick="if (window.startVoiceSession) { window.startVoiceSession(); } else { console.error('startVoiceSession indisponível'); }">Falar agora</button>
+                                        <button class="voice-stop-btn" id="voiceStopBtn" onclick="stopVoiceChat()" style="display:none;">Encerrar sessão</button>
                                     </div>
                                 </div>
 
@@ -9392,7 +9392,7 @@ body.beta-modal-open .main-content.active {
                                         <span class="quiz-meta-item">50 aulas</span>
                                         <span class="quiz-meta-item">⏱️ Seu ritmo</span>
                                     </div>
-                                    <button class="btn-quiz-featured">Começar Aula →</button>
+                                    <button class="btn-quiz-featured">Começar aula →</button>
                                 </div>
 
                                 <!-- QUIZ RÁPIDO - Featured -->
@@ -9407,7 +9407,7 @@ body.beta-modal-open .main-content.active {
                                         <span class="quiz-meta-item">10 perguntas</span>
                                         <span class="quiz-meta-item">⏱️ ~5 min</span>
                                     </div>
-                                    <button class="btn-quiz-featured">Iniciar Quiz →</button>
+                                    <button class="btn-quiz-featured">Começar quiz →</button>
                                 </div>
 
                                 <!-- CATEGORIA -->
@@ -9539,7 +9539,7 @@ body.beta-modal-open .main-content.active {
 
                                 <div class="quiz-results-actions">
                                     <button class="btn-auth" onclick="showQuizSelector()">Voltar ao Menu</button>
-                                    <button class="btn-auth quiz-retry-btn" onclick="retryQuiz()">Tentar Novamente</button>
+                                    <button class="btn-auth quiz-retry-btn" onclick="retryQuiz()">Tentar de novo</button>
                                 </div>
                             </div>
                         </div>
@@ -10320,15 +10320,15 @@ body.beta-modal-open .main-content.active {
       </h2>
 
       <p class="beta-modal-body">
-                                O GRILO esta em versao BETA e evolui em contato direto com quem usa a plataforma todos os dias.
+                                O GRILO está em versão BETA e evolui em contato direto com quem usa a plataforma todos os dias.
       </p>
 
       <p class="beta-modal-body">
-                                Aqui voce encontra conteudo denso, aulas estruturadas e uma experiencia pensada para aprofundar seu aprendizado com mais contexto e consistencia.
+                                Aqui você encontra conteúdo denso, aulas estruturadas e uma experiência pensada para aprofundar seu aprendizado com mais contexto e consistência.
       </p>
 
       <p class="beta-modal-body beta-modal-highlight">
-                                Estamos em melhoria continua junto a comunidade. Se encontrar erros, duvidas ou pontos confusos, reporte sem hesitar: cada relato contribui diretamente para fortalecer e melhorar todo o ecossistema GRILO.
+                                Estamos em melhoria contínua junto à comunidade. Se encontrar problemas, dúvidas ou pontos confusos, reporte sem hesitar — cada relato contribui diretamente para fortalecer todo o ecossistema GRILO.
       </p>
 
             <div class="beta-modal-actions">

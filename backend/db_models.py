@@ -21,6 +21,11 @@ class User(Base):
     # QW9: JWT Refresh Token
     refresh_token = Column(String(500), nullable=True)
     refresh_token_expiry = Column(DateTime, nullable=True)
+    # token_version: bumped on logout / password reset to revoke outstanding access tokens
+    token_version = Column(Integer, nullable=False, default=0)
+    # Lockout fields for failed login throttling
+    failed_login_count = Column(Integer, nullable=False, default=0)
+    locked_until = Column(DateTime, nullable=True)
     
     # ONBOARDING & PROFILING
     onboarding_step = Column(Integer, default=0)  # 0=welcome, 1=why_learn, 2=interests, 3=practical_demo, 4=done

@@ -2759,11 +2759,11 @@
         const title = window._currentLessonTitle || 'Aula';
         const backendId = STANDALONE_BACKEND_IDS[slug];
         if (!backendId) {
-          alert('Esta aula ainda não tem banco de frases.');
+          (window.showGriloToast || alert)('Esta aula ainda não tem frases para treinar. Volte em breve.', 'error');
           return;
         }
         if (typeof window.openPhraseVoiceTrainer !== 'function') {
-          alert('Trainer de voz não carregou. Recarregue a página.');
+          (window.showGriloToast || alert)('O treinador de voz não carregou. Recarregue a página para tentar de novo.', 'error');
           return;
         }
         window.openPhraseVoiceTrainer(backendId, title);

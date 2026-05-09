@@ -781,7 +781,7 @@ async def get_all_quiz_questions():
         return {"success": True, "total": len(questions), "questions": questions}
     except Exception as exc:
         logger.error("[QUIZ] Error retrieving questions: %s", str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Quiz unavailable. Please try again.")
 
 
 @router.get("/api/quiz/questions/category/{category}")
@@ -801,7 +801,7 @@ async def get_quiz_by_category(category: str):
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
         logger.error("[QUIZ] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Quiz unavailable. Please try again.")
 
 
 @router.get("/api/quiz/random")
@@ -816,7 +816,7 @@ async def get_random_quiz(count: int = 10, category: str = None, difficulty: int
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
         logger.error("[QUIZ] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Quiz unavailable. Please try again.")
 
 
 @router.post("/api/quiz/submit-answer")
@@ -871,4 +871,4 @@ async def submit_quiz_answer(
         raise HTTPException(status_code=404, detail=str(exc))
     except Exception as exc:
         logger.error("[QUIZ-SUBMIT] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not submit answer. Please try again.")

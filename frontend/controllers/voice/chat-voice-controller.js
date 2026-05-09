@@ -202,16 +202,16 @@ function _handleVoiceUnauthorized(source = "voice") {
         statusEl.classList.add("error");
     }
     if (statusText) {
-        statusText.innerHTML = '<span class="voice-indicator speaking"></span>Sessao expirada';
+        statusText.innerHTML = '<span class="voice-indicator speaking"></span>Sessão expirada';
     }
     if (aiResponseText) {
         aiResponseText.innerHTML = "<p>Sua sessao expirou durante o treino de voz. Faca login novamente para continuar.</p>";
     }
     if (subtitle) {
-        subtitle.textContent = "Redirecionando para a tela inicial para renovar sua autenticacao.";
+        subtitle.textContent = "Te levando de volta para a tela inicial para entrar de novo.";
     }
 
-    showVoiceToast("Sessao expirada. Entrando novamente.");
+    showVoiceToast("Sua sessão expirou. Entre de novo para continuar.");
     setTimeout(() => {
         window.location.replace("/");
     }, 1200);
@@ -1190,11 +1190,11 @@ function _topicLabelPt(topic) {
 }
 
 function _bridgeModeLabel() {
-    return voiceBridgeMode ? "Ponte ON" : "Ponte OFF";
+    return voiceBridgeMode ? "Tradução de apoio ligada" : "Tradução de apoio desligada";
 }
 
 function _bridgeModeHint() {
-    return voiceBridgeMode ? "PT + EN" : "English only";
+    return voiceBridgeMode ? "Aceita PT e EN" : "Só inglês";
 }
 
 function _voiceRecognizerLanguage() {
@@ -1355,12 +1355,12 @@ function _buildVoicePtGuidanceText() {
     }
 
     if (voiceMode === "shadow") {
-        return `Modo ${modeLabel}. Vou falar uma frase em ingles e voce repete igual. Se precisar, toque em Ajuda.`;
+        return `Modo ${modeLabel}. Vou falar uma frase em inglês e você repete igual. Se precisar, toque em Ajuda.`;
     }
     if (voiceMode === "dictation") {
         return `Modo ${modeLabel}. Voce vai ouvir uma frase em ingles e escrever o que entendeu. Se travar, toque em Ajuda.`;
     }
-    return `Cenario ${topicLabel}, modo ${modeLabel}. Eu falo primeiro em ingles. Depois voce responde com uma frase curta. Se precisar, toque em Ajuda.`;
+    return `Cenário ${topicLabel}, modo ${modeLabel}. Eu falo primeiro em inglês. Depois você responde com uma frase curta. Se precisar, toque em Ajuda.`;
 }
 
 function _getLastAssistantVoiceMessage() {
@@ -1383,7 +1383,7 @@ function _inferVoiceHelpGoal(aiText) {
         return "A IA pediu informacao especifica. Responda com dado objetivo e uma frase curta de apoio.";
     }
     if (t.includes("reservation")) {
-        return "A IA quer saber se voce ja tem reserva ou se precisa criar uma agora.";
+        return "A IA quer saber se você já tem reserva ou se precisa criar uma agora.";
     }
     if (t.includes("flight") || t.includes("gate") || t.includes("boarding")) {
         return "A IA quer detalhes de voo/embarque para orientar o proximo passo no aeroporto.";
@@ -1391,7 +1391,7 @@ function _inferVoiceHelpGoal(aiText) {
     if (t.includes("interview") || t.includes("experience")) {
         return "A IA quer uma resposta profissional curta com experiencia, habilidade ou exemplo.";
     }
-    return "A IA quer que voce continue com uma resposta curta, clara e natural em ingles.";
+    return "A IA quer que você continue com uma resposta curta, clara e natural em inglês.";
 }
 
 function _toPronunciationPt(text) {
@@ -1426,7 +1426,7 @@ async function _ensureVoiceHelpTranslation(aiText) {
     }
 
     const authToken = window.authToken || localStorage.getItem("grilo_token");
-    if (!authToken) return "Sem autenticacao para buscar traducao desta frase.";
+    if (!authToken) return "Você precisa entrar de novo para ver a tradução desta frase.";
 
     try {
         // API_BASE_URL is defined globally in utils.js
@@ -2365,7 +2365,7 @@ window.toggleVoiceBridgeMode = function() {
     // Persist bridge mode preference
     localStorage.setItem('voiceBridgeMode', voiceBridgeMode);
     _syncVoiceBridgeUi();
-    showVoiceToast(voiceBridgeMode ? "Ponte ligada: voce pode responder em PT ou EN." : "Ponte desligada: responda em ingles.");
+    showVoiceToast(voiceBridgeMode ? "Tradução de apoio ligada — você pode responder em PT ou EN." : "Tradução de apoio desligada — responda em inglês.");
 };
 
 window.startVoiceSession = function() {
@@ -2732,7 +2732,7 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
                     heardLanguage,
                     englishText: aiResponse,
                     portugueseText: _lastTranslationPt,
-                    turnHint: 'Escute a resposta. Quando eu terminar, a palavra volta para voce.',
+                    turnHint: 'Escute a resposta. Quando eu terminar, a palavra volta para você.',
                     correctionPhrase: correctedPhrase,
                     understandingStatus: understanding?.status || 'clear',
                     understandingNote: understanding?.note_pt || '',
@@ -2840,7 +2840,7 @@ function initializeVoiceModalRecognizer() {
     }
 
     if (!SpeechRecognition) {
-        alert("❌ Speech Recognition não suportado neste navegador");
+        (window.showGriloToast || alert)("Seu navegador não reconhece voz. Tente o Chrome ou Edge atualizados.", "error");
         return;
     }
 
@@ -3116,7 +3116,7 @@ function updateVoiceModalStatus(status) {
         case "processing":
             statusEl.classList.add("processing");
             statusText.innerHTML = '<span class="voice-indicator animate-pulse"></span>Processando...';
-            if (subtitle) subtitle.textContent = "Conferindo o que voce disse e preparando a resposta.";
+            if (subtitle) subtitle.textContent = "Conferindo o que você disse e preparando a resposta.";
             if (voiceStartBtn) voiceStartBtn.classList.add("active");
             break;
         case "waiting":
