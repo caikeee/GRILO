@@ -2849,7 +2849,7 @@ function initializeVoiceModalRecognizer() {
     voiceModalRecognizer.continuous = false;
     voiceModalRecognizer.interimResults = true;
     voiceModalRecognizer.lang = _voiceRecognizerLanguage();
-    voiceModalRecognizer.maxAlternatives = 3; // Get top-3 hypotheses and pick best confidence
+    voiceModalRecognizer.maxAlternatives = 5; // Top-5 hypotheses — GriloVR escolhe a melhor
 
     voiceModalRecognizer.onstart = () => {
         console.log("✅ Recognizer started, listening for speech");
@@ -2956,7 +2956,7 @@ function initializeVoiceModalRecognizer() {
             const isFinal = event.results[i].isFinal;
 
             if (isFinal) {
-                // Pick the alternative with the highest confidence from up to 3 candidates
+                // Pick the alternative with the highest confidence from up to 5 candidates
                 let bestTranscript = event.results[i][0].transcript;
                 let bestConfidence = event.results[i][0].confidence || 0;
                 for (let a = 1; a < event.results[i].length; a++) {
@@ -2971,6 +2971,8 @@ function initializeVoiceModalRecognizer() {
                 if (bestConfidence > 0) {
                     minConfidence = Math.min(minConfidence, bestConfidence);
                 }
+                // Atualiza indicador visual de confidence (nova melhoria)
+                try { _updateVoiceConfidenceIndicator(bestConfidence); } catch (e) {}
             } else {
                 const transcript = event.results[i][0].transcript;
                 interimTranscript += transcript;
@@ -3852,3 +3854,109 @@ function getEditDistance(s1, s2) {
 }
 
 console.log("✅ Speech Handler initialized");
+
+
+// ============================================================
+// Voice Recognition Quality Indicator (GriloVR integration)
+// ============================================================
+// Mostra ao usuário, em tempo real, se o STT está conseguindo ouvir bem.
+// Lê o módulo window.GriloVR (se carregado) para classificar confidence.
+// ============================================================
+
+let _voiceConfidenceMonitor = null;
+
+function _updateVoiceConfidenceIndicator(confidence) {
+    if (!confidence && confidence !== 0) return;
+    const wrap = _ensureVoiceConfidenceWrap();
+    if (!wrap) return;
+    const fill = wrap.querySelector('.gvc-fill');
+    const lbl  = wrap.querySelector('.gvc-label');
+    const dot  = wrap.querySelector('.gvc-dot');
+
+    const pct = Math.round(confidence * 100);
+    fill.style.width = pct + '%';
+
+    let bucket = 'partial';
+    if (window.GriloVR && typeof window.GriloVR.confidenceLabel === 'function') {
+        bucket = window.GriloVR.confidenceLabel(confidence);
+    } else {
+        bucket = confidence >= 0.55 ? 'clear' : (confidence >= 0.25 ? 'partial' : 'inaudible');
+    }
+
+    dot.className = 'gvc-dot ' + bucket;
+    fill.className = 'gvc-fill ' + bucket;
+    const labels = {
+        clear:     'Áudio claro',
+        partial:   'Áudio parcial',
+        inaudible: 'Áudio confuso',
+    };
+    lbl.textContent = `${labels[bucket]} · ${pct}%`;
+
+    wrap.classList.add('is-active');
+    clearTimeout(_voiceConfidenceMonitor);
+    _voiceConfidenceMonitor = setTimeout(() => wrap.classList.remove('is-active'), 4000);
+}
+
+function _ensureVoiceConfidenceWrap() {
+    let wrap = document.getElementById('gvcVoiceConfidence');
+    if (wrap) return wrap;
+
+    // Estilo inline (evita depender de CSS externo)
+    if (!document.getElementById('gvcVoiceConfidenceStyles')) {
+        const tag = document.createElement('style');
+        tag.id = 'gvcVoiceConfidenceStyles';
+        tag.textContent = `
+#gvcVoiceConfidence {
+    position: fixed; bottom: 20px; left: 20px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(15,15,15,0.10);
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(15,15,15,0.10);
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 0.78rem;
+    z-index: 5000;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+#gvcVoiceConfidence.is-active { opacity: 1; transform: translateY(0); }
+.gvc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.gvc-dot.clear     { background: #228b5a; }
+.gvc-dot.partial   { background: #f59e0b; }
+.gvc-dot.inaudible { background: #c44a2c; animation: gvcPulse 0.9s ease infinite; }
+@keyframes gvcPulse { 50% { transform: scale(1.4); opacity: 0.6; } }
+.gvc-bar {
+    width: 80px; height: 6px;
+    background: rgba(15,15,15,0.06);
+    border-radius: 999px; overflow: hidden;
+}
+.gvc-fill {
+    display: block; height: 100%; width: 0;
+    background: #f59e0b;
+    border-radius: 999px;
+    transition: width 0.25s ease, background 0.25s ease;
+}
+.gvc-fill.clear     { background: linear-gradient(90deg, #228b5a, #65b88a); }
+.gvc-fill.partial   { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.gvc-fill.inaudible { background: linear-gradient(90deg, #c44a2c, #e88a3c); }
+.gvc-label { color: #1c1c1c; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+`;
+        document.head.appendChild(tag);
+    }
+
+    wrap = document.createElement('div');
+    wrap.id = 'gvcVoiceConfidence';
+    wrap.innerHTML = `
+        <span class="gvc-dot partial"></span>
+        <span class="gvc-bar"><span class="gvc-fill partial"></span></span>
+        <span class="gvc-label">Aguardando voz…</span>
+    `;
+    document.body.appendChild(wrap);
+    return wrap;
+}
+
+// Expor para debug
+window._updateVoiceConfidenceIndicator = _updateVoiceConfidenceIndicator;

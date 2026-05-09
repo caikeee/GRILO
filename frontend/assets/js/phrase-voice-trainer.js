@@ -16,10 +16,12 @@
   const PHRASE_TIME_PER_PHRASE_SEC = 25; // por frase (ajuste fino)
   const TOTAL_TIME_SEC = 90;             // teto total da sessão (5 frases)
   const RECOGNITION_LANG = 'en-US';
-  const MATCH_THRESHOLD = 0.7;           // 70% das palavras = acerto
-  const MIN_WORDS_TO_PASS = 2;           // mínimo de palavras-chave certas
 
   let state = null;
+  // Módulo compartilhado de avaliação (carregado via voice-recognition-utils.js)
+  function VR() {
+    return window.GriloVR || null;
+  }
 
   // ─── Util ────────────────────────────────────────────────────
   function getAuthToken() {
@@ -109,6 +111,31 @@
 
             <div class="pvt-status" id="pvtStatus" aria-live="polite">Toque em <strong>Ouvir pronúncia</strong> e depois em <strong>Falar</strong>.</div>
             <div class="pvt-feedback" id="pvtFeedback" hidden></div>
+
+            <!-- Microfone: nível de áudio em tempo real -->
+            <div class="pvt-mic-level" id="pvtMicLevel" hidden>
+              <span class="pvt-mic-level-label">🎤 Volume</span>
+              <span class="pvt-mic-level-bar"><span class="pvt-mic-level-fill" id="pvtMicLevelFill"></span></span>
+              <span class="pvt-mic-level-status" id="pvtMicLevelStatus">aguardando…</span>
+            </div>
+
+            <!-- O que escutamos -->
+            <div class="pvt-heard" id="pvtHeard" hidden>
+              <div class="pvt-heard-row">
+                <span class="pvt-heard-label">Eu entendi:</span>
+                <span class="pvt-heard-text" id="pvtHeardText"></span>
+              </div>
+              <div class="pvt-heard-conf" id="pvtHeardConf"></div>
+            </div>
+
+            <!-- Heatmap de tentativas -->
+            <div class="pvt-attempts" id="pvtAttempts" hidden>
+              <div class="pvt-attempts-label">Suas tentativas nesta frase</div>
+              <div class="pvt-attempts-list" id="pvtAttemptsList"></div>
+            </div>
+
+            <!-- Dicas BR (quando padrão fonético típico é detectado) -->
+            <div class="pvt-br-hint" id="pvtBrHint" hidden></div>
           </div>
 
           <!-- Checklist lateral -->
@@ -529,6 +556,153 @@
   text-align: center;
   letter-spacing: 0.02em;
 }
+
+/* ── Mic Level (waveform/volume) ─────────────────────────── */
+.pvt-mic-level {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 8px; padding: 8px 12px;
+  background: rgba(2, 132, 199, 0.06);
+  border: 1px solid rgba(2, 132, 199, 0.16);
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+.pvt-mic-level-label { color: #0369a1; font-weight: 600; flex-shrink: 0; }
+.pvt-mic-level-bar {
+  flex: 1; height: 8px;
+  background: rgba(15,15,15,0.06);
+  border-radius: 999px; overflow: hidden;
+  position: relative;
+}
+.pvt-mic-level-fill {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #38bdf8 0%, #0284c7 60%, #0c4a6e 100%);
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.1s linear, background 0.3s ease;
+}
+.pvt-mic-level-fill.is-low {
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+}
+.pvt-mic-level-fill.is-silent {
+  background: rgba(15,15,15,0.18);
+}
+.pvt-mic-level-status {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: #6b6b6b;
+  font-variant-numeric: tabular-nums;
+}
+.pvt-mic-level-status.is-warning { color: #c44a2c; font-weight: 600; }
+
+/* ── Heard (o que escutamos) ─────────────────────────────── */
+.pvt-heard {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid rgba(15,15,15,0.06);
+  border-left: 3px solid #9ca3af;
+  border-radius: 8px;
+}
+.pvt-heard-row {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+}
+.pvt-heard-label {
+  font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #6b6b6b; font-weight: 700;
+}
+.pvt-heard-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem; color: #1c1c1c; font-weight: 500; flex: 1;
+}
+.pvt-heard-text .hw {
+  display: inline-block; padding: 1px 4px; border-radius: 3px;
+  margin: 0 1px;
+}
+.pvt-heard-text .hw.match  { background: rgba(34, 139, 90, 0.14); color: #14532d; }
+.pvt-heard-text .hw.extra  { background: rgba(196, 74, 44, 0.14); color: #7a1c12; text-decoration: line-through; }
+.pvt-heard-conf {
+  margin-top: 6px;
+  font-size: 0.74rem;
+  color: #6b6b6b;
+  display: flex; align-items: center; gap: 8px;
+}
+.pvt-heard-conf .dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+}
+.pvt-heard-conf .dot.clear     { background: #228b5a; }
+.pvt-heard-conf .dot.partial   { background: #f59e0b; }
+.pvt-heard-conf .dot.inaudible { background: #c44a2c; }
+
+/* ── Heatmap de tentativas ────────────────────────────────── */
+.pvt-attempts {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(15,15,15,0.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(15,15,15,0.08);
+}
+.pvt-attempts-label {
+  font-size: 0.68rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #6b6b6b; font-weight: 700;
+  margin-bottom: 6px;
+}
+.pvt-attempts-list {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.pvt-attempt-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 9px;
+  background: #fff;
+  border: 1px solid rgba(15,15,15,0.08);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #1c1c1c;
+}
+.pvt-attempt-pill .ap-num { color: #6b6b6b; }
+.pvt-attempt-pill .ap-bar {
+  display: inline-block; width: 36px; height: 5px;
+  background: rgba(15,15,15,0.08); border-radius: 999px; overflow: hidden;
+  position: relative;
+}
+.pvt-attempt-pill .ap-bar::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, #fbbf24, #228b5a);
+  width: var(--ap-w, 0%);
+  transition: width 0.4s ease;
+}
+.pvt-attempt-pill.is-best { border-color: #228b5a; box-shadow: 0 0 0 2px rgba(34,139,90,0.15); }
+.pvt-attempts-trend {
+  margin-top: 6px;
+  font-size: 0.7rem;
+  color: #228b5a;
+  font-weight: 600;
+}
+.pvt-attempts-trend.is-flat { color: #6b6b6b; }
+
+/* ── Dica BR (sotaque/erro fonético típico) ─────────────── */
+.pvt-br-hint {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(254,215,170,0.4) 0%, rgba(254,243,199,0.4) 100%);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  border-left: 3px solid #d97706;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  color: #78350f;
+  line-height: 1.5;
+}
+.pvt-br-hint .br-title {
+  font-weight: 700; display: block; margin-bottom: 3px;
+}
+.pvt-br-hint .br-tip { font-weight: 400; }
+.pvt-br-hint .br-pair {
+  display: inline-block; margin-top: 4px;
+  font-family: 'Space Grotesk', sans-serif; font-size: 0.78rem;
+}
+.pvt-br-hint .br-pair .x { color: #c44a2c; text-decoration: underline wavy; }
+.pvt-br-hint .br-pair .v { color: #14532d; font-weight: 600; }
 `;
     const tag = document.createElement('style');
     tag.id = 'pvtStyles';
@@ -569,24 +743,19 @@
     rec.lang = RECOGNITION_LANG;
     rec.continuous = false;
     rec.interimResults = false;
-    rec.maxAlternatives = 3;
+    rec.maxAlternatives = 5; // sobe de 3 para 5 — pega mais hipóteses
 
     rec.onresult = (event) => {
-      let transcript = '';
-      // pega a melhor alternativa
-      for (let i = 0; i < event.results.length; i++) {
-        const r = event.results[i];
-        if (r.isFinal && r[0]) {
-          transcript += ' ' + r[0].transcript;
-        }
-      }
-      // se não veio "final", pega tudo
-      if (!transcript) {
+      const vr = VR();
+      const alts = vr ? vr.extractAlternatives(event) : (function () {
+        const out = [];
         for (let i = 0; i < event.results.length; i++) {
-          if (event.results[i][0]) transcript += ' ' + event.results[i][0].transcript;
+          const r = event.results[i];
+          if (r && r[0]) out.push({ transcript: r[0].transcript, confidence: r[0].confidence || 0 });
         }
-      }
-      handleTranscript(transcript.trim());
+        return out;
+      })();
+      handleRecognitionResult(alts);
     };
     rec.onend = () => {
       state.listening = false;
@@ -595,6 +764,7 @@
         btn.classList.remove('is-listening');
         document.getElementById('pvtMicLabel').textContent = 'Falar';
       }
+      stopMicLevelMonitor();
     };
     rec.onerror = (e) => {
       state.listening = false;
@@ -634,43 +804,119 @@
         document.getElementById('pvtMicLabel').textContent = 'Ouvindo…';
       }
       setStatus('Fale a frase em voz alta agora.', '');
+      // Inicia monitor de nível de microfone
+      startMicLevelMonitor();
     } catch (e) {
       console.warn('[PVT] Could not start recognition', e);
     }
   }
 
-  // ─── Lógica de avaliação ─────────────────────────────────────
-  function handleTranscript(transcript) {
+  // ─── Lógica de avaliação (multi-alternativa + confidence) ────
+  // Recebe array [{transcript, confidence}, ...]
+  function handleRecognitionResult(alternatives) {
     if (!state || !state.currentPhrase) return;
     const phrase = state.currentPhrase;
-    const result = wordLevelCompare(phrase.phrase_en, transcript);
+    const vr = VR();
 
-    // Atualiza visual da frase com palavras certas/erradas
-    renderPhraseWithFeedback(phrase, result);
-
-    // Fala dita
-    state.lastTranscript = transcript;
-
-    if (result.passed) {
-      markPhraseResult('dominada', { wrong_words: [], transcript });
-      setFeedback(`✓ Excelente! ${result.correctCount}/${result.expTokens.length} palavras corretas.`, 'success');
-      setTimeout(() => advanceToNext(), 1100);
+    let evalResult;
+    if (vr) {
+      evalResult = vr.evaluate(phrase.phrase_en, alternatives);
     } else {
-      // Não passou — incrementa tentativas locais
-      state.attemptsOnCurrent = (state.attemptsOnCurrent || 0) + 1;
-      const wrongDisplay = result.wrongWords.slice(0, 4).map(w => `<strong>${escapeHtml(w)}</strong>`).join(', ');
+      // Fallback simples
+      const transcript = alternatives.map(a => a.transcript).join(' ');
+      evalResult = legacyEvaluate(phrase.phrase_en, transcript);
+    }
+
+    // Salva no histórico de tentativas para o heatmap
+    if (!state.attemptsHistory) state.attemptsHistory = {};
+    if (!state.attemptsHistory[phrase.id]) state.attemptsHistory[phrase.id] = [];
+    state.attemptsHistory[phrase.id].push({
+      transcript: evalResult.bestTranscript,
+      score: evalResult.score,
+      matched: evalResult.matched.slice(),
+      confidence: evalResult.bestConfidence,
+      bucket: evalResult.confidenceBucket,
+      timestamp: Date.now(),
+    });
+
+    state.lastTranscript = evalResult.bestTranscript;
+    state.lastEval = evalResult;
+
+    // Atualiza visual: palavras verdes/vermelhas + indicador de confidence
+    renderPhraseWithFeedback(phrase, evalResult);
+    renderHeardLine(evalResult);
+    renderConfidenceIndicator(evalResult);
+    renderAttemptsHistory(phrase.id);
+    renderBRPatternHints(evalResult);
+
+    const cls = vr ? vr.classifyResult(evalResult) : (evalResult.passed ? 'success' : 'wrong');
+
+    if (cls === 'success') {
+      markPhraseResult('dominada', { wrong_words: [], transcript: evalResult.bestTranscript });
+      const conf = Math.round((evalResult.bestConfidence || evalResult.avgConfidence) * 100);
       setFeedback(
-        result.correctCount > 0
-          ? `Quase! Errou: ${wrongDisplay}. Ouça e tente de novo.`
-          : `Ainda não captamos. Toque em Ouvir pronúncia e tente outra vez.`,
+        `✓ Excelente! ${evalResult.matched.filter(Boolean).length}/${evalResult.expTokens.length} palavras corretas (clareza: ${conf}%).`,
+        'success'
+      );
+      setTimeout(() => advanceToNext(), 1100);
+      return;
+    }
+
+    state.attemptsOnCurrent = (state.attemptsOnCurrent || 0) + 1;
+
+    if (cls === 'inaudible') {
+      // Áudio ruim: NÃO conta como tentativa pesada
+      state.attemptsOnCurrent = Math.max(0, state.attemptsOnCurrent - 1);
+      setFeedback(
+        `🎤 Não consegui ouvir bem (clareza ${Math.round((evalResult.bestConfidence || evalResult.avgConfidence) * 100)}%). Aproxime do microfone, fale um pouco mais alto e tente novamente.`,
         'warning'
       );
-      // Após 3 tentativas falhas, marca como difícil e avança
-      if (state.attemptsOnCurrent >= 3) {
-        markPhraseResult('dificil', { wrong_words: result.wrongWords, transcript });
-        setTimeout(() => advanceToNext(), 1400);
-      }
+      return;
     }
+
+    // cls === 'wrong'
+    const wrongDisplay = evalResult.wrongWords.slice(0, 4).map(w => `<strong>${escapeHtml(w)}</strong>`).join(', ');
+    const correctCount = evalResult.matched.filter(Boolean).length;
+    setFeedback(
+      correctCount > 0
+        ? `Quase! Foque em: ${wrongDisplay}. Ouça a pronúncia e tente de novo.`
+        : `Ouvi diferente do esperado. Toque em Ouvir pronúncia e tente outra vez.`,
+      'warning'
+    );
+
+    // Após 3 tentativas falhas (não-inaudíveis), marca como difícil e avança
+    if (state.attemptsOnCurrent >= 3) {
+      markPhraseResult('dificil', { wrong_words: evalResult.wrongWords, transcript: evalResult.bestTranscript });
+      setTimeout(() => advanceToNext(), 1400);
+    }
+  }
+
+  // Mantém compat com chamadas antigas
+  function handleTranscript(transcript) {
+    handleRecognitionResult([{ transcript, confidence: 0 }]);
+  }
+
+  // Fallback se o módulo GriloVR não carregou
+  function legacyEvaluate(expected, spoken) {
+    const expTokens = (expected || '').toLowerCase().split(/\s+/).filter(Boolean);
+    const heardSet = new Set((spoken || '').toLowerCase().split(/\s+/).filter(Boolean));
+    const matched = expTokens.map(t => heardSet.has(t.replace(/[^a-z']/g, '')));
+    const correctCount = matched.filter(Boolean).length;
+    const score = expTokens.length ? correctCount / expTokens.length : 0;
+    return {
+      passed: score >= 0.7 && correctCount >= 2,
+      score,
+      bestTranscript: spoken || '',
+      bestConfidence: 0.5,
+      avgConfidence: 0.5,
+      expTokens,
+      heardTokens: Array.from(heardSet),
+      matched,
+      wrongWords: expTokens.filter((_, i) => !matched[i]),
+      wrongHeard: [],
+      brPatterns: [],
+      confidenceBucket: 'partial',
+    };
   }
 
   function renderPhraseWithFeedback(phrase, result) {
@@ -763,9 +1009,15 @@
 
     renderPhraseClean(phrase);
 
-    // Reset feedback
+    // Reset feedback e auxiliares
     setFeedback('', '');
     setStatus('Toque em <strong>Ouvir pronúncia</strong> e depois em <strong>Falar</strong>.', '');
+    const heard = document.getElementById('pvtHeard');
+    if (heard) heard.hidden = true;
+    const att = document.getElementById('pvtAttempts');
+    if (att) att.hidden = true;
+    const br = document.getElementById('pvtBrHint');
+    if (br) { br.hidden = true; br.innerHTML = ''; }
 
     // Atualiza checklist
     document.querySelectorAll('.pvt-check-item').forEach(el => el.classList.remove('is-current'));
@@ -795,6 +1047,159 @@
     el.hidden = false;
     el.innerHTML = html;
     el.className = 'pvt-feedback' + (level ? ' is-' + level : '');
+  }
+
+  // ─── Render: "O que escutamos" ──────────────────────────────
+  function renderHeardLine(evalResult) {
+    const wrap = document.getElementById('pvtHeard');
+    const txt  = document.getElementById('pvtHeardText');
+    const conf = document.getElementById('pvtHeardConf');
+    if (!wrap || !txt) return;
+
+    const heardTokens = evalResult.heardTokens || [];
+    if (heardTokens.length === 0 && !evalResult.bestTranscript) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+
+    // Marca cada palavra ouvida: se foi alinhada com expected → match,
+    // se não foi alinhada (sobrou) → extra
+    const align = (evalResult && evalResult.allAlternatives && evalResult.allAlternatives.length)
+      ? null : null;
+    // Construir set de heard que foram alinhados
+    const matchedHeardIdx = new Set();
+    if (evalResult.matched) {
+      // Sabemos quais expected foram match, mas precisamos identificar quais heard.
+      // Como evalResult já fez wordAlign, podemos pegar heardTokens que NÃO estão em wrongHeard.
+      const wrongHeard = new Set(evalResult.wrongHeard || []);
+      heardTokens.forEach((h, i) => {
+        if (!wrongHeard.has(h)) matchedHeardIdx.add(i);
+      });
+    }
+
+    txt.innerHTML = heardTokens.map((tok, i) => {
+      const cls = matchedHeardIdx.has(i) ? 'match' : 'extra';
+      return `<span class="hw ${cls}">${escapeHtml(tok)}</span>`;
+    }).join(' ');
+
+    if (conf) {
+      const bucket = evalResult.confidenceBucket || 'partial';
+      const labels = { clear: 'Áudio claro', partial: 'Áudio parcial', inaudible: 'Áudio confuso' };
+      const pct = Math.round((evalResult.bestConfidence || evalResult.avgConfidence || 0) * 100);
+      conf.innerHTML = `<span class="dot ${bucket}"></span> ${labels[bucket] || bucket} · ${pct}% de confiança`;
+    }
+  }
+
+  // ─── Render: indicador de confidence (3 estados) ─────────────
+  function renderConfidenceIndicator(evalResult) {
+    // Por enquanto, integrado dentro do "Heard" (`renderHeardLine`).
+    // Mantemos a função para extensão futura (ex: ícone separado no header).
+  }
+
+  // ─── Render: heatmap de tentativas ──────────────────────────
+  function renderAttemptsHistory(phraseId) {
+    const wrap = document.getElementById('pvtAttempts');
+    const list = document.getElementById('pvtAttemptsList');
+    if (!wrap || !list) return;
+    const attempts = (state.attemptsHistory && state.attemptsHistory[phraseId]) || [];
+    if (attempts.length === 0) {
+      wrap.hidden = true;
+      return;
+    }
+    wrap.hidden = false;
+    const bestScore = Math.max(...attempts.map(a => a.score));
+    list.innerHTML = attempts.map((a, i) => {
+      const pct = Math.round(a.score * 100);
+      const isBest = a.score === bestScore && pct > 0;
+      return `
+        <span class="pvt-attempt-pill ${isBest ? 'is-best' : ''}" title="${escapeHtml(a.transcript || '')}">
+          <span class="ap-num">${i + 1}.</span>
+          <span class="ap-bar" style="--ap-w:${pct}%"></span>
+          <span>${pct}%</span>
+        </span>`;
+    }).join('');
+
+    // Trend: comparar primeira vs última
+    if (attempts.length >= 2) {
+      const first = Math.round(attempts[0].score * 100);
+      const last  = Math.round(attempts[attempts.length - 1].score * 100);
+      const diff  = last - first;
+      const trend = document.createElement('div');
+      trend.className = 'pvt-attempts-trend' + (diff === 0 ? ' is-flat' : '');
+      trend.textContent = diff > 0 ? `📈 Evolução: ${first}% → ${last}% (+${diff})`
+                        : diff < 0 ? `📉 Caiu: ${first}% → ${last}% (${diff})`
+                        : `↔ Mesmo nível: ${last}%`;
+      list.parentElement.appendChild(trend);
+      // Remove trends antigos
+      Array.from(list.parentElement.querySelectorAll('.pvt-attempts-trend')).slice(0, -1).forEach(el => el.remove());
+    }
+  }
+
+  // ─── Render: dicas de padrões fonéticos BR detectados ───────
+  function renderBRPatternHints(evalResult) {
+    const wrap = document.getElementById('pvtBrHint');
+    if (!wrap) return;
+    const patterns = (evalResult && evalResult.brPatterns) || [];
+    if (patterns.length === 0) {
+      wrap.hidden = true;
+      wrap.innerHTML = '';
+      return;
+    }
+    // Mostra a primeira (mais relevante)
+    const p = patterns[0];
+    wrap.hidden = false;
+    wrap.innerHTML = `
+      <span class="br-title">⚠ ${escapeHtml(p.label)}</span>
+      <span class="br-tip">${escapeHtml(p.tip)}</span>
+      <div class="br-pair">
+        Você disse: <span class="x">${escapeHtml(p.heard)}</span> &nbsp;
+        Esperado: <span class="v">${escapeHtml(p.expected)}</span>
+      </div>
+    `;
+  }
+
+  // ─── Microfone: nível de áudio em tempo real ─────────────────
+  function startMicLevelMonitor() {
+    if (!window.GriloVR || !window.GriloVR.MicLevelMonitor) return;
+    if (state.micMonitor) return;
+    const wrap = document.getElementById('pvtMicLevel');
+    const fill = document.getElementById('pvtMicLevelFill');
+    const status = document.getElementById('pvtMicLevelStatus');
+    if (!wrap || !fill || !status) return;
+
+    wrap.hidden = false;
+    const m = new window.GriloVR.MicLevelMonitor();
+    m.onLevel = (level, isAudible) => {
+      const pct = Math.round(level * 100);
+      fill.style.width = pct + '%';
+      fill.classList.toggle('is-low', level < 0.15 && isAudible);
+      fill.classList.toggle('is-silent', !isAudible);
+      if (!isAudible) {
+        status.textContent = 'mic silencioso';
+        status.classList.add('is-warning');
+      } else if (level < 0.10) {
+        status.textContent = 'baixo';
+        status.classList.add('is-warning');
+      } else {
+        status.textContent = pct + '%';
+        status.classList.remove('is-warning');
+      }
+    };
+    m.start().catch(err => {
+      console.warn('[PVT] mic monitor start failed:', err);
+      wrap.hidden = true;
+    });
+    state.micMonitor = m;
+  }
+
+  function stopMicLevelMonitor() {
+    if (state && state.micMonitor) {
+      try { state.micMonitor.stop(); } catch (e) {}
+      state.micMonitor = null;
+    }
+    const wrap = document.getElementById('pvtMicLevel');
+    if (wrap) wrap.hidden = true;
   }
 
   // ─── Timer ───────────────────────────────────────────────────
@@ -953,6 +1358,7 @@
       if (state.recognition) {
         try { state.recognition.stop(); } catch (e) {}
       }
+      stopMicLevelMonitor();
     }
     if ('speechSynthesis' in window) {
       try { window.speechSynthesis.cancel(); } catch (e) {}
