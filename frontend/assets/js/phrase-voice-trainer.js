@@ -159,8 +159,14 @@
   function hideAllOverlays() {
     const main = document.getElementById('pvtOverlay');
     const result = document.getElementById('pvtResultOverlay');
-    if (main) main.hidden = true;
-    if (result) result.hidden = true;
+    if (main) { main.hidden = true; main.classList.add('pvt-is-hidden'); }
+    if (result) { result.hidden = true; result.classList.add('pvt-is-hidden'); }
+  }
+  function showOverlay(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.hidden = false;
+    el.classList.remove('pvt-is-hidden');
   }
 
   // ─── Estilos ─────────────────────────────────────────────────
@@ -175,6 +181,11 @@
   padding: 24px;
   animation: pvtFadeIn 0.25s ease;
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+}
+/* Garante que [hidden] ganhe sobre display:flex */
+.pvt-overlay[hidden],
+.pvt-overlay.pvt-is-hidden {
+  display: none !important;
 }
 @keyframes pvtFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -862,9 +873,9 @@
 
   function showResult(phrasesPayload, backendData) {
     // Garante que o modal de exercício some — só o resultado fica visível
-    document.getElementById('pvtOverlay').hidden = true;
-    const resOverlay = document.getElementById('pvtResultOverlay');
-    resOverlay.hidden = false;
+    const mainO = document.getElementById('pvtOverlay');
+    if (mainO) { mainO.hidden = true; mainO.classList.add('pvt-is-hidden'); }
+    showOverlay('pvtResultOverlay');
 
     const dominated = phrasesPayload.filter(p => p.result === 'dominada').length;
     const total = state.phrases.length;
@@ -1031,10 +1042,10 @@
     // Set título no head
     document.getElementById('pvtTitle').textContent = state.lessonTitle;
 
-    // Mostra modal
-    document.getElementById('pvtOverlay').hidden = false;
+    // Garante que o resultado anterior fica escondido e mostra só o exercício
     const resO = document.getElementById('pvtResultOverlay');
-    if (resO) resO.hidden = true;
+    if (resO) { resO.hidden = true; resO.classList.add('pvt-is-hidden'); }
+    showOverlay('pvtOverlay');
 
     renderCurrentPhrase();
     startTimer();
