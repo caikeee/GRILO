@@ -953,63 +953,282 @@ function hideProgressDetail() {
 
 function renderProgressDetail(stats) {
     const mergedStats = mergeStandaloneLessonsIntoStats(stats);
-    const avgVoice = stats.avg_voice_quality != null ? `${stats.avg_voice_quality}%` : '--';
-    _pd('progressAccuracyValue', `${mergedStats.avg_lesson_accuracy}%`);
-    _pd('pdVoiceScore', avgVoice);
-    _pd('pdLevel',        mergedStats.level);
-    _pd('pdLessons',      mergedStats.lessons_completed);
-    _pd('pdXP',           mergedStats.total_xp);
-    _pd('pdStreak',       mergedStats.streak);
-    _pd('pdConversations',mergedStats.total_conversations);
-    _pd('pdTextMessages', mergedStats.text_messages_sent != null ? mergedStats.text_messages_sent : '--');
 
-    const vm = mergedStats.voice_minutes ?? 0;
-    _pd('pdVoiceTime', vm > 0 ? `${vm} min` : '--');
-    _pd('pdVoiceMinutes', vm > 0 ? `${vm} min` : '--');
-    _pd('pdVoiceSessions', mergedStats.voice_sessions_count != null ? mergedStats.voice_sessions_count : '--');
-    _pd('pdVoiceExchanges', mergedStats.total_voice_exchanges != null ? mergedStats.total_voice_exchanges : '--');
-    _pd('pdVoiceCorrections', mergedStats.total_voice_corrections != null ? mergedStats.total_voice_corrections : '--');
-    _pd('pdChallenge', `${mergedStats.challenge_days_completed || 0}/7`);
-    _pd('pdChallengeDays', mergedStats.challenge_days_completed != null ? mergedStats.challenge_days_completed : '--');
-    _pd('pdBestQuality', mergedStats.best_voice_quality != null ? `${mergedStats.best_voice_quality}%` : '--');
-    _pd('pdLastQuality', mergedStats.last_voice_quality != null ? `${mergedStats.last_voice_quality}%` : '--');
-
-    const unlockedModes = (mergedStats.voice_modes_unlocked || []).map(_modeLabelPt);
-    _pd('pdUnlockedModes', unlockedModes.length ? unlockedModes.join(' · ') : 'Guiado');
-
-    const nextUnlockEl = document.getElementById('pdNextUnlock');
-    if (nextUnlockEl) {
-        if (mergedStats.next_mode_unlock) {
-            nextUnlockEl.textContent = `${_modeLabelPt(mergedStats.next_mode_unlock.mode)}: ${mergedStats.next_mode_unlock.requires}`;
-        } else {
-            nextUnlockEl.textContent = 'Todos os modos desbloqueados';
-        }
+    // Legacy IDs that may still exist on other pages/tabs
+    if (document.getElementById('progressAccuracyValue')) {
+        _pd('progressAccuracyValue', `${mergedStats.avg_lesson_accuracy}%`);
     }
-
-    const challengeBar = document.getElementById('voiceChallengeBar');
-    if (challengeBar) {
-        challengeBar.style.width = `${mergedStats.challenge_completion_percent || 0}%`;
-    }
-
-    const challengeLabel = document.getElementById('voiceChallengeLabel');
-    if (challengeLabel) {
-        challengeLabel.textContent = `${mergedStats.challenge_days_completed || 0} de 7 dias ativos nesta semana`;
-    }
-
-    if (mergedStats.writing_accuracy_avg != null) {
+    if (document.getElementById('pdLessons')) _pd('pdLessons', mergedStats.lessons_completed);
+    if (document.getElementById('pdLevel')) _pd('pdLevel', mergedStats.level);
+    if (document.getElementById('pdConversations')) _pd('pdConversations', mergedStats.total_conversations);
+    if (document.getElementById('pdWriting') && mergedStats.writing_accuracy_avg != null) {
         _pd('pdWriting', `${mergedStats.writing_accuracy_avg}%`);
     }
-
     const grammarEl = document.getElementById('pdGrammarArea');
     if (grammarEl) grammarEl.textContent = mergedStats.top_grammar_area || '--';
 
-    const bar = document.getElementById('pdLessonsBar');
-    if (bar) {
-        const ratio = mergedStats.total_lessons > 0
-            ? (mergedStats.lessons_completed / mergedStats.total_lessons) * 100
-            : 0;
-        bar.style.width = `${ratio}%`;
+    // ─────────── REDESIGNED PANEL (pl2-*) ───────────
+    _renderHero(stats, mergedStats);
+    _renderPulse(stats, mergedStats);
+    _renderFocus(stats);
+    _renderJourney(stats);
+    _renderBadge(stats);
+    _renderRhythmFoot(stats, mergedStats);
+}
+
+function _greetByHour() {
+    const h = new Date().getHours();
+    if (h < 5)  return 'Boa madrugada';
+    if (h < 12) return 'Bom dia';
+    if (h < 18) return 'Boa tarde';
+    return 'Boa noite';
+}
+
+function _renderHero(stats, mergedStats) {
+    const profile = stats.profile || {};
+    const username = (profile.username || '').split(/[\s.@]/)[0] || '';
+    const why = (profile.learning_why || '').trim();
+
+    const greetEl = document.getElementById('pl2HeroGreet');
+    if (greetEl) {
+        const greet = _greetByHour();
+        greetEl.innerHTML = username
+            ? `${greet}, <span class="pl2-italic">${_escape(username)}</span>.`
+            : `${greet}.`;
     }
+
+    const subEl = document.getElementById('pl2HeroSub');
+    if (subEl) {
+        const streak = mergedStats.streak || 0;
+        const lessons = mergedStats.lessons_completed || 0;
+        if (why) {
+            subEl.innerHTML = `Você quer inglês para <em style="font-style:italic;color:#5A7E66;">${_escape(why)}</em>. ${
+                streak > 0 ? `Você está no dia ${streak} dessa jornada.` :
+                lessons > 0 ? `Você já concluiu ${lessons} aula${lessons === 1 ? '' : 's'} até aqui.` :
+                'Hoje é um bom dia para começar.'
+            }`;
+        } else if (streak > 0) {
+            subEl.textContent = `Sua sequência: ${streak} dia${streak === 1 ? '' : 's'} consecutivo${streak === 1 ? '' : 's'}. Mantenha o ritmo.`;
+        } else if (lessons > 0) {
+            subEl.textContent = `Você já concluiu ${lessons} aula${lessons === 1 ? '' : 's'}. Continue para construir uma sequência.`;
+        } else {
+            subEl.textContent = 'Comece com uma aula curta e construa uma sequência de aprendizagem diária.';
+        }
+    }
+
+    // Resume CTA
+    const resume = stats.resume_lesson;
+    const resumeMeta = document.getElementById('pl2HeroResumeMeta');
+    const resumeLink = document.getElementById('pl2HeroResume');
+    if (resume && resumeMeta) {
+        resumeMeta.textContent = `Aula ${resume.lesson_id} · ${resume.title} · ${resume.dominated}% dominada`;
+        if (resumeLink) resumeLink.href = `lessons.html?lesson=${resume.lesson_id}`;
+    } else if (resumeMeta) {
+        resumeMeta.textContent = 'Escolher uma aula para começar';
+    }
+
+    // "Praticar frases difíceis" CTA — link to lessons page (difficulties tab)
+    const practiceLink = document.getElementById('pl2CtaPractice');
+    if (practiceLink) {
+        practiceLink.href = 'lessons.html#dificuldades';
+    }
+}
+
+function _renderPulse(stats, mergedStats) {
+    // Vocabulário dominado
+    const vocabTotal = stats.vocab_mastered_total || 0;
+    const vocabWeek = stats.vocab_mastered_week || 0;
+    _pd('pl2VocabValue', vocabTotal);
+    const vocabDeltaEl = document.getElementById('pl2VocabDelta');
+    if (vocabDeltaEl) {
+        if (vocabWeek > 0) {
+            vocabDeltaEl.innerHTML = `<span class="pl2-delta-up">▲ +${vocabWeek}</span> nesta semana`;
+        } else if (vocabTotal === 0) {
+            vocabDeltaEl.innerHTML = `<span class="pl2-delta-flat">—</span> sem palavras dominadas ainda`;
+        } else {
+            vocabDeltaEl.innerHTML = `<span class="pl2-delta-flat">·</span> nenhuma nova esta semana`;
+        }
+    }
+
+    // Pronúncia (sparkline + média)
+    const avgVoice = mergedStats.avg_voice_quality;
+    _pd('pl2VoiceValue', avgVoice != null ? Math.round(avgVoice) : '--');
+    _renderSparkline('pl2VoiceSparkline', stats.voice_quality_sparkline || []);
+
+    // Constância (streak + challenge)
+    _pd('pl2StreakValue', mergedStats.streak || 0);
+    _pd('pl2ChallengeText', `${mergedStats.challenge_days_completed || 0} de 7 desta semana`);
+
+    // CEFR
+    const cefr = stats.cefr || {};
+    _pd('pl2CefrCurrent', cefr.current || 'A1');
+    _pd('pl2CefrNext', cefr.next || 'A2');
+    _pd('pl2CefrPct', cefr.progress_percent || 0);
+    const cefrFill = document.getElementById('pl2CefrFill');
+    if (cefrFill) cefrFill.style.width = `${cefr.progress_percent || 0}%`;
+}
+
+function _renderSparkline(elementId, values) {
+    const svg = document.getElementById(elementId);
+    if (!svg) return;
+    if (!values || values.length < 2) {
+        svg.innerHTML = '<text x="50" y="20" text-anchor="middle" fill="#98A39C" font-size="9" font-style="italic">sem dados ainda</text>';
+        return;
+    }
+    const W = 100, H = 28, P = 3;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    const step = (W - P * 2) / (values.length - 1);
+    const points = values.map((v, i) => {
+        const x = P + i * step;
+        const y = H - P - ((v - min) / range) * (H - P * 2);
+        return [x, y];
+    });
+    const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+    const last = points[points.length - 1];
+    svg.innerHTML = `<path d="${d}"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2"/>`;
+}
+
+function _renderFocus(stats) {
+    const focus = stats.today_focus_phrases || [];
+    const headlineEl = document.getElementById('pl2FocusHeadline');
+    const listEl = document.getElementById('pl2FocusList');
+
+    if (headlineEl) {
+        if (focus.length === 0) {
+            headlineEl.innerHTML = `Nenhuma frase <em>em risco</em> hoje. Bom trabalho.`;
+        } else {
+            headlineEl.innerHTML = `Você tem <em>${focus.length} frase${focus.length === 1 ? '' : 's'}</em> prestes a esquecer.`;
+        }
+    }
+
+    if (listEl) {
+        if (focus.length === 0) {
+            listEl.innerHTML = '<div class="pl2-empty">Continue praticando para abastecer este radar.</div>';
+        } else {
+            listEl.innerHTML = focus.map(p => {
+                const meta = p.days_since != null
+                    ? (p.days_since === 0 ? 'hoje' : `há ${p.days_since} dia${p.days_since === 1 ? '' : 's'}`)
+                    : '';
+                return `<div class="pl2-focus-phrase">
+                    <span class="pl2-focus-phrase-bullet"></span>
+                    <span class="pl2-focus-phrase-text">"${_escape(p.phrase_en || '')}"</span>
+                    <span class="pl2-focus-phrase-meta">${meta}</span>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    // Phoneme insight
+    const ph = stats.top_phoneme;
+    const symEl = document.getElementById('pl2PhonemeSymbol');
+    const nameEl = document.getElementById('pl2PhonemeName');
+    const statEl = document.getElementById('pl2PhonemeStat');
+    if (ph && symEl && nameEl && statEl) {
+        symEl.textContent = ph.symbol || '—';
+        nameEl.textContent = `repetiu ${ph.occurrences || 0} vez${ph.occurrences === 1 ? '' : 'es'} nos últimos 30 dias`;
+        statEl.innerHTML = `Este foi seu <strong>ponto mais frequente</strong> de tropeço. Treinar 3 frases com esse som hoje pode acelerar sua próxima sessão.`;
+    } else if (symEl) {
+        symEl.textContent = '—';
+        if (nameEl) nameEl.textContent = 'Sem dados ainda';
+        if (statEl) statEl.textContent = 'Faça uma sessão de voz para receber seu primeiro insight.';
+    }
+}
+
+function _renderJourney(stats) {
+    const rings = stats.lesson_rings || [];
+    const ringsEl = document.getElementById('pl2Rings');
+    if (!ringsEl) return;
+    if (rings.length === 0) {
+        ringsEl.innerHTML = '<div class="pl2-empty">Comece uma aula para ver seu progresso aqui.</div>';
+        return;
+    }
+    const C = 2 * Math.PI * 22; // circumference (r=22)
+    ringsEl.innerHTML = rings.map(r => {
+        const pct = r.dominated || 0;
+        const dash = (pct / 100) * C;
+        const dom = r.is_dominated ? 'dominated' : '';
+        const lessonTitle = _lessonShortTitle(r.lesson_id);
+        return `<a class="pl2-ring-item ${dom}" href="lessons.html?lesson=${r.lesson_id}">
+            <svg class="pl2-ring-svg" viewBox="0 0 56 56">
+                <circle class="pl2-ring-bg" cx="28" cy="28" r="22"/>
+                <circle class="pl2-ring-fg" cx="28" cy="28" r="22"
+                        stroke-dasharray="${dash.toFixed(1)} ${C.toFixed(1)}"/>
+                <text class="pl2-ring-pct" x="28" y="29">${pct}%</text>
+            </svg>
+            <span class="pl2-ring-name">${_escape(lessonTitle)}</span>
+        </a>`;
+    }).join('');
+}
+
+function _lessonShortTitle(lessonId) {
+    // Try to read from window.lessonsData if available, else fallback
+    try {
+        const ld = window.lessonsData || window._allLessons || [];
+        const found = ld.find && ld.find(l => l.id === lessonId);
+        if (found && found.title) {
+            const t = found.title;
+            return t.length > 18 ? t.slice(0, 16) + '…' : t;
+        }
+    } catch (_) {}
+    return `Aula ${lessonId}`;
+}
+
+function _renderBadge(stats) {
+    const badge = stats.next_badge;
+    const earnedCount = stats.badges_earned_count || 0;
+
+    const iconEl = document.getElementById('pl2BadgeIcon');
+    const nameEl = document.getElementById('pl2BadgeName');
+    const descEl = document.getElementById('pl2BadgeDesc');
+    const fillEl = document.getElementById('pl2BadgeFill');
+    const labelEl = document.getElementById('pl2BadgeLabel');
+    const earnedEl = document.getElementById('pl2BadgeEarned');
+
+    if (badge) {
+        if (iconEl) iconEl.textContent = badge.icon || '🪶';
+        if (nameEl) nameEl.textContent = badge.name || 'Próxima conquista';
+        if (descEl) descEl.textContent = badge.description || '';
+        if (fillEl) fillEl.style.width = `${badge.progress_percent || 0}%`;
+        if (labelEl) labelEl.textContent = `${badge.xp_current || 0} / ${badge.xp_required || 0} XP`;
+    } else {
+        if (iconEl) iconEl.textContent = '✨';
+        if (nameEl) nameEl.textContent = earnedCount > 0 ? 'Todas conquistadas' : 'Primeira conquista a caminho';
+        if (descEl) descEl.textContent = earnedCount > 0
+            ? 'Você desbloqueou todas as medalhas disponíveis. Continue praticando.'
+            : 'Continue praticando para desbloquear sua primeira medalha.';
+        if (fillEl) fillEl.style.width = earnedCount > 0 ? '100%' : '0%';
+        if (labelEl) labelEl.textContent = '';
+    }
+
+    if (earnedEl) {
+        earnedEl.textContent = earnedCount > 0
+            ? `Já conquistadas: ${earnedCount} medalha${earnedCount === 1 ? '' : 's'}`
+            : 'Nenhuma conquista ainda';
+    }
+}
+
+function _renderRhythmFoot(stats, mergedStats) {
+    const foot = document.getElementById('pl2RhythmFoot');
+    if (!foot) return;
+    const challenge = mergedStats.challenge_days_completed || 0;
+    const streak = mergedStats.streak || 0;
+    const lessons = mergedStats.lessons_completed || 0;
+    const parts = [];
+    parts.push(`Você esteve ativo em <strong>${challenge} dos últimos 7 dias</strong>.`);
+    if (streak >= 3) {
+        parts.push(`Sua sequência atual é de <strong>${streak} dia${streak === 1 ? '' : 's'}</strong>.`);
+    } else if (lessons >= 3) {
+        parts.push(`Já são <strong>${lessons} aulas</strong> nessa caminhada.`);
+    }
+    foot.innerHTML = parts.join(' ');
+}
+
+function _escape(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
 }
 
 function _pd(id, value) {

@@ -4095,98 +4095,519 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     margin: var(--spacing-xl) 0;
 }
 
-/* ========== MEU PAINEL TAB ========== */
+/* ========== MEU PAINEL TAB (REDESENHADO) ========== */
 #painelTab {
     overflow-y: auto;
 }
 .painel-container {
-    max-width: 960px;
+    max-width: 1080px;
     margin: 0 auto;
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 24px 28px 80px;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 32px;
 }
 
-/* ── Banner row: 4 key stats in gradient strip ── */
-.painel-banner {
+/* ─────────── FASE 1: HERO IDENTITÁRIO ─────────── */
+.pl2-hero {
+    position: relative;
+    padding: 36px 40px 32px;
+    border-radius: 20px;
+    background:
+        radial-gradient(120% 140% at 0% 0%, rgba(122,158,132,0.12) 0%, transparent 55%),
+        radial-gradient(120% 140% at 100% 100%, rgba(200,155,106,0.08) 0%, transparent 55%),
+        linear-gradient(180deg, #FBFDFC 0%, #F5F9F6 100%);
+    border: 1px solid rgba(122,158,132,0.18);
+    overflow: hidden;
+}
+.pl2-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(122,158,132,0.08) 1px, transparent 0);
+    background-size: 24px 24px;
+    opacity: 0.4;
+    pointer-events: none;
+}
+.pl2-hero-kicker {
+    position: relative;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #5A7E66;
+    margin-bottom: 12px;
+}
+.pl2-hero-greet {
+    position: relative;
+    font-size: 2.1rem;
+    font-weight: 600;
+    color: #1A2A22;
+    line-height: 1.15;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+}
+.pl2-hero-greet span.pl2-italic {
+    font-style: italic;
+    color: #5A7E66;
+    font-weight: 500;
+}
+.pl2-hero-sub {
+    position: relative;
+    font-size: 0.95rem;
+    color: #5A6B62;
+    margin: 0 0 24px;
+    line-height: 1.5;
+    max-width: 620px;
+}
+.pl2-hero-cta {
+    position: relative;
     display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
     align-items: center;
-    background: var(--gradient-primary);
-    border-radius: var(--radius-xl);
-    padding: var(--spacing-md) var(--spacing-lg);
-    gap: var(--spacing-sm);
 }
-.painel-banner-stat {
-    display: flex;
-    flex-direction: column;
+.pl2-hero-cta-primary {
+    display: inline-flex;
     align-items: center;
-    flex: 1;
-    gap: 2px;
+    gap: 14px;
+    padding: 14px 22px 14px 18px;
+    background: linear-gradient(135deg, #7A9E84 0%, #5A7E66 100%);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 8px 20px -8px rgba(90,126,102,0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
 }
-.painel-banner-val {
-    font-size: var(--font-size-2xl);
-    font-weight: 800;
-    color: white;
-    line-height: 1.1;
+.pl2-hero-cta-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px -8px rgba(90,126,102,0.55);
 }
-.painel-banner-lbl {
-    font-size: var(--font-size-xs);
-    color: rgba(255,255,255,0.75);
-    text-align: center;
+.pl2-hero-cta-primary .pl2-cta-arrow {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    display: grid; place-items: center;
+    font-size: 0.95rem;
 }
-.painel-banner-div {
-    width: 1px;
-    height: 40px;
-    background: rgba(255,255,255,0.2);
-    flex-shrink: 0;
+.pl2-hero-cta-primary .pl2-cta-text {
+    text-align: left;
 }
+.pl2-hero-cta-primary .pl2-cta-title {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.pl2-hero-cta-primary .pl2-cta-meta {
+    display: block;
+    font-size: 0.74rem;
+    opacity: 0.82;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+}
+.pl2-hero-cta-secondary {
+    display: flex; gap: 18px;
+    color: #6B7B70;
+    font-size: 0.85rem;
+}
+.pl2-hero-cta-secondary a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(107,123,112,0.5);
+    padding-bottom: 1px;
+    transition: color 0.18s;
+}
+.pl2-hero-cta-secondary a:hover { color: #5A7E66; border-bottom-color: #5A7E66; }
+.pl2-hero-cta-secondary .pl2-dot { color: rgba(107,123,112,0.4); }
 
-/* ── Cards row: 4 equal cards ── */
-.painel-cards {
+/* ─────────── FASE 1: PULSO SEMANAL ─────────── */
+.pl2-section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #6B7B70;
+    margin: 0 0 14px 4px;
+}
+.pl2-pulse {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--spacing-sm);
+    gap: 14px;
 }
-.painel-card {
-    background: var(--bg-accent);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-md);
+.pl2-pulse-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(122,158,132,0.16);
+    border-radius: 14px;
+    padding: 22px 20px 18px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    min-height: 138px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+    position: relative;
 }
-.painel-card-top {
+.pl2-pulse-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -12px rgba(90,126,102,0.22);
+    border-color: rgba(122,158,132,0.32);
+}
+.pl2-pulse-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #6B7B70;
+    font-weight: 600;
+}
+.pl2-pulse-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1A2A22;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-feature-settings: "tnum";
+}
+.pl2-pulse-unit {
+    font-size: 0.78rem;
+    color: #6B7B70;
+    margin-top: -2px;
+}
+.pl2-pulse-foot {
+    margin-top: auto;
+    font-size: 0.72rem;
+    color: #6B7B70;
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: 6px;
 }
-.painel-card-icon {
-    font-size: 1.1rem;
-    flex-shrink: 0;
+.pl2-delta-up   { color: #5A7E66; font-weight: 600; }
+.pl2-delta-down { color: #C26A50; font-weight: 600; }
+.pl2-delta-flat { color: #98A39C; font-weight: 600; }
+
+/* Sparkline (inline SVG container) */
+.pl2-sparkline {
+    width: 100%;
+    height: 28px;
+    margin-top: 4px;
 }
-.painel-card-val {
-    font-size: var(--font-size-2xl);
-    font-weight: 800;
-    color: var(--accent-primary);
-    line-height: 1.1;
+.pl2-sparkline path {
+    fill: none;
+    stroke: #7A9E84;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
-.painel-card-lbl {
-    font-size: var(--font-size-xs);
-    color: var(--text-secondary);
-}
-.painel-card-sub {
-    font-size: var(--font-size-xs);
-    color: var(--text-light);
+.pl2-sparkline circle {
+    fill: #5A7E66;
 }
 
-/* ── Activity heatmap section ── */
+/* CEFR mini-bar */
+.pl2-cefr-bar {
+    height: 5px;
+    background: rgba(122,158,132,0.14);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+.pl2-cefr-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7A9E84 0%, #5A7E66 100%);
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.pl2-cefr-track {
+    font-size: 0.78rem;
+    color: #1A2A22;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+.pl2-cefr-track .pl2-cefr-arrow {
+    color: #98A39C;
+    margin: 0 6px;
+    font-weight: 400;
+}
+
+/* Streak flame */
+.pl2-streak-icon { color: #C89B6A; font-size: 0.95rem; }
+
+/* ─────────── FASE 2: FOCO DO DIA ─────────── */
+.pl2-focus-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+}
+.pl2-focus-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(122,158,132,0.16);
+    border-radius: 16px;
+    padding: 24px 26px;
+}
+.pl2-focus-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #5A7E66;
+    margin: 0 0 10px;
+}
+.pl2-focus-headline {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1A2A22;
+    margin: 0 0 18px;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+}
+.pl2-focus-headline em {
+    font-style: italic;
+    color: #5A7E66;
+    font-weight: 500;
+}
+.pl2-focus-list {
+    display: flex; flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.pl2-focus-phrase {
+    display: grid;
+    grid-template-columns: 8px 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(122,158,132,0.18);
+}
+.pl2-focus-phrase:last-child { border-bottom: none; }
+.pl2-focus-phrase-bullet {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #C89B6A;
+    margin-top: 7px;
+}
+.pl2-focus-phrase-text {
+    font-size: 0.94rem;
+    color: #1A2A22;
+    font-weight: 500;
+}
+.pl2-focus-phrase-meta {
+    font-size: 0.72rem;
+    color: #98A39C;
+    font-style: italic;
+    white-space: nowrap;
+}
+.pl2-focus-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    background: rgba(122,158,132,0.1);
+    color: #5A7E66;
+    border: 1px solid rgba(122,158,132,0.25);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.18s, border-color 0.18s;
+    font-family: inherit;
+}
+.pl2-focus-cta:hover {
+    background: rgba(122,158,132,0.18);
+    border-color: rgba(122,158,132,0.4);
+}
+
+/* Phoneme insight card */
+.pl2-phoneme {
+    text-align: left;
+}
+.pl2-phoneme-symbol {
+    font-size: 3rem;
+    font-weight: 600;
+    color: #5A7E66;
+    line-height: 1;
+    margin: 6px 0 4px;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+}
+.pl2-phoneme-name {
+    font-size: 0.88rem;
+    color: #6B7B70;
+    margin: 0 0 12px;
+    font-style: italic;
+}
+.pl2-phoneme-stat {
+    font-size: 0.92rem;
+    color: #1A2A22;
+    margin: 0 0 16px;
+    line-height: 1.5;
+}
+.pl2-phoneme-stat strong { color: #C26A50; font-weight: 600; }
+
+/* ─────────── FASE 3: JORNADA E CONQUISTAS ─────────── */
+.pl2-journey-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+}
+.pl2-rings {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 8px 4px 4px;
+}
+.pl2-ring-item {
+    display: flex; flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.18s;
+    text-align: center;
+    width: 88px;
+}
+.pl2-ring-item:hover { transform: translateY(-2px); }
+.pl2-ring-svg { width: 64px; height: 64px; }
+.pl2-ring-bg { fill: none; stroke: rgba(122,158,132,0.14); stroke-width: 6; }
+.pl2-ring-fg {
+    fill: none;
+    stroke: #7A9E84;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dasharray 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.pl2-ring-item.dominated .pl2-ring-fg { stroke: #C89B6A; }
+.pl2-ring-pct {
+    font-size: 0.78rem;
+    font-weight: 700;
+    fill: #1A2A22;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+.pl2-ring-name {
+    font-size: 0.74rem;
+    color: #5A6B62;
+    line-height: 1.25;
+}
+
+/* Next badge */
+.pl2-badge-medal {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FBF6EE 0%, #F1E6D0 100%);
+    border: 1.5px solid rgba(200,155,106,0.4);
+    display: grid; place-items: center;
+    font-size: 1.6rem;
+    margin-bottom: 14px;
+    box-shadow: inset 0 -4px 8px rgba(200,155,106,0.18);
+}
+.pl2-badge-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1A2A22;
+    margin: 0 0 6px;
+    letter-spacing: -0.005em;
+}
+.pl2-badge-desc {
+    font-size: 0.85rem;
+    color: #6B7B70;
+    line-height: 1.5;
+    margin: 0 0 16px;
+}
+.pl2-badge-progress-track {
+    height: 6px;
+    background: rgba(200,155,106,0.18);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.pl2-badge-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #C89B6A 0%, #A8814E 100%);
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.pl2-badge-progress-label {
+    font-size: 0.78rem;
+    color: #6B7B70;
+    margin-bottom: 14px;
+}
+.pl2-badge-link {
+    font-size: 0.78rem;
+    color: #5A7E66;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(90,126,102,0.4);
+}
+
+/* ─────────── FASE 4: HEATMAP REFINADO ─────────── */
+.pl2-rhythm {
+    background: #FFFFFF;
+    border: 1px solid rgba(122,158,132,0.16);
+    border-radius: 16px;
+    padding: 24px 26px 20px;
+}
+.pl2-rhythm-head {
+    display: flex; justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    flex-wrap: wrap; gap: 12px;
+}
+.pl2-rhythm-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #5A7E66;
+    margin: 0;
+}
+.pl2-rhythm-legend {
+    display: flex; gap: 8px; align-items: center;
+    font-size: 0.7rem;
+    color: #98A39C;
+    letter-spacing: 0.04em;
+}
+.pl2-rhythm-foot {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(122,158,132,0.18);
+    font-size: 0.88rem;
+    color: #5A6B62;
+    font-style: italic;
+    line-height: 1.5;
+}
+.pl2-rhythm-foot strong { color: #1A2A22; font-style: normal; font-weight: 600; }
+
+/* Empty/loading states */
+.pl2-empty {
+    font-size: 0.88rem;
+    color: #98A39C;
+    font-style: italic;
+    padding: 12px 0;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .pl2-pulse { grid-template-columns: repeat(2, 1fr); }
+    .pl2-focus-grid, .pl2-journey-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+    .painel-container { padding: 16px; gap: 24px; }
+    .pl2-hero { padding: 24px 22px; }
+    .pl2-hero-greet { font-size: 1.55rem; }
+    .pl2-pulse { grid-template-columns: 1fr 1fr; }
+    .pl2-pulse-value { font-size: 1.7rem; }
+    .pl2-rings { gap: 12px; }
+    .pl2-ring-item { width: 76px; }
+    .pl2-ring-svg { width: 56px; height: 56px; }
+}
+
+/* Activity heatmap section (legacy class kept for heatmap container) */
 .painel-section {
-    background: var(--bg-accent);
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-md) var(--spacing-lg);
+    background: #FFFFFF;
+    border: 1px solid rgba(122,158,132,0.16);
+    border-radius: 16px;
+    padding: 22px 24px;
     overflow: visible;
 }
 
@@ -5087,15 +5508,6 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     }
     .lesson-nav-buttons .btn-auth {
         max-width: 100%;
-    }
-    .painel-banner {
-        flex-wrap: wrap;
-        gap: var(--spacing-xs);
-    }
-    .painel-banner-div { display: none; }
-    .painel-banner-stat { flex: 1 1 40%; }
-    .painel-cards {
-        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -8601,26 +9013,63 @@ body.beta-modal-open .main-content.active {
                 <div class="tab-content active" id="painelTab">
                     <div class="painel-container">
 
-                        <!-- Banner: 4 key stats in gradient strip -->
-                        <div class="painel-banner">
-                            <div class="painel-banner-stat">
-                                <span class="painel-banner-val" id="pdVoiceScore">--</span>
-                                <span class="painel-banner-lbl">Qualidade Media (Voz)</span>
+                        <!-- ─────────── FASE 1: HERO IDENTITÁRIO ─────────── -->
+                        <section class="pl2-hero" aria-labelledby="pl2HeroGreet">
+                            <div class="pl2-hero-kicker" id="pl2HeroKicker">Sua jornada</div>
+                            <h2 class="pl2-hero-greet" id="pl2HeroGreet">Bom dia.</h2>
+                            <p class="pl2-hero-sub" id="pl2HeroSub">Carregando seu progresso...</p>
+                            <div class="pl2-hero-cta">
+                                <a class="pl2-hero-cta-primary" id="pl2HeroResume" href="lessons.html">
+                                    <span class="pl2-cta-arrow">▶</span>
+                                    <span class="pl2-cta-text">
+                                        <span class="pl2-cta-title">Continuar onde parou</span>
+                                        <span class="pl2-cta-meta" id="pl2HeroResumeMeta">Carregando aula...</span>
+                                    </span>
+                                </a>
+                                <div class="pl2-hero-cta-secondary">
+                                    <a href="#" id="pl2CtaPractice">Praticar frases difíceis</a>
+                                    <span class="pl2-dot">·</span>
+                                    <a href="voice.html">Voz livre</a>
+                                </div>
                             </div>
-                            <div class="painel-banner-div"></div>
-                            <div class="painel-banner-stat">
-                                <span class="painel-banner-val" id="pdXP">--</span>
-                                <span class="painel-banner-lbl">XP Total</span>
-                            </div>
-                            <div class="painel-banner-div"></div>
-                            <div class="painel-banner-stat">
-                                <span class="painel-banner-val">🔥 <span id="pdStreak">--</span></span>
-                                <span class="painel-banner-lbl">Sequência de Dias</span>
-                            </div>
-                            <div class="painel-banner-div"></div>
-                            <div class="painel-banner-stat">
-                                <span class="painel-banner-val"><span id="pdChallenge">0/7</span></span>
-                                <span class="painel-banner-lbl">Desafio Semanal</span>
+                        </section>
+
+                        <!-- ─────────── FASE 1: PULSO SEMANAL ─────────── -->
+                        <div>
+                            <div class="pl2-section-label">Esta semana</div>
+                            <div class="pl2-pulse">
+                                <div class="pl2-pulse-card">
+                                    <span class="pl2-pulse-label">Vocabulário</span>
+                                    <span class="pl2-pulse-value" id="pl2VocabValue">--</span>
+                                    <span class="pl2-pulse-unit">palavras dominadas</span>
+                                    <span class="pl2-pulse-foot" id="pl2VocabDelta">—</span>
+                                </div>
+                                <div class="pl2-pulse-card">
+                                    <span class="pl2-pulse-label">Pronúncia</span>
+                                    <span class="pl2-pulse-value" id="pl2VoiceValue">--</span>
+                                    <span class="pl2-pulse-unit">qualidade média</span>
+                                    <svg class="pl2-sparkline" id="pl2VoiceSparkline" viewBox="0 0 100 28" preserveAspectRatio="none"></svg>
+                                </div>
+                                <div class="pl2-pulse-card">
+                                    <span class="pl2-pulse-label">Constância</span>
+                                    <span class="pl2-pulse-value"><span id="pl2StreakValue">--</span></span>
+                                    <span class="pl2-pulse-unit">dias seguidos</span>
+                                    <span class="pl2-pulse-foot" id="pl2ChallengeFoot">
+                                        <span class="pl2-streak-icon">🔥</span> <span id="pl2ChallengeText">0 de 7 desta semana</span>
+                                    </span>
+                                </div>
+                                <div class="pl2-pulse-card">
+                                    <span class="pl2-pulse-label">Nível CEFR</span>
+                                    <span class="pl2-cefr-track">
+                                        <span id="pl2CefrCurrent">A1</span>
+                                        <span class="pl2-cefr-arrow">→</span>
+                                        <span id="pl2CefrNext">A2</span>
+                                    </span>
+                                    <div class="pl2-cefr-bar">
+                                        <div class="pl2-cefr-fill" id="pl2CefrFill" style="width:0%"></div>
+                                    </div>
+                                    <span class="pl2-pulse-foot"><span id="pl2CefrPct">0</span>% até o próximo</span>
+                                </div>
                             </div>
                         </div>
 
@@ -8700,91 +9149,69 @@ body.beta-modal-open .main-content.active {
                             </div>
                         </section>
 
-                        <!-- Cards: voice retention metrics -->
-                        <div class="painel-cards">
-                            <div class="painel-card">
-                                <div class="painel-card-top">
-                                    <span class="painel-card-icon">🎤</span>
-                                    <span class="painel-card-val" id="pdVoiceMinutes">--</span>
+                        <!-- ─────────── FASE 2: FOCO DO DIA ─────────── -->
+                        <div>
+                            <div class="pl2-section-label">Foco do dia</div>
+                            <div class="pl2-focus-grid">
+                                <div class="pl2-focus-card">
+                                    <p class="pl2-focus-title">A IA recomenda</p>
+                                    <p class="pl2-focus-headline" id="pl2FocusHeadline">Você tem <em>algumas frases</em> prestes a esquecer.</p>
+                                    <div class="pl2-focus-list" id="pl2FocusList">
+                                        <div class="pl2-empty">Carregando...</div>
+                                    </div>
+                                    <a class="pl2-focus-cta" href="lessons.html" id="pl2FocusCta">Revisar agora →</a>
                                 </div>
-                                <span class="painel-card-lbl">Tempo Total de Voz</span>
-                                <span class="painel-card-sub">consistencia semanal vence intensidade</span>
-                            </div>
-                            <div class="painel-card">
-                                <div class="painel-card-top">
-                                    <span class="painel-card-icon">🧠</span>
-                                    <span class="painel-card-val" id="pdVoiceSessions">--</span>
+                                <div class="pl2-focus-card pl2-phoneme">
+                                    <p class="pl2-focus-title">Pronúncia · insight</p>
+                                    <div class="pl2-phoneme-symbol" id="pl2PhonemeSymbol">—</div>
+                                    <p class="pl2-phoneme-name" id="pl2PhonemeName">Sem dados ainda</p>
+                                    <p class="pl2-phoneme-stat" id="pl2PhonemeStat">Faça uma sessão de voz para receber seu primeiro insight.</p>
+                                    <a class="pl2-focus-cta" href="voice.html">Treinar pronúncia →</a>
                                 </div>
-                                <span class="painel-card-lbl">Sessoes Concluidas</span>
-                                <span class="painel-card-sub">meta: 4 sessoes por semana</span>
-                            </div>
-                            <div class="painel-card">
-                                <div class="painel-card-top">
-                                    <span class="painel-card-icon">💬</span>
-                                    <span class="painel-card-val" id="pdVoiceExchanges">--</span>
-                                </div>
-                                <span class="painel-card-lbl">Trocas Totais</span>
-                                <span class="painel-card-sub">quanto mais trocas, mais fluidez</span>
-                            </div>
-                            <div class="painel-card">
-                                <div class="painel-card-top">
-                                    <span class="painel-card-icon">🛠️</span>
-                                    <span class="painel-card-val" id="pdVoiceCorrections">--</span>
-                                </div>
-                                <span class="painel-card-lbl">Correcoes Acumuladas</span>
-                                <span class="painel-card-sub">erros rastreados viram evolucao</span>
-                            </div>
-                            <div class="painel-card">
-                                <div class="painel-card-top">
-                                    <span class="painel-card-icon">🏆</span>
-                                    <span class="painel-card-val" id="pdBestQuality">--</span>
-                                </div>
-                                <span class="painel-card-lbl">Melhor Score de Voz</span>
-                                <span class="painel-card-sub">ultima sessao: <span id="pdLastQuality">--</span></span>
-                            </div>
-                            <div class="painel-card">
-                                <div class="painel-card-top">
-                                    <span class="painel-card-icon">🔓</span>
-                                    <span class="painel-card-val" id="pdUnlockedModes">--</span>
-                                </div>
-                                <span class="painel-card-lbl">Modos Desbloqueados</span>
-                                <span class="painel-card-sub" id="pdNextUnlock">Proximo modo bloqueado</span>
-                            </div>
-                            <div class="painel-card">
-                                <div class="painel-card-top">
-                                    <span class="painel-card-icon">📆</span>
-                                    <span class="painel-card-val" id="pdChallengeDays">0</span>
-                                </div>
-                                <span class="painel-card-lbl">Dias Ativos (7 dias)</span>
-                                <div class="progress-bar-mini">
-                                    <div class="progress-bar-mini-fill" id="voiceChallengeBar" style="width:0%"></div>
-                                </div>
-                                <span class="painel-card-sub" id="voiceChallengeLabel">0 de 7 dias ativos nesta semana</span>
                             </div>
                         </div>
 
-                        <!-- Activity heatmap -->
-                        <div class="painel-section">
-                            <div class="painel-section-header">
-                                <span class="painel-section-title">Consistencia de Pratica (Heatmap)</span>
-                                <div class="hm-legend">
-                                    <span class="hm-legend-lbl">menos</span>
+                        <!-- ─────────── FASE 3: JORNADA E CONQUISTAS ─────────── -->
+                        <div>
+                            <div class="pl2-section-label">Jornada e conquistas</div>
+                            <div class="pl2-journey-grid">
+                                <div class="pl2-focus-card">
+                                    <p class="pl2-focus-title">Suas aulas</p>
+                                    <p class="pl2-focus-headline" id="pl2RingsHeadline">Aulas em progresso</p>
+                                    <div class="pl2-rings" id="pl2Rings">
+                                        <div class="pl2-empty">Comece uma aula para ver seu progresso aqui.</div>
+                                    </div>
+                                </div>
+                                <div class="pl2-focus-card">
+                                    <p class="pl2-focus-title">A caminho de…</p>
+                                    <div class="pl2-badge-medal" id="pl2BadgeIcon">🪶</div>
+                                    <h3 class="pl2-badge-name" id="pl2BadgeName">Próxima conquista</h3>
+                                    <p class="pl2-badge-desc" id="pl2BadgeDesc">Continue praticando para desbloquear sua primeira medalha.</p>
+                                    <div class="pl2-badge-progress-track">
+                                        <div class="pl2-badge-progress-fill" id="pl2BadgeFill" style="width:0%"></div>
+                                    </div>
+                                    <p class="pl2-badge-progress-label" id="pl2BadgeLabel">0 / 100 XP</p>
+                                    <span class="pl2-badge-link" id="pl2BadgeEarned">Já conquistadas: 0 medalhas</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ─────────── FASE 4: RITMO (heatmap + recap) ─────────── -->
+                        <div class="pl2-rhythm">
+                            <div class="pl2-rhythm-head">
+                                <h3 class="pl2-rhythm-title">Seu ritmo</h3>
+                                <div class="pl2-rhythm-legend">
+                                    <span>menos</span>
                                     <div class="hm-cell lv-0"></div>
                                     <div class="hm-cell lv-1"></div>
                                     <div class="hm-cell lv-2"></div>
                                     <div class="hm-cell lv-3"></div>
-                                    <span class="hm-legend-lbl">mais</span>
+                                    <span>mais</span>
                                 </div>
                             </div>
                             <div id="activityHeatmap"></div>
-                        </div>
-
-                        <div class="painel-section">
-                            <div class="painel-section-header">
-                                <span class="painel-section-title">Gatilho de Evolucao</span>
-                            </div>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                                Quando voce completa 4 sessoes de voz por semana, sua taxa de progresso tende a acelerar. Mantenha o ciclo: <strong>sessao curta diaria + recap + repeticao.</strong>
+                            <p class="pl2-rhythm-foot" id="pl2RhythmFoot">
+                                Cada quadradinho é um dia da sua jornada.
                             </p>
                         </div>
 

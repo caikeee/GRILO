@@ -7,7 +7,19 @@ from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user_id
 from backend.database import get_db
-from backend.db_models import Conversation, LessonProgress, User, UserActivity, UserProgress
+from backend.db_models import (
+    Badge,
+    Conversation,
+    LessonPhraseBank,
+    LessonProgress,
+    PhraseError,
+    ShadowModeAnalytic,
+    User,
+    UserActivity,
+    UserBadge,
+    UserProgress,
+    WordProfile,
+)
 from backend.utils import mark_activity, award_xp, track_metric_event
 from backend.quiz_questions import (
     get_all_questions,
@@ -495,6 +507,182 @@ async def get_user_stats(
                     }
                 break
 
+        # ── ENRICHED FIELDS for the redesigned learning panel ───────────
+
+        # Profile snippets (for personalized greeting)
+        learning_why = (user.learning_why or "").strip() if user else ""
+        daily_interests = (user.daily_interests or "").strip() if user else ""
+        username = user.username if user else ""
+
+        # Voice quality sparkline — last 14 sessions, ascending
+        sparkline_values = quality_values[-14:] if quality_values else []
+
+        # Vocabulary mastered (lifetime) + delta vs. 7 days ago
+        from datetime import datetime as _dt
+        seven_days_ago = _dt.utcnow() - timedelta(days=7)
+        vocab_mastered_total = (
+            db.query(func.count(WordProfile.id))
+            .filter(WordProfile.user_id == uid, WordProfile.mastered.is_(True))
+            .scalar()
+        ) or 0
+        vocab_mastered_week = (
+            db.query(func.count(WordProfile.id))
+            .filter(
+                WordProfile.user_id == uid,
+                WordProfile.mastered.is_(True),
+                WordProfile.last_seen_at >= seven_days_ago,
+            )
+            .scalar()
+        ) or 0
+        vocab_total_seen = (
+            db.query(func.count(WordProfile.id))
+            .filter(WordProfile.user_id == uid)
+            .scalar()
+        ) or 0
+
+        # CEFR progression (1=A1 .. 6=C2)
+        cefr_labels = {1: "A1", 2: "A2", 3: "B1", 4: "B2", 5: "C1", 6: "C2"}
+        cefr_current = cefr_labels.get(level, "A1")
+        cefr_next = cefr_labels.get(min(level + 1, 6), "C2")
+        # Rough progression heuristic: blend of accuracy + sessions completed toward next level
+        progression_signal = 0.0
+        if avg_lesson_accuracy:
+            progression_signal += min(avg_lesson_accuracy, 100) * 0.5  # 0..50
+        if avg_voice_quality:
+            progression_signal += min(avg_voice_quality, 100) * 0.3    # 0..30
+        progression_signal += min(lessons_completed * 2, 20)            # 0..20
+        cefr_progress_percent = max(0, min(100, round(progression_signal)))
+
+        # Top phoneme issue (from shadow mode analytics)
+        from collections import Counter as _Counter
+        phoneme_rows = (
+            db.query(ShadowModeAnalytic.pronunciation_errors)
+            .filter(
+                ShadowModeAnalytic.user_id == uid,
+                ShadowModeAnalytic.pronunciation_errors.isnot(None),
+                ShadowModeAnalytic.created_at >= _dt.utcnow() - timedelta(days=30),
+            )
+            .all()
+        )
+        phoneme_counter: _Counter = _Counter()
+        for (errs,) in phoneme_rows:
+            if isinstance(errs, list):
+                for e in errs:
+                    if isinstance(e, str) and e.strip():
+                        phoneme_counter[e.strip()] += 1
+                    elif isinstance(e, dict):
+                        key = e.get("phoneme") or e.get("symbol") or e.get("word")
+                        if key:
+                            phoneme_counter[str(key)] += 1
+        top_phoneme = None
+        if phoneme_counter:
+            sym, occ = phoneme_counter.most_common(1)[0]
+            top_phoneme = {"symbol": sym, "occurrences": occ}
+
+        # Today focus phrases (status=dificil OR last_attempted older than 4 days with attempts>0)
+        focus_cutoff = _dt.utcnow() - timedelta(days=4)
+        focus_rows = (
+            db.query(PhraseError, LessonPhraseBank)
+            .join(LessonPhraseBank, PhraseError.phrase_id == LessonPhraseBank.id)
+            .filter(
+                PhraseError.user_id == uid,
+                PhraseError.attempts > 0,
+                PhraseError.status != "dominada",
+            )
+            .order_by(PhraseError.last_attempted_at.asc())
+            .limit(4)
+            .all()
+        )
+        today_focus = []
+        for err, phrase in focus_rows:
+            days_since = None
+            if err.last_attempted_at:
+                days_since = max(0, (_dt.utcnow() - err.last_attempted_at).days)
+            today_focus.append({
+                "phrase_en": phrase.phrase_en,
+                "phrase_pt": phrase.phrase_pt,
+                "lesson_id": phrase.lesson_id,
+                "status": err.status,
+                "days_since": days_since,
+            })
+
+        # Lesson rings (per-lesson dominated_phrases_count / 100)
+        lesson_rings = []
+        for r in lesson_records:
+            ratio = max(0, min(100, int(r.dominated_phrases_count or 0)))
+            lesson_rings.append({
+                "lesson_id": r.lesson_id,
+                "dominated": ratio,
+                "accuracy": round((r.correct_answers / r.total_questions * 100), 1) if r.total_questions else None,
+                "is_dominated": r.dominated_at is not None,
+            })
+        # Sort: in-progress first (highest progress), then dominated
+        lesson_rings.sort(key=lambda x: (x["is_dominated"], -x["dominated"]))
+        lesson_rings = lesson_rings[:6]
+
+        # Next badge — closest unearned badge by xp_threshold
+        earned_badge_ids = {
+            b.badge_id for b in db.query(UserBadge).filter(UserBadge.user_id == uid).all()
+        }
+        all_badges = db.query(Badge).order_by(Badge.xp_threshold.asc()).all()
+        next_badge = None
+        earned_count = 0
+        for b in all_badges:
+            if b.id in earned_badge_ids:
+                earned_count += 1
+                continue
+            if next_badge is None and b.xp_threshold and b.xp_threshold > total_xp:
+                progress_pct = round((total_xp / b.xp_threshold) * 100) if b.xp_threshold else 0
+                next_badge = {
+                    "name": b.name,
+                    "icon": b.icon or "🎖",
+                    "description": b.description or "",
+                    "xp_required": b.xp_threshold,
+                    "xp_current": total_xp,
+                    "progress_percent": max(0, min(100, progress_pct)),
+                }
+
+        # Week-over-week deltas
+        prev_week_start = _dt.utcnow() - timedelta(days=14)
+        prev_week_end = _dt.utcnow() - timedelta(days=7)
+        prev_week_voice_count = (
+            db.query(func.count(UserActivity.id))
+            .filter(
+                UserActivity.user_id == uid,
+                UserActivity.activity_type == "voice",
+                UserActivity.date >= prev_week_start.date().isoformat(),
+                UserActivity.date < prev_week_end.date().isoformat(),
+            )
+            .scalar()
+        ) or 0
+        curr_week_voice_count = (
+            db.query(func.count(UserActivity.id))
+            .filter(
+                UserActivity.user_id == uid,
+                UserActivity.activity_type == "voice",
+                UserActivity.date >= prev_week_end.date().isoformat(),
+            )
+            .scalar()
+        ) or 0
+        sessions_delta = curr_week_voice_count - prev_week_voice_count
+
+        # Resume-where-you-stopped (most recently touched lesson with progress < 100)
+        from backend.lessons_v2 import get_lesson_by_id as _get_lesson
+        resume = None
+        in_progress_records = sorted(
+            [r for r in lesson_records if (r.dominated_phrases_count or 0) < 100],
+            key=lambda r: r.updated_at or r.completed_at or _dt.min,
+            reverse=True,
+        )
+        if in_progress_records:
+            r = in_progress_records[0]
+            lesson_meta = _get_lesson(r.lesson_id) or {}
+            resume = {
+                "lesson_id": r.lesson_id,
+                "title": lesson_meta.get("title", f"Aula {r.lesson_id}"),
+                "dominated": int(r.dominated_phrases_count or 0),
+            }
+
         return {
             "success": True,
             "lessons_completed": lessons_completed,
@@ -520,6 +708,28 @@ async def get_user_stats(
             "challenge_days": week_days,
             "voice_modes_unlocked": unlocked_modes,
             "next_mode_unlock": next_mode_unlock,
+            # ── Enriched payload for redesigned panel ──
+            "profile": {
+                "username": username,
+                "learning_why": learning_why,
+                "daily_interests": daily_interests,
+            },
+            "voice_quality_sparkline": sparkline_values,
+            "vocab_mastered_total": vocab_mastered_total,
+            "vocab_mastered_week": vocab_mastered_week,
+            "vocab_total_seen": vocab_total_seen,
+            "cefr": {
+                "current": cefr_current,
+                "next": cefr_next,
+                "progress_percent": cefr_progress_percent,
+            },
+            "top_phoneme": top_phoneme,
+            "today_focus_phrases": today_focus,
+            "lesson_rings": lesson_rings,
+            "next_badge": next_badge,
+            "badges_earned_count": earned_count,
+            "sessions_week_delta": sessions_delta,
+            "resume_lesson": resume,
         }
     except Exception as exc:
         logger.error("[USER-STATS] Error: %s", str(exc))
