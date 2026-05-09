@@ -2810,6 +2810,46 @@
     }
   }
 
+  // ========== PROGRESSO DE FRASES (X/100 nos cards) ==========
+
+  // Mapa: backendLessonId (1001..1008) → { dominated, total }
+  let phraseProgressMap = {};
+
+  async function loadPhraseProgressForCards() {
+    const token = getAuthToken();
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/lessons/progress-extended`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data || !data.success) return;
+
+      const out = {};
+      const progress = data.progress || {};
+      const totals = data.totals_by_lesson || {};
+      // Cobre tanto IDs com progresso registrado quanto IDs só com banco populado
+      const allIds = new Set([
+        ...Object.keys(progress).map(k => parseInt(k, 10)),
+        ...Object.keys(totals).map(k => parseInt(k, 10)),
+      ]);
+      allIds.forEach(id => {
+        const p = progress[id] || {};
+        out[id] = {
+          dominated: Number(p.dominated_phrases_count || 0),
+          total: Number(p.total_phrases_in_lesson || totals[id] || 0),
+          dominated_at: p.dominated_at || null,
+        };
+      });
+      phraseProgressMap = out;
+      // Re-render para refletir
+      renderLessonsCards();
+    } catch (e) {
+      console.warn('[LESSONS] phrase progress load error:', e);
+    }
+  }
+
   // ========== RENDER LESSONS CARDS ==========
 
   function renderLessonsCards() {
@@ -2837,18 +2877,45 @@
       card.setAttribute('tabindex', '0');
       card.setAttribute('aria-label', `Iniciar lição: ${lesson.title}`);
 
+      // ── Progresso de frases dominadas (alvo: 100) ──
+      const backendId = STANDALONE_BACKEND_IDS[key];
+      const phraseStat = (backendId && phraseProgressMap[backendId]) || { dominated: 0, total: 0, dominated_at: null };
+      const PHRASE_TARGET = 100;
+      const phraseDom = phraseStat.dominated;
+      const isDominated = phraseStat.dominated_at != null || phraseDom >= PHRASE_TARGET;
+      const phrasePct = Math.min(100, Math.round((phraseDom / PHRASE_TARGET) * 100));
+
       let statusBadge = '';
-      if (status.completed) {
-        statusBadge = `<span class="lp-card-status lp-card-status--completed">✓ Concluída</span>`;
+      if (isDominated) {
+        statusBadge = `<span class="lp-card-status lp-card-status--dominated">★ Dominada</span>`;
+      } else if (status.completed) {
+        statusBadge = `<span class="lp-card-status lp-card-status--completed">✓ Aprendida</span>`;
       } else if (status.visited) {
         statusBadge = `<span class="lp-card-status lp-card-status--visited">Em progresso</span>`;
       } else {
         statusBadge = `<span class="lp-card-status lp-card-status--new">Nova</span>`;
       }
 
+      if (isDominated) card.classList.add('is-dominated');
+      else if (status.completed) card.classList.add('is-learned');
+
+      // Pill de frases dominadas (visível quando há banco populado)
+      const phrasePill = (phraseStat.total > 0)
+        ? `<span class="lp-card-phrase-pill ${isDominated ? 'is-full' : ''}" title="Frases dominadas no exercício de voz">
+             🎙 ${phraseDom}/${PHRASE_TARGET}
+           </span>`
+        : '';
+
       const highlightPreview = lesson.highlight
         ? `<div class="lp-card-tag"><span class="lp-card-tag-quote" aria-hidden="true">"</span>${lesson.highlight}</div>`
         : '';
+
+      // Barra de progresso: prioriza frases quando há banco; caso contrário, % de seções
+      const phraseBarHTML = (phraseStat.total > 0)
+        ? `<span class="lp-card-progress-label">${phraseDom}/${PHRASE_TARGET} frases</span>
+           <span class="lp-card-progress"><span class="lp-card-progress-fill ${isDominated ? 'is-full' : ''}" style="width:${phrasePct}%"></span></span>`
+        : `<span class="lp-card-progress-label">${progressPct > 0 ? Math.round(progressPct) + '%' : 'Iniciar'}</span>
+           <span class="lp-card-progress"><span class="lp-card-progress-fill" style="width:${progressPct}%"></span></span>`;
 
       card.innerHTML = `
         <div class="lp-card-top">
@@ -2868,11 +2935,11 @@
         <div class="lp-card-footer">
           <div class="lp-card-meta">
             ${statusBadge}
+            ${phrasePill}
             <span class="lp-card-chip">${sectionCount} seções</span>
           </div>
           <div class="lp-card-progress-wrap">
-            <span class="lp-card-progress-label">${progressPct > 0 ? Math.round(progressPct) + '%' : 'Iniciar'}</span>
-            <span class="lp-card-progress"><span class="lp-card-progress-fill" style="width:${progressPct}%"></span></span>
+            ${phraseBarHTML}
           </div>
           <span class="lp-card-cta" aria-hidden="true">→</span>
         </div>
@@ -3229,6 +3296,12 @@
   initLessonSearch();
   syncPendingLessonCompletions();
   void trackLessonsPageView();
+
+  // Carrega o progresso de frases (X/100) e re-renderiza
+  void loadPhraseProgressForCards();
+  // Expor para o phrase-voice-trainer chamar ao final da sessão
+  window.loadLessonProgress = loadPhraseProgressForCards;
+  window.loadPhraseProgressForCards = loadPhraseProgressForCards;
   window.renderAnchorDialog = renderAnchorDialog;
   window.renderInteractiveTable = renderInteractiveTable;
   window.renderScaffoldedExercises = renderScaffoldedExercises;
