@@ -139,11 +139,28 @@
     document.body.appendChild(root);
 
     // Bind events
-    document.getElementById('pvtClose').onclick = () => closeAll(true);
-    document.getElementById('pvtAbort').onclick = () => closeAll(true);
+    document.getElementById('pvtClose').onclick = () => {
+      if (state && Object.keys(state.results || {}).length > 0) {
+        if (!confirm('Encerrar a sessão? O progresso desta sessão será salvo.')) return;
+      }
+      closeAll(true);
+    };
+    document.getElementById('pvtAbort').onclick = () => {
+      if (!confirm('Encerrar a sessão e ver o resultado?')) return;
+      // Encerrar manual = vai pra tela de resultado (não fecha tudo)
+      finalizeSession();
+    };
     document.getElementById('pvtSkip').onclick  = () => skipCurrentPhrase();
     document.getElementById('pvtListen').onclick = () => speakCurrentPhrase();
     document.getElementById('pvtMic').onclick    = () => toggleMic();
+  }
+
+  // Esconde TODOS os overlays do PVT (mesmo sem state ativo)
+  function hideAllOverlays() {
+    const main = document.getElementById('pvtOverlay');
+    const result = document.getElementById('pvtResultOverlay');
+    if (main) main.hidden = true;
+    if (result) result.hidden = true;
   }
 
   // ─── Estilos ─────────────────────────────────────────────────
@@ -844,22 +861,34 @@
   }
 
   function showResult(phrasesPayload, backendData) {
+    // Garante que o modal de exercício some — só o resultado fica visível
     document.getElementById('pvtOverlay').hidden = true;
     const resOverlay = document.getElementById('pvtResultOverlay');
     resOverlay.hidden = false;
 
     const dominated = phrasesPayload.filter(p => p.result === 'dominada').length;
     const total = state.phrases.length;
+    const attempted = phrasesPayload.filter(p => p.result === 'dominada' || p.result === 'dificil').length;
     const pct = total > 0 ? Math.round((dominated / total) * 100) : 0;
 
     const lessonTitle = state.lessonTitle || `Aula ${state.lessonId}`;
     document.getElementById('pvtResultTitle').textContent = lessonTitle;
 
     const summaryEl = document.getElementById('pvtResultSummary');
-    summaryEl.innerHTML = `
-      ${dominated} de ${total} frases dominadas
-      <div class="pvt-result-bar"><div class="pvt-result-bar-fill" style="width:${pct}%"></div></div>
-    `;
+    if (attempted === 0) {
+      // Encerrou antes de tentar qualquer frase — mostra mensagem clara
+      summaryEl.innerHTML = `
+        <div style="font-size:0.94rem;color:#6b6b6b;font-weight:500;">
+          Nenhuma frase foi avaliada nesta sessão.<br>
+          Volte quando quiser e tente de novo.
+        </div>
+      `;
+    } else {
+      summaryEl.innerHTML = `
+        ${dominated} de ${total} frases dominadas
+        <div class="pvt-result-bar"><div class="pvt-result-bar-fill" style="width:${pct}%"></div></div>
+      `;
+    }
 
     const listEl = document.getElementById('pvtResultList');
     listEl.innerHTML = state.phrases.map(p => {
@@ -908,17 +937,16 @@
   }
 
   function closeAll(doRefresh) {
-    if (!state) return;
-    if (state.timerInterval) clearInterval(state.timerInterval);
-    if (state.recognition) {
-      try { state.recognition.stop(); } catch (e) {}
+    if (state) {
+      if (state.timerInterval) clearInterval(state.timerInterval);
+      if (state.recognition) {
+        try { state.recognition.stop(); } catch (e) {}
+      }
     }
     if ('speechSynthesis' in window) {
       try { window.speechSynthesis.cancel(); } catch (e) {}
     }
-    document.getElementById('pvtOverlay').hidden = true;
-    const resO = document.getElementById('pvtResultOverlay');
-    if (resO) resO.hidden = true;
+    hideAllOverlays();
     if (doRefresh) {
       try {
         if (typeof window.loadUserDifficulties === 'function') window.loadUserDifficulties();
@@ -931,13 +959,20 @@
   // ─── Boot da sessão ──────────────────────────────────────────
   async function open(lessonId, lessonTitle) {
     if (!lessonId) return;
-    if (state) {
-      console.warn('[PVT] já existe sessão ativa');
-      return;
-    }
 
     injectStyles();
     buildModalDom();
+
+    // Reset agressivo: garante que NENHUM resíduo de sessão anterior aparece
+    if (state) {
+      if (state.timerInterval) clearInterval(state.timerInterval);
+      if (state.recognition) { try { state.recognition.stop(); } catch (e) {} }
+      state = null;
+    }
+    if ('speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+    hideAllOverlays();
 
     const token = getAuthToken();
     if (!token) {
