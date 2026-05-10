@@ -289,12 +289,28 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 
 # QW8: Trusted hosts — restricted to production host(s) only
+from urllib.parse import urlparse
+
 _extra_allowed = os.getenv("ALLOWED_HOSTS", "").split(",")
 _extra_allowed = [h.strip() for h in _extra_allowed if h.strip()]
-_default_hosts = settings.cors_origins.split(",") + [
+
+# Extract bare hostnames from CORS origins (TrustedHostMiddleware rejects scheme/port).
+_cors_hosts = []
+for origin in settings.cors_origins.split(","):
+    origin = origin.strip()
+    if not origin:
+        continue
+    parsed = urlparse(origin if "://" in origin else f"//{origin}", scheme="http")
+    if parsed.hostname:
+        _cors_hosts.append(parsed.hostname)
+
+_default_hosts = _cors_hosts + [
     "localhost",
     "127.0.0.1",
+    "testserver",
     "web-production-6ecc2.up.railway.app",
+    "*.up.railway.app",
+    "*.railway.app",
 ]
 app.add_middleware(
     TrustedHostMiddleware,
