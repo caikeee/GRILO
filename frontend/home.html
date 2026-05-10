@@ -9720,7 +9720,16 @@ body.beta-modal-open .main-content.active {
                     <div class="admin-section">
                         <div class="admin-header">
                             <h2>🔧 Painel Administrativo</h2>
-                            <p>Gerenciamento de usuários e senhas</p>
+                            <p>Métricas de negócio + gerenciamento de usuários</p>
+                        </div>
+
+                        <!-- Business Metrics Section -->
+                        <div class="admin-metrics-section" style="margin-bottom:24px;">
+                            <h3>📊 Métricas de Negócio</h3>
+                            <div id="adminMetricsGrid" class="admin-metrics-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;">
+                                <div style="opacity:0.6;">Carregando métricas...</div>
+                            </div>
+                            <div id="adminMetricsCohort" style="margin-top:18px;"></div>
                         </div>
 
                         <div class="admin-content">
@@ -9754,7 +9763,7 @@ body.beta-modal-open .main-content.active {
     <script src="controllers/lessons/quiz-controller.js?v=3"></script>
     <script src="controllers/lessons/lessons-controller.js?v=9"></script>
     <script src="controllers/chat/chat-text-controller.js?v=21"></script>
-    <script src="controllers/dashboard/admin-controller.js?v=1"></script>
+    <script src="controllers/dashboard/admin-controller.js?v=2"></script>
 
 
 
