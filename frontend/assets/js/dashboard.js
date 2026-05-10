@@ -28,7 +28,16 @@ async function loadAnalytics() {
     if (analyticsRequestInFlight) return;
     analyticsRequestInFlight = true;
     try {
-        const response = await fetch(`${API_BASE}/api/analytics/dashboard`, { cache: 'no-store' });
+        const token = localStorage.getItem('grilo_token');
+        if (!token) {
+            showError('Faça login como admin para ver o dashboard');
+            analyticsRequestInFlight = false;
+            return;
+        }
+        const response = await fetch(`${API_BASE}/api/analytics/dashboard`, {
+            cache: 'no-store',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (!response.ok) throw new Error('Erro ao buscar analytics');
         
         const result = await response.json();

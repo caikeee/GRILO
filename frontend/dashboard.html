@@ -14,6 +14,13 @@
     <link rel="stylesheet" href="assets/css/sage-color-system.css">
     <link rel="stylesheet" href="assets/css/sage-premium-polish.css">
 
+    <!-- Guard: redireciona para login se não há token -->
+    <script>
+        if (!localStorage.getItem('grilo_token')) {
+            window.location.replace('/');
+        }
+    </script>
+
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
