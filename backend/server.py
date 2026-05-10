@@ -232,6 +232,27 @@ def _seed_phrase_bank_if_needed():
 _seed_phrase_bank_if_needed()
 
 
+def _promote_caike_to_admin():
+    """Garante que o usuário 'caike' (se existir) tenha is_admin=True."""
+    try:
+        from backend.database import SessionLocal
+        from backend.db_models import User
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.username == "caike").first()
+            if user and not user.is_admin:
+                user.is_admin = True
+                db.commit()
+                logger.info("Promoted user 'caike' to admin")
+        finally:
+            db.close()
+    except Exception as exc:
+        logger.warning("Admin promotion skipped: %s", exc)
+
+
+_promote_caike_to_admin()
+
+
 app = FastAPI(
     title="GRILO API",
     description="English Learning Platform with Voice & Text Chat",
