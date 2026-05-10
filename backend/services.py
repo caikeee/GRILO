@@ -65,7 +65,7 @@ def _fetch_rag_context_sync(query: str, level: str, k: int = 2) -> str:
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-MODEL = os.getenv("MODEL_NAME", "mixtral-8x7b-32768")
+MODEL = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
 
 _PT_DETECTION_HINTS = {
     "oi", "ola", "tudo", "bem", "voce", "voces", "nao", "sim", "isso", "sobre", "comida", "comidas",

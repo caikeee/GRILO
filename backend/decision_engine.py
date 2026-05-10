@@ -116,21 +116,16 @@ class VoiceRequestRouter:
             return "LOCAL"
         
         elif classification == VoiceRequestClassification.LIGHT_LLM:
-            if groq_tokens_remaining > 5000:
-                return "mixtral-8x7b-32768"  # Rápido + barato
-            else:
-                return "llama-3.1-8b-instant"  # Fallback ultra-rápido
-        
+            return "llama-3.1-8b-instant"  # Rápido + barato
+
         elif classification == VoiceRequestClassification.FULL_LLM:
             if groq_tokens_remaining > 50000:
                 return "llama-3.3-70b-versatile"  # Premium
-            elif groq_tokens_remaining > 10000:
-                return "mixtral-8x7b-32768"  # Downgrade elegante
             else:
-                return "llama-3.1-8b-instant"  # Fallback extremo
-        
+                return "llama-3.1-8b-instant"  # Fallback rápido
+
         else:
-            return "mixtral-8x7b-32768"  # Default seguro
+            return "llama-3.1-8b-instant"  # Default seguro
 
 
 # Instância global
