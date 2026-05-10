@@ -704,6 +704,321 @@ def _get_insights(db: Session, analytics: Dict[str, Any]) -> List[Dict[str, str]
     return insights[:5]  # Retornar top 5 insights
 
 
+@router.get("/api/analytics/cohorts")
+async def get_cohort_analysis(db: Session = Depends(get_db), _: any = Depends(verify_admin)):
+    """
+    Cohort analysis por semana de signup.
+    Retorna retenção em D1/D7/D14/D30 e activação por cohort.
+    Cada linha: cohort_week, size, retention_d1, d7, d14, d30 (% dos que voltaram).
+    """
+    try:
+        cohorts = _compute_cohorts(db)
+        return {
+            "status": "ok",
+            "timestamp": datetime.utcnow().isoformat(),
+            "cohorts": cohorts,
+        }
+    except Exception as e:
+        logger.error(f"Cohorts error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Erro ao calcular cohorts")
+
+
+def _compute_cohorts(db: Session) -> List[Dict[str, Any]]:
+    """
+    Cohort semanal de retenção baseado em atividade real (UserActivity + Conversation).
+    Mede: % do cohort que voltou a ter atividade em D1, D7, D14, D30 após signup.
+    """
+    today = date.today()
+
+    # Signup por usuário (data de criação)
+    user_rows = db.query(User.id, User.created_at).all()
+    if not user_rows:
+        return []
+
+    # Agrupar por semana de signup (segunda-feira ISO)
+    def _week_floor(d: date) -> date:
+        return d - timedelta(days=d.weekday())
+
+    cohort_map: Dict[date, List[int]] = defaultdict(list)
+    user_signup: Dict[int, date] = {}
+    for uid, created_at in user_rows:
+        if uid is None or created_at is None:
+            continue
+        signup_day = created_at.date() if hasattr(created_at, "date") else date.fromisoformat(str(created_at)[:10])
+        user_signup[int(uid)] = signup_day
+        cohort_map[_week_floor(signup_day)].append(int(uid))
+
+    # Atividade por usuário: {user_id: set[date]}
+    activity_rows = db.query(UserActivity.user_id, UserActivity.date).distinct().all()
+    conv_rows = (
+        db.query(Conversation.user_id, func.date(Conversation.timestamp))
+        .distinct()
+        .all()
+    )
+    user_active_days: Dict[int, set] = defaultdict(set)
+    for uid, day_val in activity_rows:
+        if uid is not None and day_val:
+            user_active_days[int(uid)].add(str(day_val))
+    for uid, day_val in conv_rows:
+        if uid is not None and day_val:
+            user_active_days[int(uid)].add(str(day_val))
+
+    retention_windows = [
+        ("d1", 1, 2),
+        ("d7", 5, 9),
+        ("d14", 12, 16),
+        ("d30", 27, 33),
+    ]
+
+    # Busca voice users UMA vez antes do loop
+    voice_user_set = _get_voice_user_ids(db)
+
+    rows: List[Dict[str, Any]] = []
+    for cw in sorted(cohort_map.keys(), reverse=True)[:12]:  # últimas 12 semanas
+        users = cohort_map[cw]
+        size = len(users)
+        if size == 0:
+            continue
+
+        retention: Dict[str, Any] = {}
+        for label, window_start_days, window_end_days in retention_windows:
+            # Só calcula se a janela já passou
+            window_start = cw + timedelta(days=window_start_days)
+            if window_start > today:
+                retention[label] = None
+                continue
+            active_count = 0
+            for uid in users:
+                signup = user_signup.get(uid, cw)
+                days_active = user_active_days.get(uid, set())
+                for d_str in days_active:
+                    try:
+                        active_date = date.fromisoformat(d_str)
+                    except ValueError:
+                        continue
+                    delta = (active_date - signup).days
+                    if window_start_days <= delta <= window_end_days:
+                        active_count += 1
+                        break
+            retention[label] = round(active_count / size * 100, 1)
+
+        voice_adopted = sum(1 for uid in users if uid in voice_user_set)
+
+        rows.append({
+            "cohort_week": cw.isoformat(),
+            "cohort_size": size,
+            "retention_d1": retention.get("d1"),
+            "retention_d7": retention.get("d7"),
+            "retention_d14": retention.get("d14"),
+            "retention_d30": retention.get("d30"),
+            "voice_adoption_percent": round(voice_adopted / size * 100, 1) if size else 0,
+        })
+
+    return rows
+
+
+@router.get("/api/analytics/alerts")
+async def get_analytics_alerts(db: Session = Depends(get_db), _: any = Depends(verify_admin)):
+    """
+    Retorna alertas automáticos baseados em anomalias dos dados.
+    Cada alerta tem: id, severity (critical|warning|info), title, message, metric, value, threshold.
+    """
+    try:
+        alerts = _compute_alerts(db)
+        return {
+            "status": "ok",
+            "timestamp": datetime.utcnow().isoformat(),
+            "alert_count": len(alerts),
+            "alerts": alerts,
+        }
+    except Exception as e:
+        logger.error(f"Alerts error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Erro ao calcular alertas")
+
+
+def _compute_alerts(db: Session) -> List[Dict[str, Any]]:
+    """Calcula alertas de anomalia para o dashboard. Retorna lista ordenada por severity."""
+    alerts: List[Dict[str, Any]] = []
+    today = date.today()
+    now = datetime.utcnow()
+
+    # ── 1. DAU drop (hoje vs média 7 dias anteriores) ──────────────────────
+    dau_today = len(_get_active_user_ids(db, today, today))
+    prev_7_days_dau = []
+    for offset in range(1, 8):
+        d = today - timedelta(days=offset)
+        prev_7_days_dau.append(len(_get_active_user_ids(db, d, d)))
+    avg_dau_7d = sum(prev_7_days_dau) / len(prev_7_days_dau) if prev_7_days_dau else 0
+    if avg_dau_7d > 0:
+        drop_pct = ((avg_dau_7d - dau_today) / avg_dau_7d) * 100
+        if drop_pct >= 50:
+            alerts.append({
+                "id": "dau_critical_drop",
+                "severity": "critical",
+                "title": "Queda crítica de DAU",
+                "message": f"DAU de hoje ({dau_today}) caiu {round(drop_pct)}% vs média dos últimos 7 dias ({round(avg_dau_7d, 1)})",
+                "metric": "dau",
+                "value": dau_today,
+                "threshold": round(avg_dau_7d * 0.5, 1),
+            })
+        elif drop_pct >= 25:
+            alerts.append({
+                "id": "dau_warning_drop",
+                "severity": "warning",
+                "title": "DAU abaixo da média",
+                "message": f"DAU de hoje ({dau_today}) está {round(drop_pct)}% abaixo da média de 7 dias ({round(avg_dau_7d, 1)})",
+                "metric": "dau",
+                "value": dau_today,
+                "threshold": round(avg_dau_7d * 0.75, 1),
+            })
+
+    # ── 2. Voice error spike (últimas 2h vs últimas 24h) ───────────────────
+    try:
+        from backend.voice_metrics import voice_metrics
+        vm = voice_metrics.get_summary()
+        error_rate = vm.get("error_rate_percent", 0) or 0
+        if error_rate >= 10:
+            alerts.append({
+                "id": "voice_error_critical",
+                "severity": "critical",
+                "title": "Taxa de erro de voz crítica",
+                "message": f"Taxa de erro do voice chat está em {error_rate:.1f}% (threshold: 10%)",
+                "metric": "voice_error_rate",
+                "value": error_rate,
+                "threshold": 10.0,
+            })
+        elif error_rate >= 5:
+            alerts.append({
+                "id": "voice_error_warning",
+                "severity": "warning",
+                "title": "Taxa de erro de voz elevada",
+                "message": f"Taxa de erro do voice chat está em {error_rate:.1f}% (threshold: 5%)",
+                "metric": "voice_error_rate",
+                "value": error_rate,
+                "threshold": 5.0,
+            })
+        # Latência p95
+        p95 = vm.get("p95_latency_ms", 0) or 0
+        if p95 >= 5000:
+            alerts.append({
+                "id": "voice_latency_critical",
+                "severity": "critical",
+                "title": "Latência de voz crítica (p95)",
+                "message": f"p95 de latência do voice está em {p95}ms (threshold: 5000ms)",
+                "metric": "voice_p95_latency_ms",
+                "value": p95,
+                "threshold": 5000,
+            })
+        elif p95 >= 3000:
+            alerts.append({
+                "id": "voice_latency_warning",
+                "severity": "warning",
+                "title": "Latência de voz elevada (p95)",
+                "message": f"p95 de latência do voice está em {p95}ms (threshold: 3000ms)",
+                "metric": "voice_p95_latency_ms",
+                "value": p95,
+                "threshold": 3000,
+            })
+    except Exception:
+        pass
+
+    # ── 3. Nenhum signup nas últimas 48h (produção) ────────────────────────
+    signups_48h = (
+        db.query(func.count(User.id))
+        .filter(User.created_at >= now - timedelta(hours=48))
+        .scalar()
+    ) or 0
+    total_users = db.query(func.count(User.id)).scalar() or 0
+    if total_users > 5 and signups_48h == 0:
+        alerts.append({
+            "id": "no_signups_48h",
+            "severity": "warning",
+            "title": "Sem novos signups em 48h",
+            "message": "Nenhum cadastro nas últimas 48h. Verificar funil de aquisição.",
+            "metric": "signups_48h",
+            "value": 0,
+            "threshold": 1,
+        })
+
+    # ── 4. Usuários com streak ativo em risco (sem login hoje) ─────────────
+    streak_at_risk = (
+        db.query(func.count(User.id))
+        .filter(
+            User.streak >= 3,
+            User.last_active < datetime.combine(today, datetime.min.time()),
+        )
+        .scalar()
+    ) or 0
+    if streak_at_risk > 0:
+        alerts.append({
+            "id": "streak_at_risk",
+            "severity": "info",
+            "title": f"{streak_at_risk} usuário(s) com streak em risco",
+            "message": f"{streak_at_risk} usuário(s) com streak ≥3 dias não acessaram hoje. Candidates para reengajamento.",
+            "metric": "streak_at_risk_users",
+            "value": streak_at_risk,
+            "threshold": 0,
+        })
+
+    # ── 5. Aulas com score médio < 40% na última semana ───────────────────
+    week_ago_dt = now - timedelta(days=7)
+    low_score_events = (
+        db.query(AnalyticsEvent.lesson_id, AnalyticsEvent.details)
+        .filter(
+            AnalyticsEvent.event_name == "lesson_exercise_submitted",
+            AnalyticsEvent.created_at >= week_ago_dt,
+            AnalyticsEvent.lesson_id.isnot(None),
+        )
+        .all()
+    )
+    lesson_scores: Dict[int, List[bool]] = defaultdict(list)
+    for lesson_id, details in low_score_events:
+        if isinstance(details, dict) and "is_correct" in details:
+            lesson_scores[int(lesson_id)].append(bool(details["is_correct"]))
+    hard_lessons_week = [
+        lid for lid, results in lesson_scores.items()
+        if len(results) >= 5 and (sum(results) / len(results)) < 0.4
+    ]
+    if hard_lessons_week:
+        alerts.append({
+            "id": "hard_lessons_detected",
+            "severity": "info",
+            "title": f"{len(hard_lessons_week)} aula(s) com dificuldade alta esta semana",
+            "message": f"Aulas {hard_lessons_week[:5]} com taxa de acerto < 40% nos últimos 7 dias. Revisar conteúdo.",
+            "metric": "hard_lessons_count",
+            "value": len(hard_lessons_week),
+            "threshold": 0,
+        })
+
+    # ── 6. Retenção D7 < 15% ──────────────────────────────────────────────
+    retention_d7 = _calculate_retention(db, days=7)
+    if retention_d7 < 15 and total_users >= 10:
+        alerts.append({
+            "id": "retention_d7_critical",
+            "severity": "critical",
+            "title": "Retenção D7 crítica",
+            "message": f"Apenas {retention_d7}% dos usuários voltam no 7º dia (meta mínima: 15%)",
+            "metric": "retention_d7_percent",
+            "value": retention_d7,
+            "threshold": 15.0,
+        })
+    elif retention_d7 < 25 and total_users >= 10:
+        alerts.append({
+            "id": "retention_d7_warning",
+            "severity": "warning",
+            "title": "Retenção D7 abaixo da meta",
+            "message": f"Retenção D7 em {retention_d7}% (meta: 25%). Revisar onboarding e primeiras lições.",
+            "metric": "retention_d7_percent",
+            "value": retention_d7,
+            "threshold": 25.0,
+        })
+
+    # ── Ordenar: critical → warning → info ────────────────────────────────
+    severity_order = {"critical": 0, "warning": 1, "info": 2}
+    alerts.sort(key=lambda a: severity_order.get(a["severity"], 3))
+    return alerts
+
+
 def _calculate_retention(db: Session, days: int) -> float:
     """Retention = usuários ativos no dia N que também ficaram ativos hoje."""
     today = date.today()

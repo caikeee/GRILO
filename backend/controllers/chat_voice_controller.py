@@ -336,6 +336,7 @@ async def voice_chat(
 
         xp_result = award_xp(db, int(user_id), 8, source="voice")
         mark_activity(db, int(user_id), "voice")
+        had_correction = bool(result.get("correction"))
         track_metric_event(
             db,
             int(user_id),
@@ -344,6 +345,8 @@ async def voice_chat(
             details={
                 "voice_mode": getattr(body, "voice_mode", "free") or "free",
                 "conversation_topic": getattr(body, "conversation_topic", None),
+                "had_correction": had_correction,
+                "latency_ms": int((datetime.now() - start_time).total_seconds() * 1000),
             },
         )
 

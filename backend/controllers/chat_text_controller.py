@@ -55,12 +55,22 @@ async def write_chat(
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.info("[WRITE-CHAT] SUCCESS | user_id=%s | %.2fs", user_id, elapsed)
         mark_activity(db, int(user_id), "chat")
+
+        # Enrich event with quality signals for dashboard aggregation
+        corrections = getattr(result, "corrections", None) or []
+        accuracy = getattr(result, "writing_accuracy_score", None)
         track_metric_event(
             db,
             int(user_id),
             "chat",
             "chat_message_sent",
-            details={"mode": "write"},
+            details={
+                "mode": "write",
+                "corrections_count": len(corrections),
+                "writing_accuracy_score": accuracy,
+                "has_errors": len(corrections) > 0,
+                "latency_ms": int(elapsed * 1000),
+            },
         )
         return result
     except Exception as exc:

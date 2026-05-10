@@ -81,15 +81,24 @@ class _ExerciseSubmitBody(BaseModel):
     selected_index: int
     is_correct: bool | None = None
     source: str | None = None
+    time_spent_ms: int | None = None      # ms desde que o exercício apareceu até submit
+    hint_used: bool | None = None         # usuário clicou em dica antes de responder
 
 
 class _SaveProgressBody(BaseModel):
     correct_answers: int
     total_questions: int
+    time_spent_ms: int | None = None      # ms totais na aula (lesson_abandoned se não salvar)
 
 
 class _LessonsPageViewBody(BaseModel):
     source: str | None = None
+
+
+class _LessonAbandonBody(BaseModel):
+    lesson_id: int
+    exercise_index_reached: int | None = None   # última questão que viu
+    time_spent_ms: int | None = None
 
 
 def _get_standalone_lesson_slug(lesson_id: int) -> str | None:
@@ -272,8 +281,19 @@ async def submit_lesson_exercise(
                 "is_correct": is_correct,
                 "source": body.source or ("standalone" if standalone_slug else "catalog"),
                 "standalone_slug": standalone_slug,
+                "time_spent_ms": body.time_spent_ms,
+                "hint_used": body.hint_used or False,
             },
         )
+        if body.hint_used:
+            track_metric_event(
+                db,
+                int(user_id),
+                "lesson",
+                "exercise_hint_used",
+                lesson_id=lesson_id,
+                details={"exercise_index": body.exercise_index, "source": body.source},
+            )
 
         logger.info(
             "[LESSON-EXERCISE] User %s - Lesson %s, Ex %s: %s | xp=%s",
@@ -355,6 +375,7 @@ async def save_lesson_progress(
                 "correct_answers": body.correct_answers,
                 "total_questions": body.total_questions,
                 "is_first_completion": existing is None,
+                "time_spent_ms": body.time_spent_ms,
             },
         )
         logger.info(
@@ -380,6 +401,31 @@ async def save_lesson_progress(
     except Exception as exc:
         logger.error("[LESSON-PROGRESS] Error saving progress: %s", str(exc))
         raise HTTPException(status_code=500, detail="Error saving progress")
+
+
+@router.post("/api/lessons/abandon")
+async def track_lesson_abandoned(
+    body: _LessonAbandonBody,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Track when user leaves a lesson mid-way without saving progress."""
+    try:
+        track_metric_event(
+            db,
+            int(user_id),
+            "lesson",
+            "lesson_abandoned",
+            lesson_id=body.lesson_id,
+            details={
+                "exercise_index_reached": body.exercise_index_reached,
+                "time_spent_ms": body.time_spent_ms,
+            },
+        )
+        return {"success": True}
+    except Exception as exc:
+        logger.error("[LESSON-ABANDON] Error: %s", str(exc))
+        raise HTTPException(status_code=500, detail="Error tracking lesson abandon")
 
 
 @router.get("/api/user/stats")

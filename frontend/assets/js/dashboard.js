@@ -4,7 +4,7 @@
  */
 
 const API_BASE = window.location.origin;
-const REFRESH_MS = 30 * 1000; // 30s — evita hammering
+const REFRESH_MS = 60 * 1000; // 60s — evita hammering
 let charts = {};
 let inFlight = false;
 
@@ -29,15 +29,21 @@ async function loadAnalytics() {
         const token = localStorage.getItem('grilo_token');
         if (!token) { showError('Faça login como admin para acessar o painel.'); return; }
 
-        const res = await fetch(`${API_BASE}/api/analytics/dashboard`, {
-            cache: 'no-store',
-            headers: { Authorization: `Bearer ${token}` }
-        });
+        const headers = { Authorization: `Bearer ${token}` };
 
-        if (!res.ok) throw new Error(`Erro ${res.status} ao buscar dados`);
+        const [dashRes, alertsRes, cohortsRes] = await Promise.all([
+            fetch(`${API_BASE}/api/analytics/dashboard`, { cache: 'no-store', headers }),
+            fetch(`${API_BASE}/api/analytics/alerts`,    { cache: 'no-store', headers }),
+            fetch(`${API_BASE}/api/analytics/cohorts`,   { cache: 'no-store', headers }),
+        ]);
 
-        const { data } = await res.json();
-        render(data);
+        if (!dashRes.ok) throw new Error(`Erro ${dashRes.status} ao buscar dados`);
+
+        const { data }         = await dashRes.json();
+        const alertsData       = alertsRes.ok  ? await alertsRes.json()  : { alerts: [] };
+        const cohortsData      = cohortsRes.ok ? await cohortsRes.json() : { cohorts: [] };
+
+        render(data, alertsData.alerts || [], cohortsData.cohorts || []);
         updateTimestamp();
     } catch (e) {
         console.error(e);
@@ -49,17 +55,19 @@ async function loadAnalytics() {
 }
 
 /* ── RENDER ROOT ─────────────────────────────────────── */
-function render(d) {
+function render(d, alerts, cohorts) {
     document.getElementById('content').innerHTML = `
+        ${sectionAlerts(alerts)}
         ${sectionInsights(d.insights)}
         ${sectionSaude(d.health)}
         ${sectionAprendizado(d.learning)}
         ${sectionVoz(d.voice)}
         ${sectionPadroes(d.patterns)}
         ${sectionJornada(d.funnel)}
+        ${sectionCohorts(cohorts)}
         ${sectionTecnico(d.technical)}
     `;
-    setTimeout(() => initCharts(d), 80);
+    setTimeout(() => initCharts(d, cohorts), 80);
 }
 
 /* ── HELPERS ─────────────────────────────────────────── */
@@ -93,6 +101,110 @@ function sectionHead(icon, label) {
             <div class="db-section-icon">${icon}</div>
             <div class="db-section-label">${label}</div>
         </div>`;
+}
+
+/* ── ALERTAS AUTOMÁTICOS ─────────────────────────────── */
+function sectionAlerts(alerts) {
+    if (!alerts?.length) return '';
+
+    const sevIcon  = { critical: '🔴', warning: '🟡', info: '🔵' };
+    const sevLabel = { critical: 'Crítico', warning: 'Atenção', info: 'Info' };
+
+    const rows = alerts.map(a => `
+        <div class="db-alert db-alert-${a.severity}">
+            <div class="db-alert-icon">${sevIcon[a.severity] || '⚪'}</div>
+            <div class="db-alert-body">
+                <div class="db-alert-title">
+                    <span class="db-alert-badge db-alert-badge-${a.severity}">${sevLabel[a.severity] || a.severity}</span>
+                    ${escHtml(a.title)}
+                </div>
+                <div class="db-alert-msg">${escHtml(a.message)}</div>
+            </div>
+        </div>`).join('');
+
+    const critCount = alerts.filter(a => a.severity === 'critical').length;
+    const warnCount = alerts.filter(a => a.severity === 'warning').length;
+    const headerExtra = critCount
+        ? `<span class="db-alert-summary critical">${critCount} crítico(s)</span>`
+        : warnCount
+        ? `<span class="db-alert-summary warning">${warnCount} atenção</span>`
+        : `<span class="db-alert-summary ok">Sistema OK</span>`;
+
+    return `
+        <div class="db-section db-section-alerts">
+            <div class="db-section-header">
+                <div class="db-section-icon">🚨</div>
+                <div class="db-section-label">Alertas Automáticos</div>
+                ${headerExtra}
+            </div>
+            <div class="db-alerts-list">${rows}</div>
+        </div>`;
+}
+
+/* ── COHORT ANALYSIS ─────────────────────────────────── */
+function sectionCohorts(cohorts) {
+    if (!cohorts?.length) return '';
+
+    const headers = ['Cohort', 'Tamanho', 'D1', 'D7', 'D14', 'D30', 'Voz'];
+
+    const colorCell = (val) => {
+        if (val === null || val === undefined) return `<td class="db-cohort-na">—</td>`;
+        const v = Number(val);
+        const cls = v >= 40 ? 'ok' : v >= 20 ? 'warn' : 'bad';
+        return `<td class="db-cohort-pct db-cohort-${cls}">${v}%</td>`;
+    };
+
+    const tableRows = cohorts.slice(0, 10).map(c => `
+        <tr>
+            <td class="db-cohort-week">${fmtWeek(c.cohort_week)}</td>
+            <td class="db-cohort-size">${c.cohort_size}</td>
+            ${colorCell(c.retention_d1)}
+            ${colorCell(c.retention_d7)}
+            ${colorCell(c.retention_d14)}
+            ${colorCell(c.retention_d30)}
+            ${colorCell(c.voice_adoption_percent)}
+        </tr>`).join('');
+
+    // Médias de D7 e D30 (excluindo nulls)
+    const d7vals  = cohorts.map(c => c.retention_d7).filter(v => v !== null && v !== undefined);
+    const d30vals = cohorts.map(c => c.retention_d30).filter(v => v !== null && v !== undefined);
+    const avgD7   = d7vals.length  ? round1(d7vals.reduce((a, b) => a + b, 0)  / d7vals.length)  : '—';
+    const avgD30  = d30vals.length ? round1(d30vals.reduce((a, b) => a + b, 0) / d30vals.length) : '—';
+
+    return `
+        <div class="db-section">
+            ${sectionHead('📈', 'Cohort Analysis — Retenção Semanal')}
+            <div class="db-grid-3" style="margin-bottom:14px;">
+                ${card('Cohorts monitorados', cohorts.length, 'Semanas de signup analisadas')}
+                ${card('D7 médio', typeof avgD7 === 'number' ? avgD7 + '%' : avgD7, 'Retenção 7 dias', typeof avgD7 === 'number' ? pct(avgD7, 25, 15) : '')}
+                ${card('D30 médio', typeof avgD30 === 'number' ? avgD30 + '%' : avgD30, 'Retenção 30 dias', typeof avgD30 === 'number' ? pct(avgD30, 15, 8) : '')}
+            </div>
+            <div class="db-table-wrap db-table-cohort">
+                <table class="db-table">
+                    <thead>
+                        <tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+                <div class="db-cohort-legend">
+                    <span class="db-cohort-ok-dot"></span>≥40%
+                    <span class="db-cohort-warn-dot"></span>20–40%
+                    <span class="db-cohort-bad-dot"></span>&lt;20%
+                </div>
+            </div>
+        </div>`;
+}
+
+function fmtWeek(isoDate) {
+    if (!isoDate) return '—';
+    const d = new Date(isoDate + 'T12:00:00');
+    return `Sem ${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`;
+}
+
+function round1(n) { return Math.round(n * 10) / 10; }
+
+function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 /* ── INSIGHTS ────────────────────────────────────────── */
@@ -386,7 +498,7 @@ function sectionTecnico(t) {
 }
 
 /* ── CHARTS ──────────────────────────────────────────── */
-function initCharts(d) {
+function initCharts(d, cohorts) {
     // Atividade diária
     if (d.patterns?.daily_activity_last_30_days) {
         const canvas = document.getElementById('activityChart');

@@ -551,6 +551,104 @@
             font-weight: 500;
         }
 
+        /* ── ALERTAS ── */
+        .db-section-alerts .db-section-header {
+            margin-bottom: 14px;
+        }
+        .db-alert-summary {
+            margin-left: auto;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        .db-alert-summary.critical { background: rgba(239,68,68,0.1); color: #b91c1c; }
+        .db-alert-summary.warning  { background: rgba(234,179,8,0.12); color: #92400e; }
+        .db-alert-summary.ok       { background: rgba(34,197,94,0.1);  color: #166534; }
+
+        .db-alerts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .db-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid;
+        }
+        .db-alert-critical {
+            background: rgba(239,68,68,0.05);
+            border-color: rgba(239,68,68,0.2);
+            border-left: 3px solid #ef4444;
+        }
+        .db-alert-warning {
+            background: rgba(234,179,8,0.05);
+            border-color: rgba(234,179,8,0.2);
+            border-left: 3px solid #eab308;
+        }
+        .db-alert-info {
+            background: rgba(99,102,241,0.04);
+            border-color: rgba(99,102,241,0.15);
+            border-left: 3px solid #6366f1;
+        }
+        .db-alert-icon { font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+        .db-alert-body { flex: 1; }
+        .db-alert-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-primary, #1F3B2D);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .db-alert-msg {
+            font-size: 0.82rem;
+            color: var(--text-muted, #6A7B71);
+            line-height: 1.4;
+        }
+        .db-alert-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .db-alert-badge-critical { background: rgba(239,68,68,0.12); color: #b91c1c; }
+        .db-alert-badge-warning  { background: rgba(234,179,8,0.12);  color: #92400e; }
+        .db-alert-badge-info     { background: rgba(99,102,241,0.1);   color: #4338ca; }
+
+        /* ── COHORT TABLE ── */
+        .db-table-cohort { max-width: 100%; overflow-x: auto; }
+        .db-cohort-week  { font-size: 0.81rem; font-weight: 500; white-space: nowrap; color: var(--text-primary, #1F3B2D); }
+        .db-cohort-size  { text-align: center; font-size: 0.84rem; font-weight: 600; }
+        .db-cohort-pct   { text-align: center; font-size: 0.84rem; font-weight: 600; border-radius: 6px; }
+        .db-cohort-na    { text-align: center; color: #aaa; font-size: 0.8rem; }
+        .db-cohort-ok   { background: rgba(34,197,94,0.12);  color: #166534; }
+        .db-cohort-warn { background: rgba(234,179,8,0.12);  color: #92400e; }
+        .db-cohort-bad  { background: rgba(239,68,68,0.10);  color: #b91c1c; }
+        .db-cohort-legend {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted, #6A7B71);
+        }
+        .db-cohort-ok-dot, .db-cohort-warn-dot, .db-cohort-bad-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-right: 3px;
+        }
+        .db-cohort-ok-dot   { background: rgba(34,197,94,0.6); }
+        .db-cohort-warn-dot { background: rgba(234,179,8,0.6); }
+        .db-cohort-bad-dot  { background: rgba(239,68,68,0.5); }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 1100px) {
             .db-grid-4 { grid-template-columns: repeat(2, 1fr); }

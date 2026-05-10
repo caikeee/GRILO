@@ -283,6 +283,36 @@ async def logout(
 class OnboardingRequest(BaseModel):
     learning_why: str
     daily_interests: str
+    time_spent_ms: int | None = None    # ms na tela de onboarding (enviado pelo frontend)
+
+
+class OnboardingStepRequest(BaseModel):
+    step: int                           # 0=welcome,1=why_learn,2=interests,3=demo,4=done
+    time_spent_ms: int | None = None
+
+
+@router.post("/api/user/onboarding/step")
+async def track_onboarding_step(
+    data: OnboardingStepRequest,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Track each individual onboarding step for funnel drop-off analysis."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    step = max(0, min(4, int(data.step)))
+    if step > (user.onboarding_step or 0):
+        user.onboarding_step = step
+        db.commit()
+    track_metric_event(
+        db,
+        int(user_id),
+        "funnel",
+        "onboarding_step_completed",
+        details={"step": step, "time_spent_ms": data.time_spent_ms},
+    )
+    return {"ok": True, "step": step}
 
 
 @router.post("/api/user/onboarding")
@@ -301,7 +331,11 @@ async def save_onboarding(
     user.onboarding_step = 4
     db.commit()
     if not was_completed_before:
-        time_to_complete = max(0, int((datetime.utcnow() - started_at).total_seconds()))
+        time_to_complete = (
+            data.time_spent_ms // 1000
+            if data.time_spent_ms
+            else max(0, int((datetime.utcnow() - started_at).total_seconds()))
+        )
         track_metric_event(
             db,
             user.id,
