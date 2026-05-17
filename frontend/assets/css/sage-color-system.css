@@ -29,10 +29,14 @@
     --border-light: #EDF8F0;
 
     /* ========== SHADOWS - Green-tinted ========== */
+    --shadow-xs: 0 1px 2px rgba(122, 158, 132, 0.04);
     --shadow-sm: 0 2px 8px rgba(122, 158, 132, 0.07);
     --shadow-md: 0 4px 16px rgba(122, 158, 132, 0.09);
     --shadow-lg: 0 12px 40px rgba(122, 158, 132, 0.12);
     --shadow-xl: 0 20px 60px rgba(122, 158, 132, 0.15);
+    --shadow-button: 0 4px 12px rgba(122, 158, 132, 0.18);
+    --shadow-button-hover: 0 8px 24px rgba(122, 158, 132, 0.28);
+    --shadow-card: 0 1px 3px rgba(122, 158, 132, 0.04), 0 6px 24px rgba(122, 158, 132, 0.06);
 
     /* ========== GRADIENTS ========== */
     --gradient-primary: linear-gradient(135deg, #7A9E84 0%, #5A7E66 100%);
@@ -43,6 +47,11 @@
     --transition-fast: 0.15s ease-in-out;
     --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* ========== COMPONENT SURFACES ========== */
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-bg-strong: rgba(255, 255, 255, 0.92);
+    --glass-border: rgba(122, 158, 132, 0.08);
 }
 
 /* ====================================================================
@@ -60,7 +69,7 @@
 .btn-cta,
 .btn-action,
 button:not(.navbar-toggle):not([class*="modal"]) {
-    transition: all var(--transition-fast);
+    transition: all var(--transition-fast, 0.15s ease-in-out);
 }
 
 .btn-primary,
@@ -70,10 +79,10 @@ button:not(.navbar-toggle):not([class*="modal"]) {
 .navbar-cta-btn,
 .btn[type="submit"],
 button[type="submit"]:not(.navbar-toggle) {
-    background: var(--gradient-primary) !important;
+    background: var(--gradient-primary, linear-gradient(135deg, #7A9E84 0%, #5A7E66 100%)) !important;
     color: white !important;
     border: none !important;
-    box-shadow: 0 4px 12px rgba(122, 158, 132, 0.18) !important;
+    box-shadow: var(--shadow-button, 0 4px 12px rgba(122, 158, 132, 0.18)) !important;
 }
 
 .btn-primary:hover,
@@ -82,9 +91,9 @@ button[type="submit"]:not(.navbar-toggle) {
 .btn-action:hover,
 .navbar-cta-btn:hover,
 button[type="submit"]:hover {
-    background: var(--gradient-dark) !important;
+    background: var(--gradient-dark, linear-gradient(135deg, #5A7E66 0%, #3A5E47 100%)) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(122, 158, 132, 0.28) !important;
+    box-shadow: var(--shadow-button-hover, 0 8px 24px rgba(122, 158, 132, 0.28)) !important;
 }
 
 .btn-secondary,
@@ -109,11 +118,11 @@ select,
 .form-control,
 .auth-field input,
 .form-input-v2 {
-    border: 1px solid var(--border-light) !important;
+    border: 1px solid var(--border-light, #EDF8F0) !important;
     border-radius: 8px !important;
     background: white !important;
-    color: var(--text-primary) !important;
-    transition: all var(--transition-base) !important;
+    color: var(--text-primary, #1F3B2D) !important;
+    transition: all var(--transition-base, 0.3s cubic-bezier(0.4, 0, 0.2, 1)) !important;
 }
 
 input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -125,7 +134,7 @@ select:focus,
 .auth-field input:focus,
 .form-input-v2:focus {
     outline: none !important;
-    border-color: var(--sage-primary) !important;
+    border-color: var(--sage-primary, #7A9E84) !important;
     box-shadow: 0 0 0 3px rgba(122, 158, 132, 0.1) !important;
 }
 
@@ -148,10 +157,10 @@ label,
 .lesson-card,
 .chat-card {
     background: white !important;
-    border: 1px solid var(--border-light) !important;
+    border: 1px solid var(--border-light, #EDF8F0) !important;
     border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(122, 158, 132, 0.04), 0 6px 24px rgba(122, 158, 132, 0.06) !important;
-    transition: all var(--transition-base) !important;
+    box-shadow: var(--shadow-card, 0 1px 3px rgba(122, 158, 132, 0.04), 0 6px 24px rgba(122, 158, 132, 0.06)) !important;
+    transition: all var(--transition-base, 0.3s cubic-bezier(0.4, 0, 0.2, 1)) !important;
 }
 
 .card:hover,
@@ -161,7 +170,7 @@ label,
 .content-card:hover,
 .lesson-card:hover,
 .chat-card:hover {
-    border-color: var(--sage-primary) !important;
+    border-color: var(--sage-primary, #7A9E84) !important;
     box-shadow: 0 4px 16px rgba(122, 158, 132, 0.10), 0 20px 48px rgba(122, 158, 132, 0.12) !important;
     transform: translateY(-4px) !important;
 }
