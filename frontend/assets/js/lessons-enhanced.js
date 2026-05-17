@@ -2429,6 +2429,51 @@
   const LESSON_KEYS  = Object.keys(lessons);
   const exerciseScores = {};
   const API_BASE_URL = window.location.origin;
+
+  // ─── Utilitários de infraestrutura ──────────────────────────
+
+  function safeLocalStorage(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        console.warn('[GRILO] localStorage quota excedida — limpando entradas antigas');
+        try {
+          Object.keys(localStorage)
+            .filter(k => k.startsWith('grilo_') && k !== 'grilo_token' && k !== 'grilo_user')
+            .slice(0, 3)
+            .forEach(k => localStorage.removeItem(k));
+          localStorage.setItem(key, value);
+          return true;
+        } catch (e2) { return false; }
+      }
+      return false;
+    }
+  }
+
+  async function fetchWithRetry(url, options = {}, maxRetries = 3) {
+    let delay = 300;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const res = await fetch(url, options);
+        if (res.ok || res.status < 500) return res;
+        if (attempt < maxRetries - 1) {
+          await new Promise(r => setTimeout(r, delay));
+          delay *= 2;
+        }
+        return res;
+      } catch (e) {
+        if (attempt < maxRetries - 1) {
+          await new Promise(r => setTimeout(r, delay));
+          delay *= 2;
+        } else {
+          throw e;
+        }
+      }
+    }
+  }
+
   const STANDALONE_BACKEND_IDS = {
     pronomes: 1001,
     perguntas: 1002,
@@ -2470,7 +2515,7 @@
       });
 
       if (response.ok) {
-        try { localStorage.setItem('grilo_analytics_ping', String(Date.now())); } catch (e) {}
+        safeLocalStorage('grilo_analytics_ping', String(Date.now()));
       }
     } catch (e) {
       console.warn('[LESSONS-STANDALONE] page-view error:', e);
@@ -2483,7 +2528,7 @@
   }
 
   function saveProgress(p) {
-    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch (e) {}
+    safeLocalStorage(PROGRESS_KEY, JSON.stringify(p));
   }
 
   function getStandaloneLessonScoreSummary(slug) {
@@ -2555,7 +2600,7 @@
     if (status.ownerId && currentUserId && status.ownerId !== currentUserId) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/save-progress`, {
+      const res = await fetchWithRetry(`${API_BASE_URL}/api/lessons/${lessonId}/save-progress`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2819,7 +2864,7 @@
     const token = getAuthToken();
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/lessons/progress-extended`, {
+      const res = await fetchWithRetry(`${API_BASE_URL}/api/lessons/progress-extended`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) return;
@@ -2945,18 +2990,29 @@
         </div>
       `;
 
-      card.addEventListener('click', (e) => {
-        showLessonContent(key, card);
-      });
-
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          showLessonContent(key, card);
-        }
-      });
-
+      card.setAttribute('data-lesson-key', key);
       container.appendChild(card);
+    });
+  }
+
+  // Event delegation: 1 listener no container em vez de N listeners por card
+  function initCardsEventDelegation() {
+    const container = document.getElementById('lessonsCardsContainer');
+    if (!container || container._delegated) return;
+    container._delegated = true;
+
+    container.addEventListener('click', (e) => {
+      const card = e.target.closest('.lp-card[data-lesson-key]');
+      if (card) showLessonContent(card.dataset.lessonKey, card);
+    });
+
+    container.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const card = e.target.closest('.lp-card[data-lesson-key]');
+      if (card) {
+        e.preventDefault();
+        showLessonContent(card.dataset.lessonKey, card);
+      }
     });
   }
 
@@ -2998,7 +3054,7 @@
             headers: { 'Authorization': `Bearer ${token}` }
           }).then((response) => {
             if (response.ok) {
-              try { localStorage.setItem('grilo_analytics_ping', String(Date.now())); } catch (err) {}
+              safeLocalStorage('grilo_analytics_ping', String(Date.now()));
             }
           }).catch(err => console.warn('[LESSONS-STANDALONE] track-access failed:', err));
         }
@@ -3289,11 +3345,16 @@
     });
   }
 
+  // Expõe fetchWithRetry para outros módulos (ex: phrase-voice-trainer)
+  window.GriloVR = window.GriloVR || {};
+  window.GriloVR._fetchWithRetry = fetchWithRetry;
+
   renderLessonsCards();
   updateHeroProgress();
   initLessonsChrome();
   initCategoryBar();
   initLessonSearch();
+  initCardsEventDelegation();
   syncPendingLessonCompletions();
   void trackLessonsPageView();
 

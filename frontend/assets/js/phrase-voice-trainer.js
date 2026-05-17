@@ -13,15 +13,23 @@
   'use strict';
 
   const API_BASE_URL = window.location.origin;
-  const PHRASE_TIME_PER_PHRASE_SEC = 25; // por frase (ajuste fino)
-  const TOTAL_TIME_SEC = 90;             // teto total da sessão (5 frases)
-  const RECOGNITION_LANG = 'en-US';
+
+  // CONFIG centralizado — override via window.GriloVR.PVT_CONFIG se necessário
+  const CONFIG = {
+    PHRASE_TIME_PER_PHRASE_SEC: 25,
+    TOTAL_TIME_SEC: 90,
+    RECOGNITION_LANG: 'en-US',
+    MATCH_THRESHOLD: 0.7,
+    MIN_WORDS_TO_PASS: 2,
+    MAX_ATTEMPTS_PER_PHRASE: 3,
+  };
+  // Expõe para tuning externo (ex: A/B tests)
+  window.GriloVR = window.GriloVR || {};
+  window.GriloVR.PVT_CONFIG = CONFIG;
 
   let state = null;
-  // Módulo compartilhado de avaliação (carregado via voice-recognition-utils.js)
-  function VR() {
-    return window.GriloVR || null;
-  }
+
+  function VR() { return window.GriloVR || null; }
 
   // ─── Util ────────────────────────────────────────────────────
   function getAuthToken() {
@@ -34,19 +42,17 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  // Delega para GriloVR (single source of truth); fallback local para robustez
   function normalizeWord(w) {
-    return String(w || '')
-      .toLowerCase()
-      .replace(/[^\p{L}\p{N}'-]/gu, '')
-      .trim();
+    const vr = VR();
+    if (vr && vr.normalizeWord) return vr.normalizeWord(w);
+    return String(w || '').toLowerCase().replace(/[^\p{L}\p{N}'-]/gu, '').trim();
   }
 
   function tokenize(s) {
-    return String(s || '')
-      .toLowerCase()
-      .split(/\s+/)
-      .map(normalizeWord)
-      .filter(Boolean);
+    const vr = VR();
+    if (vr && vr.tokenize) return vr.tokenize(s);
+    return String(s || '').toLowerCase().split(/\s+/).map(normalizeWord).filter(Boolean);
   }
 
   function fmtTime(sec) {
@@ -56,8 +62,17 @@
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
 
+  function stopSpeech() {
+    if (!('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+    } catch (e) {
+      console.warn('[PVT] TTS cancel failed:', e.message);
+      try { window.speechSynthesis.pause(); } catch (_) {}
+    }
+  }
+
   // ─── Comparação palavra a palavra ────────────────────────────
-  // Retorna { matched:[bool…], wrongWords:[…], score: 0..1, passed: bool }
   function wordLevelCompare(expected, spoken) {
     const expTokens = tokenize(expected);
     const heardSet = new Set(tokenize(spoken));
@@ -65,7 +80,8 @@
     const correctCount = matched.filter(Boolean).length;
     const score = expTokens.length ? correctCount / expTokens.length : 0;
     const wrongWords = expTokens.filter((t, i) => !matched[i]);
-    const passed = score >= MATCH_THRESHOLD && correctCount >= Math.min(MIN_WORDS_TO_PASS, expTokens.length);
+    const passed = score >= CONFIG.MATCH_THRESHOLD &&
+                   correctCount >= Math.min(CONFIG.MIN_WORDS_TO_PASS, expTokens.length);
     return { matched, wrongWords, score, passed, expTokens, correctCount };
   }
 
@@ -719,9 +735,9 @@
   function speakText(text) {
     if (!('speechSynthesis' in window)) return;
     try {
-      window.speechSynthesis.cancel();
+      stopSpeech();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = RECOGNITION_LANG;
+      u.lang = CONFIG.RECOGNITION_LANG;
       u.rate = 0.92;
       u.pitch = 1.0;
       const voices = window.speechSynthesis.getVoices();
@@ -740,7 +756,7 @@
       return null;
     }
     const rec = new SR();
-    rec.lang = RECOGNITION_LANG;
+    rec.lang = CONFIG.RECOGNITION_LANG;
     rec.continuous = false;
     rec.interimResults = false;
     rec.maxAlternatives = 5; // sobe de 3 para 5 — pega mais hipóteses
@@ -885,7 +901,7 @@
     );
 
     // Após 3 tentativas falhas (não-inaudíveis), marca como difícil e avança
-    if (state.attemptsOnCurrent >= 3) {
+    if (state.attemptsOnCurrent >= CONFIG.MAX_ATTEMPTS_PER_PHRASE) {
       markPhraseResult('dificil', { wrong_words: evalResult.wrongWords, transcript: evalResult.bestTranscript });
       setTimeout(() => advanceToNext(), 1400);
     }
@@ -1162,7 +1178,10 @@
   // ─── Microfone: nível de áudio em tempo real ─────────────────
   function startMicLevelMonitor() {
     if (!window.GriloVR || !window.GriloVR.MicLevelMonitor) return;
-    if (state.micMonitor) return;
+
+    // Para qualquer monitor anterior antes de criar novo — evita callbacks ghost
+    stopMicLevelMonitor();
+
     const wrap = document.getElementById('pvtMicLevel');
     const fill = document.getElementById('pvtMicLevelFill');
     const status = document.getElementById('pvtMicLevelStatus');
@@ -1170,6 +1189,7 @@
 
     wrap.hidden = false;
     const m = new window.GriloVR.MicLevelMonitor();
+
     m.onLevel = (level, isAudible) => {
       const pct = Math.round(level * 100);
       fill.style.width = pct + '%';
@@ -1186,16 +1206,27 @@
         status.classList.remove('is-warning');
       }
     };
+
+    m._cleanup = () => {
+      m.onLevel = null;
+      m.onWaveform = null;
+    };
+
     m.start().catch(err => {
       console.warn('[PVT] mic monitor start failed:', err);
+      m._cleanup();
       wrap.hidden = true;
     });
+
     state.micMonitor = m;
   }
 
   function stopMicLevelMonitor() {
     if (state && state.micMonitor) {
-      try { state.micMonitor.stop(); } catch (e) {}
+      try {
+        if (state.micMonitor._cleanup) state.micMonitor._cleanup();
+        state.micMonitor.stop();
+      } catch (e) {}
       state.micMonitor = null;
     }
     const wrap = document.getElementById('pvtMicLevel');
@@ -1205,10 +1236,10 @@
   // ─── Timer ───────────────────────────────────────────────────
   function startTimer() {
     state.startedAt = Date.now();
-    state.remaining = TOTAL_TIME_SEC;
+    state.remaining = CONFIG.TOTAL_TIME_SEC;
     updateTimerUI();
     state.timerInterval = setInterval(() => {
-      state.remaining = Math.max(0, TOTAL_TIME_SEC - Math.round((Date.now() - state.startedAt) / 1000));
+      state.remaining = Math.max(0, CONFIG.TOTAL_TIME_SEC - Math.round((Date.now() - state.startedAt) / 1000));
       updateTimerUI();
       if (state.remaining <= 0) {
         clearInterval(state.timerInterval);
@@ -1240,9 +1271,7 @@
     if (state.recognition) {
       try { state.recognition.stop(); } catch (e) {}
     }
-    if ('speechSynthesis' in window) {
-      try { window.speechSynthesis.cancel(); } catch (e) {}
-    }
+    stopSpeech();
 
     // Garante que toda frase tem um resultado (frases não-tocadas viram puladas)
     state.phrases.forEach(p => {
@@ -1256,7 +1285,8 @@
 
     let backendData = null;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/lessons/${state.lessonId}/phrases/result`, {
+      const fetchFn = (window.GriloVR && window.GriloVR._fetchWithRetry) ? window.GriloVR._fetchWithRetry : fetch;
+      const res = await fetchFn(`${API_BASE_URL}/api/lessons/${state.lessonId}/phrases/result`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1360,9 +1390,7 @@
       }
       stopMicLevelMonitor();
     }
-    if ('speechSynthesis' in window) {
-      try { window.speechSynthesis.cancel(); } catch (e) {}
-    }
+    stopSpeech();
     hideAllOverlays();
     if (doRefresh) {
       try {
@@ -1386,9 +1414,7 @@
       if (state.recognition) { try { state.recognition.stop(); } catch (e) {} }
       state = null;
     }
-    if ('speechSynthesis' in window) {
-      try { window.speechSynthesis.cancel(); } catch (e) {}
-    }
+    stopSpeech();
     hideAllOverlays();
 
     const token = getAuthToken();
@@ -1425,7 +1451,7 @@
       listening: false,
       recognition: null,
       timerInterval: null,
-      remaining: TOTAL_TIME_SEC,
+      remaining: CONFIG.TOTAL_TIME_SEC,
       finalizing: false,
     };
 
