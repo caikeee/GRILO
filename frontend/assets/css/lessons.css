@@ -53,6 +53,15 @@
   --lp-r-2xl: 40px;
   --lp-r-pill: 999px;
 
+  /* Spacing Scale (8px base) */
+  --lp-space-xs: 4px;
+  --lp-space-sm: 8px;
+  --lp-space-md: 12px;
+  --lp-space-lg: 16px;
+  --lp-space-xl: 20px;
+  --lp-space-2xl: 24px;
+  --lp-space-3xl: 32px;
+
   /* Motion */
   --lp-ease: cubic-bezier(0.16,1,0.3,1);
   --lp-ease-in: cubic-bezier(0.4,0,1,1);

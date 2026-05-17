@@ -337,9 +337,18 @@
   }
 
   // ─── 4. Levenshtein por letra (até 1) — para fuzzy de palavra ──
+  // Usa memoization para evitar recalcular pares frequentes
+  const editDistanceCache = new Map();
+  let editDistanceCallCount = 0;
+
   function editDistance(a, b) {
     if (a === b) return 0;
     if (Math.abs(a.length - b.length) > 2) return 99;
+
+    // Verificar cache
+    const key = `${a}|${b}`;
+    if (editDistanceCache.has(key)) return editDistanceCache.get(key);
+
     const m = a.length, n = b.length;
     const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
     for (let i = 0; i <= m; i++) dp[i][0] = i;
@@ -350,7 +359,17 @@
         else dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
       }
     }
-    return dp[m][n];
+    const result = dp[m][n];
+
+    // Armazenar no cache
+    editDistanceCache.set(key, result);
+
+    // Limpar cache a cada 100 chamadas para não vazar memória
+    if (++editDistanceCallCount % 100 === 0) {
+      editDistanceCache.clear();
+    }
+
+    return result;
   }
 
   // Match leve para variações morfológicas: plural, -ed, -ing
@@ -555,36 +574,31 @@
   // Retorna [{ transcript, confidence }, ...] das N alternativas
   // do evento `event` da API SpeechRecognitionEvent.
   function extractAlternatives(event) {
-    const out = [];
-    if (!event || !event.results) return out;
-    for (let i = 0; i < event.results.length; i++) {
-      const res = event.results[i];
-      if (!res || !res.isFinal) continue;
-      for (let k = 0; k < res.length; k++) {
-        const a = res[k];
-        if (!a || !a.transcript) continue;
-        out.push({
-          transcript: a.transcript,
-          confidence: typeof a.confidence === 'number' ? a.confidence : 0,
-        });
-      }
-    }
-    // Se nenhum final, pega não-final como fallback
-    if (out.length === 0) {
-      for (let i = 0; i < event.results.length; i++) {
-        const res = event.results[i];
-        if (!res) continue;
+    if (!event || typeof event !== 'object') return [];
+    const results = event.results;
+    if (!results || typeof results.length !== 'number') return [];
+
+    function pullFrom(filterFinal) {
+      const out = [];
+      for (let i = 0; i < results.length; i++) {
+        const res = results[i];
+        if (!res || typeof res.length !== 'number') continue;
+        if (filterFinal && !res.isFinal) continue;
         for (let k = 0; k < res.length; k++) {
           const a = res[k];
           if (!a || !a.transcript) continue;
           out.push({
-            transcript: a.transcript,
+            transcript: String(a.transcript).trim(),
             confidence: typeof a.confidence === 'number' ? a.confidence : 0,
           });
         }
       }
+      return out;
     }
-    return out;
+
+    // Tenta primeiro os resultados finais; cai para não-finais se vazio
+    const finals = pullFrom(true);
+    return finals.length > 0 ? finals : pullFrom(false);
   }
 
   // ─── 9. Mic Level Monitor — waveform + nível de áudio ────────
@@ -655,6 +669,28 @@
     }
   }
 
+  // ─── 10. Extensão de configuração em runtime ─────────────────
+  function setConfig(key, value) {
+    if (!(key in CONFIG)) {
+      console.warn(`[GriloVR] setConfig: chave desconhecida "${key}"`);
+      return;
+    }
+    CONFIG[key] = value;
+  }
+
+  // ─── 11. Adicionar padrão fonético BR em runtime ──────────────
+  function addBRPattern(pattern) {
+    if (!pattern || !pattern.id || typeof pattern.detect !== 'function') {
+      console.warn('[GriloVR] addBRPattern: padrão inválido — precisa de {id, label, tip, detect}');
+      return;
+    }
+    if (BR_PATTERNS.some(p => p.id === pattern.id)) {
+      console.warn(`[GriloVR] addBRPattern: padrão "${pattern.id}" já existe`);
+      return;
+    }
+    BR_PATTERNS.push(pattern);
+  }
+
   // ─── Expor API ───────────────────────────────────────────────
   window.GriloVR = {
     CONFIG,
@@ -671,5 +707,7 @@
     classifyResult,
     MicLevelMonitor,
     expandEquivalents,
+    setConfig,
+    addBRPattern,
   };
 })();
