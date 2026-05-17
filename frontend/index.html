@@ -1,15 +1,15 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GRILO — ensino de inglês com aulas de qualidade, aprendizado mapeado e conversação com IA para brasileiros.">
+    <meta name="description" content="GRILO — inglês que insiste todo dia até virar parte do seu ambiente. Conversa em voz com IA, recap inteligente e trilha que sabe onde você está.">
     <meta name="theme-color" content="#3A5E47">
-    <meta property="og:title" content="GRILO — Inglês com aulas, trilha e conversação com IA">
-    <meta property="og:description" content="Aulas de qualidade, progresso mapeado e prática de conversação com IA em uma experiência contínua de aprendizagem.">
+    <meta property="og:title" content="GRILO — Inglês que vira hábito antes de virar nota">
+    <meta property="og:description" content="Não substitui seu curso. Acelera. Voz, recap e trilha — para o inglês que já está em você sair pra fora.">
     <meta property="og:image" content="/assets/og-image.svg">
 
-    <title>GRILO — Ensino de inglês com aulas e conversação com IA</title>
+    <title>GRILO — Inglês que vira hábito antes de virar nota</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,25 +17,16 @@
 
     <link rel="stylesheet" href="assets/css/variables.css">
     <link rel="stylesheet" href="assets/css/base.css">
-    <link rel="stylesheet" href="assets/css/grilo-v3.css?v=4">
-
-    <!-- Sage Color System - Universal ========== -->
     <link rel="stylesheet" href="assets/css/sage-color-system.css">
-
-    <link rel="stylesheet" href="assets/css/sage-landing.css?v=2">
-    <link rel="stylesheet" href="assets/css/sage-premium-polish.css">
+    <link rel="stylesheet" href="assets/css/landing-v4.css?v=2">
 
     <style>
-      .toast { padding:14px 22px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:0.92rem; font-weight:500; color:#fff; box-shadow:0 8px 32px rgba(0,0,0,.3); animation:toastIn .3s ease; transition:opacity .3s,transform .3s; max-width:380px; }
+      .toast { padding:14px 22px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:0.92rem; font-weight:500; color:#fff; box-shadow:0 8px 32px rgba(0,0,0,.3); transition:opacity .3s,transform .3s; max-width:380px; }
       .toast--success { background:linear-gradient(135deg,#22c55e,#16a34a); }
       .toast--error   { background:linear-gradient(135deg,#ef4444,#dc2626); }
-      .hero-proof { margin-top:14px; font-family:'Space Grotesk',sans-serif; font-size:0.95rem; opacity:.85; }
-      @keyframes toastIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
     </style>
 </head>
 <body class="landing-page">
-
-    <div class="scroll-progress" id="scrollProgress"></div>
 
     <nav class="navbar" id="navbar">
         <div class="navbar-container">
@@ -48,225 +39,96 @@
             </button>
             <div class="navbar-content" id="navContent">
                 <ul class="navbar-nav">
-                    <li><a href="#sistema">Por que GRILO</a></li>
-                    <li><a href="#simbolos">Experiência</a></li>
+                    <li><a href="#manifesto">Manifesto</a></li>
+                    <li><a href="#demos">Como funciona</a></li>
                 </ul>
                 <div class="navbar-actions">
-                    <button class="navbar-cta-btn" id="navEntrarBtn" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Entrar →</button>
+                    <button class="navbar-cta-btn" id="navEntrarBtn" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Entrar</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="login-strip" id="loginStrip" role="complementary" aria-label="Login rápido">
-        <div class="login-strip-inner">
-            <span class="login-strip-label">Já tem conta?</span>
-            <input type="text" class="login-strip-input" id="navbarUsername" placeholder="👤 Usuário" autocomplete="username">
-            <input type="password" class="login-strip-input" id="navbarPassword" placeholder="🔐 Senha" autocomplete="current-password">
-            <button class="login-strip-btn" id="navbarLoginBtn" onclick="handleNavbarLogin()">Entrar →</button>
-            <a href="#cta" class="login-strip-signup" onclick="closeNavbarMenu()">Criar conta</a>
-            <span id="navbarLoginError" class="login-strip-error" aria-live="polite"></span>
-        </div>
-    </div>
-
-    <section class="hero hero--editorial">
-        <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
-        <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
-        <div class="hero-grid-lines" aria-hidden="true"></div>
-
-        <div class="hero-content hero-content--editorial">
-            <div class="hero-editorial-copy">
-                <div class="hero-tag" data-reveal>
-                    <span class="hero-tag-dot" aria-hidden="true"></span>
-                    o atalho que faltava no seu inglês
+    <!-- ============================================================
+         HERO — uma ideia, um visual, sem slider
+    ============================================================ -->
+    <section class="v4-hero">
+        <div class="v4-hero-inner">
+            <div class="v4-hero-copy">
+                <div class="v4-hero-tag">
+                    <span class="v4-hero-tag-dot" aria-hidden="true"></span>
+                    pra quem já estudou inglês a vida toda e ainda trava
                 </div>
 
-                <h1 class="hero-headline" data-reveal data-reveal-delay="1">
-                    Você já estuda inglês. O GRILO faz funcionar mais rápido.
+                <h1 class="v4-hero-headline">
+                    Inglês não falta.<br>
+                    <em>Repetição certa</em> falta.
                 </h1>
 
-                <p class="hero-sub" data-reveal data-reveal-delay="2">
-                    GRILO é o atalho que liga o que você já sabe à fluência real. IA que conversa em voz, corrige na hora e devolve o que importa. Não substitui curso nenhum — destrava o seu.
+                <p class="v4-hero-sub">
+                    GRILO é o inglês que insiste todo dia, na sua voz, no seu ritmo. Sem turma, sem agenda, sem julgamento.
                 </p>
 
-                <div class="hero-buttons" data-reveal data-reveal-delay="3">
-                    <button class="btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
-                        Quero entrar
+                <p class="v4-hero-sub-2">
+                    Não substitui seu curso. Acelera ele.
+                </p>
+
+                <div class="v4-hero-cta">
+                    <button class="v4-btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+                        Começar de graça
+                        <span class="v4-btn-primary-arrow">→</span>
                     </button>
-                    <button class="btn-secondary" onclick="document.getElementById('sistema').scrollIntoView({behavior:'smooth'})">
-                        Ver como funciona
-                    </button>
-                </div>
-
-
-            </div>
-
-            <div class="hero-editorial-art" data-reveal data-reveal-delay="2">
-                <div class="hero-art-card hero-art-card--main hero-slider" data-hero-slider>
-                    <div class="hero-slider-track">
-                        <article class="hero-slide is-active" data-hero-slide data-theme="blue">
-                            <div class="hero-art-eyebrow">Falar todo dia</div>
-                            <img class="hero-art-illustration hero-art-image" src="./assets/illustrations/storyset-company.svg" alt="Pessoa praticando conversação com apoio de IA" loading="eager" decoding="async">
-                            <div class="hero-slide-body">
-                                <h3 class="hero-slide-title">Conversa por voz, com IA que escuta de verdade</h3>
-                                <p class="hero-art-caption">Você fala, a IA responde em inglês, corrige onde travou e devolve a frase pronta. É a prática que falta entre uma aula e outra — sem agenda, sem julgamento, sem custo de tempo.</p>
-                            </div>
-                        </article>
-
-                        <article class="hero-slide" data-hero-slide data-theme="teal">
-                            <div class="hero-art-eyebrow">Errar é dado</div>
-                            <img class="hero-art-illustration hero-art-image" src="./assets/illustrations/storyset-problem-solving.svg" alt="Pessoa avançando com apoio visual e feedback" loading="lazy" decoding="async">
-                            <div class="hero-slide-body">
-                                <h3 class="hero-slide-title">Cada deslize vira o seu próximo passo</h3>
-                                <p class="hero-art-caption">Nada de "errado". Cada ponto que escapou volta como ajuste no recap, na próxima sessão e no foco do dia. Você não estuda mais — você corrige onde precisa.</p>
-                            </div>
-                        </article>
-
-                        <article class="hero-slide" data-hero-slide data-theme="indigo">
-                            <div class="hero-art-eyebrow">Em cima do que você já tem</div>
-                            <img class="hero-art-illustration hero-art-image" src="./assets/illustrations/storyset-team-goals.svg" alt="Estudantes destravando progresso em conjunto" loading="lazy" decoding="async">
-                            <div class="hero-slide-body">
-                                <h3 class="hero-slide-title">Não troca seu curso. Acelera ele.</h3>
-                                <p class="hero-art-caption">GRILO é o atalho entre o inglês que você já estuda e o inglês que você usa. Continue na sua escola, no seu app, no seu ritmo — e venha aqui para travar a frase, soltar a fala e fechar o ciclo.</p>
-                            </div>
-                        </article>
-                    </div>
-
-                    <div class="hero-slider-footer">
-                        <div class="hero-slider-dots" role="tablist" aria-label="Destaques da hero">
-                            <button class="hero-slider-dot is-active" type="button" data-hero-dot aria-label="Mostrar destaque 1" aria-pressed="true"></button>
-                            <button class="hero-slider-dot" type="button" data-hero-dot aria-label="Mostrar destaque 2" aria-pressed="false"></button>
-                            <button class="hero-slider-dot" type="button" data-hero-dot aria-label="Mostrar destaque 3" aria-pressed="false"></button>
-                        </div>
-
-                        <div class="hero-slider-arrows">
-                            <button class="hero-slider-arrow" type="button" data-hero-prev aria-label="Slide anterior">←</button>
-                            <button class="hero-slider-arrow" type="button" data-hero-next aria-label="Próximo slide">→</button>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-    </section>
-
-    <div class="section-transition" aria-hidden="true">
-        <svg viewBox="0 0 1440 180" preserveAspectRatio="none" role="presentation">
-            <path d="M0 82 C170 140, 316 12, 522 54 S887 182, 1074 108 S1318 24, 1440 66 V180 H0 Z" fill="rgba(37, 99, 235, 0.08)"></path>
-            <path d="M0 102 C196 166, 356 38, 586 72 S962 188, 1188 112 S1352 46, 1440 88" fill="none" stroke="rgba(14, 165, 233, 0.28)" stroke-width="3"></path>
-        </svg>
-    </div>
-
-    <section id="sistema" class="section section--editorial-system">
-        <div class="container split-section split-section--reverse">
-            <div class="split-visual split-visual--system" data-reveal>
-                <div class="split-illustration-card split-illustration-card--slider" data-content-slider data-slider-delay="4800">
-                    <div class="content-slider-track content-slider-track--system">
-                        <article class="content-slide is-active" data-content-slide>
-                            <span class="content-slide-kicker">Aulas com IA</span>
-                            <img class="split-illustration-image" src="./assets/illustrations/storyset-team-goals.svg" alt="Ilustração de equipe colaborando com metas e progresso" loading="lazy" decoding="async">
-                            <div class="content-slide-copy">
-                                <strong>Conteúdo criado para o seu momento, não para uma turma genérica</strong>
-                                <p>Cada aula que você abre foi moldada pelo que você já sabe e pelo que faz sentido aprender agora. A IA trabalha em segundo plano para que o conteúdo nunca seja genérico. Você estuda o que precisa, na hora certa.</p>
-                            </div>
-                        </article>
-                        <article class="content-slide" data-content-slide>
-                            <span class="content-slide-kicker">Chat de voz</span>
-                            <img class="split-illustration-image" src="./assets/illustrations/storyset-online-learning.svg" alt="Ilustração de estudo online com foco em acompanhamento" loading="lazy" decoding="async">
-                            <div class="content-slide-copy">
-                                <strong>Sua voz no idioma. Sem desculpa, sem espera.</strong>
-                                <p>Pratique falar inglês a qualquer hora, sem precisar de parceiro, sem medo de julgamento. A IA responde de verdade, aponta o que melhorar e te mantém em movimento. A fluência nasce do uso, não da teoria.</p>
-                            </div>
-                        </article>
-                        <article class="content-slide" data-content-slide>
-                            <span class="content-slide-kicker">Trilha inteligente</span>
-                            <img class="split-illustration-image" src="./assets/illustrations/storyset-webinar.svg" alt="Ilustração de interação guiada e prática acompanhada" loading="lazy" decoding="async">
-                            <div class="content-slide-copy">
-                                <strong>Você sempre sabe o próximo passo</strong>
-                                <p>Chega de perder tempo escolhendo o que estudar. A trilha mapeia seu progresso, entende onde você está e sugere exatamente o que vem a seguir. Direção clara, avanço real, ritmo sustentável.</p>
-                            </div>
-                        </article>
-                    </div>
-                    <div class="content-slider-footer">
-                        <div class="content-slider-dots" role="tablist" aria-label="Destaques da seção de método">
-                            <button class="content-slider-dot is-active" type="button" data-content-dot aria-label="Mostrar destaque de método 1" aria-pressed="true"></button>
-                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de método 2" aria-pressed="false"></button>
-                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de método 3" aria-pressed="false"></button>
-                        </div>
-                        <div class="content-slider-arrows">
-                            <button class="content-slider-arrow" type="button" data-content-prev aria-label="Slide anterior da seção de método">←</button>
-                            <button class="content-slider-arrow" type="button" data-content-next aria-label="Próximo slide da seção de método">→</button>
-                        </div>
-                    </div>
+                    <a class="v4-btn-ghost" href="#demos" onclick="document.getElementById('demos').scrollIntoView({behavior:'smooth'}); return false;">
+                        <span class="v4-btn-ghost-icon">▸</span>
+                        Ver em 30 segundos
+                    </a>
                 </div>
             </div>
 
-            <div class="split-copy" data-reveal data-reveal-delay="1">
-                <span class="section-eyebrow">como funciona</span>
-                <h2 class="section-title section-title--editorial">
-                    Um sistema que evolui com você.
-                </h2>
-                <p class="section-lead section-lead--left">
-                    Não é repositório de videoaula. É uma plataforma viva — IA que cria conteúdo sob medida, voz para praticar quando quiser, e trilha que mapeia cada passo da sua evolução.
-                </p>
-
-
-            </div>
-        </div>
-    </section>
-
-    <section id="simbolos" class="section section--proof section--editorial-belonging">
-        <div class="container split-section">
-            <div class="split-copy" data-reveal>
-                <span class="section-eyebrow">o que muda pra você</span>
-                <h2 class="section-title section-title--editorial">
-                    Quando a tecnologia serve o aprendizado, o resultado aparece.
-                </h2>
-                <p class="section-lead section-lead--left">
-                    GRILO não promete motivação eterna. Promete um sistema que funciona mesmo nos dias difíceis — IA que adapta, voz que desbloqueia e comunidade que mantém o ritmo.
-                </p>
-
-
-            </div>
-
-            <div class="split-visual split-visual--proof" data-reveal data-reveal-delay="1">
-                <div class="split-illustration-card split-illustration-card--warm split-illustration-card--slider" data-content-slider data-slider-delay="5100">
-                    <div class="content-slider-track content-slider-track--proof">
-                        <article class="content-slide is-active" data-content-slide>
-                            <span class="content-slide-kicker">Você finalmente fala</span>
-                            <img class="split-illustration-image split-illustration-image--book" src="./assets/illustrations/storyset-problem-solving.svg" alt="Ilustração de resolução de problemas com autonomia crescente" loading="lazy" decoding="async">
-                            <div class="content-slide-copy">
-                                <strong>O travamento vai embora quando a prática vira rotina</strong>
-                                <p>Você pratica falar todo dia, recebe feedback real e para de congelar na hora que importa. Não é milagre — é repetição com propósito, tecnologia e contexto. Exatamente o que o GRILO oferece.</p>
-                            </div>
-                        </article>
-                        <article class="content-slide" data-content-slide>
-                            <span class="content-slide-kicker">Você entende o que está aprendendo</span>
-                            <img class="split-illustration-image split-illustration-image--book" src="./assets/illustrations/storyset-learning.svg" alt="Ilustração de aprendizagem guiada e organizada" loading="lazy" decoding="async">
-                            <div class="content-slide-copy">
-                                <strong>Sem a sensação de estudar no escuro</strong>
-                                <p>O GRILO mostra seu mapa com clareza: o que você já domina, o que está consolidando, o que vem a seguir. Estudar com visibilidade é completamente diferente de estudar por tentativa e erro.</p>
-                            </div>
-                        </article>
-                        <article class="content-slide" data-content-slide>
-                            <span class="content-slide-kicker">Você faz parte de algo maior</span>
-                            <img class="split-illustration-image split-illustration-image--book" src="./assets/illustrations/storyset-book-lover.svg" alt="Ilustração de hábito de estudo e constância" loading="lazy" decoding="async">
-                            <div class="content-slide-copy">
-                                <strong>Uma comunidade que empurra junto</strong>
-                                <p>No GRILO você não está só. Está com pessoas que levam o aprendizado a sério, que compartilham o progresso e que estão construindo uma nova maneira de aprender inglês. Isso muda tudo.</p>
-                            </div>
-                        </article>
+            <div class="v4-hero-visual">
+                <div class="v4-hero-mock">
+                    <div class="v4-hero-mock-sticker">
+                        <span class="v4-hero-mock-sticker-emoji">🦗</span>
+                        <span><strong>+1</strong> dia de prática</span>
                     </div>
-                    <div class="content-slider-footer">
-                        <div class="content-slider-dots" role="tablist" aria-label="Destaques da seção de resultados">
-                            <button class="content-slider-dot is-active" type="button" data-content-dot aria-label="Mostrar destaque de resultado 1" aria-pressed="true"></button>
-                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de resultado 2" aria-pressed="false"></button>
-                            <button class="content-slider-dot" type="button" data-content-dot aria-label="Mostrar destaque de resultado 3" aria-pressed="false"></button>
+
+                    <div class="v4-hero-mock-frame">
+                        <div class="v4-hero-mock-head">
+                            <div class="v4-hero-mock-status">
+                                <span class="v4-hero-mock-status-dot" aria-hidden="true"></span>
+                                Sessão ao vivo
+                            </div>
+                            <div class="v4-hero-mock-time">00:47</div>
                         </div>
-                        <div class="content-slider-arrows">
-                            <button class="content-slider-arrow" type="button" data-content-prev aria-label="Slide anterior da seção de resultados">←</button>
-                            <button class="content-slider-arrow" type="button" data-content-next aria-label="Próximo slide da seção de resultados">→</button>
+
+                        <div class="v4-hero-mock-msg">
+                            <p class="v4-hero-mock-msg-label">você disse</p>
+                            <p class="v4-hero-mock-msg-text">
+                                "I <em>have went</em> to the store yesterday."
+                            </p>
+                        </div>
+
+                        <div class="v4-hero-mock-msg">
+                            <p class="v4-hero-mock-msg-label">grilo devolve</p>
+                            <p class="v4-hero-mock-msg-text">
+                                "I <strong>went</strong> to the store yesterday."
+                            </p>
+                        </div>
+
+                        <div class="v4-hero-mock-wave" aria-hidden="true">
+                            <span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+
+                        <div class="v4-hero-mock-foot">
+                            <p class="v4-hero-mock-tip">
+                                <strong>past simple</strong> não usa "have" antes
+                            </p>
+                            <div class="v4-hero-mock-score">
+                                <span class="v4-hero-mock-score-value">92</span>
+                                <span class="v4-hero-mock-score-unit">/ 100</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -274,87 +136,293 @@
         </div>
     </section>
 
-    <section id="cta" class="section section--cta">
-        <div class="cta-container">
-            <div class="cta-text" data-reveal>
-                <span class="cta-eyebrow-badge">Entre para a próxima onda</span>
-                <h2 class="cta-headline">
-                    Aprenda.<br>
-                    Converse.<br>
-                    Evolua.
-                </h2>
-                <p class="cta-body">
-                    O GRILO é uma plataforma de nova geração — com IA que cria aulas sob medida, chat de voz para destravar a fala e comunidade que aprende junto. Você não está apenas estudando inglês. Está fazendo parte de uma mudança.
-                </p>
-                <p class="cta-body cta-body--sub">
-                    Crie sua conta e comece hoje. Menos de dois minutos.
+    <!-- ============================================================
+         MANIFESTO — a frase do grilo
+    ============================================================ -->
+    <section class="v4-manifesto" id="manifesto">
+        <div class="v4-manifesto-inner">
+            <div class="v4-manifesto-kicker">o método é o som</div>
+
+            <p class="v4-manifesto-text">
+                O grilo canta toda noite. Não precisa de ânimo, de bateria, de motivação. <em>Só repete</em> — até virar parte do ambiente.
+            </p>
+
+            <p class="v4-manifesto-coda">
+                Inglês funciona igual.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         DEMOS — três movimentos do produto, sem slider
+    ============================================================ -->
+    <section class="v4-demos" id="demos">
+        <div class="v4-demos-inner">
+            <div class="v4-demos-head">
+                <span class="v4-demos-eyebrow">por dentro</span>
+                <h2 class="v4-demos-title">Três coisas que o GRILO faz<br>e o resto do mundo não faz junto.</h2>
+                <p class="v4-demos-lead">
+                    Voz que ouve de verdade. Erro que vira plano. Trilha que sabe onde você está. Sem milagre, sem app cheio de feature inútil.
                 </p>
             </div>
 
-            <div class="auth-card-v2" data-reveal data-reveal-delay="1">
-                <div class="auth-card-topline">
-                    <span class="auth-kicker-badge"><span class="auth-kicker-dot" aria-hidden="true"></span>Acesso rápido</span>
-                    <span class="auth-kicker-note">Já está na plataforma.</span>
+            <!-- DEMO 1: VOZ -->
+            <div class="v4-demo">
+                <div class="v4-demo-copy">
+                    <div class="v4-demo-number">01</div>
+                    <span class="v4-demo-kicker">voz</span>
+                    <h3 class="v4-demo-title">Você fala. A IA escuta — e responde de verdade.</h3>
+                    <p class="v4-demo-body">
+                        Você abre, diz qualquer coisa, e a conversa anda. Ela ouve sua pronúncia, devolve a frase certa, te empurra pra continuar. <em>É a prática que falta entre uma aula e outra.</em>
+                    </p>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>Sem agenda, sem turma, sem custo de tempo</span>
+                    </div>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>Correção na hora, do jeito que você disse</span>
+                    </div>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>5 minutos por dia já mudam onde você trava</span>
+                    </div>
                 </div>
 
-                <div class="auth-card-head">
-                    <h3 id="formTitle">Entrar</h3>
-                    <p class="auth-subtitle" id="formSubtitle">Bem-vindo de volta.</p>
+                <div class="v4-demo-visual">
+                    <div class="v4-mock v4-mock-voice">
+                        <div class="v4-mock-voice-orb">
+                            <div class="v4-mock-voice-orb-core">🎙</div>
+                        </div>
+                        <div class="v4-mock-voice-dialogue">
+                            <div class="v4-mock-voice-bubble v4-mock-voice-bubble--user">
+                                "I <em>was go</em> to a party last night."
+                            </div>
+                            <div class="v4-mock-voice-bubble v4-mock-voice-bubble--ai">
+                                Quase! "I <strong>went</strong> to a party last night." Conta mais — <strong>quem</strong> tava lá?
+                            </div>
+                            <div class="v4-mock-voice-bubble v4-mock-voice-bubble--user">
+                                "My friend Lucas and his sister..."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEMO 2: RECAP -->
+            <div class="v4-demo v4-demo--reverse">
+                <div class="v4-demo-copy">
+                    <div class="v4-demo-number">02</div>
+                    <span class="v4-demo-kicker">recap</span>
+                    <h3 class="v4-demo-title">Erro vira plano. Não vira boletim.</h3>
+                    <p class="v4-demo-body">
+                        Cada frase que escapou na sessão volta no dia seguinte como foco. Você não estuda mais "de cabeça pra baixo" — você <em>fecha buracos</em> exatamente onde eles abriram.
+                    </p>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>O que travou virou o foco do dia</span>
+                    </div>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>Repetição espaçada, sem você ter que pensar nisso</span>
+                    </div>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>Recap honesto — não te diz que tá bom quando não tá</span>
+                    </div>
+                </div>
+
+                <div class="v4-demo-visual">
+                    <div class="v4-mock">
+                        <div class="v4-mock-recap-head">
+                            <h4 class="v4-mock-recap-title">Foco do dia</h4>
+                            <span class="v4-mock-recap-pill">3 pra revisar</span>
+                        </div>
+
+                        <div class="v4-mock-recap-item">
+                            <span class="v4-mock-recap-item-mark">!</span>
+                            <span class="v4-mock-recap-item-text">"I <em>have went</em>" → past simple</span>
+                            <span class="v4-mock-recap-item-meta">há 2 dias</span>
+                        </div>
+
+                        <div class="v4-mock-recap-item">
+                            <span class="v4-mock-recap-item-mark">!</span>
+                            <span class="v4-mock-recap-item-text">pronúncia de <em>"thought"</em></span>
+                            <span class="v4-mock-recap-item-meta">ontem</span>
+                        </div>
+
+                        <div class="v4-mock-recap-item">
+                            <span class="v4-mock-recap-item-mark v4-mock-recap-item-mark--ok">✓</span>
+                            <span class="v4-mock-recap-item-text">"used to" — dominado</span>
+                            <span class="v4-mock-recap-item-meta">hoje</span>
+                        </div>
+
+                        <div class="v4-mock-recap-cta">
+                            <span>Revisar agora</span>
+                            <span><strong>~4 min</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEMO 3: TRILHA -->
+            <div class="v4-demo">
+                <div class="v4-demo-copy">
+                    <div class="v4-demo-number">03</div>
+                    <span class="v4-demo-kicker">trilha</span>
+                    <h3 class="v4-demo-title">Você sempre sabe onde está — e o que vem.</h3>
+                    <p class="v4-demo-body">
+                        Sem mapa, estudar é caminhar no escuro. A trilha do GRILO mostra o que você já domina, o que tá consolidando, e <em>qual é o próximo passo concreto</em>. Visibilidade muda tudo.
+                    </p>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>Nível CEFR estimado em tempo real</span>
+                    </div>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>Próximo passo claro, sempre</span>
+                    </div>
+                    <div class="v4-demo-bullet">
+                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
+                        <span>Ritmo sustentável — sem maratona, sem culpa</span>
+                    </div>
+                </div>
+
+                <div class="v4-demo-visual">
+                    <div class="v4-mock">
+                        <div class="v4-mock-path-head">
+                            <div class="v4-mock-path-stage">
+                                <span>A2 → B1</span>
+                                <span class="v4-mock-path-stage-bar"></span>
+                                <span class="v4-mock-path-stage-pct">62%</span>
+                            </div>
+                            <p class="v4-mock-path-now">Você está aqui.</p>
+                            <p class="v4-mock-path-now-sub">Faltam ~18 sessões pra B1 estimado.</p>
+                        </div>
+
+                        <ul class="v4-mock-path-steps">
+                            <li class="v4-mock-path-step v4-mock-path-step--done">Saudações e small talk</li>
+                            <li class="v4-mock-path-step v4-mock-path-step--done">Past simple básico</li>
+                            <li class="v4-mock-path-step v4-mock-path-step--now">Past simple com verbos irregulares</li>
+                            <li class="v4-mock-path-step">Present perfect — primeiros usos</li>
+                            <li class="v4-mock-path-step">Conditionals (zero e first)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PROVA — números honestos da beta
+    ============================================================ -->
+    <section class="v4-proof">
+        <div class="v4-proof-inner">
+            <div class="v4-proof-stat">
+                <div class="v4-proof-stat-value">5 min</div>
+                <p class="v4-proof-stat-label">é o que basta por dia<br>pra mudar onde você trava</p>
+                <p class="v4-proof-stat-meta">prática focada &gt; maratona aleatória</p>
+            </div>
+
+            <div class="v4-proof-stat">
+                <div class="v4-proof-stat-value v4-proof-stat-value--amber">100%</div>
+                <p class="v4-proof-stat-label">da sua sessão é a sua voz —<br>não um vídeo, não um quiz</p>
+                <p class="v4-proof-stat-meta">você não decora, você fala</p>
+            </div>
+
+            <div class="v4-proof-stat">
+                <div class="v4-proof-stat-value">0</div>
+                <p class="v4-proof-stat-label">cobrança nessa fase.<br>beta aberta, em construção</p>
+                <p class="v4-proof-stat-meta">você cresce junto com o produto</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         CTA FINAL
+    ============================================================ -->
+    <section class="v4-cta" id="cta">
+        <div class="v4-cta-inner">
+            <div class="v4-cta-copy">
+                <span class="v4-cta-kicker">comece hoje</span>
+                <h2 class="v4-cta-headline">
+                    Sua próxima frase em inglês<br>
+                    começa <em>aqui.</em>
+                </h2>
+                <p class="v4-cta-body">
+                    Crie sua conta em menos de dois minutos. A primeira sessão já te devolve uma frase que você não tinha. E a próxima, outra. E a próxima.
+                </p>
+                <div class="v4-cta-meta">
+                    <span class="v4-cta-meta-item">
+                        <span class="v4-cta-meta-check">✓</span> gratuito na beta
+                    </span>
+                    <span class="v4-cta-meta-item">
+                        <span class="v4-cta-meta-check">✓</span> sem cartão
+                    </span>
+                    <span class="v4-cta-meta-item">
+                        <span class="v4-cta-meta-check">✓</span> &lt; 2 min pra entrar
+                    </span>
+                </div>
+            </div>
+
+            <div class="v4-cta-card">
+                <div class="v4-cta-card-head">
+                    <h3 class="v4-cta-card-title" id="formTitle">Entrar</h3>
+                    <p class="v4-cta-card-sub" id="formSubtitle">Bem-vindo de volta.</p>
                 </div>
 
                 <div id="authError" class="auth-error-v2" style="display:none;" role="alert"></div>
 
-                <form id="authForm" class="auth-form-shell auth-form-stacked" novalidate>
-                    <div class="form-group form-group-v2" id="registerFields" style="display:none;">
-                        <label class="form-label-v2" for="email">E-mail</label>
-                        <input type="email" id="email" class="form-input-v2" placeholder="seu@email.com" autocomplete="email">
+                <form id="authForm" class="v4-cta-card-form" novalidate>
+                    <div class="v4-cta-card-field" id="registerFields" style="display:none;">
+                        <label class="v4-cta-card-label" for="email">E-mail</label>
+                        <input type="email" id="email" class="v4-cta-card-input form-input-v2" placeholder="seu@email.com" autocomplete="email">
                     </div>
-                    <div class="form-group form-group-v2">
-                        <div class="form-field-header">
-                            <label class="form-label-v2" for="username">Nome de usuário</label>
-                            <span class="form-field-hint">Como você quer ser chamado</span>
-                        </div>
-                        <input type="text" id="username" class="form-input-v2" placeholder="ex: joão_silva" required autocomplete="username">
+                    <div class="v4-cta-card-field">
+                        <label class="v4-cta-card-label" for="username">Nome de usuário</label>
+                        <input type="text" id="username" class="v4-cta-card-input form-input-v2" placeholder="como você quer ser chamado" required autocomplete="username">
                     </div>
-                    <div class="form-group form-group-v2">
-                        <div class="form-field-header">
-                            <label class="form-label-v2" for="password">Senha</label>
-                            <span class="form-field-hint">Mínimo 8 caracteres</span>
-                        </div>
-                        <input type="password" id="password" class="form-input-v2" placeholder="••••••••" required autocomplete="current-password">
+                    <div class="v4-cta-card-field">
+                        <label class="v4-cta-card-label" for="password">Senha</label>
+                        <input type="password" id="password" class="v4-cta-card-input form-input-v2" placeholder="mínimo 10 caracteres" required autocomplete="current-password" minlength="10">
                     </div>
-                    <button type="submit" class="btn-primary btn-primary--full">
+                    <button type="submit" class="v4-cta-card-submit btn-primary btn-primary--full">
                         <span id="submitText">Entrar</span>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" class="btn-arrow-svg"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span>→</span>
                     </button>
                 </form>
 
-                <div class="auth-meta-row">
-                    <div class="auth-toggle-v2">
+                <div class="v4-cta-card-toggle">
+                    <span>
                         <span id="toggleText">Novo aqui?</span>
-                        <button type="button" id="toggleBtn">Criar conta</button>
-                    </div>
-                    <p class="auth-footer-note">
-                        <svg width="11" height="12" viewBox="0 0 11 12" fill="none" aria-hidden="true" class="auth-lock-svg"><rect x="1" y="5.5" width="9" height="6" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0V5.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
-                        Acesso seguro
-                    </p>
+                        <button type="button" class="v4-cta-card-toggle-btn" id="toggleBtn">Criar conta</button>
+                    </span>
+                    <span class="v4-cta-card-secure">
+                        <svg width="11" height="12" viewBox="0 0 11 12" fill="none" aria-hidden="true"><rect x="1" y="5.5" width="9" height="6" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0V5.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                        seguro
+                    </span>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="footer">
-        <div class="footer-inner">
-            <div class="footer-brand">
-                <span class="logo-icon" aria-hidden="true">🦗</span>
-                <span class="logo-text">GRILO</span>
+    <!-- ============================================================
+         FOOTER
+    ============================================================ -->
+    <footer class="v4-footer">
+        <div class="v4-footer-inner">
+            <div class="v4-footer-brand">
+                <span aria-hidden="true">🦗</span>
+                <span>GRILO</span>
             </div>
-            <p class="footer-copy">GRILO é o som que insiste todo dia até virar parte do ambiente. Inglês funciona igual. · © 2026 GRILO</p>
-                <p class="footer-copy footer-copy--credit">Ilustrações da landing por Storyset by Freepik.</p>
-            <nav class="footer-links" aria-label="Links do rodapé">
+            <p class="v4-footer-tag">
+                O som que insiste todo dia até virar parte do ambiente.
+            </p>
+            <nav class="v4-footer-links" aria-label="Links do rodapé">
                 <a href="/privacidade.html">Privacidade</a>
                 <a href="/termos.html">Termos</a>
             </nav>
+            <p class="v4-footer-copy">© 2026 GRILO · ilustrações por Storyset / Freepik</p>
         </div>
     </footer>
 
@@ -366,8 +434,7 @@
     </script>
 
     <script src="assets/js/utils.js"></script>
-    <script src="assets/js/form-handler.js?v=4"></script>
-    <script src="assets/js/grilo-animations.js?v=2"></script>
+    <script src="assets/js/form-handler.js?v=5"></script>
 
     <script>
         function closeNavbarMenu() {
@@ -401,14 +468,6 @@
                     });
                 });
             });
-
-            var navEntrarBtn = document.getElementById('navEntrarBtn');
-            if (navEntrarBtn) {
-                navEntrarBtn.addEventListener('click', function() {
-                    var cta = document.getElementById('cta');
-                    if (cta) cta.scrollIntoView({ behavior: 'smooth' });
-                });
-            }
         });
     </script>
 </body>

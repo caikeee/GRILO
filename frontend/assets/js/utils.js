@@ -16,20 +16,8 @@
  * - In development on different ports: Uses relative paths (/api/...)
  */
 function getApiBaseUrl() {
-  const hostname = window.location.hostname;
-  const protocol = window.location.protocol;
-  
-  // Production environment (not localhost)
-  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-    return window.location.origin; // e.g., https://web-production-6ecc2.up.railway.app
-  }
-  
-  // Local development on localhost or 127.0.0.1
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return 'http://127.0.0.1:8000';
-  }
-  
-  // Fallback to origin
+  // Backend serves the frontend on the same origin (FastAPI StaticFiles).
+  // Using window.location.origin avoids CORS issues between localhost/127.0.0.1.
   return window.location.origin;
 }
 

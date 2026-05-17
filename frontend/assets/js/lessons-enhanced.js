@@ -747,6 +747,722 @@
         'O inglês não tem o equivalente do "saudade" português, mas tem "to miss" — que mistura sentir falta de uma pessoa E lamentar ter perdido algo: "I missed the train" (perdi o trem) e "I miss you" (sinto sua falta). Mesma palavra, dois sentidos.',
         'Existem mais de 5.000 phrasal verbs catalogados em inglês. Impossível aprender todos — mas os 50 mais comuns cobrem cerca de 80% das situações do cotidiano. Foque neles.'
       ]
+    },
+
+    // ════════════════════════════════════════════════════════════
+    // MÓDULO 1 — PRIMEIROS PASSOS
+    // ════════════════════════════════════════════════════════════
+
+    'soa1-alfabeto': {
+      title: 'Alfabeto e sons que o português não tem',
+      objective: 'Aprenda os sons do inglês que travam o brasileiro: o TH, o R retroflexo e a diferença entre vogais curtas e longas. Sem decorar, com a boca certa.',
+      icon: 'VB',
+      highlight: 'TH • R • short vs long vowels',
+      teachingPoints: [
+        'Pronunciar o TH em "think" e "this" sem trocar por T ou D.',
+        'Sentir a diferença entre "ship" (curto) e "sheep" (longo) — muda a palavra inteira.',
+        'Soar o R inicial sem rolar como em português ("red", não "hed").',
+        'Reconhecer que as letras do alfabeto em inglês têm nomes diferentes ("A" vira "ei", "E" vira "i").'
+      ],
+      sections: [
+        {
+          id: 'alfabeto-nomes',
+          title: 'Os nomes das letras: como soletrar em inglês',
+          explanation: 'No inglês, soletrar é uma habilidade do dia a dia — você vai ouvir muito "Can you spell that?" Cada letra tem um nome próprio que não corresponde ao som do português. A vogal "A" se chama "ei". O "E" se chama "i". O "I" se chama "ai". O "Y" se chama "uai". As consoantes mais traiçoeiras: G se chama "dji", H se chama "eitch", J se chama "djei", W se chama "double-iu". Acostumar com isso destrava telefones, e-mails e nomes próprios.',
+          examples: [
+            { en: 'My name is Lucas. L-U-C-A-S.', pt: 'Meu nome é Lucas. Élle-U-Ci-A-Éss (em inglês: "él-iu-ssi-ei-éss").' },
+            { en: 'How do you spell that?', pt: 'Como se soletra isso?' },
+            { en: 'E-mail: J-A-N-E at gmail.', pt: 'E-mail: Djei-ei-en-i arroba gmail.' },
+            { en: 'Is it with one R or two?', pt: 'É com um R ou dois?' },
+            { en: 'The Wi-Fi password is uppercase.', pt: 'A senha do Wi-Fi é maiúscula.' }
+          ]
+        },
+        {
+          id: 'sons-dificeis',
+          title: 'TH, R e vogais que mudam tudo',
+          explanation: 'Três pontos que travam o brasileiro: (1) o TH é a língua entre os dentes — "think" não é "tchink" nem "fink", é o som de sopro com a língua aparecendo. (2) O R do inglês americano é retroflexo: a língua se curva pra trás sem encostar em nada. (3) Vogais curtas vs longas mudam o sentido: "ship" (navio) vs "sheep" (ovelha), "live" (viver) vs "leave" (partir). Treine devagar e o ouvido vai pegar.',
+          examples: [
+            { en: 'I think this is right.', pt: 'Eu acho que isso está certo.' },
+            { en: 'Three brothers.', pt: 'Três irmãos. (TH duas vezes)' },
+            { en: 'Red car, big tree.', pt: 'Carro vermelho, árvore grande. (R retroflexo)' },
+            { en: 'I want to live in a quiet place.', pt: 'Eu quero viver num lugar quieto. (live curto)' },
+            { en: 'I leave at 8.', pt: 'Eu saio às 8. (leave longo)' }
+          ]
+        }
+      ],
+      curiosities: [
+        'O som do TH não existe na maioria das línguas do mundo. Holandês, alemão, espanhol — nenhum tem. Por isso é tão difícil pra todo mundo, não só brasileiro.',
+        'O alfabeto fonético do inglês ("Alpha, Bravo, Charlie...") foi criado pra evitar confusão em rádios militares. Hoje atendentes de telefone usam ele todos os dias.',
+        'A diferença entre "ship" e "sheep" não é só comprimento — a posição da língua muda. Em "sheep" a língua vai mais pra frente. Esse detalhe é o que destrava o ouvido.'
+      ]
+    },
+
+    'soa1-numeros': {
+      title: 'Números, horas e datas',
+      objective: 'Aprenda a contar, pedir horas, dizer datas e idades em inglês — informação básica que abre a maioria das conversas reais.',
+      icon: 'PA',
+      highlight: '0 → 100 • What time is it? • dates',
+      teachingPoints: [
+        'Contar de 0 a 100 sem travar — base pra qualquer conversa sobre quantidade.',
+        'Diferenciar 13/30, 14/40, 15/50 (que soam parecidos e confundem).',
+        'Perguntar e dizer horas no formato natural ("It\'s half past three").',
+        'Dizer datas no padrão americano (month/day) e britânico (day/month).'
+      ],
+      sections: [
+        {
+          id: 'numeros-base',
+          title: 'Contagem de 0 a 100 — e os traiçoeiros',
+          explanation: 'De 1 a 12 cada número tem nome próprio. De 13 a 19, todos terminam em -teen (thirteen, fourteen...). De 20 a 90, todos terminam em -ty (twenty, thirty...). O cuidado: a sílaba forte muda. "Thirteen" tem ênfase no "TEEN" (tcher-TIIN). "Thirty" tem ênfase no "thir" (THER-ti). Confundir 13 com 30 num restaurante muda a conta.',
+          examples: [
+            { en: 'I am thirty years old.', pt: 'Eu tenho trinta anos.' },
+            { en: 'She is thirteen.', pt: 'Ela tem treze.' },
+            { en: 'The bill is fifty dollars.', pt: 'A conta é cinquenta dólares.' },
+            { en: 'I need fifteen minutes.', pt: 'Eu preciso de quinze minutos.' },
+            { en: 'There are one hundred people.', pt: 'Tem cem pessoas.' }
+          ]
+        },
+        {
+          id: 'horas-datas',
+          title: 'Que horas são? Que dia é?',
+          explanation: 'Para horas, o inglês usa "It\'s" + número. "It\'s five o\'clock" (5h em ponto). Meia hora vira "half past": "half past three" = 3:30. Quinze depois vira "quarter past": "quarter past two" = 2:15. Quinze antes vira "quarter to": "quarter to four" = 3:45. Datas: nos EUA escrevem month/day/year (May 17, 2026). Em qualquer lugar, falando, é comum dizer "the seventeenth of May" (dia 17 de maio) — note o "th" no número ordinal.',
+          examples: [
+            { en: 'What time is it?', pt: 'Que horas são?' },
+            { en: 'It\'s half past three.', pt: 'São três e meia.' },
+            { en: 'It\'s quarter to seven.', pt: 'É um quarto pras sete (6:45).' },
+            { en: 'My birthday is on May fifth.', pt: 'Meu aniversário é cinco de maio.' },
+            { en: 'See you on the tenth.', pt: 'Te vejo no dia dez.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'Inglês americano e britânico usam ordens diferentes pra datas. 05/06/2026 nos EUA é 6 de maio. No Reino Unido é 5 de junho. Isso já causou muita confusão em viagens.',
+        'O "o\'clock" é a forma curta de "of the clock" — uma expressão de 600 anos atrás. Hoje só sobrevive pra dizer "em ponto".',
+        'Em inglês não existe "vinte e cinco" como uma palavra única (vinteicinco). É sempre "twenty-five" com hífen quando escrito. Esse pequeno detalhe ortográfico engana muita gente.'
+      ]
+    },
+
+    'soa1-cumprimentos': {
+      title: 'Cumprimentos e apresentação',
+      objective: 'Saiba abrir conversa em inglês sem soar como livro de escola — desde o "Hello" no balcão até o "Nice to meet you" da primeira reunião.',
+      icon: 'PR',
+      highlight: 'Hi • Hello • Nice to meet you',
+      teachingPoints: [
+        'Escolher entre Hi, Hello e Hey conforme a formalidade.',
+        'Responder a "How are you?" sem travar no automático ("Fine, thanks").',
+        'Se apresentar em três frases curtas que sustentam qualquer primeiro contato.',
+        'Despedir com naturalidade — não é só "Goodbye".'
+      ],
+      sections: [
+        {
+          id: 'abertura',
+          title: 'Como abrir conversa',
+          explanation: 'Hi é o cumprimento padrão, vale pra todo mundo. Hello é um pouco mais formal — você usa no telefone ou com alguém mais distante. Hey é informal, entre amigos ou colegas. Depois vem o "how are you?" — que na prática não é uma pergunta real, é só protocolo. Responda com "Good, thanks. And you?" e a conversa segue. Travar nessa parte é o erro mais comum: o nativo não quer um relatório, quer só o ping-pong social.',
+          examples: [
+            { en: 'Hi, how are you?', pt: 'Oi, tudo bem?' },
+            { en: 'Hello, nice to meet you.', pt: 'Olá, prazer em conhecer você.' },
+            { en: 'Hey, how\'s it going?', pt: 'E aí, beleza?' },
+            { en: 'I\'m good, thanks. And you?', pt: 'Tô bem, valeu. E você?' },
+            { en: 'Not bad, you?', pt: 'Não tô mal, e você?' }
+          ]
+        },
+        {
+          id: 'apresentacao',
+          title: 'Se apresentar em três frases',
+          explanation: 'Uma boa apresentação curta tem três blocos: (1) nome — "My name is Lucas, but you can call me Luc", (2) origem — "I\'m from Brazil, from São Paulo", (3) ocupação — "I work as a designer" ou "I\'m studying English to travel". Termina com "Nice to meet you". Essas três frases bastam pra abrir 90% das conversas iniciais — sejam de trabalho, viagem ou socialização.',
+          examples: [
+            { en: 'My name is Lucas.', pt: 'Meu nome é Lucas.' },
+            { en: 'I\'m from Brazil, from São Paulo.', pt: 'Eu sou do Brasil, de São Paulo.' },
+            { en: 'I work as a designer.', pt: 'Eu trabalho como designer.' },
+            { en: 'Nice to meet you.', pt: 'Prazer em te conhecer.' },
+            { en: 'See you later.', pt: 'Até mais tarde.' }
+          ]
+        }
+      ],
+      curiosities: [
+        '"How are you?" no inglês americano funciona como o "tudo bem?" do brasileiro. Ninguém realmente quer saber. Responder com problemas de saúde pega o nativo de surpresa.',
+        '"Nice to meet you" só se usa na PRIMEIRA vez. Da segunda em diante, é "Nice to see you again". Misturar isso revela que você não conhece a pessoa de antes.',
+        'No Reino Unido, "How do you do?" não pede resposta real — você responde com a mesma frase. É praticamente um cumprimento ritualístico.'
+      ]
+    },
+
+    'soa1-tobe-afirm': {
+      title: 'Quem você é — TO BE em afirmativa',
+      objective: 'Domine o verbo mais importante do inglês: o TO BE. Aprenda a dizer "eu sou", "ele está", "nós somos" sem confusão entre as três formas (am, is, are).',
+      icon: 'VB',
+      highlight: 'I am • He/She is • We/They are',
+      teachingPoints: [
+        'Saber que I usa AM, ele/ela/it usa IS, e os outros usam ARE.',
+        'Entender que TO BE traduz "ser" e "estar" — mesma palavra pra dois sentidos do português.',
+        'Usar as contrações (I\'m, he\'s, they\'re) que aparecem em 90% da fala natural.',
+        'Construir frases de identidade, estado e localização sem travar.'
+      ],
+      sections: [
+        {
+          id: 'am-is-are',
+          title: 'A regra das três formas',
+          explanation: 'O TO BE muda de cara conforme quem fala: I am (eu sou/estou), you are (você é/está), he/she/it is (ele/ela é/está), we are (nós somos), they are (eles são). Não tem outra forma — é só decorar e usar. Na fala, ninguém diz "I am" — vira "I\'m". "He is" vira "he\'s". "We are" vira "we\'re". Soltar as contrações faz a diferença entre soar livro de escola e soar humano.',
+          examples: [
+            { en: 'I am Brazilian.', pt: 'Eu sou brasileiro.' },
+            { en: 'I\'m tired.', pt: 'Estou cansado.' },
+            { en: 'She is my sister.', pt: 'Ela é minha irmã.' },
+            { en: 'He\'s at home.', pt: 'Ele está em casa.' },
+            { en: 'We\'re ready.', pt: 'Estamos prontos.' },
+            { en: 'They are friends.', pt: 'Eles são amigos.' }
+          ]
+        },
+        {
+          id: 'ser-estar',
+          title: 'Ser e estar usam a mesma palavra',
+          explanation: 'Diferente do português, o inglês não separa "ser" (permanente) de "estar" (temporário). "I am tired" significa "estou cansado" agora. "I am Brazilian" significa "sou brasileiro" pra sempre. O contexto fala por si. Isso facilita pro brasileiro decorar, mas dificulta na hora de saber se a frase é sobre um estado momentâneo ou uma característica.',
+          examples: [
+            { en: 'I am happy today.', pt: 'Estou feliz hoje. (temporário)' },
+            { en: 'I am Brazilian.', pt: 'Sou brasileiro. (permanente)' },
+            { en: 'The coffee is hot.', pt: 'O café está quente.' },
+            { en: 'The Earth is round.', pt: 'A Terra é redonda.' },
+            { en: 'My phone is in the bag.', pt: 'Meu celular está na bolsa.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'O TO BE é o verbo mais antigo do inglês — e o único que tem formas tão diferentes (am, is, are, was, were). Todos os outros verbos seguem padrões previsíveis.',
+        '"I am" é tão pesado que ninguém fala assim no dia a dia. Sempre vira "I\'m". Só aparece completo em discursos solenes ou pra dar ênfase: "I AM telling the truth".',
+        'O verbo TO BE também é o que carrega TODAS as outras estruturas do inglês: negativas (I am not), perguntas (Are you?), tempos contínuos (I am working).'
+      ]
+    },
+
+    // ════════════════════════════════════════════════════════════
+    // MÓDULO 2 — FALAR SOBRE VOCÊ E OS OUTROS
+    // ════════════════════════════════════════════════════════════
+
+    'soa2-pronomes-sujeito': {
+      title: 'Pronomes sujeito — quem está fazendo',
+      objective: 'Aprofunde o uso dos pronomes que abrem qualquer frase: I, you, he, she, it, we, they. A base de toda comunicação em inglês.',
+      icon: 'PR',
+      highlight: 'I • you • he • she • it • we • they',
+      teachingPoints: [
+        'Identificar quem é o sujeito da frase antes de escolher o pronome.',
+        'Usar "it" sem traduzir — para coisas, animais, clima, situações.',
+        'Lembrar que "you" serve tanto pra "você" quanto "vocês".',
+        'Não esquecer o pronome — em inglês toda frase precisa de sujeito.'
+      ],
+      sections: [
+        {
+          id: 'sujeito-obrigatorio',
+          title: 'Em inglês, sujeito não é opcional',
+          explanation: 'No português você pode dizer "tá chovendo" e está claro quem é o sujeito (ninguém — é o clima). No inglês isso não funciona: precisa de "It is raining". Toda frase em inglês precisa de um pronome ou nome no começo. Esse é o erro mais comum do brasileiro iniciante: começar uma frase sem sujeito. "Is hot today" não funciona — tem que ser "It is hot today".',
+          examples: [
+            { en: 'It is raining.', pt: 'Está chovendo.' },
+            { en: 'It is 8 o\'clock.', pt: 'São 8 horas.' },
+            { en: 'They speak Portuguese.', pt: 'Falam português.' },
+            { en: 'We are tired.', pt: 'Estamos cansados.' },
+            { en: 'She works here.', pt: 'Ela trabalha aqui.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'O "it" pra clima e horas é uma das marcas registradas do inglês — quase nenhuma outra língua europeia faz isso.',
+        '"They" no singular (pra pessoas de gênero não-especificado) virou comum nos anos 2010 e hoje é gramaticamente aceito em qualquer contexto.'
+      ]
+    },
+
+    'soa2-tobe-perg-neg': {
+      title: 'TO BE em perguntas e negações',
+      objective: 'Aprenda a inverter o TO BE pra fazer perguntas e a negá-lo pra dizer "não sou", "não está". Estrutura simples, ritmo rápido.',
+      icon: 'Q?',
+      highlight: 'Are you? • I am not • Isn\'t / Aren\'t',
+      teachingPoints: [
+        'Perguntar invertendo: "You are" vira "Are you?"',
+        'Negar adicionando "not": "I am not", "She is not".',
+        'Usar as contrações: isn\'t, aren\'t (mas NUNCA "amn\'t" — não existe).',
+        'Distinguir "I\'m not" de "I am" em contexto enfático.'
+      ],
+      sections: [
+        {
+          id: 'inversao',
+          title: 'Pergunta no TO BE: inverte e pronto',
+          explanation: 'Pra transformar uma afirmação em pergunta com TO BE, basta inverter a ordem. "You are tired" vira "Are you tired?". "She is at home" vira "Is she at home?". Não precisa de "do" ou "does" — o próprio TO BE faz o trabalho de abrir a pergunta. Essa simplicidade é uma das vantagens do verbo.',
+          examples: [
+            { en: 'Are you Brazilian?', pt: 'Você é brasileiro?' },
+            { en: 'Is she at home?', pt: 'Ela está em casa?' },
+            { en: 'Are they ready?', pt: 'Eles estão prontos?' },
+            { en: 'Am I late?', pt: 'Estou atrasado?' },
+            { en: 'Is it cold outside?', pt: 'Está frio lá fora?' }
+          ]
+        },
+        {
+          id: 'negativa',
+          title: 'Negar com "not"',
+          explanation: 'Pra negar com TO BE, coloque "not" depois do verbo. "I am" vira "I am not" (ou "I\'m not"). "She is" vira "She is not" (ou "she isn\'t"). "They are" vira "they aren\'t". Cuidado com a primeira pessoa: NÃO existe "amn\'t" em inglês padrão — sempre "I\'m not" ou "I am not".',
+          examples: [
+            { en: 'I am not tired.', pt: 'Não estou cansado.' },
+            { en: 'I\'m not Brazilian.', pt: 'Não sou brasileiro.' },
+            { en: 'She isn\'t here.', pt: 'Ela não está aqui.' },
+            { en: 'They aren\'t my friends.', pt: 'Eles não são meus amigos.' },
+            { en: 'It isn\'t cold.', pt: 'Não está frio.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'O "amn\'t" existe em alguns dialetos da Irlanda e da Escócia — mas em inglês padrão soa estranho. Use "I\'m not" sempre.',
+        'Em perguntas curtas de confirmação, "Aren\'t I?" é o que se usa no lugar de "amn\'t I?" — uma irregularidade aceita há séculos.'
+      ]
+    },
+
+    'soa2-possessivos': {
+      title: 'Possessivos básicos — my, your, his, her',
+      objective: 'Aprenda a dizer "meu", "seu", "dele", "dela" em inglês sem trocar as formas. Os adjetivos possessivos mais usados do dia a dia.',
+      icon: 'PR',
+      highlight: 'my • your • his • her • our • their',
+      teachingPoints: [
+        'Saber que possessivo vem ANTES do objeto: "my bag", não "bag my".',
+        'Não confundir his (dele) com he (ele) — sons parecidos, funções diferentes.',
+        '"Its" é possessivo de "it" — para coisas, animais, ideias.',
+        'Usar "their" pra grupos ou pessoas sem gênero específico.'
+      ],
+      sections: [
+        {
+          id: 'lista-uso',
+          title: 'Os seis possessivos e como usar',
+          explanation: 'Cada pronome sujeito tem seu possessivo correspondente: I → my, you → your, he → his, she → her, it → its, we → our, they → their. Eles SEMPRE vêm antes do objeto possuído. Importante: no inglês, o possessivo concorda com o DONO, não com o objeto. "Her car" — o carro pertence a ela, mesmo que "car" seja singular ou plural. Em português a gente concorda com o objeto ("seu carro" / "seus carros"), em inglês não muda.',
+          examples: [
+            { en: 'This is my phone.', pt: 'Esse é meu celular.' },
+            { en: 'Your idea is great.', pt: 'Sua ideia é ótima.' },
+            { en: 'His name is John.', pt: 'O nome dele é John.' },
+            { en: 'Her car is new.', pt: 'O carro dela é novo.' },
+            { en: 'Our team is winning.', pt: 'Nosso time está ganhando.' },
+            { en: 'Their house is huge.', pt: 'A casa deles é enorme.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'No inglês falado, "her" e "his" se confundem facilmente. Por isso o inglês escrito é mais preciso — pra evitar mal-entendidos de gênero.',
+        '"Its" (possessivo) e "it\'s" (it is) são duas das palavras mais confundidas até por nativos. Um teste: substitua por "it is" — se não fizer sentido, é "its".'
+      ]
+    },
+
+    'soa2-this-that': {
+      title: 'This, That, These, Those — apontando objetos',
+      objective: 'Aprenda a apontar pra coisas em inglês com a distância e quantidade certas: perto/longe, um/vários.',
+      icon: 'PR',
+      highlight: 'this/that (singular) • these/those (plural)',
+      teachingPoints: [
+        'Distinguir o que está perto (this/these) do que está longe (that/those).',
+        'Lembrar do plural: these (perto plural), those (longe plural).',
+        'Usar como adjetivo ("this book") ou pronome ("this is mine").',
+        'Não confundir "this" com "the" — duas funções diferentes.'
+      ],
+      sections: [
+        {
+          id: 'quatro-formas',
+          title: 'Quatro palavras, duas dimensões',
+          explanation: 'O inglês marca duas coisas com esses pronomes: distância (perto vs longe) e quantidade (um vs muitos). This = singular perto. That = singular longe. These = plural perto. Those = plural longe. Funciona tanto pra apontar fisicamente ("this chair, that car") quanto pra referir conceitos ("that idea, these problems"). Pode estar acompanhado do objeto ou aparecer sozinho como pronome.',
+          examples: [
+            { en: 'This is my book.', pt: 'Esse é meu livro.' },
+            { en: 'That car is fast.', pt: 'Aquele carro é rápido.' },
+            { en: 'These shoes are new.', pt: 'Esses sapatos são novos.' },
+            { en: 'Those people are friends.', pt: 'Aquelas pessoas são amigos.' },
+            { en: 'I like this song.', pt: 'Eu gosto dessa música.' },
+            { en: 'What is that?', pt: 'O que é aquilo?' }
+          ]
+        }
+      ],
+      curiosities: [
+        'No telefone, "This is John speaking" significa "É o John falando" — uma das poucas vezes que o inglês usa "this" pra apresentar a si mesmo.',
+        'O "that" no fim da frase ("I know that") tem outra função — é uma conjunção que liga ideias, não um apontador.'
+      ]
+    },
+
+    // ════════════════════════════════════════════════════════════
+    // MÓDULO 3 — AÇÕES DO DIA A DIA
+    // ════════════════════════════════════════════════════════════
+
+    'soa3-present-afirm': {
+      title: 'Present simple — afirmativa',
+      objective: 'Aprenda a contar suas ações cotidianas em inglês: I work, I study, I eat. O tempo verbal mais usado do idioma.',
+      icon: 'VB',
+      highlight: 'I work • You eat • We study',
+      teachingPoints: [
+        'Usar o verbo na forma base com I, you, we, they.',
+        'Reconhecer que esse tempo descreve hábitos, rotinas e verdades gerais.',
+        'Diferenciar do present continuous (que é pra ações em andamento).',
+        'Não traduzir "do" automaticamente — em frases afirmativas ele desaparece.'
+      ],
+      sections: [
+        {
+          id: 'forma-base',
+          title: 'Verbo + sujeito + complemento',
+          explanation: 'O present simple em inglês é o mais limpo de todos: você pega o sujeito (I, you, we, they) e o verbo na forma base (work, eat, study, live). Não tem terminação especial. "I work in São Paulo". "We study English". "They eat lunch at noon". Esse tempo serve pra falar de coisas que acontecem habitualmente, não agora especificamente. Pra "estou trabalhando agora", usa-se outro tempo (present continuous).',
+          examples: [
+            { en: 'I work from home.', pt: 'Eu trabalho de casa.' },
+            { en: 'You speak English well.', pt: 'Você fala bem inglês.' },
+            { en: 'We live in Brazil.', pt: 'Nós moramos no Brasil.' },
+            { en: 'They eat rice every day.', pt: 'Eles comem arroz todo dia.' },
+            { en: 'I drink coffee in the morning.', pt: 'Eu bebo café de manhã.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'O present simple é o tempo verbal mais frequente do inglês — aparece em ~40% de todos os enunciados falados.',
+        'Em alguns dialetos do inglês britânico, "I work" pode soar quase como "I worrrk" com o R sonoro. No americano, esse R fica ainda mais retroflexo.'
+      ]
+    },
+
+    'soa3-third-person-s': {
+      title: 'Terceira pessoa pega o S',
+      objective: 'Memorize a regra mais quebrada pelo brasileiro: ele/ela/isso (he/she/it) sempre adiciona um S no verbo. He works, she studies, it rains.',
+      icon: 'VB',
+      highlight: 'he workS • she liveS • it rainS',
+      teachingPoints: [
+        'Adicionar -s ao verbo quando o sujeito é he, she ou it.',
+        'Trocar -y por -ies (study → studies) quando termina em consoante + y.',
+        'Adicionar -es em verbos terminados em -ch, -sh, -ss, -o, -x (watch → watches).',
+        'Nunca esquecer essa regra — é o erro #1 dos brasileiros.'
+      ],
+      sections: [
+        {
+          id: 'regra-do-s',
+          title: 'A regra do S — sem exceções',
+          explanation: 'Quando o sujeito é he, she ou it, o verbo SEMPRE pega um S no final no present simple. "I work" → "He works". "You eat" → "She eats". É a única alteração que o verbo sofre nesse tempo. Sem essa regra, sua frase fica gramaticalmente errada — e é o detalhe mais comum que denuncia o estudante brasileiro. Há pequenas variações na ortografia: study vira studies (y vira ies), watch vira watches (adiciona es).',
+          examples: [
+            { en: 'He works at a bank.', pt: 'Ele trabalha em um banco.' },
+            { en: 'She lives in Rio.', pt: 'Ela mora no Rio.' },
+            { en: 'It rains a lot here.', pt: 'Chove muito aqui.' },
+            { en: 'My brother studies Spanish.', pt: 'Meu irmão estuda espanhol.' },
+            { en: 'She watches TV at night.', pt: 'Ela assiste TV à noite.' },
+            { en: 'He goes to the gym.', pt: 'Ele vai à academia.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'Linguistas calculam que o S da terceira pessoa é um resíduo de quando o inglês tinha conjugações completas como o português. Sobrou só esse pra atormentar estudantes.',
+        '"Have" vira "has" na terceira pessoa — uma das únicas formas irregulares: he has, she has, it has.'
+      ]
+    },
+
+    'soa3-frequencia': {
+      title: 'Frequência — sempre, às vezes, nunca',
+      objective: 'Aprenda a dizer com que frequência você faz cada coisa: always, often, sometimes, never. E onde colocar essas palavras na frase.',
+      icon: 'NO',
+      highlight: 'always • usually • often • sometimes • never',
+      teachingPoints: [
+        'Aprender 5 advérbios de frequência ordenados de "sempre" a "nunca".',
+        'Colocar o advérbio ANTES do verbo principal (mas DEPOIS do TO BE).',
+        'Usar "never" sem outra negação ("I never eat" — não "I don\'t never").',
+        'Variar entre "always" e "every day" pra não soar repetitivo.'
+      ],
+      sections: [
+        {
+          id: 'escala',
+          title: 'A escala dos advérbios',
+          explanation: 'Os principais advérbios de frequência seguem uma escala: always (100% — sempre), usually (80% — geralmente), often (60% — frequentemente), sometimes (40% — às vezes), rarely (10% — raramente), never (0% — nunca). A posição na frase é fixa: ANTES do verbo principal — "I always drink coffee", "She never eats meat". Com TO BE, a posição é depois: "She is always late". "Never" já contém a negação — não combine com "don\'t".',
+          examples: [
+            { en: 'I always brush my teeth.', pt: 'Eu sempre escovo os dentes.' },
+            { en: 'She usually wakes up at 7.', pt: 'Ela geralmente acorda às 7.' },
+            { en: 'We often go to the beach.', pt: 'Nós frequentemente vamos à praia.' },
+            { en: 'Sometimes I work late.', pt: 'Às vezes eu trabalho até tarde.' },
+            { en: 'He is never late.', pt: 'Ele nunca se atrasa.' },
+            { en: 'They rarely eat fast food.', pt: 'Eles raramente comem fast food.' }
+          ]
+        }
+      ],
+      curiosities: [
+        '"Sometimes" pode começar a frase ("Sometimes I work late") — uma das poucas exceções à regra de posição.',
+        'No inglês informal, "I always do that" soa mais natural que "I do that always" — ordem fixa, mesmo soando estranho em português.'
+      ]
+    },
+
+    // ════════════════════════════════════════════════════════════
+    // MÓDULO 4 — ONDE, QUANDO, COMO
+    // ════════════════════════════════════════════════════════════
+
+    'soa4-wh-questions': {
+      title: 'WH questions — perguntas abertas',
+      objective: 'Aprenda a fazer as perguntas que puxam informação real: what, where, who, when, how. As cinco que destravam qualquer conversa.',
+      icon: 'Q?',
+      highlight: 'What • Where • Who • When • How',
+      teachingPoints: [
+        'Identificar qual WH usar pra cada tipo de informação (lugar, tempo, pessoa, modo).',
+        'Estruturar a pergunta: WH + auxiliar + sujeito + verbo.',
+        'Usar "how" em combinações úteis: how much, how many, how often.',
+        'Não esquecer o auxiliar do/does — sem ele a pergunta não soa correta.'
+      ],
+      sections: [
+        {
+          id: 'cinco-wh',
+          title: 'Cinco palavras, cinco respostas',
+          explanation: 'Cada WH puxa um tipo de informação. "What" — coisa/atividade. "Where" — lugar. "Who" — pessoa. "When" — tempo. "How" — modo/jeito. A estrutura é sempre a mesma: WH + auxiliar (do/does/did) + sujeito + verbo. "Where do you live?" — "Onde você mora?". "What does she do?" — "O que ela faz?". Sem o auxiliar a frase soa errada ou esquisita.',
+          examples: [
+            { en: 'What is your name?', pt: 'Qual é o seu nome?' },
+            { en: 'Where do you work?', pt: 'Onde você trabalha?' },
+            { en: 'Who is that man?', pt: 'Quem é aquele homem?' },
+            { en: 'When does the bus arrive?', pt: 'Quando o ônibus chega?' },
+            { en: 'How do you say this in English?', pt: 'Como se diz isso em inglês?' },
+            { en: 'How much does it cost?', pt: 'Quanto custa?' }
+          ]
+        }
+      ],
+      curiosities: [
+        'Por que se chama "WH question"? Porque quase todas começam com as letras W-H: what, where, when, who, why. A exceção é "how" — uma sobrevivente do inglês antigo.',
+        'Em telefone, "Who is it?" e "Who is calling?" são as duas perguntas universais. Decorar essas duas resolve metade dos contatos por telefone.'
+      ]
+    },
+
+    'soa4-prep-tempo': {
+      title: 'Preposições de tempo — at, on, in',
+      objective: 'Aprenda a lógica das três preposições que organizam o tempo em inglês: at pra horas, on pra dias, in pra meses e anos.',
+      icon: 'IN',
+      highlight: 'at 5pm • on Monday • in July',
+      teachingPoints: [
+        'Usar AT pra horas específicas (at 5pm, at noon, at midnight).',
+        'Usar ON pra dias da semana e datas (on Monday, on May 5th).',
+        'Usar IN pra meses, estações, anos, séculos (in July, in 2026).',
+        'Memorizar exceções importantes: at night, on the weekend, in the morning.'
+      ],
+      sections: [
+        {
+          id: 'logica-tempo',
+          title: 'A regra dos três níveis',
+          explanation: 'Pense assim: AT é o ponto preciso (uma hora exata), ON é a superfície de um dia (um dia inteiro), IN é o recipiente que contém tudo (meses, anos, estações). "Meet me at 6pm" — momento específico. "Meet me on Friday" — em algum momento do dia. "I\'ll visit in July" — em algum dia do mês. Funciona pra ~95% dos casos. As exceções (at night, in the morning) precisam ser memorizadas separadamente.',
+          examples: [
+            { en: 'The meeting is at 3pm.', pt: 'A reunião é às 3 da tarde.' },
+            { en: 'I work on Monday.', pt: 'Eu trabalho na segunda.' },
+            { en: 'My birthday is in May.', pt: 'Meu aniversário é em maio.' },
+            { en: 'See you at noon.', pt: 'Te vejo ao meio-dia.' },
+            { en: 'I exercise in the morning.', pt: 'Eu me exercito de manhã.' },
+            { en: 'She arrives on the 10th.', pt: 'Ela chega no dia 10.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'No inglês americano se diz "on the weekend", no britânico "at the weekend". Mesma ideia, preposições diferentes — ponto que causa confusão até entre nativos.',
+        '"At night" é a única exceção pro padrão "in the morning / in the afternoon / in the evening". Ninguém sabe por que — é só decorar.'
+      ]
+    },
+
+    'soa4-rotina': {
+      title: 'Vocabulário de rotina e lugares',
+      objective: 'Construa o repertório de palavras que sustentam qualquer conversa sobre o dia a dia: home, work, gym, school + os verbos da rotina.',
+      icon: 'PR',
+      highlight: 'home • work • gym • wake up • go to',
+      teachingPoints: [
+        'Aprender os 10 lugares mais usados em rotinas (home, work, school, gym, store...).',
+        'Combinar lugares com verbos básicos (go to work, stay home, leave the gym).',
+        'Reconhecer "home" como exceção — não leva "to" (go home, não "go to home").',
+        'Construir uma rotina narrada em 5 frases.'
+      ],
+      sections: [
+        {
+          id: 'lugares-verbos',
+          title: 'Os lugares e os verbos que andam com eles',
+          explanation: 'Pra descrever uma rotina, você precisa de dois conjuntos: lugares (home, work, school, gym, supermarket, restaurant, bus stop) e verbos de movimento/permanência (go to, leave, arrive at, stay, come back). A combinação faz sentido: "I go to work at 8" — "Eu vou pro trabalho às 8". "I leave the gym at 7pm" — "Eu saio da academia às 7". Uma irregularidade importante: "home" não leva preposição: diz-se "go home", "stay home" — nunca "go to home".',
+          examples: [
+            { en: 'I go to work at 8am.', pt: 'Eu vou pro trabalho às 8.' },
+            { en: 'She goes home at 6.', pt: 'Ela vai pra casa às 6.' },
+            { en: 'We stay home on Sundays.', pt: 'Ficamos em casa aos domingos.' },
+            { en: 'He leaves the gym tired.', pt: 'Ele sai da academia cansado.' },
+            { en: 'I arrive at the office at 9.', pt: 'Eu chego no escritório às 9.' },
+            { en: 'They come back at night.', pt: 'Eles voltam à noite.' }
+          ]
+        }
+      ],
+      curiosities: [
+        '"Home" sem preposição é uma das peculiaridades do inglês — herança do anglo-saxão antigo, onde "ham" significava lar e tinha movimento embutido.',
+        '"Work" pode ser verbo ou substantivo. "I work" (verbo) e "I go to work" (substantivo) usam a mesma palavra — uma economia típica do inglês.'
+      ]
+    },
+
+    // ════════════════════════════════════════════════════════════
+    // MÓDULO 5 — FALAR SOBRE ONTEM
+    // ════════════════════════════════════════════════════════════
+
+    'soa5-past-regular': {
+      title: 'Past simple — verbos regulares (-ed)',
+      objective: 'Aprenda a contar o que aconteceu ontem com a regra mais simples do passado: adicione -ed no verbo. Worked, studied, played.',
+      icon: 'PA',
+      highlight: 'worked • studied • played',
+      teachingPoints: [
+        'Adicionar -ed pra formar o passado dos verbos regulares.',
+        'Variações ortográficas: -y vira -ied (study → studied), dobra consoante final (stop → stopped).',
+        'Pronunciar o -ed de três formas (id, t, d) conforme o som anterior.',
+        'Usar com expressões de tempo: yesterday, last week, two days ago.'
+      ],
+      sections: [
+        {
+          id: 'regra-ed',
+          title: 'A regra principal: verbo + ED',
+          explanation: 'Pra falar do passado em inglês com verbos regulares, basta adicionar -ed no final. "I work" → "I worked" (eu trabalhei). "She plays" → "She played" (ela jogou). "We talk" → "We talked" (nós conversamos). Simples assim. A regra cobre talvez 70% dos verbos do inglês. Os outros 30% são irregulares (próxima aula). Mudanças ortográficas: verbos em -y trocam o y por -ied (study → studied), e verbos curtos com vogal + consoante dobram a consoante (stop → stopped).',
+          examples: [
+            { en: 'I worked yesterday.', pt: 'Eu trabalhei ontem.' },
+            { en: 'She studied for the test.', pt: 'Ela estudou pra prova.' },
+            { en: 'They played football.', pt: 'Eles jogaram futebol.' },
+            { en: 'We talked for hours.', pt: 'Conversamos por horas.' },
+            { en: 'He stopped at the red light.', pt: 'Ele parou no sinal vermelho.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'A pronúncia do -ed muda dependendo do som final do verbo: "worked" soa "uorkt", "played" soa "pleid", "wanted" soa "uontid". Três sons da mesma terminação escrita.',
+        'No inglês antigo, o passado era feito mudando a vogal do verbo (sing/sang). O -ed é uma invenção mais recente pra simplificar.'
+      ]
+    },
+
+    'soa5-past-perguntas': {
+      title: 'Perguntas no passado — Did you?',
+      objective: 'Aprenda a perguntar sobre o passado com "did" — o auxiliar que abre qualquer pergunta sobre o que aconteceu.',
+      icon: 'Q?',
+      highlight: 'Did you go? • Did she eat? • What did they say?',
+      teachingPoints: [
+        'Usar "did" no início pra qualquer pergunta no passado.',
+        'Manter o verbo principal NA FORMA BASE (did you go, não did you went).',
+        'Combinar com WH: What did you do? Where did she go?',
+        'Responder com "Yes, I did" / "No, I didn\'t".'
+      ],
+      sections: [
+        {
+          id: 'did-base',
+          title: 'O auxiliar "did" abre a pergunta',
+          explanation: 'Pra perguntar sobre o passado, use "did" + sujeito + verbo na forma base. Atenção: o verbo NÃO fica no passado — fica na forma base. "Did you work yesterday?" (não "did you worked"). "Did she go to school?" (não "did she went"). Isso é difícil pro brasileiro porque parece redundante — mas o "did" já marca o passado, e o verbo fica neutro. Funciona pra todos os sujeitos: did I, did you, did he, did she, did we, did they.',
+          examples: [
+            { en: 'Did you sleep well?', pt: 'Você dormiu bem?' },
+            { en: 'Did she call you?', pt: 'Ela te ligou?' },
+            { en: 'Did they arrive?', pt: 'Eles chegaram?' },
+            { en: 'What did you do yesterday?', pt: 'O que você fez ontem?' },
+            { en: 'Where did he go?', pt: 'Onde ele foi?' }
+          ]
+        }
+      ],
+      curiosities: [
+        'Sem o "did", a pergunta soa quebrada. "You went?" só funciona em contextos de surpresa ou intimidade — não como pergunta padrão.',
+        'A resposta curta "Yes, I did" / "No, I didn\'t" é o equivalente do nosso "Sim" / "Não" expandido — soa mais natural que apenas "Yes" / "No".'
+      ]
+    },
+
+    'soa5-past-negativa': {
+      title: 'Negações no passado — didn\'t',
+      objective: 'Diga o que NÃO aconteceu ontem usando "didn\'t" — a forma seca de negar no passado. Curta, prática, universal.',
+      icon: 'NO',
+      highlight: 'I didn\'t go • She didn\'t see',
+      teachingPoints: [
+        'Formar a negativa do passado com "didn\'t" + verbo na forma base.',
+        'Não usar duas negações: "I didn\'t go" (não "I didn\'t went").',
+        'Usar didn\'t como negativa universal pra todos os sujeitos (I, you, he, she, we, they).',
+        'Distinguir didn\'t (passado) de don\'t/doesn\'t (presente).'
+      ],
+      sections: [
+        {
+          id: 'didnt',
+          title: 'Didn\'t é o universal do passado',
+          explanation: 'Pra negar no passado, basta usar "didn\'t" + verbo base. Funciona pra qualquer sujeito — não muda nada. "I didn\'t see her", "She didn\'t come", "They didn\'t arrive". Sempre o mesmo "didn\'t" e o verbo na forma base. Mesmo princípio das perguntas: o "did" carrega o passado, o verbo fica neutro. Isso simplifica muito — não precisa pensar em forma irregular nem em S de terceira pessoa.',
+          examples: [
+            { en: 'I didn\'t sleep well.', pt: 'Eu não dormi bem.' },
+            { en: 'She didn\'t see the email.', pt: 'Ela não viu o e-mail.' },
+            { en: 'We didn\'t go to the party.', pt: 'Não fomos à festa.' },
+            { en: 'They didn\'t finish the work.', pt: 'Eles não terminaram o trabalho.' },
+            { en: 'He didn\'t say a word.', pt: 'Ele não disse uma palavra.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'A contração "didn\'t" é tão comum que a forma completa "did not" praticamente só aparece em discursos formais ou pra dar ênfase: "I DID NOT do that!"',
+        'Em alguns dialetos do sul dos EUA, "didn\'t" vira "ain\'t" no passado coloquial: "I ain\'t seen him" — não é gramaticalmente padrão, mas é comum.'
+      ]
+    },
+
+    // ════════════════════════════════════════════════════════════
+    // MÓDULO 6 — QUERER, PODER, GOSTAR
+    // ════════════════════════════════════════════════════════════
+
+    'soa6-can': {
+      title: 'CAN — saber e poder fazer',
+      objective: 'Use "can" pra dizer o que você sabe fazer, pode fazer ou pra pedir permissão. Um dos verbos mais úteis do inglês cotidiano.',
+      icon: 'VB',
+      highlight: 'I can swim • Can you help me?',
+      teachingPoints: [
+        'Usar "can" pra habilidade ("I can swim") e permissão ("Can I sit here?").',
+        'Manter o verbo principal na forma base depois de "can".',
+        'Formar a negativa com "can\'t" (sem -s na terceira pessoa).',
+        'Diferenciar can (presente) de could (passado/educado).'
+      ],
+      sections: [
+        {
+          id: 'habilidade-permissao',
+          title: 'Duas funções, uma palavra',
+          explanation: 'O "can" tem duas funções principais. (1) Habilidade — "I can speak English" (eu sei falar inglês). (2) Permissão ou possibilidade — "Can I open the window?" (posso abrir a janela?). Em ambos os casos, o verbo depois fica na forma base — nada de adicionar -s ou -ed. Pra negar, usa-se "can\'t" (cannot). Pra perguntar, inverte: "Can you...?". Não confunda com "could" — esse é o passado ou versão mais educada de "can".',
+          examples: [
+            { en: 'I can swim.', pt: 'Eu sei nadar.' },
+            { en: 'She can speak three languages.', pt: 'Ela fala três línguas.' },
+            { en: 'Can you help me?', pt: 'Você pode me ajudar?' },
+            { en: 'I can\'t come tomorrow.', pt: 'Não posso vir amanhã.' },
+            { en: 'Can I open the window?', pt: 'Posso abrir a janela?' }
+          ]
+        }
+      ],
+      curiosities: [
+        'A negativa "cannot" pode aparecer junta ou separada (can not), mas a forma junta é mais comum em inglês padrão.',
+        '"Could" é o passado de "can", mas no presente é mais educado: "Could you help me?" soa mais polido que "Can you help me?".'
+      ]
+    },
+
+    'soa6-like-ing': {
+      title: 'LIKE / LOVE / HATE + ING',
+      objective: 'Aprenda a falar do que você gosta ou não gosta de FAZER — sempre com -ing no verbo que vem depois. I like running, I hate waiting.',
+      icon: 'IG',
+      highlight: 'I like reading • I love cooking • I hate waiting',
+      teachingPoints: [
+        'Saber que depois de like, love, hate, enjoy — o próximo verbo SEMPRE vai com -ing.',
+        'Variar a intensidade: like (gosta) < love (adora) < be crazy about (apaixonado).',
+        'Não traduzir literalmente: "I love cooking" não é "amo cozinhando", é "adoro cozinhar".',
+        'Negar com don\'t/doesn\'t: "I don\'t like running".'
+      ],
+      sections: [
+        {
+          id: 'verbo-mais-ing',
+          title: 'A regra do -ing depois desses verbos',
+          explanation: 'Em inglês, quando você diz que gosta, ama, odeia ou aprecia uma ATIVIDADE, o verbo dessa atividade tem que vir com -ing. "I like read" não funciona — tem que ser "I like reading". "She loves dance" não — é "She loves dancing". Esse -ing transforma o verbo em uma espécie de substantivo (o ato de ler, o ato de dançar). É uma das regras mais quebradas pelo brasileiro iniciante, mas é simples: gostou de uma atividade? Põe -ing no verbo da atividade.',
+          examples: [
+            { en: 'I like reading.', pt: 'Eu gosto de ler.' },
+            { en: 'She loves cooking.', pt: 'Ela adora cozinhar.' },
+            { en: 'They hate waiting.', pt: 'Eles odeiam esperar.' },
+            { en: 'I enjoy listening to music.', pt: 'Eu curto escutar música.' },
+            { en: 'He doesn\'t like running.', pt: 'Ele não gosta de correr.' }
+          ]
+        }
+      ],
+      curiosities: [
+        'Você pode usar tanto "I like to run" quanto "I like running" — ambos são corretos. Mas com love, hate e enjoy, o -ing é muito mais comum.',
+        '"I love you" não pede -ing porque "you" não é uma atividade — é uma pessoa. A regra do -ing vale só pra atividades.'
+      ]
+    },
+
+    'soa6-want-to': {
+      title: 'WANT + TO — expressar vontade',
+      objective: 'Diga o que você quer fazer em inglês: "I want to learn", "I want to travel". A estrutura mais direta pra expressar intenção e desejo.',
+      icon: 'VB',
+      highlight: 'I want to • I don\'t want to',
+      teachingPoints: [
+        'Combinar want + to + verbo base ("I want to go", "I want to learn").',
+        'Negar com don\'t want to ("I don\'t want to wait").',
+        'Perguntar invertendo: "Do you want to leave?"',
+        'Usar a forma contraída comum na fala: "wanna" (gonna for going to).'
+      ],
+      sections: [
+        {
+          id: 'want-to-base',
+          title: 'Want + TO + verbo',
+          explanation: 'A estrutura é fixa: WANT + TO + verbo na forma base. "I want to learn English" (quero aprender inglês). "She wants to go home" (ela quer ir pra casa — note o S de terceira pessoa em "wants"). O verbo depois de "to" sempre fica na forma base — não recebe -ing nem -ed. Pra negar, coloque don\'t/doesn\'t antes de want: "I don\'t want to wait". Na fala, "want to" frequentemente vira "wanna" — "I wanna go", "I wanna learn".',
+          examples: [
+            { en: 'I want to learn English.', pt: 'Quero aprender inglês.' },
+            { en: 'She wants to travel.', pt: 'Ela quer viajar.' },
+            { en: 'They want to eat pizza.', pt: 'Eles querem comer pizza.' },
+            { en: 'I don\'t want to wait.', pt: 'Não quero esperar.' },
+            { en: 'Do you want to come?', pt: 'Você quer vir?' }
+          ]
+        }
+      ],
+      curiosities: [
+        'O "wanna" é a contração mais comum na fala americana — aparece em ~80% dos diálogos informais. Em contextos formais, sempre use "want to".',
+        '"I want" sozinho soa muito direto — quase grosseiro. Pra educação extra, use "I would like" ou "I\'d like" no lugar.'
+      ]
     }
   };
 
@@ -2485,6 +3201,10 @@
     verbos: 1008
   };
 
+  // Expõe os dados das aulas pro lessons-trainer-bridge.js poder montar
+  // frases locais para as aulas que ainda não têm backend ID.
+  window._lessonsData = lessons;
+
   function getAuthToken() {
     try { return localStorage.getItem('grilo_token'); }
     catch (e) { return null; }
@@ -2802,16 +3522,13 @@
       phraseVoiceBtn.addEventListener('click', () => {
         const slug = window._currentLessonSlug;
         const title = window._currentLessonTitle || 'Aula';
-        const backendId = STANDALONE_BACKEND_IDS[slug];
-        if (!backendId) {
-          (window.showGriloToast || alert)('Esta aula ainda não tem frases para treinar. Volte em breve.', 'error');
-          return;
-        }
+        // Backend ID se disponível; senão, usa o slug — o trainer-bridge intercepta
+        const lessonRef = STANDALONE_BACKEND_IDS[slug] || slug;
         if (typeof window.openPhraseVoiceTrainer !== 'function') {
           (window.showGriloToast || alert)('O treinador de voz não carregou. Recarregue a página para tentar de novo.', 'error');
           return;
         }
-        window.openPhraseVoiceTrainer(backendId, title);
+        window.openPhraseVoiceTrainer(lessonRef, title);
       });
     }
 

@@ -79,9 +79,18 @@ const AuthForm = {
       console.log('[GRILO] Response:', res.status, data);
 
       if (!res.ok) {
-        const msg = (typeof data.detail === 'string')
-          ? data.detail
-          : (isLogin ? 'Usuário ou senha inválidos.' : 'Não foi possível criar a conta.');
+        let msg;
+        if (typeof data.detail === 'string') {
+          msg = data.detail;
+        } else if (Array.isArray(data.detail) && data.detail.length > 0) {
+          // Pydantic validation errors
+          const first = data.detail[0];
+          const field = (first.loc && first.loc[first.loc.length - 1]) || 'campo';
+          const fieldLabel = { username: 'usuário', password: 'senha', email: 'e-mail' }[field] || field;
+          msg = `${fieldLabel}: ${first.msg || 'inválido'}`;
+        } else {
+          msg = isLogin ? 'Usuário ou senha inválidos.' : 'Não foi possível criar a conta.';
+        }
         this.showError(msg);
         showToast(msg, 'error');
         return;

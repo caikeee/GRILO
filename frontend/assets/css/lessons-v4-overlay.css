@@ -1,0 +1,739 @@
+/* ============================================================
+   GRILO Lessons V4 — Overlay sobre o lessons.css existente
+   Sistema: sage + âmbar, mock 1 destaque, módulos agrupados
+   ============================================================ */
+
+:root {
+    --lv4-ink: #1A2A22;
+    --lv4-ink-2: #2A3D33;
+    --lv4-mute: #5A6B62;
+    --lv4-soft: #8A9C92;
+    --lv4-line: rgba(122,158,132,0.16);
+    --lv4-line-strong: rgba(122,158,132,0.28);
+
+    --lv4-sage: #7A9E84;
+    --lv4-sage-deep: #3A5E47;
+    --lv4-amber: #C9916B;
+    --lv4-amber-deep: #A87650;
+    --lv4-amber-soft: rgba(201,145,107,0.12);
+
+    --lv4-font-display: 'Manrope', 'Space Grotesk', system-ui, sans-serif;
+    --lv4-font-body: 'Space Grotesk', system-ui, sans-serif;
+}
+
+body.app-lessons {
+    background: linear-gradient(180deg, #FBFCFB 0%, #F4F7F4 100%) !important;
+    font-family: var(--lv4-font-body) !important;
+}
+
+/* ============================================================
+   TOPBAR — limpa, padrão V4
+   ============================================================ */
+
+.lessons-topbar {
+    background: rgba(251,252,251,0.86) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--lv4-line) !important;
+    padding: 14px 28px !important;
+    gap: 22px !important;
+}
+
+.lessons-back {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 14px !important;
+    background: white !important;
+    border: 1px solid var(--lv4-line) !important;
+    border-radius: 100px !important;
+    color: var(--lv4-ink-2) !important;
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.86rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: all 0.2s !important;
+}
+
+.lessons-back::before {
+    content: '←';
+    font-size: 0.95rem;
+}
+
+.lessons-back:hover {
+    border-color: var(--lv4-sage) !important;
+    color: var(--lv4-sage-deep) !important;
+    transform: translateX(-2px) !important;
+}
+
+.lessons-brand {
+    font-family: var(--lv4-font-display) !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    color: var(--lv4-ink) !important;
+    letter-spacing: -0.02em !important;
+}
+
+.lessons-brand::before {
+    content: '🦗 ';
+}
+
+.lessons-module-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 5px 14px !important;
+    background: var(--lv4-amber-soft) !important;
+    border: 1px solid rgba(201,145,107,0.2) !important;
+    border-radius: 100px !important;
+    color: var(--lv4-amber-deep) !important;
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* ============================================================
+   BANNER — editorial, com kicker âmbar
+   ============================================================ */
+
+.lp-banner {
+    background: linear-gradient(135deg, #FBFCFB 0%, #F0F5F2 100%) !important;
+    border: 1px solid var(--lv4-line) !important;
+    border-radius: 24px !important;
+    padding: 44px 48px !important;
+    margin-bottom: 40px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.lp-banner::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background-image: radial-gradient(circle at 1px 1px, rgba(122,158,132,0.08) 1px, transparent 0) !important;
+    background-size: 28px 28px !important;
+    opacity: 0.4 !important;
+    pointer-events: none !important;
+}
+
+.lp-banner > * {
+    position: relative;
+    z-index: 1;
+}
+
+.lp-banner-kicker {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.74rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: var(--lv4-amber-deep) !important;
+    margin: 0 0 14px !important;
+}
+
+.lp-banner-title {
+    font-family: var(--lv4-font-display) !important;
+    font-size: clamp(2rem, 4vw, 2.8rem) !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.035em !important;
+    color: var(--lv4-ink) !important;
+    margin: 0 0 18px !important;
+    text-wrap: balance !important;
+}
+
+.lp-banner-title em {
+    font-style: normal !important;
+    background: linear-gradient(135deg, var(--lv4-amber) 0%, var(--lv4-amber-deep) 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+}
+
+.lp-banner-sub {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 1.05rem !important;
+    line-height: 1.65 !important;
+    color: var(--lv4-mute) !important;
+    margin: 0 0 24px !important;
+    max-width: 580px !important;
+    font-weight: 400 !important;
+}
+
+.lp-banner-stats {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-top: 18px !important;
+}
+
+.lp-stat-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 14px !important;
+    background: white !important;
+    border: 1px solid var(--lv4-line) !important;
+    border-radius: 100px !important;
+    color: var(--lv4-ink-2) !important;
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+}
+
+.lp-stat-pill-dot {
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 50% !important;
+    background: var(--lv4-sage) !important;
+}
+
+.lp-banner-panel {
+    background: rgba(255,255,255,0.7) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--lv4-line) !important;
+    border-radius: 18px !important;
+    padding: 24px 26px !important;
+    margin-top: 24px !important;
+}
+
+.lp-banner-panel-kicker {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.74rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: var(--lv4-sage) !important;
+    margin: 0 0 8px !important;
+}
+
+.lp-banner-panel-title {
+    font-family: var(--lv4-font-display) !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.015em !important;
+    color: var(--lv4-ink) !important;
+    margin: 0 0 8px !important;
+}
+
+.lp-banner-panel-sub {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.92rem !important;
+    line-height: 1.55 !important;
+    color: var(--lv4-mute) !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+
+.lp-hero-progress {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lp-hero-progress-track {
+    flex: 1;
+    height: 6px;
+    background: var(--lv4-line) !important;
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.lp-hero-progress-fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--lv4-sage) 0%, var(--lv4-sage-deep) 100%) !important;
+    border-radius: 100px;
+}
+
+.lp-hero-progress-label {
+    font-family: var(--lv4-font-display) !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    color: var(--lv4-sage-deep) !important;
+}
+
+/* ============================================================
+   MODULE GROUPS — separadores injetados pelo trail.js
+   ============================================================ */
+
+.lv4-module-head {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 4px 14px;
+    margin-top: 8px;
+}
+
+.lv4-module-head:first-child {
+    padding-top: 8px;
+}
+
+.lv4-module-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid var(--lv4-line-strong);
+    font-family: var(--lv4-font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--lv4-sage-deep);
+    letter-spacing: -0.01em;
+    flex-shrink: 0;
+}
+
+.lv4-module-title {
+    font-family: var(--lv4-font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--lv4-ink);
+    letter-spacing: -0.015em;
+    margin: 0;
+}
+
+.lv4-module-meta {
+    font-family: var(--lv4-font-body);
+    font-size: 0.82rem;
+    color: var(--lv4-soft);
+    margin-left: auto;
+    font-weight: 500;
+}
+
+.lv4-module-line {
+    flex: 1;
+    height: 1px;
+    background: var(--lv4-line);
+    margin: 0 4px;
+}
+
+/* ============================================================
+   CARDS — repaint
+   ============================================================ */
+
+.lp-card-stage {
+    margin-top: 0 !important;
+}
+
+.lp-card-cloud {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 18px !important;
+    padding: 0 !important;
+    perspective: none !important;
+}
+
+.lp-card {
+    background: white !important;
+    border: 1px solid var(--lv4-line) !important;
+    border-radius: 18px !important;
+    padding: 22px 22px 18px !important;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s, border-color 0.2s !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(122,158,132,0.04), 0 8px 24px -16px rgba(122,158,132,0.18) !important;
+    transform: none !important;
+}
+
+.lp-card::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: linear-gradient(135deg, rgba(122,158,132,0.04) 0%, transparent 60%) !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s !important;
+    pointer-events: none !important;
+}
+
+.lp-card:hover {
+    transform: translateY(-3px) !important;
+    border-color: var(--lv4-sage) !important;
+    box-shadow: 0 6px 14px -6px rgba(122,158,132,0.18), 0 24px 48px -20px rgba(58,94,71,0.28) !important;
+}
+
+.lp-card:hover::before {
+    opacity: 1 !important;
+}
+
+.lp-card.is-completed,
+.lp-card.is-learned {
+    border-color: rgba(122,158,132,0.4) !important;
+    background: linear-gradient(135deg, #FBFCFB 0%, #F2F8F4 100%) !important;
+}
+
+.lp-card.is-dominated {
+    border-color: rgba(201,145,107,0.4) !important;
+    background: linear-gradient(135deg, #FFFCF8 0%, #FAF3EB 100%) !important;
+}
+
+.lp-card-top {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 1px solid var(--lv4-line) !important;
+}
+
+.lp-card-top-left {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.lp-card-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.lp-card-icon .lp-glyph--scene {
+    width: 48px;
+    height: 48px;
+    display: inline-block;
+}
+
+.lp-card-icon svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.lp-card-kicker {
+    display: block !important;
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: var(--lv4-amber-deep) !important;
+    margin-bottom: 4px !important;
+    opacity: 0.9 !important;
+}
+
+.lp-card-title {
+    font-family: var(--lv4-font-display) !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.015em !important;
+    color: var(--lv4-ink) !important;
+    text-wrap: balance !important;
+}
+
+.lp-card-num {
+    font-family: var(--lv4-font-display) !important;
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.035em !important;
+    color: var(--lv4-soft) !important;
+    flex-shrink: 0 !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--lv4-soft) !important;
+}
+
+.lp-card.is-completed .lp-card-num,
+.lp-card.is-learned .lp-card-num {
+    color: var(--lv4-sage-deep) !important;
+    -webkit-text-fill-color: var(--lv4-sage-deep) !important;
+}
+
+.lp-card.is-dominated .lp-card-num {
+    color: var(--lv4-amber-deep) !important;
+    -webkit-text-fill-color: var(--lv4-amber-deep) !important;
+}
+
+.lp-card-body {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+}
+
+.lp-card-desc {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
+    color: var(--lv4-mute) !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+
+.lp-card-tag {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.82rem !important;
+    color: var(--lv4-sage-deep) !important;
+    background: rgba(122,158,132,0.06) !important;
+    border: 1px solid var(--lv4-line) !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    font-style: italic !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+}
+
+.lp-card-tag-quote {
+    color: var(--lv4-amber) !important;
+    margin-right: 4px;
+    font-weight: 700;
+}
+
+.lp-card-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+.lp-card-meta {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+}
+
+.lp-card-status {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    padding: 3px 10px !important;
+    border-radius: 100px !important;
+    letter-spacing: 0.02em !important;
+}
+
+.lp-card-status--new {
+    background: var(--lv4-amber-soft) !important;
+    color: var(--lv4-amber-deep) !important;
+}
+
+.lp-card-status--visited {
+    background: rgba(122,158,132,0.12) !important;
+    color: var(--lv4-sage-deep) !important;
+}
+
+.lp-card-status--completed {
+    background: rgba(122,158,132,0.18) !important;
+    color: var(--lv4-sage-deep) !important;
+}
+
+.lp-card-status--dominated {
+    background: var(--lv4-amber-soft) !important;
+    color: var(--lv4-amber-deep) !important;
+    border: 1px solid rgba(201,145,107,0.3) !important;
+}
+
+.lp-card-chip,
+.lp-card-phrase-pill {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.7rem !important;
+    color: var(--lv4-soft) !important;
+    background: transparent !important;
+    padding: 3px 8px !important;
+    border-radius: 100px !important;
+    border: 1px solid var(--lv4-line) !important;
+    font-weight: 500 !important;
+}
+
+.lp-card-phrase-pill.is-full {
+    color: var(--lv4-amber-deep) !important;
+    border-color: rgba(201,145,107,0.3) !important;
+    background: var(--lv4-amber-soft) !important;
+}
+
+.lp-card-progress-wrap {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 4px 0 0 !important;
+}
+
+.lp-card-progress-label {
+    font-family: var(--lv4-font-display) !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    color: var(--lv4-sage-deep) !important;
+    min-width: 70px !important;
+}
+
+.lp-card-progress {
+    flex: 1 !important;
+    height: 4px !important;
+    background: var(--lv4-line) !important;
+    border-radius: 100px !important;
+    overflow: hidden !important;
+}
+
+.lp-card-progress-fill {
+    height: 100% !important;
+    background: linear-gradient(90deg, var(--lv4-sage) 0%, var(--lv4-sage-deep) 100%) !important;
+    border-radius: 100px !important;
+    transition: width 0.4s !important;
+}
+
+.lp-card-progress-fill.is-full {
+    background: linear-gradient(90deg, var(--lv4-amber) 0%, var(--lv4-amber-deep) 100%) !important;
+}
+
+.lp-card-cta {
+    align-self: flex-end !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, var(--lv4-sage) 0%, var(--lv4-sage-deep) 100%) !important;
+    color: white !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 10px -2px rgba(58,94,71,0.4) !important;
+    transition: transform 0.2s !important;
+    margin-top: 4px !important;
+}
+
+.lp-card:hover .lp-card-cta {
+    transform: translateX(2px) scale(1.08);
+}
+
+/* ============================================================
+   LOCKED CARDS (placeholders das aulas faltantes)
+   ============================================================ */
+
+.lp-card.lv4-locked {
+    cursor: default !important;
+    opacity: 0.62 !important;
+    background: rgba(255,255,255,0.6) !important;
+    border-style: dashed !important;
+    box-shadow: none !important;
+}
+
+.lp-card.lv4-locked:hover {
+    transform: none !important;
+    border-color: var(--lv4-line) !important;
+    box-shadow: none !important;
+}
+
+.lp-card.lv4-locked .lp-card-cta {
+    background: var(--lv4-line) !important;
+    color: var(--lv4-soft) !important;
+    box-shadow: none !important;
+}
+
+.lp-card.lv4-locked .lp-card-cta::before {
+    content: '🔒';
+    font-size: 0.7rem;
+}
+
+.lv4-locked-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: var(--lv4-line);
+    color: var(--lv4-soft);
+    border-radius: 100px;
+    font-family: var(--lv4-font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* ============================================================
+   MODAL — botão Mock 1 destacado, resto vem do lessons.css
+   ============================================================ */
+
+.lp-modal-phrase-voice-btn {
+    background: linear-gradient(135deg, var(--lv4-amber) 0%, var(--lv4-amber-deep) 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 100px !important;
+    padding: 9px 18px !important;
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.86rem !important;
+    font-weight: 600 !important;
+    box-shadow: 0 6px 16px -6px rgba(201,145,107,0.45) !important;
+    transition: transform 0.2s, box-shadow 0.3s !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.lp-modal-phrase-voice-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 24px -6px rgba(201,145,107,0.55) !important;
+}
+
+.lp-modal-phrase-voice-btn::before {
+    content: '🎙';
+    font-size: 1rem;
+}
+
+.lp-modal-aside-toggle,
+.lp-modal-close {
+    background: white !important;
+    border: 1px solid var(--lv4-line) !important;
+    color: var(--lv4-ink-2) !important;
+    padding: 8px 14px !important;
+    border-radius: 100px !important;
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s !important;
+    cursor: pointer !important;
+}
+
+.lp-modal-aside-toggle:hover,
+.lp-modal-close:hover {
+    border-color: var(--lv4-sage) !important;
+    color: var(--lv4-sage-deep) !important;
+}
+
+.lp-modal-crumb {
+    font-family: var(--lv4-font-body) !important;
+    font-size: 0.88rem !important;
+    color: var(--lv4-mute) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.lp-modal-crumb-lesson {
+    color: var(--lv4-ink) !important;
+    font-weight: 600 !important;
+}
+
+.lp-modal-crumb-sep {
+    color: var(--lv4-soft) !important;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 760px) {
+    .lp-banner {
+        padding: 28px 24px !important;
+    }
+    .lessons-topbar {
+        padding: 12px 16px !important;
+    }
+    .lp-card-cloud {
+        grid-template-columns: 1fr !important;
+    }
+    .lv4-module-head {
+        padding: 24px 4px 10px;
+    }
+    .lv4-module-meta {
+        display: none;
+    }
+}
