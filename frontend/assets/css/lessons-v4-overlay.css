@@ -341,7 +341,20 @@ body.app-lessons {
     position: relative !important;
     overflow: hidden !important;
     box-shadow: 0 1px 3px rgba(122,158,132,0.04), 0 8px 24px -16px rgba(122,158,132,0.18) !important;
+    /* Anula a opacity:0 e a animação original do lessons.css */
+    opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
+    animation: none !important;
+}
+
+/* Anula também a animação aplicada por .lessons-cosmos.is-revealed .lp-card */
+.lessons-cosmos.is-revealed .lp-card,
+.lessons-cosmos .lp-card {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
 }
 
 .lp-card::before {
