@@ -78,33 +78,124 @@
         return true;
     }
 
+    // ============================================================
+    // RENDERER STANDALONE — popula o modal mesmo se o lessons-enhanced falhar
+    // ============================================================
+
+    function escHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function renderFallbackContent(slug, lesson) {
+        const sections = (lesson.sections || []).map((s, i) => {
+            const examples = (s.examples || []).map(ex => {
+                const en = typeof ex === 'string' ? ex : ex.en;
+                const pt = typeof ex === 'string' ? '' : ex.pt;
+                return `<li class="lp-mex-item"><span class="lp-ex-en">${escHtml(en)}</span>${pt ? `<span class="lp-ex-pt">${escHtml(pt)}</span>` : ''}</li>`;
+            }).join('');
+            return `
+                <div class="lp-msec" id="msec-${slug}-${i}">
+                    <div class="lp-msec-header">
+                        <div class="lp-msec-num">${String(i+1).padStart(2,'0')}</div>
+                        <h2 class="lp-msec-title">${escHtml(s.title)}</h2>
+                    </div>
+                    ${s.explanation ? `<p class="lp-msec-explanation">${escHtml(s.explanation)}</p>` : ''}
+                    ${examples ? `<div class="lp-mex"><div class="lp-mex-label">📝 Exemplos</div><ul class="lp-mex-list">${examples}</ul></div>` : ''}
+                </div>`;
+        }).join('');
+
+        const curiosities = Array.isArray(lesson.curiosities) && lesson.curiosities.length
+            ? `<div class="lp-mcur"><div class="lp-mcur-label">💡 Sabia que…</div><ul class="lp-mcur-list">${lesson.curiosities.map(c => `<li class="lp-mcur-item">${escHtml(c)}</li>`).join('')}</ul></div>`
+            : '';
+
+        return `
+            <section class="lp-peda-overview" id="overview-${slug}">
+                <div class="lp-peda-overview-hero">
+                    <span class="lp-peda-kicker">Roteiro editorial</span>
+                    <h2 class="lp-peda-overview-title">${escHtml(lesson.title)}</h2>
+                    <p class="lp-peda-overview-copy">${escHtml(lesson.objective || '')}</p>
+                    ${lesson.highlight ? `<div class="lp-card-tag">${escHtml(lesson.highlight)}</div>` : ''}
+                </div>
+            </section>
+            ${sections}
+            ${curiosities}`;
+    }
+
+    function renderFallbackAside(slug, lesson) {
+        const points = (lesson.teachingPoints || []).map(p => `<li class="lp-aside-point">${escHtml(p)}</li>`).join('');
+        const nav = (lesson.sections || []).map((s, i) =>
+            `<a class="lp-aside-nav-item" href="#msec-${slug}-${i}" onclick="event.preventDefault();document.getElementById('msec-${slug}-${i}')?.scrollIntoView({behavior:'smooth'})"><span class="lp-aside-nav-dot"></span>${escHtml(s.title)}</a>`
+        ).join('');
+        return `
+            <span class="lp-aside-num">AULA</span>
+            <div class="lp-aside-title">${escHtml(lesson.title)}</div>
+            <p class="lp-aside-obj">${escHtml(lesson.objective || '')}</p>
+            <div class="lp-aside-sep"></div>
+            ${points ? `<span class="lp-aside-section-label">O que você vai aprender</span><ul class="lp-aside-points">${points}</ul><div class="lp-aside-sep"></div>` : ''}
+            ${nav ? `<span class="lp-aside-section-label">Seções desta aula</span><nav class="lp-aside-nav">${nav}</nav>` : ''}`;
+    }
+
     function openLessonBySlug(slug, triggerEl) {
         if (!slug) return;
         console.log('[lessons-trail] abrindo aula:', slug);
 
-        // Caminho preferido: gateway exposto pelo lessons-enhanced.js
+        const lesson = (window._lessonsData || {})[slug];
+        if (!lesson) {
+            console.error('[lessons-trail] aula não encontrada nos dados:', slug);
+            showDebugToast(`aula sem dados · ${slug}`, '#C9716C');
+            return;
+        }
+
+        // Rastreia a aula atual pro botão "Treinar 5 frases"
+        window._currentLessonSlug = slug;
+        window._currentLessonTitle = lesson.title;
+
+        const modal = document.getElementById('lessonContent');
+        const main = document.getElementById('lessonModalMain');
+        const aside = document.getElementById('lessonModalAside');
+        const crumbLesson = document.getElementById('lessonModalCrumbLesson');
+
+        if (!modal || !main) {
+            console.error('[lessons-trail] modal/main DOM ausente');
+            return;
+        }
+
+        // 1) Tenta abrir via _griloOpenLesson (fluxo completo do lessons-enhanced)
+        let usedGateway = false;
         if (typeof window._griloOpenLesson === 'function') {
             try {
                 window._griloOpenLesson(slug, triggerEl);
+                usedGateway = true;
             } catch (err) {
                 console.error('[lessons-trail] erro em _griloOpenLesson:', err);
             }
-        } else {
-            console.warn('[lessons-trail] _griloOpenLesson indisponível, usando fallback');
         }
 
-        // Fallback: garantir que o modal esteja visível
+        // 2) Garante modal aberto
+        forceOpenModal();
+
+        // 3) Atualiza breadcrumb
+        if (crumbLesson) crumbLesson.textContent = lesson.title;
+
+        // 4) Decide o conteúdo do main
         setTimeout(() => {
-            const modal = document.getElementById('lessonContent');
-            if (modal && !modal.classList.contains('active')) {
-                console.warn('[lessons-trail] modal não abriu via gateway; forçando');
-                forceOpenModal();
+            // Se o editorial-renderer tem layout, usa
+            if (typeof window._applyEditorialLayout === 'function' && window._applyEditorialLayout(slug)) {
+                console.log('[lessons-trail] layout editorial aplicado para', slug);
+            } else {
+                // Senão, garante conteúdo padrão (caso o lessons-enhanced não tenha preenchido)
+                if (!main.innerHTML.trim() || main.innerHTML.length < 80) {
+                    console.log('[lessons-trail] aplicando fallback de conteúdo para', slug);
+                    main.innerHTML = renderFallbackContent(slug, lesson);
+                }
             }
-            // Aplica layout editorial se disponível
-            if (typeof window._applyEditorialLayout === 'function') {
-                window._applyEditorialLayout(slug);
+            // Garante aside preenchido
+            if (aside && (!aside.innerHTML.trim() || aside.innerHTML.length < 50)) {
+                aside.innerHTML = renderFallbackAside(slug, lesson);
             }
-        }, 80);
+            main.scrollTop = 0;
+            if (aside) aside.scrollTop = 0;
+        }, 60);
     }
 
     function attachDirectClickHandler(card) {
