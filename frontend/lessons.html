@@ -8,12 +8,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="assets/css/sage-color-system.css">
-  <link rel="stylesheet" href="assets/css/sage-overrides.css">
-  <link rel="stylesheet" href="assets/css/lessons.css?v=2">
-  <link rel="stylesheet" href="assets/css/sage-premium-polish.css">
-  <link rel="stylesheet" href="assets/css/lessons-v4-overlay.css?v=3">
-  <link rel="stylesheet" href="assets/css/lesson-editorial-v4.css?v=1">
+  <link rel="stylesheet" href="assets/css/sage-color-system.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/sage-overrides.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/lessons.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/sage-premium-polish.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/lessons-v4-overlay.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/lesson-editorial-v4.css?v=20260517">
 </head>
 <body class="app-lessons">
   <main class="lessons-shell">
@@ -107,11 +107,52 @@
     </div>
   </section>
 
-  <script src="assets/js/voice-recognition-utils.js?v=1" defer></script>
-  <script src="assets/js/lessons-trainer-bridge.js?v=1" defer></script>
-  <script src="assets/js/lessons-enhanced.js?v=8" defer></script>
-  <script src="assets/js/phrase-voice-trainer.js?v=4" defer></script>
-  <script src="assets/js/lessons-trail.js?v=7" defer></script>
-  <script src="assets/js/lesson-editorial-renderer.js?v=2" defer></script>
+  <script src="assets/js/voice-recognition-utils.js?v=20260517" defer></script>
+  <script src="assets/js/lessons-trainer-bridge.js?v=20260517" defer></script>
+  <script src="assets/js/lessons-enhanced.js?v=20260517" defer></script>
+  <script src="assets/js/phrase-voice-trainer.js?v=20260517" defer></script>
+  <script src="assets/js/lessons-trail.js?v=20260517" defer></script>
+  <script src="assets/js/lesson-editorial-renderer.js?v=20260517" defer></script>
+
+  <!-- ── Click fallback robusto (garante abertura em produção) ──── -->
+  <script>
+    (function() {
+      function tryOpen(slug, card) {
+        if (!slug) return false;
+        // 1) tenta o gateway oficial
+        if (typeof window._griloOpenLesson === 'function') {
+          try { window._griloOpenLesson(slug, card); return true; } catch(e) { console.error('[lessons-fallback] gateway erro:', e); }
+        }
+        // 2) força modal visível pelo menos
+        var modal = document.getElementById('lessonContent');
+        if (modal) {
+          modal.removeAttribute('hidden');
+          requestAnimationFrame(function() { modal.classList.add('active'); });
+          document.body.style.overflow = 'hidden';
+        }
+        return false;
+      }
+      // Handler em bubbling no document — independente do lessons-trail.js
+      document.addEventListener('click', function(e) {
+        var card = e.target.closest && e.target.closest('.lp-card[data-lesson-key]');
+        if (!card) return;
+        if (e.target.closest('button, a, input, textarea, select')) return;
+        var slug = card.getAttribute('data-lesson-key');
+        console.log('[lessons-fallback] click em card:', slug);
+        tryOpen(slug, card);
+      });
+      // Fechar modal
+      document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'lessonModalClose') {
+          var modal = document.getElementById('lessonContent');
+          if (modal) {
+            modal.classList.remove('active');
+            setTimeout(function() { modal.setAttribute('hidden', ''); }, 250);
+            document.body.style.overflow = '';
+          }
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
