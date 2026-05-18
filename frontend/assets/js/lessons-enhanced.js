@@ -3205,6 +3205,17 @@
   // frases locais para as aulas que ainda não têm backend ID.
   window._lessonsData = lessons;
 
+  // Expõe a função de abrir aula pro lessons-trail.js poder reanexar
+  // listeners diretos nos cards depois de reorganizá-los no DOM.
+  // Definida depois de showLessonContent (mais abaixo); usamos getter lazy:
+  window._griloOpenLesson = function(slug, triggerEl) {
+    if (typeof showLessonContent === 'function') {
+      showLessonContent(slug, triggerEl);
+    } else {
+      console.error('[lessons] showLessonContent indisponível');
+    }
+  };
+
   function getAuthToken() {
     try { return localStorage.getItem('grilo_token'); }
     catch (e) { return null; }

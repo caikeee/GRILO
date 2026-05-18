@@ -1,0 +1,881 @@
+/* ============================================================
+   GRILO Lesson Editorial V4
+   Sistema de componentes para aulas com personalidade editorial.
+   Cada aula pode misturar componentes diferentes.
+   ============================================================ */
+
+:root {
+    --le-ink: #1A2A22;
+    --le-ink-2: #2A3D33;
+    --le-mute: #5A6B62;
+    --le-soft: #8A9C92;
+    --le-line: rgba(122,158,132,0.16);
+    --le-line-strong: rgba(122,158,132,0.28);
+    --le-sage: #7A9E84;
+    --le-sage-deep: #3A5E47;
+    --le-amber: #C9916B;
+    --le-amber-deep: #A87650;
+    --le-amber-soft: rgba(201,145,107,0.12);
+    --le-cream: #FAF6F0;
+    --le-rose: #C9716C;
+    --le-rose-soft: rgba(201,113,108,0.10);
+    --le-font-display: 'Manrope', system-ui, sans-serif;
+    --le-font-body: 'Space Grotesk', system-ui, sans-serif;
+    --le-font-mono: 'SF Mono', 'JetBrains Mono', 'Menlo', monospace;
+}
+
+/* ============================================================
+   THEME PER MODULE — cada módulo tem assinatura visual
+   ============================================================ */
+
+.le-aula[data-module="01"] { --le-accent: var(--le-amber); --le-accent-deep: var(--le-amber-deep); --le-accent-soft: var(--le-amber-soft); }
+.le-aula[data-module="02"] { --le-accent: var(--le-sage); --le-accent-deep: var(--le-sage-deep); --le-accent-soft: rgba(122,158,132,0.10); }
+.le-aula[data-module="03"] { --le-accent: #6B8E72; --le-accent-deep: #2E4F39; --le-accent-soft: rgba(46,79,57,0.08); }
+.le-aula[data-module="04"] { --le-accent: #8A9D6F; --le-accent-deep: #5A6D44; --le-accent-soft: rgba(90,109,68,0.08); }
+.le-aula[data-module="05"] { --le-accent: #B58263; --le-accent-deep: #7A5238; --le-accent-soft: rgba(122,82,56,0.08); }
+.le-aula[data-module="06"] { --le-accent: #5C8A78; --le-accent-deep: #2F5A48; --le-accent-soft: rgba(47,90,72,0.08); }
+
+/* ============================================================
+   AULA CONTAINER
+   ============================================================ */
+
+.le-aula {
+    font-family: var(--le-font-body);
+    color: var(--le-ink);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   MANIFESTO OPENER — abertura editorial grande
+   ============================================================ */
+
+.le-manifesto {
+    position: relative;
+    padding: 32px 0 48px;
+    border-bottom: 1px solid var(--le-line);
+}
+
+.le-manifesto-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--le-font-body);
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--le-accent-deep);
+    margin-bottom: 22px;
+}
+
+.le-manifesto-kicker::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--le-accent);
+}
+
+.le-manifesto-text {
+    font-family: var(--le-font-display);
+    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+    line-height: 1.18;
+    font-weight: 600;
+    color: var(--le-ink);
+    letter-spacing: -0.025em;
+    margin: 0 0 24px;
+    text-wrap: balance;
+}
+
+.le-manifesto-text em {
+    font-style: italic;
+    color: var(--le-accent-deep);
+    font-weight: 500;
+}
+
+.le-manifesto-text strong {
+    background: var(--le-accent-soft);
+    padding: 0 6px;
+    border-radius: 4px;
+    color: var(--le-accent-deep);
+    font-weight: 700;
+}
+
+.le-manifesto-sub {
+    font-family: var(--le-font-body);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--le-mute);
+    max-width: 580px;
+    font-weight: 400;
+    margin: 0;
+}
+
+/* ============================================================
+   SECTION HEADER editorial
+   ============================================================ */
+
+.le-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.le-section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--le-line);
+}
+
+.le-section-num {
+    font-family: var(--le-font-display);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--le-accent-deep);
+    letter-spacing: -0.01em;
+    min-width: 28px;
+}
+
+.le-section-title {
+    font-family: var(--le-font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--le-ink);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin: 0;
+    flex: 1;
+    text-wrap: balance;
+}
+
+.le-section-eyebrow {
+    font-family: var(--le-font-body);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--le-soft);
+}
+
+/* ============================================================
+   COPY editorial — body text rich
+   ============================================================ */
+
+.le-copy {
+    font-family: var(--le-font-body);
+    font-size: 1.02rem;
+    line-height: 1.72;
+    color: var(--le-ink-2);
+    font-weight: 400;
+    margin: 0;
+    max-width: 620px;
+}
+
+.le-copy + .le-copy {
+    margin-top: 14px;
+}
+
+.le-copy em {
+    font-style: italic;
+    color: var(--le-accent-deep);
+    font-weight: 500;
+}
+
+.le-copy strong {
+    font-weight: 600;
+    color: var(--le-ink);
+}
+
+.le-copy code,
+.le-inline-en {
+    font-family: var(--le-font-mono);
+    font-size: 0.92em;
+    background: var(--le-accent-soft);
+    padding: 1px 7px;
+    border-radius: 4px;
+    color: var(--le-accent-deep);
+    font-weight: 500;
+}
+
+/* ============================================================
+   PULL QUOTE — destaque tipográfico no meio do texto
+   ============================================================ */
+
+.le-pullquote {
+    font-family: var(--le-font-display);
+    font-size: 1.4rem;
+    line-height: 1.4;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--le-accent-deep);
+    border-left: 3px solid var(--le-accent);
+    padding: 6px 0 6px 22px;
+    margin: 12px 0;
+    text-wrap: balance;
+    max-width: 580px;
+}
+
+/* ============================================================
+   COMPARADOR PT × EN
+   ============================================================ */
+
+.le-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--le-line);
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+}
+
+.le-compare-side {
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.le-compare-side + .le-compare-side {
+    border-left: 1px solid var(--le-line);
+}
+
+.le-compare-side--pt {
+    background: linear-gradient(135deg, rgba(122,158,132,0.04) 0%, rgba(122,158,132,0.01) 100%);
+}
+
+.le-compare-side--en {
+    background: linear-gradient(135deg, var(--le-accent-soft) 0%, transparent 100%);
+}
+
+.le-compare-flag {
+    font-family: var(--le-font-body);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--le-soft);
+}
+
+.le-compare-text {
+    font-family: var(--le-font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--le-ink);
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+}
+
+.le-compare-text strong {
+    background: var(--le-accent-soft);
+    padding: 0 4px;
+    border-radius: 3px;
+    color: var(--le-accent-deep);
+}
+
+.le-compare-note {
+    font-family: var(--le-font-body);
+    font-size: 0.86rem;
+    color: var(--le-mute);
+    line-height: 1.5;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+@media (max-width: 600px) {
+    .le-compare { grid-template-columns: 1fr; }
+    .le-compare-side + .le-compare-side { border-left: none; border-top: 1px solid var(--le-line); }
+}
+
+/* ============================================================
+   ERRO FAMOSO — alerta editorial
+   ============================================================ */
+
+.le-error {
+    position: relative;
+    padding: 24px 28px;
+    background: var(--le-rose-soft);
+    border: 1px solid rgba(201,113,108,0.22);
+    border-left: 4px solid var(--le-rose);
+    border-radius: 14px;
+}
+
+.le-error-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--le-font-body);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--le-rose);
+    margin-bottom: 12px;
+}
+
+.le-error-label::before { content: '⚠'; font-size: 1rem; }
+
+.le-error-text {
+    font-family: var(--le-font-display);
+    font-size: 1.1rem;
+    line-height: 1.45;
+    color: var(--le-ink);
+    font-weight: 500;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+}
+
+.le-error-fix {
+    font-family: var(--le-font-body);
+    font-size: 0.92rem;
+    color: var(--le-mute);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.le-error-fix code {
+    font-family: var(--le-font-mono);
+    background: white;
+    border: 1px solid rgba(201,113,108,0.2);
+    padding: 1px 7px;
+    border-radius: 4px;
+    color: var(--le-rose);
+    font-size: 0.92em;
+    font-weight: 500;
+}
+
+.le-error-fix .ok {
+    font-family: var(--le-font-mono);
+    background: white;
+    border: 1px solid rgba(122,158,132,0.28);
+    padding: 1px 7px;
+    border-radius: 4px;
+    color: var(--le-sage-deep);
+    font-size: 0.92em;
+    font-weight: 600;
+}
+
+/* ============================================================
+   MAPA VISUAL — tabela editorial
+   ============================================================ */
+
+.le-map {
+    background: white;
+    border: 1px solid var(--le-line);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.le-map-head {
+    padding: 18px 24px;
+    background: linear-gradient(135deg, var(--le-accent-soft) 0%, transparent 100%);
+    border-bottom: 1px solid var(--le-line);
+}
+
+.le-map-title {
+    font-family: var(--le-font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--le-accent-deep);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.le-map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0;
+}
+
+.le-map-cell {
+    padding: 18px 16px;
+    border-right: 1px solid var(--le-line);
+    border-bottom: 1px solid var(--le-line);
+    text-align: center;
+}
+
+.le-map-cell-label {
+    font-family: var(--le-font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--le-accent-deep);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    font-feature-settings: "tnum";
+}
+
+.le-map-cell-sub {
+    font-family: var(--le-font-body);
+    font-size: 0.78rem;
+    color: var(--le-soft);
+    font-weight: 500;
+}
+
+/* ============================================================
+   DIÁLOGO GUIADO — chat fake mostrando uso real
+   ============================================================ */
+
+.le-dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px 26px;
+    background: white;
+    border: 1px solid var(--le-line);
+    border-radius: 18px;
+}
+
+.le-dialog-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--le-line);
+}
+
+.le-dialog-head-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--le-accent) 0%, var(--le-accent-deep) 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.le-dialog-head-title {
+    font-family: var(--le-font-display);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--le-ink);
+    letter-spacing: -0.01em;
+}
+
+.le-dialog-bubble {
+    max-width: 88%;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-family: var(--le-font-body);
+    font-size: 0.96rem;
+    line-height: 1.5;
+}
+
+.le-dialog-bubble--a {
+    background: rgba(122,158,132,0.08);
+    color: var(--le-ink);
+    border: 1px solid var(--le-line);
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+}
+
+.le-dialog-bubble--b {
+    background: linear-gradient(135deg, var(--le-accent) 0%, var(--le-accent-deep) 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+}
+
+.le-dialog-bubble-pt {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.78rem;
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* ============================================================
+   EXAMPLES LIST — frases en + pt editoriais
+   ============================================================ */
+
+.le-examples {
+    background: white;
+    border: 1px solid var(--le-line);
+    border-radius: 14px;
+    padding: 6px 0;
+}
+
+.le-example {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    padding: 12px 22px;
+    border-bottom: 1px dashed var(--le-line);
+    align-items: baseline;
+}
+
+.le-example:last-child { border-bottom: none; }
+
+.le-example-num {
+    font-family: var(--le-font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--le-accent);
+    min-width: 22px;
+    line-height: 1.5;
+}
+
+.le-example-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.le-example-en {
+    font-family: var(--le-font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--le-ink);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+}
+
+.le-example-en strong {
+    color: var(--le-accent-deep);
+    background: var(--le-accent-soft);
+    padding: 0 4px;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.le-example-pt {
+    font-family: var(--le-font-body);
+    font-size: 0.86rem;
+    color: var(--le-soft);
+    font-style: italic;
+    line-height: 1.45;
+}
+
+/* ============================================================
+   SOUNDBOARD — player de pronúncia
+   ============================================================ */
+
+.le-soundboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.le-sound-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: white;
+    border: 1px solid var(--le-line);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    font-family: var(--le-font-body);
+}
+
+.le-sound-btn:hover {
+    border-color: var(--le-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -10px rgba(122,158,132,0.3);
+}
+
+.le-sound-btn-play {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--le-accent) 0%, var(--le-accent-deep) 100%);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px -2px rgba(58,94,71,0.3);
+}
+
+.le-sound-btn-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.le-sound-btn-word {
+    font-family: var(--le-font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--le-ink);
+    letter-spacing: -0.01em;
+}
+
+.le-sound-btn-pron {
+    font-family: var(--le-font-mono);
+    font-size: 0.78rem;
+    color: var(--le-soft);
+}
+
+/* ============================================================
+   TIMELINE
+   ============================================================ */
+
+.le-timeline {
+    position: relative;
+    padding-left: 28px;
+    border-left: 2px dashed var(--le-line-strong);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.le-timeline-step {
+    position: relative;
+}
+
+.le-timeline-step::before {
+    content: '';
+    position: absolute;
+    left: -36px;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--le-accent);
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--le-accent);
+}
+
+.le-timeline-when {
+    font-family: var(--le-font-body);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--le-accent-deep);
+    margin-bottom: 6px;
+}
+
+.le-timeline-text {
+    font-family: var(--le-font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--le-ink);
+    line-height: 1.4;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+}
+
+.le-timeline-detail {
+    font-family: var(--le-font-body);
+    font-size: 0.88rem;
+    color: var(--le-mute);
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* ============================================================
+   MICROCASE — caso real curto
+   ============================================================ */
+
+.le-case {
+    background: var(--le-cream);
+    border: 1px solid rgba(201,145,107,0.2);
+    border-radius: 16px;
+    padding: 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.le-case-kicker {
+    font-family: var(--le-font-body);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--le-amber-deep);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.le-case-kicker::before { content: '🎬'; }
+
+.le-case-scene {
+    font-family: var(--le-font-display);
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: var(--le-ink);
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+    margin: 0;
+    text-wrap: balance;
+}
+
+.le-case-line {
+    font-family: var(--le-font-body);
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: var(--le-ink-2);
+    margin: 0;
+}
+
+.le-case-line strong {
+    font-weight: 700;
+    color: var(--le-amber-deep);
+}
+
+/* ============================================================
+   TRAINING CTA — chama o treino de voz (Mock 1) como clímax
+   ============================================================ */
+
+.le-train {
+    margin-top: 32px;
+    padding: 32px 32px 28px;
+    background: linear-gradient(135deg, #1F3B2D 0%, #3A5E47 100%);
+    color: white;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.le-train::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(60% 80% at 90% 10%, rgba(201,145,107,0.18) 0%, transparent 50%),
+        radial-gradient(80% 60% at 0% 100%, rgba(122,158,132,0.2) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.le-train-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.le-train-kicker {
+    font-family: var(--le-font-body);
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #E5BB95;
+    margin: 0;
+}
+
+.le-train-title {
+    font-family: var(--le-font-display);
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    color: white;
+    margin: 0;
+    max-width: 480px;
+    text-wrap: balance;
+}
+
+.le-train-title em {
+    font-style: normal;
+    color: #E5BB95;
+}
+
+.le-train-sub {
+    font-family: var(--le-font-body);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.78);
+    margin: 0;
+    max-width: 460px;
+    font-weight: 400;
+}
+
+.le-train-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 26px;
+    background: linear-gradient(135deg, #C9916B 0%, #A87650 100%);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    font-family: var(--le-font-body);
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 12px 28px -8px rgba(201,145,107,0.5);
+    margin-top: 4px;
+}
+
+.le-train-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 36px -8px rgba(201,145,107,0.6);
+}
+
+.le-train-btn::before { content: '🎙'; font-size: 1.1rem; }
+
+/* ============================================================
+   CURIOSITIES — fechamento da aula
+   ============================================================ */
+
+.le-curiosities {
+    margin-top: 16px;
+    padding: 28px 30px;
+    background: linear-gradient(135deg, rgba(122,158,132,0.04) 0%, transparent 100%);
+    border: 1px solid var(--le-line);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.le-curiosities-title {
+    font-family: var(--le-font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--le-ink);
+    margin: 0 0 4px;
+    letter-spacing: -0.015em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.le-curiosities-title::before { content: '✦'; color: var(--le-accent); }
+
+.le-curiosity {
+    font-family: var(--le-font-body);
+    font-size: 0.94rem;
+    line-height: 1.65;
+    color: var(--le-ink-2);
+    padding-left: 18px;
+    border-left: 2px solid var(--le-line);
+    font-weight: 400;
+}
+
+.le-curiosity strong {
+    color: var(--le-accent-deep);
+    font-weight: 600;
+}
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+
+@media (max-width: 600px) {
+    .le-aula { padding: 20px 18px 80px; gap: 40px; }
+    .le-manifesto { padding: 16px 0 32px; }
+    .le-train { padding: 24px 22px; }
+    .le-train-title { font-size: 1.5rem; }
+}

@@ -64,6 +64,26 @@
         `;
     }
 
+    function attachDirectClickHandler(card) {
+        if (card._lv4Bound) return;
+        card._lv4Bound = true;
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', (e) => {
+            // Não interromper cliques em links/botões internos
+            if (e.target.closest('button, a')) return;
+            const slug = card.dataset.lessonKey;
+            if (!slug) return;
+            // Tenta a função interna do lessons-enhanced via gateway global
+            if (typeof window._griloOpenLesson === 'function') {
+                window._griloOpenLesson(slug, card);
+            } else {
+                // Fallback: dispara um click sintético no formato que lessons-enhanced espera
+                // ou simula via showLessonContent direto pelo escopo global
+                console.warn('[lessons-trail] _griloOpenLesson não exposto; usando evento sintético');
+            }
+        });
+    }
+
     function injectTrail() {
         const container = document.getElementById('lessonsCardsContainer');
         if (!container) return;
@@ -87,7 +107,6 @@
             mod.slugs.forEach(slug => {
                 const card = existingCards[slug];
                 if (!card) {
-                    // Slug não existe no objeto lessons — pula sem quebrar
                     console.warn('[lessons-trail] aula ausente:', slug);
                     globalNum++;
                     return;
@@ -99,6 +118,7 @@
                 const kEl = card.querySelector('.lp-card-kicker');
                 if (kEl) kEl.textContent = `Aula ${numStr}`;
                 container.appendChild(card);
+                attachDirectClickHandler(card);
                 globalNum++;
             });
         });
