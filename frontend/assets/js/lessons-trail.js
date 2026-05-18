@@ -65,14 +65,12 @@
     }
 
     function forceOpenModal() {
-        // Último recurso: garante que o modal abra visualmente
         const modal = document.getElementById('lessonContent');
         if (!modal) {
-            console.error('[lessons-trail] modal #lessonContent não encontrado no DOM');
+            console.error('[lessons-trail] modal #lessonContent não encontrado');
             return false;
         }
         modal.removeAttribute('hidden');
-        // Força reflow antes de adicionar classe pra animação rodar
         void modal.offsetHeight;
         modal.classList.remove('is-closing');
         modal.classList.add('active');
@@ -80,48 +78,63 @@
         return true;
     }
 
+    function openLessonBySlug(slug, triggerEl) {
+        if (!slug) return;
+        console.log('[lessons-trail] abrindo aula:', slug);
+
+        // Caminho preferido: gateway exposto pelo lessons-enhanced.js
+        if (typeof window._griloOpenLesson === 'function') {
+            try {
+                window._griloOpenLesson(slug, triggerEl);
+            } catch (err) {
+                console.error('[lessons-trail] erro em _griloOpenLesson:', err);
+            }
+        } else {
+            console.warn('[lessons-trail] _griloOpenLesson indisponível, usando fallback');
+        }
+
+        // Fallback: garantir que o modal esteja visível
+        setTimeout(() => {
+            const modal = document.getElementById('lessonContent');
+            if (modal && !modal.classList.contains('active')) {
+                console.warn('[lessons-trail] modal não abriu via gateway; forçando');
+                forceOpenModal();
+            }
+            // Aplica layout editorial se disponível
+            if (typeof window._applyEditorialLayout === 'function') {
+                window._applyEditorialLayout(slug);
+            }
+        }, 80);
+    }
+
     function attachDirectClickHandler(card) {
         if (card._lv4Bound) return;
         card._lv4Bound = true;
         card.style.cursor = 'pointer';
-        card.addEventListener('click', (e) => {
-            // Não interromper cliques em links/botões internos
-            if (e.target.closest('button, a')) return;
-            const slug = card.dataset.lessonKey;
-            if (!slug) {
-                console.warn('[lessons-trail] card sem data-lesson-key');
-                return;
-            }
-            console.log('[lessons-trail] click →', slug);
+    }
 
-            let opened = false;
-            try {
-                if (typeof window._griloOpenLesson === 'function') {
-                    window._griloOpenLesson(slug, card);
-                    opened = true;
-                    console.log('[lessons-trail] _griloOpenLesson chamado');
-                } else {
-                    console.error('[lessons-trail] _griloOpenLesson NÃO está exposto. window keys com grilo:',
-                        Object.keys(window).filter(k => k.toLowerCase().includes('grilo')));
-                }
-            } catch (err) {
-                console.error('[lessons-trail] erro em _griloOpenLesson:', err);
-            }
+    // ============================================================
+    // Event delegation NO DOCUMENT — funciona sempre, mesmo se
+    // os cards forem re-renderizados ou movidos
+    // ============================================================
 
-            // Verifica se modal realmente abriu; se não, força
-            setTimeout(() => {
-                const modal = document.getElementById('lessonContent');
-                if (!modal) return;
-                const isVisible = modal.classList.contains('active') && !modal.hasAttribute('hidden');
-                if (!isVisible) {
-                    console.warn('[lessons-trail] modal não abriu; forçando abertura manual');
-                    forceOpenModal();
-                    // Tenta editorial se disponível
-                    if (typeof window._applyEditorialLayout === 'function') {
-                        window._applyEditorialLayout(slug);
-                    }
-                }
-            }, 100);
+    if (!window._lessonsTrailDocHandlerBound) {
+        window._lessonsTrailDocHandlerBound = true;
+
+        document.addEventListener('click', function(e) {
+            // Não interromper cliques em botões/links internos do card
+            if (e.target.closest('button, a, input, textarea, select')) return;
+            const card = e.target.closest('.lp-card[data-lesson-key]');
+            if (!card) return;
+            openLessonBySlug(card.dataset.lessonKey, card);
+        }, true); // capture phase pra rodar antes de qualquer outro handler
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const card = e.target.closest('.lp-card[data-lesson-key]');
+            if (!card) return;
+            e.preventDefault();
+            openLessonBySlug(card.dataset.lessonKey, card);
         });
     }
 
