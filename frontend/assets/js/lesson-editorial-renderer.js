@@ -544,6 +544,9 @@
         }
     }
 
+    // Expõe pro lessons-trail.js poder forçar editorial quando o fluxo normal falha
+    window._applyEditorialLayout = applyEditorialIfAvailable;
+
     // Aguarda lessons-enhanced.js expor _griloOpenLesson e envelopa
     function installHook() {
         const original = window._griloOpenLesson;

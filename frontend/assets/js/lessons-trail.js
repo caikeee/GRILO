@@ -64,6 +64,22 @@
         `;
     }
 
+    function forceOpenModal() {
+        // Último recurso: garante que o modal abra visualmente
+        const modal = document.getElementById('lessonContent');
+        if (!modal) {
+            console.error('[lessons-trail] modal #lessonContent não encontrado no DOM');
+            return false;
+        }
+        modal.removeAttribute('hidden');
+        // Força reflow antes de adicionar classe pra animação rodar
+        void modal.offsetHeight;
+        modal.classList.remove('is-closing');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        return true;
+    }
+
     function attachDirectClickHandler(card) {
         if (card._lv4Bound) return;
         card._lv4Bound = true;
@@ -72,15 +88,40 @@
             // Não interromper cliques em links/botões internos
             if (e.target.closest('button, a')) return;
             const slug = card.dataset.lessonKey;
-            if (!slug) return;
-            // Tenta a função interna do lessons-enhanced via gateway global
-            if (typeof window._griloOpenLesson === 'function') {
-                window._griloOpenLesson(slug, card);
-            } else {
-                // Fallback: dispara um click sintético no formato que lessons-enhanced espera
-                // ou simula via showLessonContent direto pelo escopo global
-                console.warn('[lessons-trail] _griloOpenLesson não exposto; usando evento sintético');
+            if (!slug) {
+                console.warn('[lessons-trail] card sem data-lesson-key');
+                return;
             }
+            console.log('[lessons-trail] click →', slug);
+
+            let opened = false;
+            try {
+                if (typeof window._griloOpenLesson === 'function') {
+                    window._griloOpenLesson(slug, card);
+                    opened = true;
+                    console.log('[lessons-trail] _griloOpenLesson chamado');
+                } else {
+                    console.error('[lessons-trail] _griloOpenLesson NÃO está exposto. window keys com grilo:',
+                        Object.keys(window).filter(k => k.toLowerCase().includes('grilo')));
+                }
+            } catch (err) {
+                console.error('[lessons-trail] erro em _griloOpenLesson:', err);
+            }
+
+            // Verifica se modal realmente abriu; se não, força
+            setTimeout(() => {
+                const modal = document.getElementById('lessonContent');
+                if (!modal) return;
+                const isVisible = modal.classList.contains('active') && !modal.hasAttribute('hidden');
+                if (!isVisible) {
+                    console.warn('[lessons-trail] modal não abriu; forçando abertura manual');
+                    forceOpenModal();
+                    // Tenta editorial se disponível
+                    if (typeof window._applyEditorialLayout === 'function') {
+                        window._applyEditorialLayout(slug);
+                    }
+                }
+            }, 100);
         });
     }
 
