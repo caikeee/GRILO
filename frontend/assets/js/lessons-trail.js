@@ -114,8 +114,31 @@
     }
 
     // ============================================================
-    // Event delegation NO DOCUMENT — funciona sempre, mesmo se
-    // os cards forem re-renderizados ou movidos
+    // Toast visual de debug — mostra que o click foi capturado
+    // ============================================================
+
+    function showDebugToast(msg, color) {
+        let toast = document.getElementById('_lv4_debug_toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = '_lv4_debug_toast';
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1A2A22;color:white;padding:12px 18px;border-radius:10px;font-family:system-ui,sans-serif;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:99999;max-width:320px;opacity:0;transition:opacity 0.2s,transform 0.2s;transform:translateY(10px);pointer-events:none;';
+            document.body.appendChild(toast);
+        }
+        toast.style.background = color || '#1A2A22';
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+        }, 2500);
+    }
+    window._lv4ShowToast = showDebugToast;
+
+    // ============================================================
+    // Event delegation NO DOCUMENT
     // ============================================================
 
     if (!window._lessonsTrailDocHandlerBound) {
@@ -126,8 +149,21 @@
             if (e.target.closest('button, a, input, textarea, select')) return;
             const card = e.target.closest('.lp-card[data-lesson-key]');
             if (!card) return;
-            openLessonBySlug(card.dataset.lessonKey, card);
-        }, true); // capture phase pra rodar antes de qualquer outro handler
+
+            const slug = card.dataset.lessonKey;
+            showDebugToast(`click capturado · ${slug}`, '#3A5E47');
+            console.log('[lessons-trail] click ✔', slug);
+            openLessonBySlug(slug, card);
+
+            setTimeout(() => {
+                const modal = document.getElementById('lessonContent');
+                if (modal && modal.classList.contains('active')) {
+                    showDebugToast(`modal aberto · ${slug}`, '#3A5E47');
+                } else {
+                    showDebugToast(`modal NÃO abriu · ${slug}`, '#C9716C');
+                }
+            }, 200);
+        }, true);
 
         document.addEventListener('keydown', function(e) {
             if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -136,6 +172,8 @@
             e.preventDefault();
             openLessonBySlug(card.dataset.lessonKey, card);
         });
+
+        console.log('[lessons-trail] document click handler bound');
     }
 
     function injectTrail() {
