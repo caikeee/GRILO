@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Teste API — GRILO</title>
+  <style>
+    body { font-family: system-ui; max-width: 800px; margin: 40px auto; padding: 20px; }
+    .test { margin: 20px 0; padding: 16px; border: 1px solid #ccc; border-radius: 8px; }
+    .test h3 { margin-top: 0; }
+    .result { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-family: monospace; }
+    .success { background: #e8f5e9; color: #2e7d32; }
+    .error { background: #ffebee; color: #c62828; }
+    button { padding: 10px 16px; background: #4a7c5e; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #2d5c41; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Teste de API e URLs</h1>
+
+  <div class="test">
+    <h3>1. Verificar environment</h3>
+    <p>Origem atual: <strong id="origin"></strong></p>
+    <p>Token salvo: <strong id="token-status"></strong></p>
+    <div class="result" id="env-result"></div>
+  </div>
+
+  <div class="test">
+    <h3>2. Testar URL relativa para /api/lessons/all</h3>
+    <button onclick="testApiRelative()">Testar URL relativa</button>
+    <div class="result" id="relative-result"></div>
+  </div>
+
+  <div class="test">
+    <h3>3. Testar URL absoluta (window.location.origin)</h3>
+    <button onclick="testApiAbsolute()">Testar URL absoluta</button>
+    <div class="result" id="absolute-result"></div>
+  </div>
+
+  <div class="test">
+    <h3>4. Testar página-view com autenticação</h3>
+    <button onclick="testPageView()">Testar page-view</button>
+    <div class="result" id="pageview-result"></div>
+  </div>
+
+  <script>
+    // Setup
+    document.getElementById('origin').textContent = window.location.origin;
+    const token = localStorage.getItem('grilo_token');
+    document.getElementById('token-status').textContent = token ? '✓ Encontrado' : '✗ Não encontrado';
+
+    function log(elementId, message, isError = false) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.classList.remove('success', 'error');
+      el.classList.add(isError ? 'error' : 'success');
+    }
+
+    async function testApiRelative() {
+      const result = document.getElementById('relative-result');
+      result.textContent = 'Enviando...';
+      try {
+        const response = await fetch('/api/lessons/all', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          log('relative-result', `✓ Sucesso! Status: ${response.status}\nAulas: ${data.total || 'N/A'}`, false);
+        } else {
+          log('relative-result', `✗ Erro HTTP ${response.status}\n${await response.text()}`, true);
+        }
+      } catch (err) {
+        log('relative-result', `✗ Erro: ${err.message}`, true);
+      }
+    }
+
+    async function testApiAbsolute() {
+      const result = document.getElementById('absolute-result');
+      result.textContent = 'Enviando...';
+      const url = window.location.origin + '/api/lessons/all';
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          log('absolute-result', `✓ Sucesso! Status: ${response.status}\nAulas: ${data.total || 'N/A'}`, false);
+        } else {
+          log('absolute-result', `✗ Erro HTTP ${response.status}\n${await response.text()}`, true);
+        }
+      } catch (err) {
+        log('absolute-result', `✗ Erro: ${err.message}`, true);
+      }
+    }
+
+    async function testPageView() {
+      const result = document.getElementById('pageview-result');
+      result.textContent = 'Enviando...';
+      try {
+        const response = await fetch('/api/lessons/page-view', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ source: 'test_api' })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          log('pageview-result', `✓ Sucesso! Status: ${response.status}`, false);
+        } else {
+          log('pageview-result', `✗ Erro HTTP ${response.status}\n${await response.text()}`, true);
+        }
+      } catch (err) {
+        log('pageview-result', `✗ Erro: ${err.message}`, true);
+      }
+    }
+
+    // Run initial env check
+    document.getElementById('env-result').textContent =
+      `Origin: ${window.location.origin}\n` +
+      `Protocol: ${window.location.protocol}\n` +
+      `Hostname: ${window.location.hostname}\n` +
+      `API base (relativa): /api/...`;
+  </script>
+</body>
+</html>

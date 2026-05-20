@@ -7,6 +7,8 @@
 (function() {
   'use strict';
 
+  console.log('[LESSONS-ENHANCED] Script iniciando...');
+
   const UI_ICONS = {
     spark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"></path></svg>',
     tip: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a7 7 0 0 0-4 12.7c.6.4 1 1 1.2 1.8h5.6c.2-.8.6-1.4 1.2-1.8A7 7 0 0 0 12 3z"></path></svg>',
@@ -3146,6 +3148,9 @@
   const exerciseScores = {};
   const API_BASE_URL = '';  // Use relative URLs (/api/...) instead of absolute origin
 
+  // Debug: log the API URL being used
+  console.log('[LESSONS] API_BASE_URL:', API_BASE_URL, 'window.location.origin:', window.location.origin);
+
   // ─── Utilitários de infraestrutura ──────────────────────────
 
   function safeLocalStorage(key, value) {
@@ -3748,7 +3753,12 @@
 
   function showLessonContent(slug, triggerEl) {
     const lesson = lessons[slug];
-    if (!lesson) return;
+    if (!lesson) {
+      console.error('[LESSONS] Aula não encontrada:', slug);
+      return;
+    }
+
+    console.log('[LESSONS] Abrindo aula:', slug, lesson.title);
 
     // Rastreia a aula aberta para o botão "Treinar 5 frases"
     window._currentLessonSlug = slug;
@@ -3760,7 +3770,10 @@
     const aside = document.getElementById('lessonModalAside');
     const main  = document.getElementById('lessonModalMain');
     const crumb = document.getElementById('lessonModalCrumb');
-    if (!modal) return;
+    if (!modal) {
+      console.error('[LESSONS] Modal não encontrado no DOM');
+      return;
+    }
 
     updateLessonModalMotion(triggerEl);
     window.clearTimeout(lessonModalCloseTimer);
@@ -4105,4 +4118,6 @@
   window.closeLessonModal = closeLessonModal;
   window.showLessonContent = showLessonContent;
   window.toggleLessonAside = toggleLessonAside;
+
+  console.log('[LESSONS-ENHANCED] Script carregado. window._griloOpenLesson disponível:', typeof window._griloOpenLesson === 'function');
 })();
