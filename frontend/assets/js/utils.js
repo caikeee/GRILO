@@ -11,14 +11,14 @@
  * ===================================
  * 
  * Automatically detects and returns the correct API base URL:
- * - In production (Railway/Heroku): Uses window.location.origin (e.g., https://app.railway.app)
+ * - In production (Railway/Heroku): Uses relative URLs for proper proxy compatibility
  * - In development on localhost: Uses http://127.0.0.1:8000
  * - In development on different ports: Uses relative paths (/api/...)
  */
 function getApiBaseUrl() {
-  // Backend serves the frontend on the same origin (FastAPI StaticFiles).
-  // Using window.location.origin avoids CORS issues between localhost/127.0.0.1.
-  return window.location.origin;
+  // Use relative paths to work correctly on Railway and other deployments.
+  // When API_BASE_URL is empty string, fetch("/api/...") uses the current origin.
+  return '';
 }
 
 // Global API base URL - use this for all API calls

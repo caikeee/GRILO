@@ -3,7 +3,7 @@
  * Redesign sage light-mode
  */
 
-const API_BASE = window.location.origin;
+const API_BASE = '';  // Use relative URLs for proper Railway/proxy compatibility
 const REFRESH_MS = 60 * 1000; // 60s — evita hammering
 let charts = {};
 let inFlight = false;

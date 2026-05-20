@@ -12,7 +12,7 @@
 (function () {
   'use strict';
 
-  const API_BASE_URL = window.location.origin;
+  const API_BASE_URL = '';  // Use relative URLs for proper Railway/proxy compatibility
 
   // CONFIG centralizado — override via window.GriloVR.PVT_CONFIG se necessário
   const CONFIG = {

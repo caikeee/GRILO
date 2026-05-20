@@ -3144,7 +3144,7 @@
   const PROGRESS_KEY = 'grilo_lesson_progress';
   const LESSON_KEYS  = Object.keys(lessons);
   const exerciseScores = {};
-  const API_BASE_URL = window.location.origin;
+  const API_BASE_URL = '';  // Use relative URLs (/api/...) instead of absolute origin
 
   // ─── Utilitários de infraestrutura ──────────────────────────
 

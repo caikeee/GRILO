@@ -291,6 +291,12 @@
     background 280ms ease;
 }
 
+.lp-modal.is-aside-collapsed .lp-modal-main {
+  padding: 36px 80px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .lp-modal-main::-webkit-scrollbar {
   width: 6px;
 }

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Teste Layout Modal — GRILO</title>
+  <link rel="stylesheet" href="assets/css/sage-color-system.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/sage-overrides.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/lessons.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/sage-premium-polish.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/lessons-v4-overlay.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/lesson-editorial-v4.css?v=20260517">
+  <link rel="stylesheet" href="assets/css/modal-ux-enhancement.css?v=20260517">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f4f7f5;
+    }
+    .test-container {
+      max-width: 100%;
+      margin-bottom: 40px;
+    }
+    .test-label {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #172a20;
+    }
+    .modal-frame {
+      border: 2px dashed #4a7c5e;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 600px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teste de Layout do Modal</h1>
+
+  <div class="test-container">
+    <div class="test-label">Com painel visível (antes)</div>
+    <div class="modal-frame">
+      <section id="testModal1" class="lp-modal active">
+        <div class="lp-modal-shell">
+          <div class="lp-modal-topbar">
+            <div class="lp-modal-crumb">
+              <span>Módulo A1</span>
+              <span class="lp-modal-crumb-sep">›</span>
+              <span>Aula 1</span>
+            </div>
+            <div class="lp-modal-actions">
+              <button class="lp-modal-aside-toggle" type="button">Ocultar painel</button>
+              <button class="lp-modal-close" type="button">Fechar</button>
+            </div>
+          </div>
+          <div class="lp-modal-body">
+            <aside class="lp-modal-aside">
+              <h3>Painel Lateral</h3>
+              <p>Conteúdo do painel aqui</p>
+              <p>Lorem ipsum dolor sit amet...</p>
+            </aside>
+            <div class="lp-modal-main">
+              <h2>Conteúdo Principal</h2>
+              <p>Este é o conteúdo principal da aula.</p>
+              <p>Note como o espaço é distribuído com o painel visível. O painel ocupa 300px (ou menos em telas menores) e o conteúdo principal usa o espaço restante.</p>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="test-container">
+    <div class="test-label">Com painel colapsado (depois da melhoria)</div>
+    <div class="modal-frame">
+      <section id="testModal2" class="lp-modal active is-aside-collapsed">
+        <div class="lp-modal-shell">
+          <div class="lp-modal-topbar">
+            <div class="lp-modal-crumb">
+              <span>Módulo A1</span>
+              <span class="lp-modal-crumb-sep">›</span>
+              <span>Aula 1</span>
+            </div>
+            <div class="lp-modal-actions">
+              <button class="lp-modal-aside-toggle is-collapsed" type="button">Mostrar painel</button>
+              <button class="lp-modal-close" type="button">Fechar</button>
+            </div>
+          </div>
+          <div class="lp-modal-body">
+            <aside class="lp-modal-aside" style="display: none;">
+              <h3>Painel Lateral</h3>
+              <p>Este painel está oculto</p>
+            </aside>
+            <div class="lp-modal-main">
+              <h2>Conteúdo Principal - Painel Colapsado</h2>
+              <p>Agora com o painel colapsado, o conteúdo aproveita melhor o espaço horizontal.</p>
+              <p>Note como o padding lateral foi aumentado (de 48px para 80px) e há um max-width de 1400px centralizado. Isso evita que o texto fique muito largão e aproveita as bordas laterais de forma mais equilibrada.</p>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+              <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.lp-modal-aside-toggle').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const modal = this.closest('.lp-modal');
+        const isCollapsed = modal.classList.toggle('is-aside-collapsed');
+        this.classList.toggle('is-collapsed');
+        this.textContent = isCollapsed ? 'Mostrar painel' : 'Ocultar painel';
+        modal.querySelector('.lp-modal-aside').style.display = isCollapsed ? 'none' : 'block';
+      });
+    });
+  </script>
+</body>
+</html>
