@@ -78,6 +78,18 @@
         return true;
     }
 
+    function closeModal() {
+        const modal = document.getElementById('lessonContent');
+        if (!modal) return;
+        modal.classList.add('is-closing');
+        modal.classList.remove('active');
+        setTimeout(function() {
+            modal.setAttribute('hidden', '');
+            modal.classList.remove('is-closing');
+        }, 250);
+        document.body.style.overflow = '';
+    }
+
     // ============================================================
     // RENDERER STANDALONE — popula o modal mesmo se o lessons-enhanced falhar
     // ============================================================
@@ -365,5 +377,8 @@
         updateBanner();
         setTimeout(observeAndInject, 200);
     });
+
+    // Expõe funções globalmente
+    window._lv4CloseModal = closeModal;
 
 })();
