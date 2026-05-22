@@ -1424,29 +1424,44 @@
     window._applyEditorialLayout = applyEditorialIfAvailable;
 
     function installHook() {
-        const original = window._griloOpenLesson;
-        if (typeof original !== 'function') {
-            setTimeout(installHook, 200);
-            return;
+        // Tenta wrappear showLessonContent (função que popula o modal)
+        if (typeof window.showLessonContent === 'function' && !window.showLessonContent._editorialHookInstalled) {
+            const originalShow = window.showLessonContent;
+            window.showLessonContent = function(slug, triggerEl) {
+                originalShow(slug, triggerEl);
+                requestAnimationFrame(() => applyEditorialIfAvailable(slug));
+            };
+            window.showLessonContent._editorialHookInstalled = true;
+            console.log('[editorial-renderer] hook instalado · layouts:', Object.keys(LAYOUTS).length);
+            return true;
         }
-        if (original._editorialHookInstalled) return;
 
-        window._griloOpenLesson = function(slug, triggerEl) {
-            original(slug, triggerEl);
-            requestAnimationFrame(() => applyEditorialIfAvailable(slug));
-        };
-        window._griloOpenLesson._editorialHookInstalled = true;
+        // Fallback: tenta wrappear _griloOpenLesson se showLessonContent não existir ainda
+        if (typeof window._griloOpenLesson === 'function' && !window._griloOpenLesson._editorialHookInstalled) {
+            const original = window._griloOpenLesson;
+            window._griloOpenLesson = function(slug, triggerEl) {
+                original(slug, triggerEl);
+                requestAnimationFrame(() => applyEditorialIfAvailable(slug));
+            };
+            window._griloOpenLesson._editorialHookInstalled = true;
+            console.log('[editorial-renderer] hook instalado (via _griloOpenLesson) · layouts:', Object.keys(LAYOUTS).length);
+            return true;
+        }
 
-        console.log('[editorial-renderer] hook instalado · layouts:', Object.keys(LAYOUTS).length);
+        return false;
     }
 
-    // Tenta instalar o hook imediatamente (se o DOM já está pronto)
-    // e também aguarda DOMContentLoaded como fallback
+    // Tenta instalar imediatamente e periodicamente até conseguir
+    const tryInstall = setInterval(() => {
+        if (installHook()) {
+            clearInterval(tryInstall);
+        }
+    }, 200);
+
+    // Também aguarda DOMContentLoaded como fallback adicional
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(installHook, 300);
+            installHook();
         });
-    } else {
-        setTimeout(installHook, 100);
     }
 })();
