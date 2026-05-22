@@ -3624,6 +3624,86 @@
 
   // ========== RENDER LESSONS CARDS ==========
 
+  // Estrutura de módulos da trilha A1
+  const TRAIL_MODULES = [
+    { num: '01', title: 'Primeiros passos',              meta: '4 aulas · base inicial',    slugs: ['soa1-alfabeto','soa1-numeros','soa1-cumprimentos','soa1-tobe-afirm'] },
+    { num: '02', title: 'Falar sobre você e os outros',  meta: '5 aulas · identidade',       slugs: ['soa2-pronomes-sujeito','pronomes','soa2-tobe-perg-neg','soa2-possessivos','soa2-this-that'] },
+    { num: '03', title: 'Ações do dia a dia',            meta: '5 aulas · present simple',   slugs: ['soa3-present-afirm','soa3-third-person-s','perguntas','negativa','soa3-frequencia'] },
+    { num: '04', title: 'Onde, quando, como',            meta: '4 aulas · contexto',         slugs: ['soa4-wh-questions','preposicoes','soa4-prep-tempo','soa4-rotina'] },
+    { num: '05', title: 'Falar sobre ontem',             meta: '4 aulas · past simple',      slugs: ['soa5-past-regular','passado','soa5-past-perguntas','soa5-past-negativa'] },
+    { num: '06', title: 'Querer, poder, gostar',         meta: '4 aulas · expressão',        slugs: ['soa6-can','soa6-like-ing','verbos','soa6-want-to'] },
+  ];
+
+  function buildCard(key, globalNum, status, phraseStat) {
+    const lesson = lessons[key];
+    if (!lesson) return null;
+
+    const num = String(globalNum).padStart(2, '0');
+    const sectionCount = (lesson.sections || []).length;
+    const progressPct = status.completed ? 100 : status.visited ? 42 : 0;
+    const objectivePreview = lesson.objective.length > 84
+      ? lesson.objective.substring(0, 84) + '…'
+      : lesson.objective;
+
+    const PHRASE_TARGET = 100;
+    const phraseDom = phraseStat.dominated || 0;
+    const isDominated = phraseStat.dominated_at != null || phraseDom >= PHRASE_TARGET;
+    const phrasePct = Math.min(100, Math.round((phraseDom / PHRASE_TARGET) * 100));
+
+    let statusBadge = '';
+    if (isDominated)       statusBadge = `<span class="lp-card-status lp-card-status--dominated">★ Dominada</span>`;
+    else if (status.completed) statusBadge = `<span class="lp-card-status lp-card-status--completed">✓ Aprendida</span>`;
+    else if (status.visited)   statusBadge = `<span class="lp-card-status lp-card-status--visited">Em progresso</span>`;
+    else                       statusBadge = `<span class="lp-card-status lp-card-status--new">Nova</span>`;
+
+    const phrasePill = phraseStat.total > 0
+      ? `<span class="lp-card-phrase-pill ${isDominated ? 'is-full' : ''}" title="Frases dominadas">🎙 ${phraseDom}/${PHRASE_TARGET}</span>`
+      : '';
+
+    const highlightPreview = lesson.highlight
+      ? `<div class="lp-card-tag"><span class="lp-card-tag-quote" aria-hidden="true">"</span>${lesson.highlight}</div>`
+      : '';
+
+    const phraseBarHTML = phraseStat.total > 0
+      ? `<span class="lp-card-progress-label">${phraseDom}/${PHRASE_TARGET} frases</span>
+         <span class="lp-card-progress"><span class="lp-card-progress-fill ${isDominated ? 'is-full' : ''}" style="width:${phrasePct}%"></span></span>`
+      : `<span class="lp-card-progress-label">${progressPct > 0 ? Math.round(progressPct) + '%' : 'Iniciar'}</span>
+         <span class="lp-card-progress"><span class="lp-card-progress-fill" style="width:${progressPct}%"></span></span>`;
+
+    const card = document.createElement('div');
+    card.className = 'lp-card' + (isDominated ? ' is-dominated' : status.completed ? ' is-learned is-completed' : '');
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `Abrir aula: ${lesson.title}`);
+    card.setAttribute('data-lesson-key', key);
+    card.innerHTML = `
+      <div class="lp-card-top">
+        <div class="lp-card-top-left">
+          <span class="lp-card-icon">${renderLessonIcon(lesson.icon)}</span>
+          <div>
+            <span class="lp-card-kicker">Aula ${num}</span>
+            <div class="lp-card-title">${lesson.title}</div>
+          </div>
+        </div>
+        <span class="lp-card-num">${num}</span>
+      </div>
+      <div class="lp-card-body">
+        <div class="lp-card-desc">${objectivePreview}</div>
+        ${highlightPreview}
+      </div>
+      <div class="lp-card-footer">
+        <div class="lp-card-meta">
+          ${statusBadge}
+          ${phrasePill}
+          <span class="lp-card-chip">${sectionCount} seções</span>
+        </div>
+        <div class="lp-card-progress-wrap">${phraseBarHTML}</div>
+        <span class="lp-card-cta" aria-hidden="true">→</span>
+      </div>
+    `;
+    return card;
+  }
+
   function renderLessonsCards() {
     const container = document.getElementById('lessonsCardsContainer');
     if (!container) return;
@@ -3631,113 +3711,43 @@
     const progress = getProgress();
     container.innerHTML = '';
 
-    LESSON_KEYS.forEach((key, index) => {
-      const lesson  = lessons[key];
-      const num     = String(index + 1).padStart(2, '0');
-      const status  = progress[key] || {};
-      const sectionCount = (lesson.sections || []).length;
-      const progressPct = status.completed ? 100 : status.visited ? 42 : 0;
-      const ctaText = status.completed ? 'Revisar aula' : status.visited ? 'Continuar aula' : 'Começar agora';
-      const objectivePreview = lesson.objective.length > 84
-        ? `${lesson.objective.substring(0, 84)}…`
-        : lesson.objective;
-      const card = document.createElement('div');
-      card.className = 'lp-card' + (status.completed ? ' is-completed' : '');
-      card.style.setProperty('--card-delay', `${index * 82}ms`);
-      card.style.setProperty('--card-tilt', `${index % 2 === 0 ? '-1.2deg' : '1.2deg'}`);
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', `Iniciar lição: ${lesson.title}`);
-
-      // ── Progresso de frases dominadas (alvo: 100) ──
-      const backendId = STANDALONE_BACKEND_IDS[key];
-      const phraseStat = (backendId && phraseProgressMap[backendId]) || { dominated: 0, total: 0, dominated_at: null };
-      const PHRASE_TARGET = 100;
-      const phraseDom = phraseStat.dominated;
-      const isDominated = phraseStat.dominated_at != null || phraseDom >= PHRASE_TARGET;
-      const phrasePct = Math.min(100, Math.round((phraseDom / PHRASE_TARGET) * 100));
-
-      let statusBadge = '';
-      if (isDominated) {
-        statusBadge = `<span class="lp-card-status lp-card-status--dominated">★ Dominada</span>`;
-      } else if (status.completed) {
-        statusBadge = `<span class="lp-card-status lp-card-status--completed">✓ Aprendida</span>`;
-      } else if (status.visited) {
-        statusBadge = `<span class="lp-card-status lp-card-status--visited">Em progresso</span>`;
-      } else {
-        statusBadge = `<span class="lp-card-status lp-card-status--new">Nova</span>`;
-      }
-
-      if (isDominated) card.classList.add('is-dominated');
-      else if (status.completed) card.classList.add('is-learned');
-
-      // Pill de frases dominadas (visível quando há banco populado)
-      const phrasePill = (phraseStat.total > 0)
-        ? `<span class="lp-card-phrase-pill ${isDominated ? 'is-full' : ''}" title="Frases dominadas no exercício de voz">
-             🎙 ${phraseDom}/${PHRASE_TARGET}
-           </span>`
-        : '';
-
-      const highlightPreview = lesson.highlight
-        ? `<div class="lp-card-tag"><span class="lp-card-tag-quote" aria-hidden="true">"</span>${lesson.highlight}</div>`
-        : '';
-
-      // Barra de progresso: prioriza frases quando há banco; caso contrário, % de seções
-      const phraseBarHTML = (phraseStat.total > 0)
-        ? `<span class="lp-card-progress-label">${phraseDom}/${PHRASE_TARGET} frases</span>
-           <span class="lp-card-progress"><span class="lp-card-progress-fill ${isDominated ? 'is-full' : ''}" style="width:${phrasePct}%"></span></span>`
-        : `<span class="lp-card-progress-label">${progressPct > 0 ? Math.round(progressPct) + '%' : 'Iniciar'}</span>
-           <span class="lp-card-progress"><span class="lp-card-progress-fill" style="width:${progressPct}%"></span></span>`;
-
-      card.innerHTML = `
-        <div class="lp-card-top">
-          <div class="lp-card-top-left">
-            <span class="lp-card-icon">${renderLessonIcon(lesson.icon)}</span>
-            <div>
-              <span class="lp-card-kicker">Aula ${num}</span>
-              <div class="lp-card-title">${lesson.title}</div>
-            </div>
-          </div>
-          <span class="lp-card-num">${num}</span>
-        </div>
-        <div class="lp-card-body">
-          <div class="lp-card-desc">${objectivePreview}</div>
-          ${highlightPreview}
-        </div>
-        <div class="lp-card-footer">
-          <div class="lp-card-meta">
-            ${statusBadge}
-            ${phrasePill}
-            <span class="lp-card-chip">${sectionCount} seções</span>
-          </div>
-          <div class="lp-card-progress-wrap">
-            ${phraseBarHTML}
-          </div>
-          <span class="lp-card-cta" aria-hidden="true">→</span>
-        </div>
+    let globalNum = 1;
+    TRAIL_MODULES.forEach(mod => {
+      // Cabeçalho do módulo
+      const head = document.createElement('div');
+      head.className = 'lv4-module-head';
+      head.innerHTML = `
+        <div class="lv4-module-num">${mod.num}</div>
+        <h2 class="lv4-module-title">${mod.title}</h2>
+        <div class="lv4-module-line" aria-hidden="true"></div>
+        <span class="lv4-module-meta">${mod.meta}</span>
       `;
+      container.appendChild(head);
 
-      card.setAttribute('data-lesson-key', key);
-      container.appendChild(card);
+      // Cards do módulo
+      mod.slugs.forEach(key => {
+        if (!lessons[key]) { globalNum++; return; }
+        const backendId = STANDALONE_BACKEND_IDS[key];
+        const phraseStat = (backendId && phraseProgressMap[backendId]) || { dominated: 0, total: 0, dominated_at: null };
+        const card = buildCard(key, globalNum, progress[key] || {}, phraseStat);
+        if (card) container.appendChild(card);
+        globalNum++;
+      });
     });
   }
 
-  // Event delegation: 1 listener no container em vez de N listeners por card
   function initCardsEventDelegation() {
-    if (window._griloCardsDelegated) return;
-    window._griloCardsDelegated = true;
-
-    // Listener no document para sobreviver a qualquer reconstrução de DOM
+    // Único listener, no document, sem flags — simples e robusto
     document.addEventListener('click', (e) => {
       if (e.target.closest('button, a, input, textarea, select')) return;
-      const card = e.target.closest('.lp-card[data-lesson-key]');
+      const card = e.target.closest('[data-lesson-key]');
       if (!card) return;
       showLessonContent(card.dataset.lessonKey, card);
     });
 
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
-      const card = e.target.closest('.lp-card[data-lesson-key]');
+      const card = e.target.closest('[data-lesson-key]');
       if (!card) return;
       e.preventDefault();
       showLessonContent(card.dataset.lessonKey, card);
