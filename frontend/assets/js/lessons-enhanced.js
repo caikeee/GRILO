@@ -586,6 +586,24 @@
           id: 'alfabeto-nomes',
           title: 'Os nomes das letras: como soletrar em inglês',
           explanation: 'No inglês, soletrar é uma habilidade do dia a dia — você vai ouvir muito "Can you spell that?" Cada letra tem um nome próprio que não corresponde ao som do português. A vogal "A" se chama "ei". O "E" se chama "i". O "I" se chama "ai". O "Y" se chama "uai". As consoantes mais traiçoeiras: G se chama "dji", H se chama "eitch", J se chama "djei", W se chama "double-iu". Acostumar com isso destrava telefones, e-mails e nomes próprios.',
+          soundboard: {
+            title: '🔊 As 26 letras — clique para ouvir',
+            items: [
+              { word: 'A', pron: 'ei', speech: 'A' }, { word: 'B', pron: 'bi', speech: 'B' },
+              { word: 'C', pron: 'si', speech: 'C' }, { word: 'D', pron: 'di', speech: 'D' },
+              { word: 'E', pron: 'i', speech: 'E' }, { word: 'F', pron: 'ef', speech: 'F' },
+              { word: 'G', pron: 'dji', speech: 'G' }, { word: 'H', pron: 'eitch', speech: 'H' },
+              { word: 'I', pron: 'ai', speech: 'I' }, { word: 'J', pron: 'djei', speech: 'J' },
+              { word: 'K', pron: 'kei', speech: 'K' }, { word: 'L', pron: 'el', speech: 'L' },
+              { word: 'M', pron: 'em', speech: 'M' }, { word: 'N', pron: 'en', speech: 'N' },
+              { word: 'O', pron: 'ou', speech: 'O' }, { word: 'P', pron: 'pi', speech: 'P' },
+              { word: 'Q', pron: 'kiu', speech: 'Q' }, { word: 'R', pron: 'ar', speech: 'R' },
+              { word: 'S', pron: 'es', speech: 'S' }, { word: 'T', pron: 'ti', speech: 'T' },
+              { word: 'U', pron: 'iu', speech: 'U' }, { word: 'V', pron: 'vi', speech: 'V' },
+              { word: 'W', pron: 'double-iu', speech: 'W' }, { word: 'X', pron: 'eks', speech: 'X' },
+              { word: 'Y', pron: 'uái', speech: 'Y' }, { word: 'Z', pron: 'zi', speech: 'Z' }
+            ]
+          },
           examples: [
             { en: 'My name is Lucas. L-U-C-A-S.', pt: 'Meu nome é Lucas. Élle-U-Ci-A-Éss (em inglês: "él-iu-ssi-ei-éss").' },
             { en: 'How do you spell that?', pt: 'Como se soletra isso?' },
@@ -605,6 +623,21 @@
           id: 'sons-dificeis',
           title: 'TH, R e vogais que mudam tudo',
           explanation: 'Três pontos que travam o brasileiro: (1) o TH é a língua entre os dentes — "think" não é "tchink" nem "fink", é o som de sopro com a língua aparecendo. (2) O R do inglês americano é retroflexo: a língua se curva pra trás sem encostar em nada. (3) Vogais curtas vs longas mudam o sentido: "ship" (navio) vs "sheep" (ovelha), "live" (viver) vs "leave" (partir). Treine devagar e o ouvido vai pegar.',
+          soundboard: {
+            title: '🔊 Pares que destravam o ouvido — compare e treine',
+            items: [
+              { word: 'think', pron: 'th-ink', speech: 'think' },
+              { word: 'sink', pron: 's-ink', speech: 'sink' },
+              { word: 'three', pron: 'th-ri', speech: 'three' },
+              { word: 'tree', pron: 't-ri', speech: 'tree' },
+              { word: 'ship', pron: 'i curto', speech: 'ship' },
+              { word: 'sheep', pron: 'ii longo', speech: 'sheep' },
+              { word: 'live', pron: 'i curto', speech: 'live' },
+              { word: 'leave', pron: 'ii longo', speech: 'leave' },
+              { word: 'red', pron: 'r retroflexo', speech: 'red' },
+              { word: 'right', pron: 'r retroflexo', speech: 'right' }
+            ]
+          },
           examples: [
             { en: 'I think this is right.', pt: 'Eu acho que isso está certo.' },
             { en: 'Three brothers.', pt: 'Três irmãos. (TH duas vezes)' },
@@ -644,6 +677,21 @@
           id: 'numeros-base',
           title: 'Contagem de 0 a 100 — e os traiçoeiros',
           explanation: 'De 1 a 12 cada número tem nome próprio. De 13 a 19, todos terminam em -teen (thirteen, fourteen...). De 20 a 90, todos terminam em -ty (twenty, thirty...). O cuidado: a sílaba forte muda. "Thirteen" tem ênfase no "TEEN" (tcher-TIIN). "Thirty" tem ênfase no "thir" (THER-ti). Confundir 13 com 30 num restaurante muda a conta.',
+          soundboard: {
+            title: '🔊 Números 1 a 20 — clique e treine',
+            items: [
+              { word: '1', pron: 'one', speech: 'one' }, { word: '2', pron: 'two', speech: 'two' },
+              { word: '3', pron: 'three', speech: 'three' }, { word: '4', pron: 'four', speech: 'four' },
+              { word: '5', pron: 'five', speech: 'five' }, { word: '6', pron: 'six', speech: 'six' },
+              { word: '7', pron: 'seven', speech: 'seven' }, { word: '8', pron: 'eight', speech: 'eight' },
+              { word: '9', pron: 'nine', speech: 'nine' }, { word: '10', pron: 'ten', speech: 'ten' },
+              { word: '11', pron: 'eleven', speech: 'eleven' }, { word: '12', pron: 'twelve', speech: 'twelve' },
+              { word: '13', pron: 'thirTEEN', speech: 'thirteen' }, { word: '30', pron: 'THIRty', speech: 'thirty' },
+              { word: '14', pron: 'fourTEEN', speech: 'fourteen' }, { word: '40', pron: 'FORty', speech: 'forty' },
+              { word: '15', pron: 'fifTEEN', speech: 'fifteen' }, { word: '50', pron: 'FIFty', speech: 'fifty' },
+              { word: '20', pron: 'twenty', speech: 'twenty' }, { word: '100', pron: 'hundred', speech: 'one hundred' }
+            ]
+          },
           examples: [
             { en: 'I am thirty years old.', pt: 'Eu tenho trinta anos.' },
             { en: 'She is thirteen.', pt: 'Ela tem treze.' },
@@ -663,6 +711,19 @@
           id: 'horas-datas',
           title: 'Que horas são? Que dia é?',
           explanation: 'Para horas, o inglês usa "It\'s" + número. "It\'s five o\'clock" (5h em ponto). Meia hora vira "half past": "half past three" = 3:30. Quinze depois vira "quarter past": "quarter past two" = 2:15. Quinze antes vira "quarter to": "quarter to four" = 3:45. Datas: nos EUA escrevem month/day/year (May 17, 2026). Em qualquer lugar, falando, é comum dizer "the seventeenth of May" (dia 17 de maio) — note o "th" no número ordinal.',
+          soundboard: {
+            title: '🔊 Estruturas de horas e datas — ouça e absorva o ritmo',
+            items: [
+              { word: 'five o\'clock', pron: '5h em ponto', speech: 'five o clock' },
+              { word: 'half past three', pron: '3:30', speech: 'half past three' },
+              { word: 'quarter past two', pron: '2:15', speech: 'quarter past two' },
+              { word: 'quarter to four', pron: '3:45', speech: 'quarter to four' },
+              { word: 'noon', pron: 'meio-dia', speech: 'noon' },
+              { word: 'midnight', pron: 'meia-noite', speech: 'midnight' },
+              { word: 'May fifth', pron: '5 de maio', speech: 'May fifth' },
+              { word: 'the tenth', pron: 'o dia 10', speech: 'the tenth' }
+            ]
+          },
           examples: [
             { en: 'What time is it?', pt: 'Que horas são?' },
             { en: 'It\'s half past three.', pt: 'São três e meia.' },
@@ -702,6 +763,19 @@
           id: 'abertura',
           title: 'Como abrir conversa',
           explanation: 'Hi é o cumprimento padrão, vale pra todo mundo. Hello é um pouco mais formal — você usa no telefone ou com alguém mais distante. Hey é informal, entre amigos ou colegas. Depois vem o "how are you?" — que na prática não é uma pergunta real, é só protocolo. Responda com "Good, thanks. And you?" e a conversa segue. Travar nessa parte é o erro mais comum: o nativo não quer um relatório, quer só o ping-pong social.',
+          soundboard: {
+            title: '🔊 Cumprimentos e respostas — ouça o tom natural',
+            items: [
+              { word: 'Hi', pron: 'cumprimento padrão', speech: 'Hi' },
+              { word: 'Hello', pron: 'formal / telefone', speech: 'Hello' },
+              { word: 'Hey', pron: 'amigos / colegas', speech: 'Hey' },
+              { word: 'How are you?', pron: 'protocolo social', speech: 'How are you?' },
+              { word: 'I\'m good, thanks', pron: 'resposta padrão', speech: 'I am good, thanks' },
+              { word: 'And you?', pron: 'devolva a pergunta', speech: 'And you?' },
+              { word: 'Not bad', pron: 'casual', speech: 'Not bad' },
+              { word: 'How\'s it going?', pron: 'informal', speech: 'How is it going?' }
+            ]
+          },
           examples: [
             { en: 'Hi, how are you?', pt: 'Oi, tudo bem?' },
             { en: 'Hello, nice to meet you.', pt: 'Olá, prazer em conhecer você.' },
@@ -760,6 +834,19 @@
           id: 'am-is-are',
           title: 'A regra das três formas',
           explanation: 'O TO BE muda de cara conforme quem fala: I am (eu sou/estou), you are (você é/está), he/she/it is (ele/ela é/está), we are (nós somos), they are (eles são). Não tem outra forma — é só decorar e usar. Na fala, ninguém diz "I am" — vira "I\'m". "He is" vira "he\'s". "We are" vira "we\'re". Soltar as contrações faz a diferença entre soar livro de escola e soar humano.',
+          table: {
+            title: 'Conjugação do TO BE no presente',
+            headers: ['Sujeito', 'Forma', 'Contração', 'Exemplo'],
+            rows: [
+              { cells: ['I', 'am', "I'm", "I'm Brazilian."], speak: "I am Brazilian" },
+              { cells: ['You', 'are', "You're", "You're tired."], speak: "You are tired" },
+              { cells: ['He', 'is', "He's", "He's at home."], speak: "He is at home" },
+              { cells: ['She', 'is', "She's", "She's my sister."], speak: "She is my sister" },
+              { cells: ['It', 'is', "It's", "It's cold."], speak: "It is cold" },
+              { cells: ['We', 'are', "We're", "We're ready."], speak: "We are ready" },
+              { cells: ['They', 'are', "They're", "They're friends."], speak: "They are friends" }
+            ]
+          },
           examples: [
             { en: 'I am Brazilian.', pt: 'Eu sou brasileiro.' },
             { en: 'I\'m tired.', pt: 'Estou cansado.' },
@@ -918,6 +1005,19 @@
           id: 'lista-uso',
           title: 'Os seis possessivos e como usar',
           explanation: 'Cada pronome sujeito tem seu possessivo correspondente: I → my, you → your, he → his, she → her, it → its, we → our, they → their. Eles SEMPRE vêm antes do objeto possuído. Importante: no inglês, o possessivo concorda com o DONO, não com o objeto. "Her car" — o carro pertence a ela, mesmo que "car" seja singular ou plural. Em português a gente concorda com o objeto ("seu carro" / "seus carros"), em inglês não muda.',
+          table: {
+            title: 'Possessivos (adjetivos) — antes do objeto',
+            headers: ['Pronome', 'Possessivo', 'Exemplo'],
+            rows: [
+              { cells: ['I', 'my', 'my phone'], speak: 'my phone' },
+              { cells: ['You', 'your', 'your idea'], speak: 'your idea' },
+              { cells: ['He', 'his', 'his name'], speak: 'his name' },
+              { cells: ['She', 'her', 'her car'], speak: 'her car' },
+              { cells: ['It', 'its', 'its paw'], speak: 'its paw' },
+              { cells: ['We', 'our', 'our team'], speak: 'our team' },
+              { cells: ['They', 'their', 'their house'], speak: 'their house' }
+            ]
+          },
           examples: [
             { en: 'This is my phone.', pt: 'Esse é meu celular.' },
             { en: 'Your idea is great.', pt: 'Sua ideia é ótima.' },
@@ -957,6 +1057,14 @@
           id: 'quatro-formas',
           title: 'Quatro palavras, duas dimensões',
           explanation: 'O inglês marca duas coisas com esses pronomes: distância (perto vs longe) e quantidade (um vs muitos). This = singular perto. That = singular longe. These = plural perto. Those = plural longe. Funciona tanto pra apontar fisicamente ("this chair, that car") quanto pra referir conceitos ("that idea, these problems"). Pode estar acompanhado do objeto ou aparecer sozinho como pronome.',
+          table: {
+            title: 'A matriz: distância × quantidade',
+            headers: ['', 'Perto ◉', 'Longe ◌'],
+            rows: [
+              { cells: ['Singular', 'this', 'that'], speak: 'this, that' },
+              { cells: ['Plural', 'these', 'those'], speak: 'these, those' }
+            ]
+          },
           examples: [
             { en: 'This is my book.', pt: 'Esse é meu livro.' },
             { en: 'That car is fast.', pt: 'Aquele carro é rápido.' },
@@ -1038,6 +1146,18 @@
           id: 'regra-do-s',
           title: 'A regra do S — sem exceções',
           explanation: 'Quando o sujeito é he, she ou it, o verbo SEMPRE pega um S no final no present simple. "I work" → "He works". "You eat" → "She eats". É a única alteração que o verbo sofre nesse tempo. Sem essa regra, sua frase fica gramaticalmente errada — e é o detalhe mais comum que denuncia o estudante brasileiro. Há pequenas variações na ortografia: study vira studies (y vira ies), watch vira watches (adiciona es).',
+          table: {
+            title: 'Regras ortográficas do -s na terceira pessoa',
+            headers: ['Terminação', 'Regra', 'Verbo base', 'He/She/It'],
+            rows: [
+              { cells: ['Padrão', '+ s', 'work', 'works'], speak: 'works' },
+              { cells: ['-ch / -sh / -ss', '+ es', 'watch', 'watches'], speak: 'watches' },
+              { cells: ['-o', '+ es', 'go', 'goes'], speak: 'goes' },
+              { cells: ['-x', '+ es', 'fix', 'fixes'], speak: 'fixes' },
+              { cells: ['consoante + y', 'y → ies', 'study', 'studies'], speak: 'studies' },
+              { cells: ['irregular', 'have → has', 'have', 'has'], speak: 'has' }
+            ]
+          },
           examples: [
             { en: 'He works at a bank.', pt: 'Ele trabalha em um banco.' },
             { en: 'She lives in Rio.', pt: 'Ela mora no Rio.' },
@@ -1077,6 +1197,18 @@
           id: 'escala',
           title: 'A escala dos advérbios',
           explanation: 'Os principais advérbios de frequência seguem uma escala: always (100% — sempre), usually (80% — geralmente), often (60% — frequentemente), sometimes (40% — às vezes), rarely (10% — raramente), never (0% — nunca). A posição na frase é fixa: ANTES do verbo principal — "I always drink coffee", "She never eats meat". Com TO BE, a posição é depois: "She is always late". "Never" já contém a negação — não combine com "don\'t".',
+          table: {
+            title: 'Escala de frequência',
+            headers: ['Frequência', 'Advérbio', 'Tradução', 'Exemplo'],
+            rows: [
+              { cells: ['100%', 'always', 'sempre', 'I always drink coffee.'], speak: 'I always drink coffee' },
+              { cells: ['80%', 'usually', 'geralmente', 'She usually wakes up at 7.'], speak: 'She usually wakes up at seven' },
+              { cells: ['60%', 'often', 'frequentemente', 'We often go to the beach.'], speak: 'We often go to the beach' },
+              { cells: ['40%', 'sometimes', 'às vezes', 'Sometimes I work late.'], speak: 'Sometimes I work late' },
+              { cells: ['10%', 'rarely', 'raramente', 'They rarely eat fast food.'], speak: 'They rarely eat fast food' },
+              { cells: ['0%', 'never', 'nunca', 'He is never late.'], speak: 'He is never late' }
+            ]
+          },
           examples: [
             { en: 'I always brush my teeth.', pt: 'Eu sempre escovo os dentes.' },
             { en: 'She usually wakes up at 7.', pt: 'Ela geralmente acorda às 7.' },
@@ -1120,6 +1252,18 @@
           id: 'cinco-wh',
           title: 'Cinco palavras, cinco respostas',
           explanation: 'Cada WH puxa um tipo de informação. "What" — coisa/atividade. "Where" — lugar. "Who" — pessoa. "When" — tempo. "How" — modo/jeito. A estrutura é sempre a mesma: WH + auxiliar (do/does/did) + sujeito + verbo. "Where do you live?" — "Onde você mora?". "What does she do?" — "O que ela faz?". Sem o auxiliar a frase soa errada ou esquisita.',
+          table: {
+            title: 'As 6 perguntas WH essenciais',
+            headers: ['WH', 'Sobre', 'Pergunta exemplo'],
+            rows: [
+              { cells: ['What', 'coisa / atividade', 'What is your name?'], speak: 'What is your name?' },
+              { cells: ['Where', 'lugar', 'Where do you work?'], speak: 'Where do you work?' },
+              { cells: ['When', 'tempo', 'When does the bus arrive?'], speak: 'When does the bus arrive?' },
+              { cells: ['Who', 'pessoa', 'Who is that man?'], speak: 'Who is that man?' },
+              { cells: ['Why', 'razão', 'Why are you late?'], speak: 'Why are you late?' },
+              { cells: ['How', 'modo / jeito', 'How do you say this?'], speak: 'How do you say this?' }
+            ]
+          },
           examples: [
             { en: 'What is your name?', pt: 'Qual é o seu nome?' },
             { en: 'Where do you work?', pt: 'Onde você trabalha?' },
@@ -1159,6 +1303,15 @@
           id: 'logica-tempo',
           title: 'A regra dos três níveis',
           explanation: 'Pense assim: AT é o ponto preciso (uma hora exata), ON é a superfície de um dia (um dia inteiro), IN é o recipiente que contém tudo (meses, anos, estações). "Meet me at 6pm" — momento específico. "Meet me on Friday" — em algum momento do dia. "I\'ll visit in July" — em algum dia do mês. Funciona pra ~95% dos casos. As exceções (at night, in the morning) precisam ser memorizadas separadamente.',
+          table: {
+            title: 'Preposições de tempo — a lógica dos 3 níveis',
+            headers: ['Preposição', 'Quando usar', 'Exemplos'],
+            rows: [
+              { cells: ['AT', 'horas específicas, noon, midnight, night', 'at 6pm · at noon · at night'], speak: 'at six pm, at noon, at night' },
+              { cells: ['ON', 'dias da semana, datas, fins de semana (US)', 'on Monday · on May 5th · on the weekend'], speak: 'on Monday, on May fifth' },
+              { cells: ['IN', 'meses, anos, estações, séculos, partes do dia', 'in May · in 2026 · in the morning'], speak: 'in May, in twenty twenty six, in the morning' }
+            ]
+          },
           examples: [
             { en: 'The meeting is at 3pm.', pt: 'A reunião é às 3 da tarde.' },
             { en: 'I work on Monday.', pt: 'Eu trabalho na segunda.' },
@@ -4229,6 +4382,52 @@
             html += `<p class="lp-msec-explanation">${sec.explanation}</p>`;
           }
 
+          // ── SOUNDBOARD (M2 Sprint 1) ──
+          if (sec.soundboard && Array.isArray(sec.soundboard.items) && sec.soundboard.items.length) {
+            const sbTitle = sec.soundboard.title || '🔊 Pratique a pronúncia';
+            html += `
+              <div class="lp-soundboard">
+                <div class="lp-soundboard-title">${sbTitle}</div>
+                <div class="lp-soundboard-grid">
+                  ${sec.soundboard.items.map(item => {
+                    const safeSpeech = String(item.speech || item.word).replace(/'/g, "\\'");
+                    return `
+                      <button class="lp-sb-cell" type="button"
+                        aria-label="Ouvir ${item.word}"
+                        onclick="window._griloSpeak&&window._griloSpeak('${safeSpeech}', this)">
+                        <span class="lp-sb-cell-play">▶</span>
+                        <span class="lp-sb-cell-word">${item.word}</span>
+                        ${item.pron ? `<span class="lp-sb-cell-pron">${item.pron}</span>` : ''}
+                      </button>`;
+                  }).join('')}
+                </div>
+              </div>`;
+          }
+
+          // ── TABELA COMPARATIVA (M3 Sprint 1) ──
+          if (sec.table && Array.isArray(sec.table.rows) && sec.table.rows.length) {
+            const tHeaders = Array.isArray(sec.table.headers) ? sec.table.headers : [];
+            html += `
+              <div class="lp-comparetable">
+                ${sec.table.title ? `<div class="lp-comparetable-title">${sec.table.title}</div>` : ''}
+                <div class="lp-comparetable-scroll">
+                  <table class="lp-comparetable-table">
+                    ${tHeaders.length ? `<thead><tr>${tHeaders.map(h => `<th>${h}</th>`).join('')}${tHeaders.length ? '<th aria-label="Áudio"></th>' : ''}</tr></thead>` : ''}
+                    <tbody>
+                      ${sec.table.rows.map(row => {
+                        const cells = Array.isArray(row.cells) ? row.cells : [];
+                        const safeSpeak = row.speak ? String(row.speak).replace(/'/g, "\\'") : '';
+                        return `<tr>
+                          ${cells.map((c, i) => `<td${i === 0 ? ' class="lp-ct-key"' : ''}>${c}</td>`).join('')}
+                          <td class="lp-ct-audio">${safeSpeak ? `<button class="lp-ct-play" type="button" aria-label="Ouvir linha" onclick="window._griloSpeak&&window._griloSpeak('${safeSpeak}', this)">▶</button>` : ''}</td>
+                        </tr>`;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>`;
+          }
+
           if (sec.examples && sec.examples.length) {
             html += `
               <div class="lp-mex">
@@ -4236,10 +4435,13 @@
                 <ul class="lp-mex-list">
                   ${sec.examples.map(ex => {
                     if (typeof ex === 'string') {
-                      return `<li class="lp-mex-item"><span class="lp-ex-en">${ex}</span></li>`;
+                      const safeStr = ex.replace(/'/g, "\\'");
+                      return `<li class="lp-mex-item"><button class="lp-ex-play" type="button" aria-label="Ouvir pronúncia" onclick="window._griloSpeak&&window._griloSpeak('${safeStr}', this)">▶</button><span class="lp-ex-en" title="Clique para ouvir">${ex}</span></li>`;
                     }
                     const _p = EXAMPLE_PRON[ex.en] || '';
-                    return `<li class="lp-mex-item"><span class="lp-ex-en">${ex.en}</span>${_p ? `<span class="lp-ex-pron">/ ${_p} /</span>` : ''}${ex.pt ? `<span class="lp-ex-pt">${ex.pt}</span>` : ''}</li>`;
+                    const safeEn = ex.en.replace(/'/g, "\\'");
+                    const hoverTitle = _p ? `Clique para ouvir · / ${_p} /` : 'Clique para ouvir';
+                    return `<li class="lp-mex-item"><button class="lp-ex-play" type="button" aria-label="Ouvir pronúncia de ${ex.en}" onclick="window._griloSpeak&&window._griloSpeak('${safeEn}', this)">▶</button><div class="lp-ex-content"><span class="lp-ex-en" title="${hoverTitle}">${ex.en}</span>${_p ? `<span class="lp-ex-pron">/ ${_p} /</span>` : ''}${ex.pt ? `<span class="lp-ex-pt">${ex.pt}</span>` : ''}</div></li>`;
                   }).join('')}
                 </ul>
               </div>`;
@@ -4367,6 +4569,57 @@
     setLessonCompleted(slug);
     if (btn) { btn.textContent = '✓ Aula concluída'; btn.classList.add('is-done'); btn.disabled = true; }
   };
+
+  // ========== HELPER GLOBAL DE TTS (Text-to-Speech) ==========
+  // Usado por botões de áudio em exemplos, soundboards, tabelas, etc.
+  window._griloSpeak = function(text, btnEl) {
+    if (!('speechSynthesis' in window) || !text) return;
+    try {
+      // Cancela qualquer fala em andamento
+      window.speechSynthesis.cancel();
+
+      const u = new SpeechSynthesisUtterance(String(text));
+      u.lang = 'en-US';
+      u.rate = 0.92;   // Um pouco mais lento para aprendizado
+      u.pitch = 1.0;
+
+      // Feedback visual no botão
+      if (btnEl) {
+        btnEl.classList.add('is-speaking');
+        u.onend = function() {
+          btnEl.classList.remove('is-speaking');
+        };
+        u.onerror = function() {
+          btnEl.classList.remove('is-speaking');
+        };
+      }
+
+      window.speechSynthesis.speak(u);
+    } catch (e) {
+      console.warn('[LESSONS] TTS error:', e);
+    }
+  };
+
+  // ========== DELEGAÇÃO GLOBAL — CLIQUE EM TEXTO INGLÊS FALA (M7 Sprint 1) ==========
+  // Permite clicar em .lp-ex-en, .lp-inline-en e qualquer [data-speak] para ouvir.
+  document.addEventListener('click', function(e) {
+    // Ignora cliques em botões já tratados (evita duplo trigger)
+    if (e.target.closest('.lp-ex-play, .lp-sb-cell, .lp-ct-play, button')) return;
+
+    // Procura elemento "falável" mais próximo
+    const speakable = e.target.closest('[data-speak], .lp-ex-en, .lp-inline-en');
+    if (!speakable) return;
+
+    // Texto: preferir data-speak (override) → textContent
+    const text = speakable.getAttribute('data-speak') || speakable.textContent || '';
+    if (!text.trim()) return;
+
+    // Pulse visual ao clicar
+    speakable.classList.add('is-speaking-inline');
+    setTimeout(() => speakable.classList.remove('is-speaking-inline'), 800);
+
+    window._griloSpeak(text.trim(), null);
+  });
 
   window._griloOpenChat = function(slug) {
     const lesson = lessons[slug];
