@@ -1401,56 +1401,15 @@
     // ============================================================
 
     function applyEditorialIfAvailable(slug) {
-        const layout = LAYOUTS[slug];
-        if (!layout) {
-            console.log('[editorial-renderer] layout não encontrado:', slug);
-            return false;
-        }
-
-        const main = document.getElementById('lessonModalMain');
-        if (!main) {
-            console.log('[editorial-renderer] elemento main não encontrado');
-            return false;
-        }
-
-        const lesson = (window._lessonsData || {})[slug];
-        if (!lesson) {
-            console.log('[editorial-renderer] dados da aula não encontrados:', slug);
-            return false;
-        }
-
-        // Evita renderização dupla
-        if (main.dataset.editorial === '1' && main.dataset.editorialSlug === slug) {
-            return true;
-        }
-
-        try {
-            // PRESERVA todo o conteúdo legado (seções, exercícios, curiosidades)
-            // Captura .lp-msec (seções com exercícios), .lp-mcur (curiosidades) e .lp-peda-phase (fases pedagógicas)
-            const legacySectionsHTML = Array.from(main.querySelectorAll('.lp-msec')).map(el => el.outerHTML).join('');
-            const legacyCuriositiesHTML = Array.from(main.querySelectorAll('.lp-mcur')).map(el => el.outerHTML).join('');
-            const legacyPedaPhasesHTML = Array.from(main.querySelectorAll('.lp-peda-phase')).map(el => el.outerHTML).join('');
-
-            const legacyHTML = legacySectionsHTML + legacyPedaPhasesHTML + legacyCuriositiesHTML;
-
-            // Renderiza conteúdo editorial
-            const editorialHtml = layout(lesson);
-
-            // Combina: editorial + seções legadas (que contêm exercícios)
-            main.innerHTML = `
-                <div class="le-editorial-wrapper">${editorialHtml}</div>
-                ${legacyHTML ? `<div class="le-legacy-content">${legacyHTML}</div>` : ''}
-            `;
-
-            main.dataset.editorial = '1';
-            main.dataset.editorialSlug = slug;
-            main.scrollTop = 0;
-            console.log('[editorial-renderer] layout aplicado:', slug, '· exercícios:', legacySectionsHTML ? 'sim' : 'não', '· curiosidades:', legacyCuriositiesHTML ? 'sim' : 'não');
-            return true;
-        } catch (e) {
-            console.error('[editorial-renderer] erro renderizando', slug, e);
-            return false;
-        }
+        // ⚠️ DESATIVADO: A reestilização agora é feita 100% via CSS
+        // (lesson-editorial-v5.css) aplicado DIRETAMENTE sobre as classes
+        // .lp-msec, .lp-mex, .lp-mexr, .lp-mcur, .lp-peda-* existentes.
+        //
+        // Não precisamos sobrescrever o innerHTML — apenas o CSS é suficiente
+        // para dar a nova aparência editorial às aulas.
+        //
+        // Mantemos esta função como no-op para compatibilidade com o hook.
+        return false;
     }
 
     window._applyEditorialLayout = applyEditorialIfAvailable;
