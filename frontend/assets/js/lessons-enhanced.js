@@ -3724,22 +3724,23 @@
 
   // Event delegation: 1 listener no container em vez de N listeners por card
   function initCardsEventDelegation() {
-    const container = document.getElementById('lessonsCardsContainer');
-    if (!container || container._delegated) return;
-    container._delegated = true;
+    if (window._griloCardsDelegated) return;
+    window._griloCardsDelegated = true;
 
-    container.addEventListener('click', (e) => {
+    // Listener no document para sobreviver a qualquer reconstrução de DOM
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('button, a, input, textarea, select')) return;
       const card = e.target.closest('.lp-card[data-lesson-key]');
-      if (card) showLessonContent(card.dataset.lessonKey, card);
+      if (!card) return;
+      showLessonContent(card.dataset.lessonKey, card);
     });
 
-    container.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter' && e.key !== ' ') return;
       const card = e.target.closest('.lp-card[data-lesson-key]');
-      if (card) {
-        e.preventDefault();
-        showLessonContent(card.dataset.lessonKey, card);
-      }
+      if (!card) return;
+      e.preventDefault();
+      showLessonContent(card.dataset.lessonKey, card);
     });
   }
 
