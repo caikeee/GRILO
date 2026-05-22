@@ -3213,11 +3213,36 @@
   // Expõe a função de abrir aula pro lessons-trail.js poder reanexar
   // listeners diretos nos cards depois de reorganizá-los no DOM.
   // Definida depois de showLessonContent (mais abaixo); usamos getter lazy:
+  // COM WRAPPER ROBUSTO para capturar exceções que ocorrem em produção
   window._griloOpenLesson = function(slug, triggerEl) {
-    if (typeof showLessonContent === 'function') {
-      showLessonContent(slug, triggerEl);
-    } else {
-      console.error('[lessons] showLessonContent indisponível');
+    console.log('[GATEWAY] _griloOpenLesson chamada para:', slug);
+    try {
+      if (typeof showLessonContent === 'function') {
+        console.log('[GATEWAY] Chamando showLessonContent...');
+        showLessonContent(slug, triggerEl);
+        console.log('[GATEWAY] showLessonContent completou sem erro');
+      } else {
+        console.error('[GATEWAY] showLessonContent indisponível');
+      }
+    } catch (e) {
+      console.error('[GATEWAY] EXCEÇÃO em showLessonContent:', e);
+      console.error('[GATEWAY] Stack trace:', e.stack);
+
+      // Fallback: força modal visível e mostra erro
+      try {
+        var modal = document.getElementById('lessonContent');
+        if (modal) {
+          modal.removeAttribute('hidden');
+          modal.classList.add('active');
+          var main = document.getElementById('lessonModalMain');
+          if (main) {
+            main.innerHTML = '<div style="padding: 40px; text-align: center;"><h3>⚠️ Erro ao carregar aula</h3><p style="font-family: monospace; font-size: 12px; text-align: left; background: #f5f5f5; padding: 10px; margin-top: 10px; max-height: 200px; overflow: auto;">' + String(e.message).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p></div>';
+          }
+          document.body.style.overflow = 'hidden';
+        }
+      } catch (fallbackError) {
+        console.error('[GATEWAY] Erro até no fallback:', fallbackError);
+      }
     }
   };
 
