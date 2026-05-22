@@ -3863,6 +3863,8 @@
         && typeof renderScaffoldedExercises === 'function'
         && typeof renderFinalTest === 'function';
 
+      console.log('[LESSONS] Renderizando conteúdo para slug:', slug, '| hasPedagogicalRenderer:', hasPedagogicalRenderer);
+
       if (slug === 'pronomes' && hasPedagogicalRenderer) {
         window._testScore = 0;
         main.innerHTML = `
@@ -3872,28 +3874,38 @@
           <div class="lp-peda-phase" id="phase-exercises-${slug}">${renderScaffoldedExercises(slug)}</div>
           <div class="lp-peda-phase" id="phase-test-${slug}">${renderFinalTest(slug)}</div>
         `;
+        console.log('[LESSONS] Conteúdo pedagógico renderizado para pronomes');
       } else {
         if (slug === 'pronomes') {
           console.warn('[LESSONS] Pedagogical renderer unavailable for pronomes. Falling back to standard lesson view.');
         }
 
-        main.innerHTML = renderPedagogicalOverview(slug, lesson, { sectionIdPrefix: 'overview-concept' });
+        let overviewHtml = '';
+        try {
+          overviewHtml = renderPedagogicalOverview(slug, lesson, { sectionIdPrefix: 'overview-concept' });
+          console.log('[LESSONS] Overview renderizado, tamanho:', overviewHtml ? overviewHtml.length : 0);
+        } catch (e) {
+          console.error('[LESSONS] Erro ao renderizar overview:', e);
+          overviewHtml = `<div style="padding: 20px; color: red;"><h3>Erro ao carregar conteúdo</h3><p>${e.message}</p></div>`;
+        }
+        main.innerHTML = overviewHtml;
 
         (lesson.sections || []).forEach((sec, idx) => {
-          const secEl = document.createElement('div');
-          secEl.className = 'lp-msec';
-          secEl.id = `msec-${slug}-${idx}`;
-          const editorialSection = getPedagogicalEditorial(slug, lesson).sections?.[idx] || {};
-          const coachHint = getContentCoachHint(slug, sec);
+          try {
+            const secEl = document.createElement('div');
+            secEl.className = 'lp-msec';
+            secEl.id = `msec-${slug}-${idx}`;
+            const editorialSection = getPedagogicalEditorial(slug, lesson).sections?.[idx] || {};
+            const coachHint = getContentCoachHint(slug, sec);
 
-          let html = `
-            <div class="lp-msec-header">
-              <div class="lp-msec-num">${String(idx + 1).padStart(2, '0')}</div>
-              <h2 class="lp-msec-title">${sec.title}</h2>
-              ${renderGriloHint(coachHint, { wide: true, title: 'Ajuda do GRILO', ariaLabel: 'Resumo simplificado do GRILO' }) || '<span></span>'}
-              <div class="lp-msec-score" id="score-${slug}-${idx}"></div>
-            </div>
-          `;
+            let html = `
+              <div class="lp-msec-header">
+                <div class="lp-msec-num">${String(idx + 1).padStart(2, '0')}</div>
+                <h2 class="lp-msec-title">${sec.title}</h2>
+                ${renderGriloHint(coachHint, { wide: true, title: 'Ajuda do GRILO', ariaLabel: 'Resumo simplificado do GRILO' }) || '<span></span>'}
+                <div class="lp-msec-score" id="score-${slug}-${idx}"></div>
+              </div>
+            `;
 
           if (editorialSection.summary) {
             html += `<p class="lp-peda-section-lead">${editorialSection.summary}</p>`;
@@ -3947,21 +3959,32 @@
             html += `<div class="lp-mexr"><div class="lp-mexr-label">✏️ Pratique agora</div>${items}</div>`;
           }
 
-          secEl.innerHTML = html;
-          main.appendChild(secEl);
+            secEl.innerHTML = html;
+            main.appendChild(secEl);
+          } catch (e) {
+            console.error('[LESSONS] Erro ao renderizar seção', idx, ':', e);
+          }
         });
 
-        if (lesson.curiosities && lesson.curiosities.length) {
-          const cur = document.createElement('div');
-          cur.className = 'lp-mcur';
-          cur.innerHTML = `
-            <div class="lp-mcur-label">💡 Sabia que…</div>
-            <ul class="lp-mcur-list">
-              ${lesson.curiosities.map(c => `<li class="lp-mcur-item">${c}</li>`).join('')}
-            </ul>
-          `;
-          main.appendChild(cur);
+        console.log('[LESSONS] Seções renderizadas:', lesson.sections ? lesson.sections.length : 0);
+
+        try {
+          if (lesson.curiosities && lesson.curiosities.length) {
+            const cur = document.createElement('div');
+            cur.className = 'lp-mcur';
+            cur.innerHTML = `
+              <div class="lp-mcur-label">💡 Sabia que…</div>
+              <ul class="lp-mcur-list">
+                ${lesson.curiosities.map(c => `<li class="lp-mcur-item">${c}</li>`).join('')}
+              </ul>
+            `;
+            main.appendChild(cur);
+          }
+        } catch (e) {
+          console.error('[LESSONS] Erro ao renderizar curiosities:', e);
         }
+
+        console.log('[LESSONS] Conteúdo final renderizado. Main innerHTML length:', main.innerHTML.length);
       }
     }
 
@@ -3970,11 +3993,20 @@
     modal.removeAttribute('hidden');
     window.requestAnimationFrame(() => {
       modal.classList.add('active');
+      console.log('[LESSONS] Modal classe "active" adicionada');
+      console.log('[LESSONS] Modal display:', window.getComputedStyle(modal).display);
+      console.log('[LESSONS] Modal visibility:', window.getComputedStyle(modal).visibility);
+      if (main) {
+        console.log('[LESSONS] Main display:', window.getComputedStyle(main).display);
+        console.log('[LESSONS] Main innerHTML length:', main.innerHTML.length);
+      }
     });
     document.body.style.overflow = 'hidden';
     document.title = `${lesson.title} — GRILO`;
     if (main)  main.scrollTop = 0;
     if (aside) aside.scrollTop = 0;
+
+    console.log('[LESSONS] showLessonContent completo para:', slug, '| Modal visible:', !modal.hasAttribute('hidden'), '| Main HTML length:', main ? main.innerHTML.length : 0);
   }
 
   // ========== INITIALIZE ==========
