@@ -258,40 +258,9 @@
     // Event delegation NO DOCUMENT
     // ============================================================
 
-    if (!window._lessonsTrailDocHandlerBound) {
-        window._lessonsTrailDocHandlerBound = true;
-
-        document.addEventListener('click', function(e) {
-            // Não interromper cliques em botões/links internos do card
-            if (e.target.closest('button, a, input, textarea, select')) return;
-            const card = e.target.closest('.lp-card[data-lesson-key]');
-            if (!card) return;
-
-            const slug = card.dataset.lessonKey;
-            showDebugToast(`click capturado · ${slug}`, '#3A5E47');
-            console.log('[lessons-trail] click ✔', slug);
-            openLessonBySlug(slug, card);
-
-            setTimeout(() => {
-                const modal = document.getElementById('lessonContent');
-                if (modal && modal.classList.contains('active')) {
-                    showDebugToast(`modal aberto · ${slug}`, '#3A5E47');
-                } else {
-                    showDebugToast(`modal NÃO abriu · ${slug}`, '#C9716C');
-                }
-            }, 200);
-        }, true);
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key !== 'Enter' && e.key !== ' ') return;
-            const card = e.target.closest('.lp-card[data-lesson-key]');
-            if (!card) return;
-            e.preventDefault();
-            openLessonBySlug(card.dataset.lessonKey, card);
-        });
-
-        console.log('[lessons-trail] document click handler bound');
-    }
+    // Click handler removido — lessons-enhanced.js é o único responsável por abrir aulas.
+    // lessons-trail.js cuida apenas da organização visual (módulos) dos cards.
+    console.log('[lessons-trail] inicializado (sem handler de click próprio)');
 
     function injectTrail() {
         const container = document.getElementById('lessonsCardsContainer');

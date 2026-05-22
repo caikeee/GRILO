@@ -294,19 +294,22 @@
   // HOOK NO OPENING DE AULA
   // ============================================================
 
-  const originalOpenLesson = window._griloOpenLesson;
-  if (typeof originalOpenLesson === 'function') {
-    window._griloOpenLesson = function(slug, card) {
-      // Chama original
-      originalOpenLesson.call(window, slug, card);
-
-      // Aguarda abertura do modal
-      setTimeout(() => {
-        animateContentEntry();
-        setupSmoothScroll();
-        setupIntersectionObserver();
-      }, 320);
-    };
+  // Animação de entrada é acionada quando o modal abre via MutationObserver
+  // (não mais via hook em _griloOpenLesson para evitar double-wrapping)
+  const modalEl = document.getElementById('lessonContent');
+  if (modalEl) {
+    new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type === 'attributes' && m.attributeName === 'class' && modalEl.classList.contains('active')) {
+          setTimeout(() => {
+            animateContentEntry();
+            setupSmoothScroll();
+            setupIntersectionObserver();
+          }, 50);
+          break;
+        }
+      }
+    }).observe(modalEl, { attributes: true });
   }
 
   // ============================================================
