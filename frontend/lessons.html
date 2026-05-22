@@ -119,48 +119,114 @@
   <!-- ── Click fallback robusto (garante abertura em produção) ──── -->
   <script>
     (function() {
-      function tryOpen(slug, card) {
+      var cardClickHandlerBound = false;
+      var closeClickHandlerBound = false;
+
+      function tryOpenWithRetry(slug, card, retries) {
         if (!slug) return false;
+        retries = retries || 0;
+
         // 1) tenta o gateway oficial
         if (typeof window._griloOpenLesson === 'function') {
-          try { window._griloOpenLesson(slug, card); return true; } catch(e) { console.error('[lessons-fallback] gateway erro:', e); }
+          try {
+            window._griloOpenLesson(slug, card);
+            return true;
+          } catch(e) {
+            console.error('[lessons-fallback] gateway erro:', e);
+          }
         }
-        // 2) força modal visível pelo menos
+
+        // 2) se houver retentativas, aguarda carregamento
+        if (retries < 3) {
+          console.log('[lessons-fallback] retry ' + (retries + 1) + '/3 para', slug);
+          setTimeout(function() {
+            tryOpenWithRetry(slug, card, retries + 1);
+          }, 300);
+          return;
+        }
+
+        // 3) fallback final: force modal e avisa que scripts não carregaram
         var modal = document.getElementById('lessonContent');
         if (modal) {
           modal.removeAttribute('hidden');
           requestAnimationFrame(function() { modal.classList.add('active'); });
           document.body.style.overflow = 'hidden';
-        }
-        return false;
-      }
-      // Handler em bubbling no document — independente do lessons-trail.js
-      document.addEventListener('click', function(e) {
-        var card = e.target.closest && e.target.closest('.lp-card[data-lesson-key]');
-        if (!card) return;
-        if (e.target.closest('button, a, input, textarea, select')) return;
-        var slug = card.getAttribute('data-lesson-key');
-        console.log('[lessons-fallback] click em card:', slug);
-        tryOpen(slug, card);
-      });
-      // Fechar modal
-      document.addEventListener('click', function(e) {
-        if (e.target && e.target.id === 'lessonModalClose') {
-          if (typeof window._griloCloseLesson === 'function') {
-            window._griloCloseLesson();
-          } else if (typeof _lv4CloseModal === 'function') {
-            _lv4CloseModal();
-          } else {
-            var modal = document.getElementById('lessonContent');
-            if (modal) {
-              modal.classList.add('is-closing');
-              modal.classList.remove('active');
-              setTimeout(function() { modal.setAttribute('hidden', ''); }, 250);
-              document.body.style.overflow = '';
-            }
+
+          // Mostra aviso ao usuário
+          var main = document.getElementById('lessonModalMain');
+          if (main && !main.innerHTML.trim()) {
+            main.innerHTML = '<div style="padding: 40px; text-align: center;"><p style="color: #888;">⏳ Carregando conteúdo...</p></div>';
           }
         }
-      });
+
+        console.warn('[lessons-fallback] abertura degradada para:', slug);
+        return false;
+      }
+
+      // Handler para card clicks
+      function setupCardClickHandler() {
+        if (cardClickHandlerBound) return;
+        cardClickHandlerBound = true;
+
+        document.addEventListener('click', function(e) {
+          var card = e.target.closest && e.target.closest('.lp-card[data-lesson-key]');
+          if (!card) return;
+          if (e.target.closest('button, a, input, textarea, select')) return;
+          var slug = card.getAttribute('data-lesson-key');
+          console.log('[lessons-fallback] click em card:', slug);
+          e.stopPropagation();
+          tryOpenWithRetry(slug, card, 0);
+        });
+
+        console.log('[lessons-fallback] card click handler bound');
+      }
+
+      // Handler para fechar modal
+      function setupCloseHandler() {
+        if (closeClickHandlerBound) return;
+        closeClickHandlerBound = true;
+
+        document.addEventListener('click', function(e) {
+          if (e.target && e.target.id === 'lessonModalClose') {
+            if (typeof window._griloCloseLesson === 'function') {
+              window._griloCloseLesson();
+            } else if (typeof _lv4CloseModal === 'function') {
+              _lv4CloseModal();
+            } else {
+              var modal = document.getElementById('lessonContent');
+              if (modal) {
+                modal.classList.add('is-closing');
+                modal.classList.remove('active');
+                setTimeout(function() { modal.setAttribute('hidden', ''); }, 250);
+                document.body.style.overflow = '';
+              }
+            }
+          }
+        });
+
+        console.log('[lessons-fallback] close handler bound');
+      }
+
+      // Bind handlers immediately
+      setupCardClickHandler();
+      setupCloseHandler();
+
+      // Also bind after DOMContentLoaded to be safe
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          setupCardClickHandler();
+          setupCloseHandler();
+        });
+      }
+
+      // Debug: log when _griloOpenLesson becomes available
+      var checkInterval = setInterval(function() {
+        if (typeof window._griloOpenLesson === 'function') {
+          console.log('[lessons-fallback] _griloOpenLesson is ready');
+          clearInterval(checkInterval);
+        }
+      }, 500);
+      setTimeout(function() { clearInterval(checkInterval); }, 5000);
     })();
   </script>
 </body>

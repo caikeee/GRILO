@@ -154,7 +154,21 @@
         const lesson = (window._lessonsData || {})[slug];
         if (!lesson) {
             console.error('[lessons-trail] aula não encontrada nos dados:', slug);
+            console.warn('[lessons-trail] _lessonsData disponível?', !!window._lessonsData);
+            console.warn('[lessons-trail] chaves em _lessonsData:', Object.keys(window._lessonsData || {}).slice(0, 5));
             showDebugToast(`aula sem dados · ${slug}`, '#C9716C');
+
+            // Fallback: mesmo sem dados, tenta abrir a modal e forçar conteúdo
+            const modal = document.getElementById('lessonContent');
+            if (modal) {
+                forceOpenModal();
+                setTimeout(() => {
+                    const main = document.getElementById('lessonModalMain');
+                    if (main && (!main.innerHTML.trim() || main.innerHTML.length < 80)) {
+                        main.innerHTML = `<div style="padding: 40px; text-align: center; color: #666;"><p>⚠️ Conteúdo indisponível (dados não carregados)</p><p style="font-size: 0.9em; margin-top: 20px;">Slug: ${slug}</p></div>`;
+                    }
+                }, 100);
+            }
             return;
         }
 
