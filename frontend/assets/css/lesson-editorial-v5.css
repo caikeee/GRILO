@@ -145,35 +145,35 @@
 
 /* Container principal de aula */
 .le-aula {
-    font-family: var(--le-font-body);
-    color: var(--le-ink);
-    max-width: 760px;
-    margin: 0 auto;
-    padding: var(--le-space-3xl) var(--le-space-2xl) 96px;
-    display: flex;
-    flex-direction: column;
-    gap: var(--le-space-6xl);
-    line-height: var(--le-leading-relaxed);
+    font-family: var(--le-font-body) !important;
+    color: var(--le-ink) !important;
+    max-width: 760px !important;
+    margin: 0 auto !important;
+    padding: var(--le-space-3xl) var(--le-space-2xl) 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--le-space-6xl) !important;
+    line-height: var(--le-leading-relaxed) !important;
 }
 
 /* ─ Manifesto (abertura da aula) ─ */
 .le-manifesto {
-    position: relative;
-    padding: var(--le-space-3xl) 0 var(--le-space-5xl);
-    border-bottom: 1px solid var(--le-line);
+    position: relative !important;
+    padding: var(--le-space-3xl) 0 var(--le-space-5xl) !important;
+    border-bottom: 1px solid var(--le-line) !important;
 }
 
 .le-manifesto-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--le-space-sm);
-    font-family: var(--le-font-body);
-    font-size: var(--le-text-xs);
-    font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--le-accent-deep);
-    margin-bottom: var(--le-space-xl);
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: var(--le-space-sm) !important;
+    font-family: var(--le-font-body) !important;
+    font-size: var(--le-text-xs) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: var(--le-accent-deep) !important;
+    margin-bottom: var(--le-space-xl) !important;
 }
 
 .le-manifesto-kicker::before {
@@ -185,14 +185,14 @@
 }
 
 .le-manifesto-text {
-    font-family: var(--le-font-display);
-    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
-    line-height: var(--le-leading-tight);
-    font-weight: 600;
-    color: var(--le-ink);
-    letter-spacing: -0.025em;
-    margin: 0 0 var(--le-space-2xl);
-    text-wrap: balance;
+    font-family: var(--le-font-display) !important;
+    font-size: clamp(1.8rem, 3.4vw, 2.6rem) !important;
+    line-height: var(--le-leading-tight) !important;
+    font-weight: 600 !important;
+    color: var(--le-ink) !important;
+    letter-spacing: -0.025em !important;
+    margin: 0 0 var(--le-space-2xl) !important;
+    text-wrap: balance !important;
 }
 
 .le-manifesto-text em {
@@ -221,9 +221,9 @@
 
 /* ─ Seção editorial ─ */
 .le-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--le-space-2xl);
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--le-space-2xl) !important;
 }
 
 .le-section-head {
