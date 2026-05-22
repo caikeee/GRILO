@@ -396,191 +396,6 @@
       ]
     },
 
-    futuro: {
-      title: 'Falar sobre o que vai acontecer — planos, decisões e previsões',
-      objective: 'Aprenda a escolher a forma de futuro que combina com a intenção da frase — decisão do momento, plano já pensado ou compromisso que já parece marcado.',
-      icon: 'FU',
-      highlight: 'will • going to • am/is/are doing',
-      teachingPoints: [
-        'Entender por que "will" não é sinônimo automático de futuro em inglês.',
-        'Usar "will" quando a frase pede decisão imediata, promessa ou previsão sem evidência concreta.',
-        'Usar "going to" quando a intenção já existia antes ou quando há um sinal claro diante de você.',
-        'Usar o presente contínuo para compromissos que já soam agendados, combinados ou confirmados.',
-        'Escolher a forma de futuro pelo contexto, e não por tradução literal do português.'
-      ],
-      sections: [
-        {
-          id: 'will-na-hora',
-          title: 'O futuro que nasce no instante — decisões, promessas e will',
-          explanation: '"Will" é usado para três situações principais. Primeira: você acabou de tomar uma decisão na hora — não estava planejado. "The phone is ringing." "I\'ll get it!" (Vou atender! — decisão tomada agora). Segunda: promessas e ofertas espontâneas. "I\'ll help you with that." Terceira: previsões sobre o futuro sem evidência concreta — palpites. "I think it will rain tomorrow." Estrutura: will + verbo na forma base. Negativa: won\'t (will not). Para qualquer pessoa — I will, you will, he will — nunca muda.',
-          examples: [
-            { en: 'I\'ll call you later. (decidi agora)', pt: 'Eu te ligo mais tarde.' },
-            { en: 'Don\'t worry, I\'ll help you.', pt: 'Não se preocupa, eu te ajudo.' },
-            { en: 'I think it will be cold tomorrow.', pt: 'Acho que vai fazer frio amanhã.' },
-            { en: 'She won\'t like this idea.', pt: 'Ela não vai gostar dessa ideia.' },
-            { en: 'Will you marry me?', pt: 'Você quer casar comigo?' },
-            { en: 'I\'ll have the chicken, please.', pt: 'Vou querer o frango, por favor. (num restaurante)' },
-            { en: 'He\'ll probably be late again.', pt: 'Ele provavelmente vai se atrasar de novo.' }
-          ],
-          exercises: [
-            'Você está em casa e o telefone toca. O que você diz em inglês? (pegar / answer)',
-            'Faça uma promessa em inglês: "eu te ligo amanhã cedo."',
-            'Complete com will/won\'t: "I\'m sure she ___ pass the exam."',
-            'Qual é a contração de "will not"?',
-            'Crie uma previsão sobre o tempo usando "will".'
-          ]
-        },
-        {
-          id: 'going-to-plano',
-          title: 'Quando o plano já existe antes da fala — going to',
-          explanation: '"Going to" é usado quando você já tinha a intenção ou o plano antes de falar. Não é uma decisão nova — é algo que você já pensou. "Are you busy this weekend?" "Yes, I\'m going to visit my parents." (Já estava planejado). Também é usado para previsões quando você tem uma evidência na sua frente: "Look at those clouds — it\'s going to rain." Você está vendo as nuvens escuras — não é um palpite, é uma conclusão. Estrutura: am/is/are + going to + verbo base. Para qualquer pessoa, o que muda é só o am/is/are.',
-          examples: [
-            { en: 'I\'m going to study tonight.', pt: 'Eu vou estudar hoje à noite. (já planejei)' },
-            { en: 'She\'s going to start a new job next month.', pt: 'Ela vai começar um emprego novo no mês que vem.' },
-            { en: 'We\'re going to move to a bigger apartment.', pt: 'A gente vai se mudar pra um apartamento maior.' },
-            { en: 'Look at those clouds — it\'s going to rain!', pt: 'Olha essas nuvens — vai chover! (evidência)' },
-            { en: 'Are you going to tell him the truth?', pt: 'Você vai falar a verdade pra ele?' },
-            { en: 'He\'s not going to like this.', pt: 'Ele não vai gostar disso.' },
-            { en: 'They\'re going to get married in December.', pt: 'Eles vão se casar em dezembro.' }
-          ],
-          exercises: [
-            'Qual usar — will ou going to? "Já decidi: ___ viajar nas férias."',
-            'Qual usar? Você vê alguém prestes a cair. O que diz?',
-            'Complete: "She ___ ___ ___ (be going to / study) medicine."',
-            'Crie uma frase sobre um plano seu para este mês.',
-            'Qual a diferença entre "I think it will rain" e "Look! It\'s going to rain"?'
-          ]
-        },
-        {
-          id: 'compromissos-marcados',
-          title: 'O futuro que já parece marcado no calendário',
-          explanation: 'Em inglês, quando algo está firmemente agendado — você já marcou, comprou passagem, fez reserva — você pode usar a forma de "estar fazendo" (am/is/are + -ing) para falar de futuro. Isso é comum para eventos que têm hora, local e confirmação: "I\'m meeting John at 3pm tomorrow." (já está marcado no calendário). É diferente de "going to" porque implica que já tem tudo combinado — não é só intenção. No dia a dia, é muito usada para viagens, reuniões, consultas e eventos.',
-          examples: [
-            { en: 'I\'m flying to New York next Tuesday.', pt: 'Vou voar para Nova York na próxima terça. (passagem comprada)' },
-            { en: 'She\'s having lunch with her boss tomorrow.', pt: 'Ela vai almoçar com o chefe amanhã. (já marcado)' },
-            { en: 'We\'re starting the new project on Monday.', pt: 'A gente começa o projeto novo na segunda.' },
-            { en: 'Are you doing anything tonight?', pt: 'Você tem alguma coisa hoje à noite?' },
-            { en: 'They\'re getting married in June.', pt: 'Eles vão se casar em junho. (já está tudo organizado)' }
-          ],
-          exercises: [
-            'Qual das três formas usar para dizer "já comprei a passagem para o Rio"?',
-            'Complete com a forma correta: "___ you ___ anything this weekend?" (tem planos?)',
-            'Crie uma frase sobre algo que você tem marcado na próxima semana.',
-            'Qual a diferença prática entre "I\'m going to the gym" e "I\'ll go to the gym"?',
-            'Traduza: "Ela está se encontrando com o cliente na sexta."'
-          ]
-        }
-      ],
-      curiosities: [
-        'O inglês não tem um "tempo verbal do futuro" de verdade — "will" é na verdade um verbo modal, não uma conjugação temporal. É por isso que ele nunca muda: "I will", "he will" — sem "wills".',
-        '"Shall" era o futuro formal do inglês britânico para "I" e "we". Hoje em dia está quase desaparecendo, aparecendo só em perguntas educadas: "Shall we go?" (Vamos embora?).',
-        '"I\'m going to" na fala rápida vira "I\'m gonna" — você vai ouvir muito isso em músicas, filmes e séries. Não é errado, é só informal.'
-      ]
-    },
-
-    gerundio: {
-      title: 'A forma -ING e o "to" — quando usar cada uma depois de uma ação',
-      objective: 'Aprenda a decidir entre -ing e to com mais critério, entendendo quando a escolha segue padrão e quando ela muda o sentido inteiro da frase.',
-      icon: 'IG',
-      highlight: 'enjoy + -ing • want + to • stop + -ing vs stop + to',
-      teachingPoints: [
-        'Separar os usos mais comuns da forma -ing antes de tentar decorar listas de verbos.',
-        'Reconhecer os verbos que naturalmente puxam -ing na ação seguinte.',
-        'Reconhecer os verbos que exigem "to + verbo base" e não aceitam troca livre.',
-        'Perceber os casos em que trocar -ing por to muda o que a frase quer dizer.',
-        'Usar -ing com segurança depois de preposições e em blocos que aparecem o tempo todo na fala real.'
-      ],
-      sections: [
-        {
-          id: 'o-que-e-ing',
-          title: 'Antes de escolher, entenda o que a forma -ing está fazendo',
-          explanation: 'A forma -ing no inglês aparece em três situações diferentes e é fácil confundir. Primeira: no "está fazendo" — quando a ação está em andamento agora. "She is working." Segunda: como um jeito de nomear uma ação — transformando ela num "conceito". "Swimming is fun" (Nadar é divertido). Terceira: depois de certas palavras e depois de preposições. Nessa aula, o foco é no segundo e terceiro casos. Regras de formação: verbo + -ing. Se termina em "e", tira o "e": "write" → "writing". Se termina em consoante curta + vogal + consoante, dobra: "run" → "running".',
-          examples: [
-            { en: 'Swimming is great exercise.', pt: 'Nadar é um ótimo exercício. (-ing como conceito)' },
-            { en: 'I love cooking for friends.', pt: 'Adoro cozinhar para os amigos.' },
-            { en: 'Smoking is not allowed here.', pt: 'É proibido fumar aqui.' },
-            { en: 'She is good at singing.', pt: 'Ela é boa em cantar. (depois de "at")' },
-            { en: 'He\'s thinking about moving abroad.', pt: 'Ele está pensando em se mudar para o exterior.' },
-            { en: 'Before leaving, check your bag.', pt: 'Antes de sair, cheque sua bolsa.' }
-          ],
-          exercises: [
-            'Qual a forma -ing de: write / run / come / play / swim?',
-            'Complete: "___ (run) every day is good for your health."',
-            'Crie uma frase usando -ing depois de "before".',
-            'Qual a diferença entre "I am eating" e "Eating is important"?',
-            'Complete: "She\'s interested in ___ (learn) Japanese."'
-          ]
-        },
-        {
-          id: 'verbos-que-pedem-ing',
-          title: 'Os verbos que puxam naturalmente o -ing',
-          explanation: 'Alguns verbos, quando seguidos de outra ação, exigem o -ing. Não há uma lógica perfeita — é questão de memorizar os mais usados. Os principais: enjoy (curtir), love/like/hate (quando expressam sentimento geral), finish (terminar), avoid (evitar), suggest (sugerir), consider (considerar), keep (continuar), mind (se importar), deny (negar), practice (praticar), miss (sentir saudade de), risk (arriscar), imagine (imaginar), can\'t stand (não suportar), stop (parar uma ação), remember (lembrar de algo que já aconteceu).',
-          examples: [
-            { en: 'I enjoy running in the morning.', pt: 'Eu curto correr de manhã.' },
-            { en: 'He finished reading the book.', pt: 'Ele terminou de ler o livro.' },
-            { en: 'Avoid eating too much sugar.', pt: 'Evite comer açúcar demais.' },
-            { en: 'She keeps talking about her trip.', pt: 'Ela fica falando da viagem dela.' },
-            { en: 'Do you mind waiting a moment?', pt: 'Você se importa de esperar um momento?' },
-            { en: 'I miss living in Rio.', pt: 'Sinto saudades de morar no Rio.' },
-            { en: 'I can\'t stand waiting in line.', pt: 'Não suporto ficar na fila.' }
-          ],
-          exercises: [
-            'Complete: "I enjoy ___ (cook) on Sundays."',
-            'Corrija: "She finished to read the book." → correto: ___',
-            'Crie uma frase com "avoid" ou "keep".',
-            'Traduza: "Ele não suporta acordar cedo."',
-            'Complete: "Would you mind ___ (open) the window?"'
-          ]
-        },
-        {
-          id: 'verbos-que-pedem-to',
-          title: 'Os verbos que abrem espaço para o to + verbo',
-          explanation: 'Outros verbos pedem "to + verbo base" depois deles. Os mais usados: want (querer), need (precisar), would like (gostar de), hope (esperar), decide (decidir), plan (planejar), promise (prometer), agree (concordar), refuse (recusar), manage (conseguir), afford (poder financeiramente), seem (parecer), expect (esperar/prever), learn (aprender), try (tentar — com sentido de esforço), forget (esquecer de fazer algo), remember (lembrar de fazer algo no futuro).',
-          examples: [
-            { en: 'I want to learn English.', pt: 'Eu quero aprender inglês.' },
-            { en: 'She decided to quit her job.', pt: 'Ela decidiu largar o emprego.' },
-            { en: 'He promised to call back.', pt: 'Ele prometeu retornar a ligação.' },
-            { en: 'They refused to sign the contract.', pt: 'Eles se recusaram a assinar o contrato.' },
-            { en: 'I can\'t afford to travel right now.', pt: 'Não tenho condições de viajar agora.' },
-            { en: 'Remember to lock the door.', pt: 'Lembra de trancar a porta. (no futuro)' },
-            { en: 'She managed to finish on time.', pt: 'Ela conseguiu terminar a tempo.' }
-          ],
-          exercises: [
-            'Complete: "I need ___ (talk) to you."',
-            'Corrija: "He wants going to the gym." → correto: ___',
-            'Qual a diferença entre "remember doing" e "remember to do"?',
-            'Crie uma frase com "decide" ou "plan".',
-            'Traduza: "Ela se recusou a responder."'
-          ]
-        },
-        {
-          id: 'mudanca-de-significado',
-          title: 'Quando trocar a forma troca o sentido inteiro da frase',
-          explanation: 'Quatro verbos têm significados completamente diferentes dependendo de usar -ing ou to: STOP: "stop + -ing" = parar de fazer algo ("He stopped smoking" = ele parou de fumar). "stop + to" = parar para fazer outra coisa ("He stopped to smoke" = ele parou para fumar — ou seja, estava fazendo outra coisa e parou para acender um cigarro). REMEMBER: "-ing" = lembrar de algo que já aconteceu ("I remember meeting her" = lembro de quando a conheci). "to" = lembrar de fazer algo ainda ("Remember to send the email" = não esqueça de mandar). TRY: "-ing" = experimentar algo para ver o resultado. "to" = tentar com esforço. FORGET: "-ing" = não consegue esquecer algo do passado. "to" = esquecer de fazer algo.',
-          examples: [
-            { en: 'She stopped smoking. (parou de fumar)', pt: 'Ela parou de fumar.' },
-            { en: 'She stopped to smoke. (parou para acender um cigarro)', pt: 'Ela parou para fumar.' },
-            { en: 'I remember locking the door. (lembro que fiz isso)', pt: 'Lembro de ter trancado a porta.' },
-            { en: 'Remember to lock the door. (não esqueça de fazer)', pt: 'Lembra de trancar a porta.' },
-            { en: 'Try adding salt — maybe it improves. (experimente)', pt: 'Tenta colocar sal — talvez melhore.' },
-            { en: 'I tried to open it, but it was stuck. (tentei com esforço)', pt: 'Tentei abrir, mas estava emperrado.' }
-          ],
-          exercises: [
-            'Qual o significado de "He stopped to eat" vs "He stopped eating"?',
-            'Complete corretamente: "I forgot ___ (send) the email." (não mandei)',
-            'Complete: "I\'ll never forget ___ (meet) you for the first time."',
-            'Traduza: "Tenta dormir mais cedo — talvez ajude."',
-            'Crie um par de frases com "remember + -ing" e "remember + to".'
-          ]
-        }
-      ],
-      curiosities: [
-        '"I like swimming" vs "I like to swim" — nos EUA, ambas são aceitas com pouca diferença. No inglês britânico, "I like to swim" pode indicar um hábito deliberado, enquanto "I like swimming" é um prazer geral.',
-        'A forma -ing é chamada de "gerund" em inglês, mas os próprios nativos nunca pensam nessa categoria. Eles simplesmente sabem quais verbos pedem qual forma por exposição.',
-        '"Used to + -ing" (estar acostumado) vs "used to + verb base" (costumava fazer). "I\'m used to waking up early" (estou acostumado) vs "I used to wake up early" (eu costumava acordar cedo, mas não mais).'
-      ]
-    },
-
     preposicoes: {
       title: 'In, on, at, to — as palavrinhas que indicam onde, quando e para onde',
       objective: 'Aprenda a usar as preposições mais confusas do inglês pela lógica de espaço, tempo e direção, em vez de depender de tradução solta palavra por palavra.',
@@ -1852,57 +1667,6 @@
         }
       ]
     },
-    futuro: {
-      kicker: 'Trilha guiada',
-      headline: 'Futuro em inglês sem chute: decisão da hora, plano ou compromisso marcado.',
-      intro: 'A ideia desta aula é desmontar o mito de que will resolve tudo. O inglês distribui futuro por intenção, evidência e grau de compromisso, e essa distinção muda o que você soa para quem ouve.',
-      journey: ['Decidir na hora', 'Falar de planos já pensados', 'Mostrar compromisso que já está no calendário'],
-      sections: [
-        {
-          label: 'Bloco 1',
-          focus: 'Will',
-          summary: 'A primeira camada da aula trata do futuro mais espontâneo. Aqui entram decisão imediata, promessa e previsão sem evidência concreta.'
-        },
-        {
-          label: 'Bloco 2',
-          focus: 'Going to',
-          summary: 'Depois a aula desloca o foco para intenção prévia. Você não decide agora; você já vinha com isso na cabeça ou está reagindo a um sinal visível.'
-        },
-        {
-          label: 'Bloco 3',
-          focus: 'Agenda confirmada',
-          summary: 'O último bloco mostra o inglês mais concreto do futuro: aquilo que já parece compromisso, reserva ou encontro marcado e por isso usa a forma de presente contínuo.'
-        }
-      ]
-    },
-    gerundio: {
-      kicker: 'Trilha guiada',
-      headline: 'ING ou to: a escolha pequena que muda o ritmo e o sentido da frase.',
-      intro: 'Esta aula organiza um dos pontos mais traiçoeiros do inglês em quatro movimentos. Primeiro você entende o que é a forma -ing, depois separa os verbos que pedem -ing, os que pedem to e os casos em que a escolha muda tudo.',
-      journey: ['Entender a forma -ing', 'Reconhecer verbos que puxam -ing', 'Reconhecer verbos que puxam to', 'Perceber quando a escolha muda o sentido'],
-      sections: [
-        {
-          label: 'Bloco 1',
-          focus: 'Forma -ing',
-          summary: 'A abertura limpa a confusão inicial. A mesma terminação aparece em lugares diferentes, e a aula separa esses usos antes de exigir memorização.'
-        },
-        {
-          label: 'Bloco 2',
-          focus: 'Verbos com -ing',
-          summary: 'Aqui o foco sai da teoria e entra no padrão de combinação. Alguns verbos puxam naturalmente a ação seguinte em -ing, e o ouvido precisa começar a reconhecer isso.'
-        },
-        {
-          label: 'Bloco 3',
-          focus: 'Verbos com to',
-          summary: 'Na sequência, a aula coloca em contraste os verbos que exigem to antes da próxima ação. O ganho aqui é parar de misturar duas lógicas diferentes.'
-        },
-        {
-          label: 'Bloco 4',
-          focus: 'Mudança de sentido',
-          summary: 'O fechamento é o mais fino: alguns verbos aceitam as duas formas, mas dizem coisas diferentes. É aqui que o inglês deixa de ser fórmula e vira nuance.'
-        }
-      ]
-    },
     preposicoes: {
       kicker: 'Trilha guiada',
       headline: 'In, on, at, to: menos tradução literal, mais lógica de espaço, tempo e direção.',
@@ -2024,42 +1788,6 @@
         'estava-acontecendo': {
           content: 'Pensa em filme: uma ação era o fundo da cena e outra entrou cortando. O fundo vai em was/were + ing.',
           exercise: 'Colinha: ache primeiro o que estava rolando por mais tempo. Essa parte pede was/were + ing; o corte pontual fica no passado simples.'
-        }
-      }
-    },
-    futuro: {
-      sections: {
-        'will-na-hora': {
-          content: 'Will é futuro que nasce na boca: decisão da hora, promessa ou palpite sem prova na frente dos olhos.',
-          exercise: 'Colinha: se a ideia parece resposta instantânea, oferta ou promessa, incline para will. Se já vinha sendo pensada, desconfie de outra estrutura.'
-        },
-        'going-to-plano': {
-          content: 'Going to é futuro com história antes da frase. Ou já era plano, ou a evidência está gritando na sua frente.',
-          exercise: 'Colinha: pergunte se isso já estava decidido ou visível antes da fala. Se sim, going to fica mais natural do que will.'
-        },
-        'compromissos-marcados': {
-          content: 'Aqui o futuro tem cara de agenda: encontro marcado, passagem comprada, horário combinado.',
-          exercise: 'Colinha: quando parece calendário de verdade, o inglês trata como compromisso em andamento e usa presente contínuo.'
-        }
-      }
-    },
-    gerundio: {
-      sections: {
-        'o-que-e-ing': {
-          content: 'O -ing pode ser ação rolando agora ou o nome da ação. O segredo é olhar a moldura da frase, não só o final da palavra.',
-          exercise: 'Colinha: se a palavra vier depois de preposição ou funcionar como ideia geral, o -ing costuma ganhar força.'
-        },
-        'verbos-que-pedem-ing': {
-          content: 'Alguns verbos gostam de enxergar a próxima ação como atividade em curso. Por isso puxam o -ing naturalmente.',
-          exercise: 'Colinha: enjoy, finish, avoid, mind e companhia costumam pedir a ação seguinte em versão -ing.'
-        },
-        'verbos-que-pedem-to': {
-          content: 'Outros verbos abrem um corredor para "to + verbo base". Eles enxergam a próxima ação como intenção, plano ou objetivo.',
-          exercise: 'Colinha: want, need, decide, plan, refuse e vários parecidos pedem to antes do verbo que vem depois.'
-        },
-        'mudanca-de-significado': {
-          content: 'Aqui a escolha muda a história. Não é só uma forma diferente: é uma intenção diferente dentro da frase.',
-          exercise: 'Colinha: antes de escolher, pergunte se a frase fala de parar a ação, parar para outra ação, lembrar do passado ou lembrar algo que ainda falta fazer.'
         }
       }
     },
@@ -2783,62 +2511,9 @@
           tip: 'was/were + -ing = ação em andamento. Simple past = interrupção.' }
       ]
     ],
-    futuro: [
-      [ // section 0: will
-        { options: ['I\'m going to answer it!', 'I answer it!', 'I\'ll answer it!'], correct: 2,
-          explanation: 'Decisão tomada no momento da fala → "will". "Going to" seria para planos já feitos.',
-          tip: 'Decidiu agora? will. Já tinha planejado? going to.' },
-        { options: ['I\'m going to call you early tomorrow.', 'I will call you early tomorrow.', 'I call you early tomorrow.'], correct: 1,
-          explanation: '"Will" para promessa/comprometimento feito na hora da conversa.',
-          tip: 'Promessa espontânea → will. "I\'ll be there for you."' },
-        { options: ['going to — para todas as situações futuras.', 'will — para decisões e promessas feitas na hora.', 'Os dois são iguais, sem diferença real.'], correct: 1,
-          explanation: '"Will" é o auxiliar para promessas e decisões tomadas no momento.',
-          tip: 'Decidiu AGORA → will. Já tinha decidido antes → going to.' },
-        { options: ['willn\'t', 'won\'t', 'will not to'], correct: 1,
-          explanation: '"will" + "not" = "won\'t" (contração irregular). "Willn\'t" não existe.',
-          tip: 'will → won\'t. Não siga o padrão is/isn\'t. Memorize: will/won\'t.' },
-        { options: ['I think it going to be rainy.', 'I think it are going to rain.', 'I think it will be rainy.'], correct: 2,
-          explanation: 'Previsão sem evidência visual → "will". "Going to" seria para evidência concreta.',
-          tip: 'Opinião/previsão abstrata → will. Evidência que você está vendo → going to.' }
-      ],
-      [ // section 1: going to
-        { options: ['I will travel on vacation.', 'I\'m going to travel on vacation.', 'I travel on vacation.'], correct: 1,
-          explanation: 'Plano já decidido antes de falar → "going to".',
-          tip: 'Já estava nos planos → going to. Decidiu agora, falando → will.' },
-        { options: ['will — é uma previsão abstrata.', 'going to — você vê a evidência (ele desequilibrado).', 'Os dois funcionam exatamente igual.'], correct: 1,
-          explanation: 'Evidência visual clara → "going to". "He\'s going to fall!" = você está vendo acontecer.',
-          tip: 'Vejo a evidência → going to. Só acho que vai acontecer → will.' },
-        { options: ['She will studying medicine.', 'She going to study medicine.', 'She is going to study medicine.'], correct: 2,
-          explanation: '"going to" precisa do verbo "to be": is/am/are + going to + verbo base.',
-          tip: 'Não esqueça o "is/am/are"! Não é só "going to" — é "is going to".' },
-        { options: ['will = futuro distante; going to = futuro próximo.', 'will = decisão espontânea; going to = plano ou evidência.', 'will = americano; going to = britânico.'], correct: 1,
-          explanation: 'A diferença é conceitual: "will" para o que decide agora; "going to" para o que já estava planejado.',
-          tip: 'will = flash de decisão. going to = plano já existente ou evidência visual.' },
-        { options: ['I will finish my English course.', 'I\'m going to finish my English course.', 'Ambas corretas — going to é mais natural para planos definidos.'], correct: 2,
-          explanation: '"Going to" é mais natural para planos pessoais já definidos.',
-          tip: 'Para planos em conversa casual → going to é a escolha mais natural.' }
-      ],
-      [ // section 2: present continuous for future
-        { options: ['I will fly to Rio tomorrow.', 'I\'m flying to Rio tomorrow.', 'I fly to Rio tomorrow.'], correct: 1,
-          explanation: 'Presente contínuo + marcador de tempo futuro = compromisso já agendado.',
-          tip: 'Já está no calendário → present continuous. I\'m meeting, I\'m flying, I\'m having.' },
-        { options: ['Do you do anything this weekend?', 'Are you doing anything this weekend?', 'Will you do anything this weekend?'], correct: 1,
-          explanation: '"Are you doing" = present continuous interrogativo para perguntar sobre planos.',
-          tip: 'Are you + -ing + tempo futuro = planos/agenda. Natural e muito usado.' },
-        { options: ['I\'m going to meet my dentist.', 'I\'m meeting my dentist on Thursday.', 'Ambas corretas — a segunda implica que já está agendado.'], correct: 2,
-          explanation: '"I\'m meeting my dentist" indica compromisso já marcado. Present continuous é mais específico.',
-          tip: 'Já tem hora marcada? Present continuous. Intenção sem data? Going to.' },
-        { options: ['São sinônimos.', '"going to" = intenção/plano; present continuous = compromisso já agendado.', 'Present continuous é mais informal.'], correct: 1,
-          explanation: '"I\'m going to meet him" = intenção. "I\'m meeting him at 3pm" = está no calendário.',
-          tip: 'going to = intenção. present continuous = compromisso concreto com hora/lugar.' },
-        { options: ['She will meet the client on Friday.', 'She meets the client on Friday.', 'She\'s meeting the client on Friday.'], correct: 2,
-          explanation: 'Compromisso já agendado → present continuous.',
-          tip: 'Meeting = compromisso marcado. Mais natural que will para eventos agendados.' }
-      ]
-    ],
-    gerundio: [
-      [ // section 0: -ing as noun
-        { options: ['writting / runing / comeing / playing / swiming', 'writing / running / coming / playing / swimming', 'writeing / running / comming / playing / swimm'], correct: 1,
+    preposicoes: [
+      [ // section 0: in/on/at place
+        { options: ['She\'s in the supermarket.', 'She\'s on the supermarket.', 'She\'s at the supermarket.'], correct: 2,
           explanation: '-e mudo cai (come→coming), CVC curta dobra (run→running, swim→swimming), play apenas + ing.',
           tip: '-e mudo cai (write→writing). CVC curta dobra (run→running). Resto: +ing.' },
         { options: ['To run every day is good for your health.', 'Run every day is good for your health.', 'Running every day is good for your health.'], correct: 2,
@@ -3200,10 +2875,8 @@
     perguntas: 1002,
     negativa: 1003,
     passado: 1004,
-    futuro: 1005,
-    gerundio: 1006,
-    preposicoes: 1007,
-    verbos: 1008
+    preposicoes: 1005,
+    verbos: 1006
   };
 
   // Expõe os dados das aulas pro lessons-trainer-bridge.js poder montar
