@@ -145,35 +145,35 @@
 
 /* Container principal de aula */
 .le-aula {
-    font-family: var(--le-font-body) !important;
-    color: var(--le-ink) !important;
+    font-family: 'Space Grotesk', system-ui, sans-serif !important;
+    color: #1A2A22 !important;
     max-width: 760px !important;
     margin: 0 auto !important;
-    padding: var(--le-space-3xl) var(--le-space-2xl) 96px !important;
+    padding: 32px 24px 96px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: var(--le-space-6xl) !important;
-    line-height: var(--le-leading-relaxed) !important;
+    gap: 56px !important;
+    line-height: 1.6 !important;
 }
 
 /* ─ Manifesto (abertura da aula) ─ */
 .le-manifesto {
     position: relative !important;
-    padding: var(--le-space-3xl) 0 var(--le-space-5xl) !important;
-    border-bottom: 1px solid var(--le-line) !important;
+    padding: 32px 0 48px !important;
+    border-bottom: 1px solid rgba(122,158,132,0.16) !important;
 }
 
 .le-manifesto-kicker {
     display: inline-flex !important;
     align-items: center !important;
-    gap: var(--le-space-sm) !important;
-    font-family: var(--le-font-body) !important;
-    font-size: var(--le-text-xs) !important;
+    gap: 8px !important;
+    font-family: 'Space Grotesk', system-ui, sans-serif !important;
+    font-size: 0.72rem !important;
     font-weight: 500 !important;
     letter-spacing: 0.14em !important;
     text-transform: uppercase !important;
-    color: var(--le-accent-deep) !important;
-    margin-bottom: var(--le-space-xl) !important;
+    color: #3A5E47 !important;
+    margin-bottom: 20px !important;
 }
 
 .le-manifesto-kicker::before {
@@ -185,13 +185,13 @@
 }
 
 .le-manifesto-text {
-    font-family: var(--le-font-display) !important;
+    font-family: 'Manrope', system-ui, sans-serif !important;
     font-size: clamp(1.8rem, 3.4vw, 2.6rem) !important;
-    line-height: var(--le-leading-tight) !important;
+    line-height: 1.18 !important;
     font-weight: 600 !important;
-    color: var(--le-ink) !important;
+    color: #1A2A22 !important;
     letter-spacing: -0.025em !important;
-    margin: 0 0 var(--le-space-2xl) !important;
+    margin: 0 0 24px !important;
     text-wrap: balance !important;
 }
 
@@ -223,7 +223,7 @@
 .le-section {
     display: flex !important;
     flex-direction: column !important;
-    gap: var(--le-space-2xl) !important;
+    gap: 24px !important;
 }
 
 .le-section-head {
@@ -329,29 +329,29 @@
 
 /* ─ 1. SOUNDBOARD (Pronúncia/Audio) ─ */
 .le-soundboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: var(--le-space-md);
-    padding: var(--le-space-2xl);
-    background: var(--le-accent-soft);
-    border-radius: var(--le-radius-lg);
-    border: 1px solid rgba(122, 158, 132, 0.1);
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: 12px !important;
+    padding: 24px !important;
+    background: rgba(201,145,107,0.12) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(122, 158, 132, 0.1) !important;
 }
 
 .le-sound-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--le-space-sm);
-    padding: var(--le-space-lg);
-    background: white;
-    border: 2px solid var(--le-line);
-    border-radius: var(--le-radius-md);
-    cursor: pointer;
-    font-family: inherit;
-    transition: all var(--le-duration-base) var(--le-ease);
-    position: relative;
-    overflow: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 16px !important;
+    background: white !important;
+    border: 2px solid rgba(122,158,132,0.16) !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
 .le-sound-btn::before {
@@ -364,9 +364,9 @@
 }
 
 .le-sound-btn:hover {
-    transform: translateY(-2px);
-    border-color: var(--le-accent);
-    box-shadow: var(--le-shadow-md);
+    transform: translateY(-2px) !important;
+    border-color: #C9916B !important;
+    box-shadow: 0 4px 16px rgba(26, 42, 34, 0.08) !important;
 }
 
 .le-sound-btn:active {
