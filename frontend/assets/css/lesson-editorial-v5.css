@@ -1084,5 +1084,33 @@
 }
 
 /* ============================================================
+   WRAPPER EDITORIAL + INTEGRAÇÃO COM CONTEÚDO LEGADO
+   ============================================================ */
+
+.le-editorial-wrapper {
+    margin-bottom: 48px;
+}
+
+.le-legacy-content {
+    border-top: 2px dashed rgba(122, 158, 132, 0.25);
+    padding-top: 48px;
+    margin-top: 48px;
+    position: relative;
+}
+
+.le-legacy-content::before {
+    content: 'Pratique agora — questões interativas';
+    display: block;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #5A6B62;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+/* ============================================================
    FIM — Sistema pronto para expandir!
    ============================================================ */

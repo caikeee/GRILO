@@ -1419,11 +1419,33 @@
             return false;
         }
 
+        // Evita renderização dupla
+        if (main.dataset.editorial === '1' && main.dataset.editorialSlug === slug) {
+            return true;
+        }
+
         try {
-            main.innerHTML = layout(lesson);
+            // PRESERVA todo o conteúdo legado (seções, exercícios, curiosidades)
+            // Captura .lp-msec (seções com exercícios), .lp-mcur (curiosidades) e .lp-peda-phase (fases pedagógicas)
+            const legacySectionsHTML = Array.from(main.querySelectorAll('.lp-msec')).map(el => el.outerHTML).join('');
+            const legacyCuriositiesHTML = Array.from(main.querySelectorAll('.lp-mcur')).map(el => el.outerHTML).join('');
+            const legacyPedaPhasesHTML = Array.from(main.querySelectorAll('.lp-peda-phase')).map(el => el.outerHTML).join('');
+
+            const legacyHTML = legacySectionsHTML + legacyPedaPhasesHTML + legacyCuriositiesHTML;
+
+            // Renderiza conteúdo editorial
+            const editorialHtml = layout(lesson);
+
+            // Combina: editorial + seções legadas (que contêm exercícios)
+            main.innerHTML = `
+                <div class="le-editorial-wrapper">${editorialHtml}</div>
+                ${legacyHTML ? `<div class="le-legacy-content">${legacyHTML}</div>` : ''}
+            `;
+
             main.dataset.editorial = '1';
+            main.dataset.editorialSlug = slug;
             main.scrollTop = 0;
-            console.log('[editorial-renderer] layout aplicado:', slug);
+            console.log('[editorial-renderer] layout aplicado:', slug, '· exercícios:', legacySectionsHTML ? 'sim' : 'não', '· curiosidades:', legacyCuriositiesHTML ? 'sim' : 'não');
             return true;
         } catch (e) {
             console.error('[editorial-renderer] erro renderizando', slug, e);
@@ -1438,10 +1460,15 @@
         if (typeof window.showLessonContent === 'function' && !window.showLessonContent._editorialHookInstalled) {
             const originalShow = window.showLessonContent;
             window.showLessonContent = function(slug, triggerEl) {
+                // Reset flag para permitir nova renderização da nova aula
+                const main = document.getElementById('lessonModalMain');
+                if (main) {
+                    main.dataset.editorial = '';
+                    main.dataset.editorialSlug = '';
+                }
                 originalShow(slug, triggerEl);
-                // Tenta renderizar imediatamente e depois com delay para garantir
+                // Tenta renderizar imediatamente após o DOM estar pronto
                 requestAnimationFrame(() => applyEditorialIfAvailable(slug));
-                setTimeout(() => applyEditorialIfAvailable(slug), 50);
             };
             window.showLessonContent._editorialHookInstalled = true;
             console.log('[editorial-renderer] hook instalado · layouts:', Object.keys(LAYOUTS).length);
@@ -1452,9 +1479,13 @@
         if (typeof window._griloOpenLesson === 'function' && !window._griloOpenLesson._editorialHookInstalled) {
             const original = window._griloOpenLesson;
             window._griloOpenLesson = function(slug, triggerEl) {
+                const main = document.getElementById('lessonModalMain');
+                if (main) {
+                    main.dataset.editorial = '';
+                    main.dataset.editorialSlug = '';
+                }
                 original(slug, triggerEl);
                 requestAnimationFrame(() => applyEditorialIfAvailable(slug));
-                setTimeout(() => applyEditorialIfAvailable(slug), 50);
             };
             window._griloOpenLesson._editorialHookInstalled = true;
             console.log('[editorial-renderer] hook instalado (via _griloOpenLesson) · layouts:', Object.keys(LAYOUTS).length);
