@@ -3307,6 +3307,10 @@
     { num: '06', title: 'Querer, poder, gostar',         meta: '4 aulas · expressão',        slugs: ['soa6-can','soa6-like-ing','verbos','soa6-want-to'] },
   ];
 
+  // Ordem oficial da trilha (achatada) — usada para numeração das aulas
+  // Importante: usa esta ordem em vez de Object.keys(lessons) que segue a ordem de declaração
+  const TRAIL_ORDER = TRAIL_MODULES.flatMap(mod => mod.slugs);
+
   function buildCard(key, globalNum, status, phraseStat, cardIndex = 0) {
     const lesson = lessons[key];
     if (!lesson) return null;
@@ -3460,7 +3464,9 @@
     window.clearTimeout(lessonModalCloseTimer);
     modal.classList.remove('is-closing');
 
-    const index  = LESSON_KEYS.indexOf(slug);
+    // Usa a ordem oficial da trilha (não a ordem de declaração no objeto lessons)
+    const trailIndex = TRAIL_ORDER.indexOf(slug);
+    const index = trailIndex >= 0 ? trailIndex : LESSON_KEYS.indexOf(slug);
     const num    = String(index + 1).padStart(2, '0');
     const status = getLessonStatus(slug);
 
