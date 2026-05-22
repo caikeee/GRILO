@@ -1402,18 +1402,28 @@
 
     function applyEditorialIfAvailable(slug) {
         const layout = LAYOUTS[slug];
-        if (!layout) return false;
+        if (!layout) {
+            console.log('[editorial-renderer] layout não encontrado:', slug);
+            return false;
+        }
 
         const main = document.getElementById('lessonModalMain');
-        if (!main) return false;
+        if (!main) {
+            console.log('[editorial-renderer] elemento main não encontrado');
+            return false;
+        }
 
         const lesson = (window._lessonsData || {})[slug];
-        if (!lesson) return false;
+        if (!lesson) {
+            console.log('[editorial-renderer] dados da aula não encontrados:', slug);
+            return false;
+        }
 
         try {
             main.innerHTML = layout(lesson);
             main.dataset.editorial = '1';
             main.scrollTop = 0;
+            console.log('[editorial-renderer] layout aplicado:', slug);
             return true;
         } catch (e) {
             console.error('[editorial-renderer] erro renderizando', slug, e);
@@ -1429,7 +1439,9 @@
             const originalShow = window.showLessonContent;
             window.showLessonContent = function(slug, triggerEl) {
                 originalShow(slug, triggerEl);
+                // Tenta renderizar imediatamente e depois com delay para garantir
                 requestAnimationFrame(() => applyEditorialIfAvailable(slug));
+                setTimeout(() => applyEditorialIfAvailable(slug), 50);
             };
             window.showLessonContent._editorialHookInstalled = true;
             console.log('[editorial-renderer] hook instalado · layouts:', Object.keys(LAYOUTS).length);
@@ -1442,6 +1454,7 @@
             window._griloOpenLesson = function(slug, triggerEl) {
                 original(slug, triggerEl);
                 requestAnimationFrame(() => applyEditorialIfAvailable(slug));
+                setTimeout(() => applyEditorialIfAvailable(slug), 50);
             };
             window._griloOpenLesson._editorialHookInstalled = true;
             console.log('[editorial-renderer] hook instalado (via _griloOpenLesson) · layouts:', Object.keys(LAYOUTS).length);
