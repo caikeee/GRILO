@@ -4572,6 +4572,63 @@
 
   // ========== HELPER GLOBAL DE TTS (Text-to-Speech) ==========
   // Usado por botões de áudio em exemplos, soundboards, tabelas, etc.
+
+  // Volume persistido no localStorage (0.5 = padrão, 1.0 = máximo Web Speech)
+  function _getTTSVolume() {
+    try {
+      const v = parseFloat(localStorage.getItem('grilo_tts_volume'));
+      return (isFinite(v) && v >= 0 && v <= 1) ? v : 1.0;
+    } catch (e) { return 1.0; }
+  }
+  function _setTTSVolume(v) {
+    try { localStorage.setItem('grilo_tts_volume', String(v)); } catch (e) {}
+  }
+  function _getTTSRate() {
+    try {
+      const r = parseFloat(localStorage.getItem('grilo_tts_rate'));
+      return (isFinite(r) && r >= 0.5 && r <= 2) ? r : 0.92;
+    } catch (e) { return 0.92; }
+  }
+  function _setTTSRate(r) {
+    try { localStorage.setItem('grilo_tts_rate', String(r)); } catch (e) {}
+  }
+
+  // Cache da melhor voz en-US disponível (priorizar Google/Microsoft que são mais altas)
+  let _bestVoice = null;
+  function _findBestEnVoice() {
+    if (_bestVoice) return _bestVoice;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+
+    // Prioriza vozes mais nítidas e altas (Google > Microsoft > Apple > resto)
+    const priorities = [
+      v => /Google.*US English/i.test(v.name),
+      v => /Google.*English/i.test(v.name) && v.lang === 'en-US',
+      v => /Microsoft.*Aria/i.test(v.name),
+      v => /Microsoft.*Jenny/i.test(v.name),
+      v => /Microsoft.*Guy/i.test(v.name),
+      v => /Microsoft/i.test(v.name) && v.lang === 'en-US',
+      v => /Samantha/i.test(v.name),
+      v => v.lang === 'en-US',
+      v => v.lang && v.lang.startsWith('en')
+    ];
+
+    for (const test of priorities) {
+      const found = voices.find(test);
+      if (found) { _bestVoice = found; break; }
+    }
+    return _bestVoice;
+  }
+
+  // Pré-carrega vozes (algumas plataformas só populam após onvoiceschanged)
+  if ('speechSynthesis' in window) {
+    try { window.speechSynthesis.getVoices(); } catch (e) {}
+    window.speechSynthesis.onvoiceschanged = function() {
+      _bestVoice = null;  // invalida cache
+      _findBestEnVoice();
+    };
+  }
+
   window._griloSpeak = function(text, btnEl) {
     if (!('speechSynthesis' in window) || !text) return;
     try {
@@ -4580,8 +4637,12 @@
 
       const u = new SpeechSynthesisUtterance(String(text));
       u.lang = 'en-US';
-      u.rate = 0.92;   // Um pouco mais lento para aprendizado
+      u.rate = _getTTSRate();
       u.pitch = 1.0;
+      u.volume = _getTTSVolume();
+
+      const voice = _findBestEnVoice();
+      if (voice) u.voice = voice;
 
       // Feedback visual no botão
       if (btnEl) {
@@ -4597,6 +4658,17 @@
       window.speechSynthesis.speak(u);
     } catch (e) {
       console.warn('[LESSONS] TTS error:', e);
+    }
+  };
+
+  // Expõe controles para o painel de áudio
+  window._griloTTS = {
+    getVolume: _getTTSVolume,
+    setVolume: _setTTSVolume,
+    getRate: _getTTSRate,
+    setRate: _setTTSRate,
+    testSpeak: function() {
+      window._griloSpeak('Hello! This is the audio test.', null);
     }
   };
 

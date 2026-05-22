@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="assets/css/sage-premium-polish.css?v=20260520">
   <link rel="stylesheet" href="assets/css/lessons-v4-overlay.css?v=20260520">
   <link rel="stylesheet" href="assets/css/modal-ux-enhancement.css?v=20260520">
-  <link rel="stylesheet" href="assets/css/lesson-editorial-v5.css?v=1779490000">
+  <link rel="stylesheet" href="assets/css/lesson-editorial-v5.css?v=1779500000">
 </head>
 <body class="app-lessons">
   <main class="lessons-shell">
@@ -74,6 +74,27 @@
           <span class="lp-modal-crumb-lesson" id="lessonModalCrumbLesson">Aula</span>
         </div>
         <div class="lp-modal-actions">
+          <!-- Controle de áudio (TTS) -->
+          <div class="lp-audio-control" id="lessonAudioControl">
+            <button id="lessonAudioToggle" class="lp-audio-toggle" type="button" aria-label="Configurar áudio" aria-expanded="false">
+              <span class="lp-audio-icon">🔊</span>
+            </button>
+            <div class="lp-audio-panel" id="lessonAudioPanel" hidden>
+              <div class="lp-audio-panel-row">
+                <label class="lp-audio-label" for="ttsVolumeSlider">Volume</label>
+                <input id="ttsVolumeSlider" class="lp-audio-slider" type="range" min="0" max="100" step="5" value="100" aria-label="Volume do áudio">
+                <span class="lp-audio-val" id="ttsVolumeVal">100%</span>
+              </div>
+              <div class="lp-audio-panel-row">
+                <label class="lp-audio-label" for="ttsRateSlider">Velocidade</label>
+                <input id="ttsRateSlider" class="lp-audio-slider" type="range" min="60" max="130" step="5" value="92" aria-label="Velocidade da fala">
+                <span class="lp-audio-val" id="ttsRateVal">0.92x</span>
+              </div>
+              <button id="ttsTestBtn" class="lp-audio-test-btn" type="button">▶ Testar áudio</button>
+              <p class="lp-audio-tip">Se ainda estiver baixo, aumente o volume do sistema operacional.</p>
+            </div>
+          </div>
+
           <button id="lessonPhraseVoiceBtn" class="lp-modal-phrase-voice-btn" type="button" aria-label="Treinar 5 frases por voz">
             🎙 Treinar 5 frases
           </button>
@@ -108,12 +129,12 @@
     </div>
   </section>
 
-  <script src="assets/js/voice-recognition-utils.js?v=1779490000" defer></script>
-  <script src="assets/js/lessons-trainer-bridge.js?v=1779490000" defer></script>
-  <script src="assets/js/lessons-enhanced.js?v=1779490000" defer></script>
-  <script src="assets/js/phrase-voice-trainer.js?v=1779490000" defer></script>
-  <script src="assets/js/lesson-editorial-renderer.js?v=1779490000" defer></script>
-  <script src="assets/js/modal-interactions.js?v=1779490000" defer></script>
+  <script src="assets/js/voice-recognition-utils.js?v=1779500000" defer></script>
+  <script src="assets/js/lessons-trainer-bridge.js?v=1779500000" defer></script>
+  <script src="assets/js/lessons-enhanced.js?v=1779500000" defer></script>
+  <script src="assets/js/phrase-voice-trainer.js?v=1779500000" defer></script>
+  <script src="assets/js/lesson-editorial-renderer.js?v=1779500000" defer></script>
+  <script src="assets/js/modal-interactions.js?v=1779500000" defer></script>
 
   <!-- ── Fechar modal (botão Fechar) ───────────────────────── -->
   <script>
@@ -132,6 +153,83 @@
         }
       }
     });
+  </script>
+
+  <!-- ── Controle de áudio (TTS volume/velocidade) ──────────── -->
+  <script>
+    (function() {
+      function $(id) { return document.getElementById(id); }
+
+      function initAudioPanel() {
+        var toggle = $('lessonAudioToggle');
+        var panel = $('lessonAudioPanel');
+        var volSlider = $('ttsVolumeSlider');
+        var rateSlider = $('ttsRateSlider');
+        var volVal = $('ttsVolumeVal');
+        var rateVal = $('ttsRateVal');
+        var testBtn = $('ttsTestBtn');
+        if (!toggle || !panel || !window._griloTTS) return;
+
+        // Inicializa com valores salvos
+        var curVol = Math.round(window._griloTTS.getVolume() * 100);
+        var curRate = Math.round(window._griloTTS.getRate() * 100);
+        volSlider.value = curVol;
+        rateSlider.value = curRate;
+        volVal.textContent = curVol + '%';
+        rateVal.textContent = (curRate / 100).toFixed(2) + 'x';
+
+        // Toggle do painel
+        toggle.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var isOpen = !panel.hasAttribute('hidden');
+          if (isOpen) {
+            panel.setAttribute('hidden', '');
+            toggle.setAttribute('aria-expanded', 'false');
+          } else {
+            panel.removeAttribute('hidden');
+            toggle.setAttribute('aria-expanded', 'true');
+          }
+        });
+
+        // Fechar ao clicar fora
+        document.addEventListener('click', function(e) {
+          if (panel.hasAttribute('hidden')) return;
+          if (e.target.closest('#lessonAudioControl')) return;
+          panel.setAttribute('hidden', '');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+
+        // Volume
+        volSlider.addEventListener('input', function() {
+          var v = parseInt(volSlider.value, 10) / 100;
+          window._griloTTS.setVolume(v);
+          volVal.textContent = volSlider.value + '%';
+        });
+
+        // Velocidade
+        rateSlider.addEventListener('input', function() {
+          var r = parseInt(rateSlider.value, 10) / 100;
+          window._griloTTS.setRate(r);
+          rateVal.textContent = r.toFixed(2) + 'x';
+        });
+
+        // Testar áudio
+        if (testBtn) {
+          testBtn.addEventListener('click', function() {
+            window._griloTTS.testSpeak();
+          });
+        }
+      }
+
+      // Aguarda window._griloTTS estar disponível
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(initAudioPanel, 200);
+        });
+      } else {
+        setTimeout(initAudioPanel, 200);
+      }
+    })();
   </script>
 </body>
 </html>
