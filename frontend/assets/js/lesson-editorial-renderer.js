@@ -1440,7 +1440,13 @@
         console.log('[editorial-renderer] hook instalado · layouts:', Object.keys(LAYOUTS).length);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(installHook, 300);
-    });
+    // Tenta instalar o hook imediatamente (se o DOM já está pronto)
+    // e também aguarda DOMContentLoaded como fallback
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(installHook, 300);
+        });
+    } else {
+        setTimeout(installHook, 100);
+    }
 })();
