@@ -3634,7 +3634,7 @@
     { num: '06', title: 'Querer, poder, gostar',         meta: '4 aulas · expressão',        slugs: ['soa6-can','soa6-like-ing','verbos','soa6-want-to'] },
   ];
 
-  function buildCard(key, globalNum, status, phraseStat) {
+  function buildCard(key, globalNum, status, phraseStat, cardIndex = 0) {
     const lesson = lessons[key];
     if (!lesson) return null;
 
@@ -3676,6 +3676,7 @@
     card.setAttribute('tabindex', '0');
     card.setAttribute('aria-label', `Abrir aula: ${lesson.title}`);
     card.setAttribute('data-lesson-key', key);
+    card.style.setProperty('--card-delay', `${cardIndex * 82}ms`);
     card.innerHTML = `
       <div class="lp-card-top">
         <div class="lp-card-top-left">
@@ -3712,6 +3713,7 @@
     container.innerHTML = '';
 
     let globalNum = 1;
+    let cardIndex = 0;
     TRAIL_MODULES.forEach(mod => {
       // Cabeçalho do módulo
       const head = document.createElement('div');
@@ -3729,9 +3731,10 @@
         if (!lessons[key]) { globalNum++; return; }
         const backendId = STANDALONE_BACKEND_IDS[key];
         const phraseStat = (backendId && phraseProgressMap[backendId]) || { dominated: 0, total: 0, dominated_at: null };
-        const card = buildCard(key, globalNum, progress[key] || {}, phraseStat);
+        const card = buildCard(key, globalNum, progress[key] || {}, phraseStat, cardIndex);
         if (card) container.appendChild(card);
         globalNum++;
+        cardIndex++;
       });
     });
   }
