@@ -913,6 +913,18 @@
           id: 'sujeito-obrigatorio',
           title: 'Em inglês, sujeito não é opcional',
           explanation: 'No português você pode dizer "tá chovendo" e está claro quem é o sujeito (ninguém — é o clima). No inglês isso não funciona: precisa de "It is raining". Toda frase em inglês precisa de um pronome ou nome no começo. Esse é o erro mais comum do brasileiro iniciante: começar uma frase sem sujeito. "Is hot today" não funciona — tem que ser "It is hot today".',
+          soundboard: {
+            title: '🔊 Os 7 pronomes sujeito — clique para ouvir',
+            items: [
+              { word: 'I', pron: 'ai', speech: 'I' },
+              { word: 'You', pron: 'iu', speech: 'You' },
+              { word: 'He', pron: 'ri', speech: 'He' },
+              { word: 'She', pron: 'chi', speech: 'She' },
+              { word: 'It', pron: 'it', speech: 'It' },
+              { word: 'We', pron: 'ui', speech: 'We' },
+              { word: 'They', pron: 'dei', speech: 'They' }
+            ]
+          },
           examples: [
             { en: 'It is raining.', pt: 'Está chovendo.' },
             { en: 'It is 8 o\'clock.', pt: 'São 8 horas.' },
@@ -971,6 +983,17 @@
           id: 'inversao',
           title: 'Pergunta no TO BE: inverte e pronto',
           explanation: 'Pra transformar uma afirmação em pergunta com TO BE, basta inverter a ordem. "You are tired" vira "Are you tired?". "She is at home" vira "Is she at home?". Não precisa de "do" ou "does" — o próprio TO BE faz o trabalho de abrir a pergunta. Essa simplicidade é uma das vantagens do verbo.',
+          soundboard: {
+            title: '🔊 Perguntas com TO BE — ouça a entonação',
+            items: [
+              { word: 'Are you?', pron: 'ar IU?', speech: 'Are you?' },
+              { word: 'Is she?', pron: 'iz CHI?', speech: 'Is she?' },
+              { word: 'Are they?', pron: 'ar DEI?', speech: 'Are they?' },
+              { word: 'Am I?', pron: 'em AI?', speech: 'Am I?' },
+              { word: 'Are you ready?', pron: 'ar iu RÉ-di?', speech: 'Are you ready?' },
+              { word: 'Is it cold?', pron: 'iz it KOULD?', speech: 'Is it cold?' }
+            ]
+          },
           examples: [
             { en: 'Are you Brazilian?', pt: 'Você é brasileiro?' },
             { en: 'Is she at home?', pt: 'Ela está em casa?' },
@@ -990,6 +1013,17 @@
           id: 'negativa',
           title: 'Negar com "not"',
           explanation: 'Pra negar com TO BE, coloque "not" depois do verbo. "I am" vira "I am not" (ou "I\'m not"). "She is" vira "She is not" (ou "she isn\'t"). "They are" vira "they aren\'t". Cuidado com a primeira pessoa: NÃO existe "amn\'t" em inglês padrão — sempre "I\'m not" ou "I am not".',
+          soundboard: {
+            title: '🔊 Negativas com TO BE — contrações naturais',
+            items: [
+              { word: "I'm not", pron: 'aim NOT', speech: "I'm not" },
+              { word: "isn't", pron: 'IZ-ent', speech: "isn't" },
+              { word: "aren't", pron: 'AR-ent', speech: "aren't" },
+              { word: "She isn't here.", pron: 'chi IZ-ent rir', speech: "She isn't here" },
+              { word: "They aren't ready.", pron: 'dei AR-ent RÉ-di', speech: "They aren't ready" },
+              { word: "It isn't cold.", pron: 'it IZ-ent KOULD', speech: "It isn't cold" }
+            ]
+          },
           examples: [
             { en: 'I am not tired.', pt: 'Não estou cansado.' },
             { en: 'I\'m not Brazilian.', pt: 'Não sou brasileiro.' },
@@ -1080,6 +1114,19 @@
           id: 'quatro-formas',
           title: 'Quatro palavras, duas dimensões',
           explanation: 'O inglês marca duas coisas com esses pronomes: distância (perto vs longe) e quantidade (um vs muitos). This = singular perto. That = singular longe. These = plural perto. Those = plural longe. Funciona tanto pra apontar fisicamente ("this chair, that car") quanto pra referir conceitos ("that idea, these problems"). Pode estar acompanhado do objeto ou aparecer sozinho como pronome.',
+          soundboard: {
+            title: '🔊 This, that, these, those — ouça a pronúncia',
+            items: [
+              { word: 'this', pron: 'dis (perto, 1)', speech: 'this' },
+              { word: 'that', pron: 'dét (longe, 1)', speech: 'that' },
+              { word: 'these', pron: 'diz (perto, +)', speech: 'these' },
+              { word: 'those', pron: 'douz (longe, +)', speech: 'those' },
+              { word: 'This is mine.', pron: 'dis iz MAIN', speech: 'This is mine' },
+              { word: 'That car.', pron: 'dét KAR', speech: 'That car' },
+              { word: 'These shoes.', pron: 'diz CHUZ', speech: 'These shoes' },
+              { word: 'Those people.', pron: 'douz PÍ-pol', speech: 'Those people' }
+            ]
+          },
           table: {
             title: 'A matriz: distância × quantidade',
             headers: ['', 'Perto ◉', 'Longe ◌'],
@@ -1238,6 +1285,19 @@
           id: 'estrutura-continuous',
           title: 'A fórmula: TO BE + verbo -ing',
           explanation: 'O present continuous usa to be (am/is/are) + o verbo com -ing no final. "I am working" = estou trabalhando agora. "She is cooking" = ela está cozinhando. "They are studying" = eles estão estudando. Este tempo é sempre sobre o momento presente — o que está acontecendo enquanto você fala. Regras do -ing: verbos terminados em -e muda para -ing sem o e (make → making). Verbos CVC curtos dobram a consoante (swim → swimming, run → running).',
+          soundboard: {
+            title: '🔊 Verbos com -ing — ouça e compare com a forma base',
+            items: [
+              { word: 'work → working', pron: 'UORK-ing', speech: 'working' },
+              { word: 'study → studying', pron: 'STÁ-di-ing', speech: 'studying' },
+              { word: 'make → making', pron: 'MEI-king', speech: 'making' },
+              { word: 'swim → swimming', pron: 'SUÍM-ing', speech: 'swimming' },
+              { word: 'run → running', pron: 'RÁN-ing', speech: 'running' },
+              { word: 'I\'m working.', pron: 'aim UORK-ing', speech: "I'm working right now" },
+              { word: 'She\'s cooking.', pron: "chiz KÚK-ing", speech: "She's cooking" },
+              { word: 'They\'re studying.', pron: 'der STÁ-di-ing', speech: "They're studying" }
+            ]
+          },
           table: {
             title: 'Estrutura do present continuous',
             headers: ['Sujeito', 'To Be', 'Verbo -ing', 'Tradução'],
@@ -1304,6 +1364,19 @@
           id: 'escala',
           title: 'A escala dos advérbios',
           explanation: 'Os principais advérbios de frequência seguem uma escala: always (100% — sempre), usually (80% — geralmente), often (60% — frequentemente), sometimes (40% — às vezes), rarely (10% — raramente), never (0% — nunca). A posição padrão é ANTES do verbo principal: "I always drink coffee", "She never eats meat". "Sometimes" tem uma exceção aceita: pode aparecer no início da frase para dar ênfase — "Sometimes I work late" — mas a posição antes do verbo ("I sometimes work late") é a forma mais segura. Com TO BE, o advérbio vem depois: "She is always late". "Never" já carrega a negação — não combine com "don\'t".',
+          soundboard: {
+            title: '🔊 Advérbios de frequência — do 100% ao 0%',
+            items: [
+              { word: 'always', pron: 'OL-ueiz (100%)', speech: 'always' },
+              { word: 'usually', pron: 'IU-ju-ê-li (80%)', speech: 'usually' },
+              { word: 'often', pron: 'Ó-fen (60%)', speech: 'often' },
+              { word: 'sometimes', pron: 'SAM-taimz (40%)', speech: 'sometimes' },
+              { word: 'rarely', pron: 'RER-li (10%)', speech: 'rarely' },
+              { word: 'never', pron: 'NÉ-ver (0%)', speech: 'never' },
+              { word: 'I always drink coffee.', pron: 'ai OL-ueiz drink KÓ-fi', speech: 'I always drink coffee' },
+              { word: 'She never eats meat.', pron: 'chi NÉ-ver its MIT', speech: 'She never eats meat' }
+            ]
+          },
           table: {
             title: 'Escala de frequência',
             headers: ['Frequência', 'Advérbio', 'Tradução', 'Exemplo'],
@@ -1359,6 +1432,20 @@
           id: 'cinco-wh',
           title: 'Seis palavras, seis respostas',
           explanation: 'Cada WH puxa um tipo de informação. "What" — coisa/atividade. "Where" — lugar. "Who" — pessoa. "When" — tempo. "How" — modo/jeito. A estrutura é sempre a mesma: WH + auxiliar (do/does/did) + sujeito + verbo. "Where do you live?" — "Onde você mora?". "What does she do?" — "O que ela faz?". Sem o auxiliar a frase soa errada ou esquisita.',
+          soundboard: {
+            title: '🔊 As 6 palavras WH — clique para ouvir',
+            items: [
+              { word: 'What', pron: 'uot (o quê)', speech: 'What' },
+              { word: 'Where', pron: 'uér (onde)', speech: 'Where' },
+              { word: 'When', pron: 'uén (quando)', speech: 'When' },
+              { word: 'Who', pron: 'ru (quem)', speech: 'Who' },
+              { word: 'Why', pron: 'uai (por quê)', speech: 'Why' },
+              { word: 'How', pron: 'rau (como)', speech: 'How' },
+              { word: 'What is your name?', pron: 'uot iz ior NEIM?', speech: 'What is your name?' },
+              { word: 'Where do you live?', pron: 'uér du iu LIV?', speech: 'Where do you live?' },
+              { word: 'How do you say this?', pron: 'rau du iu SEI dis?', speech: 'How do you say this?' }
+            ]
+          },
           table: {
             title: 'As 6 perguntas WH essenciais',
             headers: ['WH', 'Sobre', 'Pergunta exemplo'],
@@ -1458,6 +1545,19 @@
           id: 'lugares-verbos',
           title: 'Os lugares e os verbos que andam com eles',
           explanation: 'Pra descrever uma rotina, você precisa de dois conjuntos: lugares (home, work, school, gym, supermarket, restaurant, bus stop) e verbos de movimento/permanência (go to, leave, arrive at, stay, come back). A combinação faz sentido: "I go to work at 8" — "Eu vou pro trabalho às 8". "I leave the gym at 7pm" — "Eu saio da academia às 7". Uma irregularidade importante: "home" não leva preposição: diz-se "go home", "stay home" — nunca "go to home".',
+          soundboard: {
+            title: '🔊 Verbos de rotina — ouça as expressões completas',
+            items: [
+              { word: 'go to work', pron: 'gou tu UORK', speech: 'go to work' },
+              { word: 'go home', pron: 'gou ROUM', speech: 'go home' },
+              { word: 'stay home', pron: 'stei ROUM', speech: 'stay home' },
+              { word: 'leave the gym', pron: 'liv dê DJIM', speech: 'leave the gym' },
+              { word: 'arrive at the office', pron: 'ê-RAIV ét di Ó-fis', speech: 'arrive at the office' },
+              { word: 'come back', pron: 'kam BÉK', speech: 'come back' },
+              { word: 'wake up', pron: 'ueik AP', speech: 'wake up' },
+              { word: 'I go to work at 8.', pron: 'ai gou tu uork ét EIT', speech: 'I go to work at eight' }
+            ]
+          },
           examples: [
             { en: 'I go to work at 8am.', pt: 'Eu vou pro trabalho às 8.' },
             { en: 'She goes home at 6.', pt: 'Ela vai pra casa às 6.' },
@@ -1519,6 +1619,19 @@
           id: 'regra-ed',
           title: 'A regra principal: verbo + ED',
           explanation: 'Pra falar do passado em inglês com verbos regulares, basta adicionar -ed no final. "I work" → "I worked" (eu trabalhei). "She plays" → "She played" (ela jogou). "We talk" → "We talked" (nós conversamos). Simples assim. A regra cobre talvez 70% dos verbos do inglês. Os outros 30% são irregulares (próxima aula). Mudanças ortográficas: verbos em -y trocam o y por -ied (study → studied), e verbos curtos com vogal + consoante dobram a consoante (stop → stopped).',
+          soundboard: {
+            title: '🔊 A pronúncia do -ED: três sons da mesma letra',
+            items: [
+              { word: 'worked → /t/', pron: 'UORKT', speech: 'worked' },
+              { word: 'watched → /t/', pron: 'UOTCHT', speech: 'watched' },
+              { word: 'played → /d/', pron: 'PLEID', speech: 'played' },
+              { word: 'studied → /d/', pron: 'STÁ-did', speech: 'studied' },
+              { word: 'wanted → /id/', pron: 'UONT-id', speech: 'wanted' },
+              { word: 'needed → /id/', pron: 'NÍD-id', speech: 'needed' },
+              { word: 'I worked yesterday.', pron: 'ai UORKT IÉS-ter-dei', speech: 'I worked yesterday' },
+              { word: 'She studied all night.', pron: 'chi STÁ-did ol NAIT', speech: 'She studied all night' }
+            ]
+          },
           examples: [
             { en: 'I worked yesterday.', pt: 'Eu trabalhei ontem.' },
             { en: 'She studied for the test.', pt: 'Ela estudou pra prova.' },
@@ -1637,6 +1750,19 @@
           id: 'habilidade-permissao',
           title: 'Duas funções, uma palavra',
           explanation: 'O "can" tem duas funções principais. (1) Habilidade — "I can speak English" (eu sei falar inglês). (2) Permissão ou possibilidade — "Can I open the window?" (posso abrir a janela?). Em ambos os casos, o verbo depois fica na forma base — nada de adicionar -s ou -ed. Pra negar, usa-se "can\'t" (cannot). Pra perguntar, inverte: "Can you...?". Não confunda com "could" — esse é o passado ou versão mais educada de "can".',
+          soundboard: {
+            title: '🔊 CAN e CAN\'T — a diferença que muda tudo',
+            items: [
+              { word: 'can', pron: 'kén (fraco)', speech: 'can' },
+              { word: "can't", pron: 'KÉANT (forte)', speech: "can't" },
+              { word: 'I can swim.', pron: 'ai kén SUÍM', speech: 'I can swim' },
+              { word: "I can't swim.", pron: 'ai KÉANT suím', speech: "I can't swim" },
+              { word: 'Can you help me?', pron: 'kén iu RÉLP mi?', speech: 'Can you help me?' },
+              { word: 'She can speak French.', pron: 'chi kén SPIK french', speech: 'She can speak French' },
+              { word: "Can I sit here?", pron: 'kén ai SIT rir?', speech: 'Can I sit here?' },
+              { word: "I can't come tomorrow.", pron: 'ai KÉANT kam tê-MÓ-rou', speech: "I can't come tomorrow" }
+            ]
+          },
           examples: [
             { en: 'I can swim.', pt: 'Eu sei nadar.' },
             { en: 'She can speak three languages.', pt: 'Ela fala três línguas.' },
@@ -3074,7 +3200,7 @@
       }
     },
     'soa1-alfabeto': {
-      kicker: 'Módulo 01 · Pronúncia',
+      kicker: 'Módulo 01 · PronúnciaMódulo 01 · Pronúncia',
       headline: 'As 26 letras que viram sons: o alfabeto inglês pelo nome e pela pronúncia.',
       intro: 'O nome de cada letra em inglês é diferente do português. Saber como cada uma soa é essencial para soletrar, entender siglas e reconhecer palavras de ouvido.',
       journey: ['Conhecer o nome de cada letra', 'Identificar os sons difíceis para brasileiros', 'Praticar soletrar nomes reais'],
@@ -3861,12 +3987,74 @@
 
     const sectionCards = (lesson.sections || []).map((section, index) => {
       const sectionEditorial = editorial.sections?.[index] || {};
-      const example = Array.isArray(section.examples) && section.examples.length > 0 ? section.examples[0] : null;
       const coachHint = getContentCoachHint(slug, section);
-      const _ep = typeof example === 'object' ? (EXAMPLE_PRON[example.en] || '') : '';
-      const exampleHtml = example
-        ? `<div class="lp-peda-example"><strong>${escapePedagogicalHtml(typeof example === 'string' ? example : example.en)}</strong>${_ep ? `<span class="lp-ex-pron">/ ${escapePedagogicalHtml(_ep)} /</span>` : ''}${typeof example === 'object' && example.pt ? `<span>${escapePedagogicalHtml(example.pt)}</span>` : ''}</div>`
-        : '';
+
+      // ── Soundboard ──
+      let soundboardHtml = '';
+      if (section.soundboard && Array.isArray(section.soundboard.items) && section.soundboard.items.length) {
+        const sbTitle = section.soundboard.title || '🔊 Pratique a pronúncia';
+        soundboardHtml = `
+          <div class="lp-soundboard">
+            <div class="lp-soundboard-title">${escapePedagogicalHtml(sbTitle)}</div>
+            <div class="lp-soundboard-grid">
+              ${section.soundboard.items.map(item => {
+                const safeSpeech = String(item.speech || item.word).replace(/'/g, "\\'");
+                return `<button class="lp-sb-cell" type="button"
+                    aria-label="Ouvir ${escapePedagogicalHtml(item.word)}"
+                    onclick="window._griloSpeak&&window._griloSpeak('${safeSpeech}', this)">
+                  <span class="lp-sb-cell-play">▶</span>
+                  <span class="lp-sb-cell-word">${escapePedagogicalHtml(item.word)}</span>
+                  ${item.pron ? `<span class="lp-sb-cell-pron">${escapePedagogicalHtml(item.pron)}</span>` : ''}
+                </button>`;
+              }).join('')}
+            </div>
+          </div>`;
+      }
+
+      // ── Tabela interna da seção ──
+      let tableSectionHtml = '';
+      if (section.table && Array.isArray(section.table.rows) && section.table.rows.length) {
+        const tHeaders = Array.isArray(section.table.headers) ? section.table.headers : [];
+        tableSectionHtml = `
+          <div class="lp-comparetable">
+            ${section.table.title ? `<div class="lp-comparetable-title">${escapePedagogicalHtml(section.table.title)}</div>` : ''}
+            <div class="lp-comparetable-scroll">
+              <table class="lp-comparetable-table">
+                ${tHeaders.length ? `<thead><tr>${tHeaders.map(h => `<th>${escapePedagogicalHtml(h)}</th>`).join('')}<th aria-label="Áudio"></th></tr></thead>` : ''}
+                <tbody>
+                  ${section.table.rows.map(row => {
+                    const cells = Array.isArray(row.cells) ? row.cells : [];
+                    const safeSpeak = row.speak ? String(row.speak).replace(/'/g, "\\'") : '';
+                    return `<tr>
+                      ${cells.map((c, i) => `<td${i === 0 ? ' class="lp-ct-key"' : ''}>${escapePedagogicalHtml(c)}</td>`).join('')}
+                      <td class="lp-ct-audio">${safeSpeak ? `<button class="lp-ct-play" type="button" aria-label="Ouvir linha" onclick="window._griloSpeak&&window._griloSpeak('${safeSpeak}', this)">▶</button>` : ''}</td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>`;
+      }
+
+      // ── Todos os exemplos ──
+      let examplesHtml = '';
+      if (Array.isArray(section.examples) && section.examples.length) {
+        examplesHtml = `
+          <div class="lp-mex">
+            <div class="lp-mex-label">📝 Exemplos</div>
+            <ul class="lp-mex-list">
+              ${section.examples.map(ex => {
+                if (typeof ex === 'string') {
+                  const safeStr = ex.replace(/'/g, "\\'");
+                  return `<li class="lp-mex-item"><button class="lp-ex-play" type="button" aria-label="Ouvir pronúncia" onclick="window._griloSpeak&&window._griloSpeak('${safeStr}', this)">▶</button><span class="lp-ex-en">${escapePedagogicalHtml(ex)}</span></li>`;
+                }
+                const _p = EXAMPLE_PRON[ex.en] || '';
+                const safeEn = ex.en.replace(/'/g, "\\'");
+                return `<li class="lp-mex-item"><button class="lp-ex-play" type="button" aria-label="Ouvir pronúncia de ${escapePedagogicalHtml(ex.en)}" onclick="window._griloSpeak&&window._griloSpeak('${safeEn}', this)">▶</button><div class="lp-ex-content"><span class="lp-ex-en"${_p ? ` title="/ ${escapePedagogicalHtml(_p)} /"` : ''}>${escapePedagogicalHtml(ex.en)}</span>${_p ? `<span class="lp-ex-pron">/ ${escapePedagogicalHtml(_p)} /</span>` : ''}${ex.pt ? `<span class="lp-ex-pt">${escapePedagogicalHtml(ex.pt)}</span>` : ''}</div></li>`;
+              }).join('')}
+            </ul>
+          </div>`;
+      }
 
       return `
         <article class="lp-peda-section-card" id="${sectionIdPrefix}-${slug}-${index}">
@@ -3878,7 +4066,9 @@
           <h3 class="lp-peda-section-title">${escapePedagogicalHtml(section.title)}</h3>
           ${sectionEditorial.summary ? `<p class="lp-peda-section-lead">${escapePedagogicalHtml(sectionEditorial.summary)}</p>` : ''}
           <p class="lp-peda-section-copy">${escapePedagogicalHtml(section.explanation || '')}</p>
-          ${exampleHtml}
+          ${soundboardHtml}
+          ${tableSectionHtml}
+          ${examplesHtml}
         </article>`;
     }).join('');
 
