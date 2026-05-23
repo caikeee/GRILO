@@ -30,8 +30,8 @@
         {
             num: '03',
             title: 'Ações do dia a dia',
-            meta: '5 aulas · present simple',
-            slugs: ['soa3-present-afirm', 'soa3-third-person-s', 'perguntas', 'negativa', 'soa3-frequencia']
+            meta: '6 aulas · present simple',
+            slugs: ['soa3-present-afirm', 'soa3-third-person-s', 'soa3-present-continuous', 'soa3-frequencia', 'perguntas', 'negativa']
         },
         {
             num: '04',
@@ -49,7 +49,7 @@
             num: '06',
             title: 'Querer, poder, gostar',
             meta: '4 aulas · expressão',
-            slugs: ['soa6-can', 'soa6-like-ing', 'verbos', 'soa6-want-to']
+            slugs: ['verbos', 'soa6-can', 'soa6-like-ing', 'soa6-want-to']
         }
     ];
 

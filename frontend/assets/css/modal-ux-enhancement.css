@@ -531,3 +531,85 @@
   animation: shimmer 2s infinite;
   pointer-events: none;
 }
+
+/* ============================================================
+   PHRASE VOICE BUTTON — movido do inline no HTML
+   ============================================================ */
+
+.lp-modal-phrase-voice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #c44a2c 0%, #e88a3c 100%);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(196, 74, 44, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  font-family: inherit;
+}
+
+.lp-modal-phrase-voice-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(196, 74, 44, 0.4);
+}
+
+/* ============================================================
+   ASIDE TOGGLE — chevron animado
+   ============================================================ */
+
+.lp-aside-chevron {
+  transition: transform 0.22s ease;
+  flex-shrink: 0;
+}
+
+.lp-modal-aside-toggle[aria-expanded="false"] .lp-aside-chevron {
+  transform: rotate(180deg);
+}
+
+.lp-aside-toggle-label {
+  font-size: 0.8rem;
+}
+
+/* ============================================================
+   HERO PROGRESS — sempre visível com animação de entrada
+   ============================================================ */
+
+.lp-hero-progress {
+  opacity: 0;
+  transition: opacity 0.4s ease 0.3s;
+}
+
+.lp-hero-progress.is-loaded {
+  opacity: 1;
+}
+
+/* ============================================================
+   SKELETON — aplicado ao aside e main durante carregamento
+   ============================================================ */
+
+.lp-modal-aside.is-loading,
+.lp-modal-main.is-loading {
+  position: relative;
+  min-height: 120px;
+  background: var(--lp-surface, #f5f7fa);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.lp-modal-aside.is-loading::after,
+.lp-modal-main.is-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 100%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease infinite;
+}

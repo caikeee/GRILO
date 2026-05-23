@@ -26,7 +26,10 @@
     FU: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="22" cy="39" rx="13.5" ry="4" fill="#c7d7f8"></ellipse><path d="M31.7 8.3c5.3 3 8.1 8.4 8.3 15.8l-7.4 2.3-5.8-5.8 2.4-7.3z" fill="#ffd7b8" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><path d="M17.8 20.8L29 9.7c3 .3 5.8 1.2 8.5 2.8L23.6 26.4l-7.3-.3z" fill="#ff6b88" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><circle cx="31.2" cy="16.9" r="2.7" fill="#e8f2ff" stroke="#1f2b8c" stroke-width="2.3"></circle><path d="M12.6 28.4c2.7-1.1 5.1-1.1 7.4.1-.7 2.2-.2 4.5 1.4 6.8-3.8.3-6.7-.6-8.8-2.7z" fill="#ffd95e" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><path d="M12.1 17.8l4.5 4.5" stroke="#1f2b8c" stroke-width="2.5" stroke-linecap="round"></path></svg></span>',
     IG: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="38.8" rx="14" ry="4" fill="#c7d7f8"></ellipse><path d="M10.2 12.5h27.6c2.9 0 5.2 2.3 5.2 5.2v14.1c0 2.9-2.3 5.2-5.2 5.2H10.2C7.3 37 5 34.7 5 31.8V17.7c0-2.9 2.3-5.2 5.2-5.2z" fill="#dbe9ff" stroke="#1f2b8c" stroke-width="2.5"></path><path d="M15 19.2c2-2 5.2-2 7.3 0M13 25.2c3.2-3.2 8.3-3.2 11.5 0M11.2 31.2c4.1-4.1 10.7-4.1 14.8 0" fill="none" stroke="#1f2b8c" stroke-width="2.5" stroke-linecap="round"></path><path d="M30 18.4l4.8 4.8" stroke="#1f2b8c" stroke-width="2.5" stroke-linecap="round"></path><circle cx="36.8" cy="25.1" r="6.2" fill="#ffd95e" stroke="#1f2b8c" stroke-width="2.5"></circle><circle cx="36.8" cy="25.1" r="2.5" fill="#ff6b88"></circle></svg></span>',
     IN: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="39" rx="12.5" ry="4" fill="#c7d7f8"></ellipse><path d="M24 39.8s10.6-8.4 10.6-17.2A10.6 10.6 0 0 0 24 12 10.6 10.6 0 0 0 13.4 22.6C13.4 31.4 24 39.8 24 39.8z" fill="#f4b06c" stroke="#1f2b8c" stroke-width="2.5"></path><circle cx="24" cy="22.5" r="4.7" fill="#e9f2ff" stroke="#1f2b8c" stroke-width="2.5"></circle><path d="M31.2 13l1.1 2.1 2.1 1.1-2.1 1.1-1.1 2.1-1.1-2.1-2.1-1.1 2.1-1.1z" fill="#ffd95e" stroke="#1f2b8c" stroke-width="1.8"></path><path d="M10.3 34.2h8.2" stroke="#ff6b88" stroke-width="3" stroke-linecap="round"></path></svg></span>',
-    VB: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="39" rx="13.5" ry="4" fill="#c7d7f8"></ellipse><path d="M10.5 10.8h19.7c3.2 0 5.8 2.6 5.8 5.8v18.2H16.7c-3.4 0-6.2 2.8-6.2 6.2z" fill="#dbe9ff" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><path d="M16 17.8h11.8M16 23.3h11.8M16 28.8h7.4" stroke="#1f2b8c" stroke-width="2.5" stroke-linecap="round"></path><path d="M30.6 11.7l6.7 6.7-4.7 4.7-5.5 1.5 1.4-5.5z" fill="#ff6b88" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><path d="M35.6 9l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" fill="#ffd95e" stroke="#1f2b8c" stroke-width="1.8"></path></svg></span>'
+    VB: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="39" rx="13.5" ry="4" fill="#c7d7f8"></ellipse><path d="M10.5 10.8h19.7c3.2 0 5.8 2.6 5.8 5.8v18.2H16.7c-3.4 0-6.2 2.8-6.2 6.2z" fill="#dbe9ff" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><path d="M16 17.8h11.8M16 23.3h11.8M16 28.8h7.4" stroke="#1f2b8c" stroke-width="2.5" stroke-linecap="round"></path><path d="M30.6 11.7l6.7 6.7-4.7 4.7-5.5 1.5 1.4-5.5z" fill="#ff6b88" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><path d="M35.6 9l1 2 2 1-2 1-1 2-1-2-2-1 2-1z" fill="#ffd95e" stroke="#1f2b8c" stroke-width="1.8"></path></svg></span>',
+    SN: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="39" rx="13" ry="4" fill="#c7d7f8"></ellipse><rect x="6" y="20" width="4" height="8" rx="2" fill="#6bc5f8" stroke="#1f2b8c" stroke-width="2"></rect><rect x="13" y="14" width="4" height="20" rx="2" fill="#6bc5f8" stroke="#1f2b8c" stroke-width="2"></rect><rect x="20" y="10" width="4" height="28" rx="2" fill="#4a9ef5" stroke="#1f2b8c" stroke-width="2.2"></rect><rect x="27" y="16" width="4" height="16" rx="2" fill="#6bc5f8" stroke="#1f2b8c" stroke-width="2"></rect><rect x="34" y="21" width="4" height="6" rx="2" fill="#6bc5f8" stroke="#1f2b8c" stroke-width="2"></rect><path d="M8 24 h32" stroke="#1f2b8c" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.3"></path></svg></span>',
+    NU: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="39" rx="13" ry="4" fill="#c7d7f8"></ellipse><rect x="9" y="9" width="30" height="26" rx="4" fill="#eef4ff" stroke="#1f2b8c" stroke-width="2.5"></rect><text x="16" y="22" font-size="9" font-family="monospace" font-weight="bold" fill="#1f2b8c">1 2</text><text x="16" y="31" font-size="9" font-family="monospace" font-weight="bold" fill="#1f2b8c">3 4</text><circle cx="36" cy="12" r="5" fill="#ff6b88" stroke="#1f2b8c" stroke-width="2"></circle><path d="M34 12 h4 M36 10 v4" stroke="#fff" stroke-width="2" stroke-linecap="round"></path></svg></span>',
+    GR: '<span class="lp-glyph lp-glyph--scene" aria-hidden="true"><svg viewBox="0 0 48 48"><ellipse cx="24" cy="39.5" rx="13" ry="3.5" fill="#c7d7f8"></ellipse><path d="M8 8h22c3.3 0 6 2.7 6 6v11c0 3.3-2.7 6-6 6H18l-6 5v-5H8c-3.3 0-6-2.7-6-6V14c0-3.3 2.7-6 6-6z" transform="translate(4 0)" fill="#dbe9ff" stroke="#1f2b8c" stroke-width="2.5" stroke-linejoin="round"></path><path d="M15 18 h14 M15 23 h9" stroke="#1f2b8c" stroke-width="2.2" stroke-linecap="round"></path><circle cx="37" cy="13" r="6" fill="#ffd95e" stroke="#1f2b8c" stroke-width="2.2"></circle><path d="M37 10.5 v5 M34.5 13 h5" stroke="#1f2b8c" stroke-width="2" stroke-linecap="round"></path></svg></span>'
   };
 
   function renderUiIcon(name) {
@@ -77,7 +80,7 @@
         {
           id: 'quem-recebe',
           title: 'Quem recebe a ação: me, you, him, her, it, us, them',
-          explanation: 'Quando alguém não está fazendo a ação, mas sim recebendo ela — como quando alguém te liga, te ajuda ou te chama — usamos um segundo grupo: me (me/mim), you (continua igual), him (ele/o), her (ela/a), it (continua igual), us (nós/nos) e them (eles/os). No Brasil muita gente erra dizendo "ligou para eu" — em inglês seria "called me". A regra é simples: se vem depois de uma ação ou de palavras como "for", "to", "with", use esse segundo grupo.',
+          explanation: 'Quando alguém não está fazendo a ação, mas sim recebendo ela — como quando alguém te liga, te ajuda ou te chama — usamos um segundo grupo: me (me/mim), you (continua igual), him (ele/o), her (ela/a), it (continua igual), us (nós/nos) e them (eles/os). No Brasil muita gente erra dizendo "ligou para eu" — em inglês seria "called me". Dois casos chamam esse grupo: (a) depois do verbo como objeto direto — "She called me", "I saw him"; (b) depois de preposição — "with me", "for him", "to her". Se a palavra recebe a ação ou aparece depois de preposição, é hora do segundo grupo.',
           examples: [
             { en: 'She called me yesterday.', pt: 'Ela me ligou ontem.' },
             { en: 'Can you help us?', pt: 'Você pode nos ajudar?' },
@@ -381,7 +384,7 @@
             { en: 'We were having dinner when the power went out.', pt: 'A gente estava jantando quando a luz foi embora.' }
           ],
           exercises: [
-            'Complete: "She ___ ___ (read) when I knocked." (estava lendo)',
+            'Complete: "She ___ ___ (cook) when I arrived." (estava cozinhando)',
             'Combine as ações: "I study / the phone rings" → usando was/were + -ing.',
             'Traduza: "O que você estava fazendo às 10h da noite?"',
             'Corrija: "They was working." → correto: ___',
@@ -538,7 +541,7 @@
         {
           id: 'phrasal-verbs',
           title: 'Quando o verbo vem em bloco e o sentido vira outro',
-          explanation: 'Um dos maiores desafios do inglês para brasileiros: verbos que ganham uma segunda palavra (como "up", "out", "on", "off", "in", "away") e mudam completamente de sentido. "Give" sozinho = dar. "Give up" = desistir. "Give out" = distribuir. "Look" sozinho = olhar. "Look up" = pesquisar (num dicionário ou no Google). "Look after" = cuidar de. "Look for" = procurar. Não há como adivinhar — é aprender como expressão fixa. A boa notícia: eles seguem padrões que você vai perceber com o tempo. Os mais importantes para o dia a dia estão abaixo.',
+          explanation: 'Um dos maiores desafios do inglês para brasileiros: verbos que ganham uma segunda palavra (como "up", "out", "on", "off", "in", "away") e mudam completamente de sentido. "Give" sozinho = dar. "Give up" = desistir. "Give out" = distribuir. "Look" sozinho = olhar. "Look up" = pesquisar (num dicionário ou no Google). "Look after" = cuidar de. "Look for" = procurar. Não há como adivinhar — é aprender como expressão fixa. A boa notícia: eles seguem padrões que você vai perceber com o tempo. Os mais importantes para o dia a dia estão abaixo. Os 10 mais usados no cotidiano: give up (desistir), find out (descobrir), look for (procurar), come back (voltar), go on (continuar), pick up (buscar), turn on/off (ligar/desligar), look up (pesquisar), put on (vestir), run out of (acabar com).',
           examples: [
             { en: 'Wake up! It\'s 8am! (acordar)', pt: 'Acorda! São 8h!' },
             { en: 'I give up — this puzzle is impossible. (desistir)', pt: 'Desisti — esse quebra-cabeça é impossível.' },
@@ -560,7 +563,7 @@
         }
       ],
       curiosities: [
-        '"To be or not to be" é a frase mais famosa em inglês, de Hamlet de Shakespeare — escrita por volta de 1600. Cinco séculos depois, esse verbo ainda domina o idioma.',
+        'O TO BE é o único verbo inglês com formas completamente diferentes no passado: am/is/are viram was/were. Nenhum outro verbo muda tanto. Isso é resíduo de quando o inglês era muito mais próximo do alemão.',
         'O inglês não tem o equivalente do "saudade" português, mas tem "to miss" — que mistura sentir falta de uma pessoa E lamentar ter perdido algo: "I missed the train" (perdi o trem) e "I miss you" (sinto sua falta). Mesma palavra, dois sentidos.',
         'Existem mais de 5.000 phrasal verbs catalogados em inglês. Impossível aprender todos — mas os 50 mais comuns cobrem cerca de 80% das situações do cotidiano. Foque neles.'
       ]
@@ -573,7 +576,7 @@
     'soa1-alfabeto': {
       title: 'Alfabeto e sons que o português não tem',
       objective: 'Aprenda os sons do inglês que travam o brasileiro: o TH, o R retroflexo e a diferença entre vogais curtas e longas. Sem decorar, com a boca certa.',
-      icon: 'VB',
+      icon: 'SN',
       highlight: 'TH • R • short vs long vowels',
       teachingPoints: [
         'Pronunciar o TH em "think" e "this" sem trocar por T ou D.',
@@ -663,9 +666,9 @@
 
     'soa1-numeros': {
       title: 'Números, horas e datas',
-      objective: 'Aprenda a contar, pedir horas, dizer datas e idades em inglês — informação básica que abre a maioria das conversas reais.',
-      icon: 'PA',
-      highlight: '0 → 100 • What time is it? • dates',
+      objective: 'Aprenda a trabalhar com números em inglês — dos primeiros vinte até as dezenas, mais horas e datas. Os pontos que aparecem em qualquer conversa real.',
+      icon: 'NU',
+      highlight: '1 → 100 • What time is it? • datas',
       teachingPoints: [
         'Contar de 0 a 100 sem travar — base pra qualquer conversa sobre quantidade.',
         'Diferenciar 13/30, 14/40, 15/50 (que soam parecidos e confundem).',
@@ -750,7 +753,7 @@
     'soa1-cumprimentos': {
       title: 'Cumprimentos e apresentação',
       objective: 'Saiba abrir conversa em inglês sem soar como livro de escola — desde o "Hello" no balcão até o "Nice to meet you" da primeira reunião.',
-      icon: 'PR',
+      icon: 'GR',
       highlight: 'Hi • Hello • Nice to meet you',
       teachingPoints: [
         'Escolher entre Hi, Hello e Hey conforme a formalidade.',
@@ -923,6 +926,26 @@
             'Por que precisamos do "It" em "It is 8 o\'clock"?',
             'Complete: "___ speak Portuguese." (eles)',
             'Qual o erro em "Is my friend"? Como corrigir?'
+          ]
+        },
+        {
+          id: 'it-impessoal',
+          title: 'O "it" que não representa nada — clima, hora e situação',
+          explanation: 'Em português, você diz "está chovendo" sem sujeito. Em inglês, isso não existe: toda frase precisa de sujeito. Quando não há uma pessoa ou coisa real sendo referenciada, o inglês usa "it" como sujeito vazio. Isso acontece com clima ("It\'s raining", "It\'s cold"), com horas ("It\'s 8 o\'clock", "It\'s Monday") e com distâncias ("It\'s far from here"). Este "it" não se refere a nada — é só uma exigência da gramática inglesa. É uma diferença fundamental entre os dois idiomas.',
+          examples: [
+            { en: 'It\'s raining outside.', pt: 'Está chovendo lá fora.' },
+            { en: 'It\'s very hot today.', pt: 'Está muito quente hoje.' },
+            { en: 'It\'s 3 o\'clock.', pt: 'São 3 horas.' },
+            { en: 'It\'s Monday again.', pt: 'É segunda de novo.' },
+            { en: 'It\'s far from here.', pt: 'É longe daqui.' },
+            { en: 'It\'s my birthday!', pt: 'É meu aniversário!' }
+          ],
+          exercises: [
+            'Como você diz "está frio" em inglês? (sem sujeito real)',
+            'Complete: "___ Monday today." (que dia é)',
+            'Por que "Is raining" está errado em inglês?',
+            'Traduza: "São 10 horas." (use it)',
+            'Em "It\'s far from here" — o "it" se refere a quê?'
           ]
         }
       ],
@@ -1122,6 +1145,24 @@
             'Traduza: "Eles comem arroz todo dia."',
             'Quando você usa o present simple — pra ações em andamento ou pra hábitos?'
           ]
+        },
+        {
+          id: 'pratica-completa',
+          title: 'Consolidando: sujeito, verbo, hábito',
+          explanation: 'Agora você tem o kit completo do present simple: sujeito + verbo na forma base (ou +s na terceira pessoa) + complemento. Use este tempo para falar de rotinas, hábitos e verdades gerais. A pergunta de controle é: isso acontece regularmente? Se sim, present simple é o seu tempo.',
+          examples: [
+            { en: 'I drink coffee every morning.', pt: 'Eu bebo café toda manhã.' },
+            { en: 'She reads before bed.', pt: 'Ela lê antes de dormir.' },
+            { en: 'We go to the gym three times a week.', pt: 'Nós vamos à academia três vezes por semana.' },
+            { en: 'The sun sets in the west.', pt: 'O sol se põe a oeste. (verdade geral)' }
+          ],
+          exercises: [
+            'Crie uma frase sobre seu hábito matinal usando present simple.',
+            'Qual destes describe uma rotina? "I am eating now" ou "I eat at noon"?',
+            'Monte: [ela] + [estuda] + [inglês] + [todo dia] em inglês.',
+            'Por que "The Earth orbits the sun" usa present simple e não outro tempo?',
+            'Complete: "They ___ (live) in Rio and ___ (work) downtown."'
+          ]
         }
       ],
       curiosities: [
@@ -1181,6 +1222,72 @@
       ]
     },
 
+    'soa3-present-continuous': {
+      title: 'Present continuous — o que está acontecendo agora',
+      objective: 'Aprenda a descrever ações em andamento — o que está rolando neste exato momento. Diferente do present simple (hábitos), o continuous é para o "agora".',
+      icon: 'VB',
+      highlight: 'I am working • She is cooking • They are studying',
+      teachingPoints: [
+        'Montar a estrutura: sujeito + to be + verbo -ing.',
+        'Distinguir present continuous (agora) de present simple (hábito).',
+        'Formar o -ing: regras de ortografia (swim → swimming, make → making).',
+        'Perguntar e negar no continuous: "Are you working?" / "I\'m not working".'
+      ],
+      sections: [
+        {
+          id: 'estrutura-continuous',
+          title: 'A fórmula: TO BE + verbo -ing',
+          explanation: 'O present continuous usa to be (am/is/are) + o verbo com -ing no final. "I am working" = estou trabalhando agora. "She is cooking" = ela está cozinhando. "They are studying" = eles estão estudando. Este tempo é sempre sobre o momento presente — o que está acontecendo enquanto você fala. Regras do -ing: verbos terminados em -e muda para -ing sem o e (make → making). Verbos CVC curtos dobram a consoante (swim → swimming, run → running).',
+          table: {
+            title: 'Estrutura do present continuous',
+            headers: ['Sujeito', 'To Be', 'Verbo -ing', 'Tradução'],
+            rows: [
+              { cells: ['I', 'am', 'working', 'Estou trabalhando'], speak: 'I am working' },
+              { cells: ['You', 'are', 'studying', 'Você está estudando'], speak: 'You are studying' },
+              { cells: ['He / She', 'is', 'cooking', 'Ele/ela está cozinhando'], speak: 'She is cooking' },
+              { cells: ['We / They', 'are', 'sleeping', 'Nós/eles estão dormindo'], speak: 'They are sleeping' }
+            ]
+          },
+          examples: [
+            { en: 'I\'m watching a movie right now.', pt: 'Estou assistindo um filme agora.' },
+            { en: 'She\'s cooking dinner.', pt: 'Ela está cozinhando o jantar.' },
+            { en: 'They\'re playing soccer.', pt: 'Eles estão jogando futebol.' },
+            { en: 'He\'s not working today.', pt: 'Ele não está trabalhando hoje.' },
+            { en: 'Are you listening to me?', pt: 'Você está me ouvindo?' }
+          ],
+          exercises: [
+            'Como você diz "Estou estudando inglês agora" em inglês?',
+            'Complete: "She ___ ___ (cook) dinner."',
+            'Qual é o -ing de "swim"? Por que a consoante dobra?',
+            'Corrija: "I am work at home now."',
+            'Quando usar "I work" vs "I am working"?'
+          ]
+        },
+        {
+          id: 'simple-vs-continuous',
+          title: 'Simples × continuous: hábito vs agora',
+          explanation: 'Esta é a distinção mais importante: present simple é para hábitos e rotinas ("I work from home" — é minha rotina). Present continuous é para o que está acontecendo agora ("I am working from home today" — está acontecendo neste momento). Palavras de pista: "every day", "always", "usually" → simple. "right now", "at the moment", "today", "currently" → continuous. A pergunta é: isso acontece habitualmente ou está rolando agora?',
+          examples: [
+            { en: 'I drink coffee every morning. (hábito)', pt: 'Eu bebo café toda manhã. (rotina)' },
+            { en: 'I\'m drinking coffee right now. (agora)', pt: 'Estou bebendo café agora. (este momento)' },
+            { en: 'She works at a hospital. (hábito)', pt: 'Ela trabalha num hospital. (emprego)' },
+            { en: 'She\'s working late tonight. (agora)', pt: 'Ela está trabalhando até tarde hoje. (situação atual)' }
+          ],
+          exercises: [
+            'Qual é o tempo certo? "Every day I ___ (walk) to work." (simple ou continuous?)',
+            'Complete: "Look! She ___ ___ (dance)!" (agora)',
+            'Corrija: "I am working every day." (troque para o tempo certo)',
+            'Qual palavra-pista indica continuous? "right now", "always" ou "every day"?',
+            'Crie uma frase sobre hábito (simple) e uma sobre o que está fazendo agora (continuous).'
+          ]
+        }
+      ],
+      curiosities: [
+        'Em inglês, alguns verbos raramente aparecem no continuous: "know", "like", "love", "believe". Não dizemos "I am knowing" — apenas "I know". São os chamados "stative verbs" (verbos de estado).',
+        'O present continuous também serve para falar de planos futuros confirmados: "I\'m meeting her tomorrow" = Vou encontrá-la amanhã (já está marcado). Duas funções, um tempo só.'
+      ]
+    },
+
     'soa3-frequencia': {
       title: 'Frequência — sempre, às vezes, nunca',
       objective: 'Aprenda a dizer com que frequência você faz cada coisa: always, often, sometimes, never. E onde colocar essas palavras na frase.',
@@ -1196,7 +1303,7 @@
         {
           id: 'escala',
           title: 'A escala dos advérbios',
-          explanation: 'Os principais advérbios de frequência seguem uma escala: always (100% — sempre), usually (80% — geralmente), often (60% — frequentemente), sometimes (40% — às vezes), rarely (10% — raramente), never (0% — nunca). A posição na frase é fixa: ANTES do verbo principal — "I always drink coffee", "She never eats meat". Com TO BE, a posição é depois: "She is always late". "Never" já contém a negação — não combine com "don\'t".',
+          explanation: 'Os principais advérbios de frequência seguem uma escala: always (100% — sempre), usually (80% — geralmente), often (60% — frequentemente), sometimes (40% — às vezes), rarely (10% — raramente), never (0% — nunca). A posição padrão é ANTES do verbo principal: "I always drink coffee", "She never eats meat". "Sometimes" tem uma exceção aceita: pode aparecer no início da frase para dar ênfase — "Sometimes I work late" — mas a posição antes do verbo ("I sometimes work late") é a forma mais segura. Com TO BE, o advérbio vem depois: "She is always late". "Never" já carrega a negação — não combine com "don\'t".',
           table: {
             title: 'Escala de frequência',
             headers: ['Frequência', 'Advérbio', 'Tradução', 'Exemplo'],
@@ -1238,7 +1345,7 @@
 
     'soa4-wh-questions': {
       title: 'WH questions — perguntas abertas',
-      objective: 'Aprenda a fazer as perguntas que puxam informação real: what, where, who, when, how. As cinco que destravam qualquer conversa.',
+      objective: 'Aprenda a fazer as perguntas que puxam informação real: what, where, who, when, why, how. As seis que destravam qualquer conversa.',
       icon: 'Q?',
       highlight: 'What • Where • Who • When • How',
       teachingPoints: [
@@ -1250,7 +1357,7 @@
       sections: [
         {
           id: 'cinco-wh',
-          title: 'Cinco palavras, cinco respostas',
+          title: 'Seis palavras, seis respostas',
           explanation: 'Cada WH puxa um tipo de informação. "What" — coisa/atividade. "Where" — lugar. "Who" — pessoa. "When" — tempo. "How" — modo/jeito. A estrutura é sempre a mesma: WH + auxiliar (do/does/did) + sujeito + verbo. "Where do you live?" — "Onde você mora?". "What does she do?" — "O que ela faz?". Sem o auxiliar a frase soa errada ou esquisita.',
           table: {
             title: 'As 6 perguntas WH essenciais',
@@ -1365,6 +1472,24 @@
             'Qual a diferença entre "go to" e "arrive at"?',
             'Traduza: "Ficamos em casa aos domingos."',
             'Por que "home" não leva "to" antes?'
+          ]
+        },
+        {
+          id: 'descrevendo-rotina',
+          title: 'Descrevendo um dia completo em inglês',
+          explanation: 'Com os verbos de rotina e o present simple, você já consegue narrar um dia inteiro. A chave é encadear as ações com conectores de tempo: "first" (primeiro), "then" (depois), "after that" (depois disso), "finally" (por fim). Isso transforma frases soltas numa sequência natural de conversa.',
+          examples: [
+            { en: 'First, I wake up and make coffee.', pt: 'Primeiro, eu acordo e faço café.' },
+            { en: 'Then I go to work.', pt: 'Depois vou trabalhar.' },
+            { en: 'After that, I have lunch at noon.', pt: 'Depois disso, almoço ao meio-dia.' },
+            { en: 'Finally, I go to bed at 11.', pt: 'Por fim, vou dormir às 11.' }
+          ],
+          exercises: [
+            'Use "first", "then" e "finally" para descrever 3 ações da sua manhã.',
+            'Como você diz "Primeiro acordo, depois tomo banho" em inglês?',
+            'Complete: "After work, I ___ (come) home and ___ (have) dinner."',
+            'Por que "wake up" e "get up" não são a mesma coisa?',
+            'Monte a sua rotina em 4 frases usando os verbos da aula.'
           ]
         }
       ],
@@ -1564,6 +1689,24 @@
             'Traduza: "Eles odeiam esperar."',
             'Quais verbos pedem -ing depois deles (cite 3)?'
           ]
+        },
+        {
+          id: 'gostar-querer-precisar',
+          title: 'Like, love, want, need — quando usar -ing e quando usar to',
+          explanation: 'Aqui está o mapa: verbos de sentimento (like, love, enjoy, hate) pedem -ing depois deles. Verbos de intenção (want, need, decide, plan) pedem "to + base" depois. A única sobreposição é "like" — que aceita as duas formas sem mudar muito o sentido. Na prática: se você está descrevendo o que gosta de fazer, use -ing; se está dizendo o que pretende fazer, use "to + base".',
+          examples: [
+            { en: 'I love swimming in the ocean.', pt: 'Adoro nadar no oceano. (sentimento + -ing)' },
+            { en: 'I want to learn guitar.', pt: 'Quero aprender violão. (intenção + to)' },
+            { en: 'She hates waking up early.', pt: 'Ela odeia acordar cedo.' },
+            { en: 'He needs to study more.', pt: 'Ele precisa estudar mais.' }
+          ],
+          exercises: [
+            'Complete: "I enjoy ___ (cook) on weekends."',
+            'Complete: "She wants ___ (travel) to Japan."',
+            'Qual erro tem aqui? "I love to dancing." — corrija.',
+            'Crie uma frase com "hate" e uma com "need" sobre estudar inglês.',
+            'Qual frase é correta? "I like swim" ou "I like swimming"?'
+          ]
         }
       ],
       curiosities: [
@@ -1601,6 +1744,24 @@
             'O que significa "wanna" na fala americana?',
             'Como negar "I want to wait"?',
             'Como perguntar "Você quer vir?" em inglês?'
+          ]
+        },
+        {
+          id: 'planos-e-intencoes',
+          title: 'Falar de planos e intenções com naturalidade',
+          explanation: 'Combinando want, need, decide, try e plan, você tem um kit para falar de praticamente qualquer intenção ou projeto. Em conversa, encadeie: "I want to learn English, so I need to practice every day and I plan to take a course." Esses verbos funcionam juntos como âncoras de planos de curto e longo prazo.',
+          examples: [
+            { en: 'I want to improve my English.', pt: 'Quero melhorar meu inglês.' },
+            { en: 'I need to practice speaking.', pt: 'Preciso praticar a fala.' },
+            { en: 'I decided to take a course.', pt: 'Decidi fazer um curso.' },
+            { en: 'I\'m trying to learn new words every day.', pt: 'Estou tentando aprender palavras novas todo dia.' }
+          ],
+          exercises: [
+            'Una as frases: "I want / learn English / so / I need / practice every day."',
+            'Complete: "She decided ___ (quit) her job and ___ (travel)."',
+            'Crie 3 frases sobre seus planos usando want, need e plan.',
+            'Qual erro? "I want learn guitar." — como corrigir?',
+            'Monte: "Estou tentando acordar mais cedo todo dia" em inglês.'
           ]
         }
       ],
@@ -1832,11 +1993,187 @@
         { answer: 'you', hint: 'Quem vai ao parque? Sujeito antes do verbo = você.' },
         { answer: 'me', hint: 'Depois de preposição "with": "come with _____".' }
       ]
+    },
+    perguntas: {
+      dialogue: '___1___ you like coffee? Yes, I ___2___.',
+      blanks: [
+        { answer: 'Do', hint: 'Para montar a pergunta com "you", precisamos de "Do" ou "Does"?', options: ['Do', 'Does', 'Did', 'Is'] },
+        { answer: 'do', hint: 'Resposta curta positiva com "I": "Yes, I ___"', options: ['do', 'does', 'did', "don't"] }
+      ]
+    },
+    negativa: {
+      dialogue: 'She ___1___ eat meat. They ___2___ happy.',
+      blanks: [
+        { answer: "doesn't", hint: 'Negar ação de "she" no presente: don\'t ou doesn\'t?', options: ["doesn't", "don't", "isn't", "wasn't"] },
+        { answer: "aren't", hint: 'Negar estado com "they" usando to be: isn\'t ou aren\'t?', options: ["aren't", "isn't", "don't", "weren't"] }
+      ]
+    },
+    passado: {
+      dialogue: 'Yesterday I ___1___ to the store. She ___2___ there.',
+      blanks: [
+        { answer: 'went', hint: 'Passado de "go" (irregular): "go" → "_____"', options: ['went', 'goed', 'go', 'gone'] },
+        { answer: "wasn't", hint: 'Negar "she was": forma contraída negativa.', options: ["wasn't", "weren't", "didn't", "isn't"] }
+      ]
+    },
+    preposicoes: {
+      dialogue: 'I live ___1___ Brazil. My meeting is ___2___ Monday.',
+      blanks: [
+        { answer: 'in', hint: 'País = dentro de → in, on ou at?', options: ['in', 'on', 'at', 'to'] },
+        { answer: 'on', hint: 'Dia da semana = superfície → in, on ou at?', options: ['on', 'in', 'at', 'by'] }
+      ]
+    },
+    verbos: {
+      dialogue: 'She ___1___ a teacher. I ___2___ drive a car.',
+      blanks: [
+        { answer: 'is', hint: 'Conjugação de "to be" com "she": am, is ou are?', options: ['is', 'am', 'are', 'be'] },
+        { answer: 'can', hint: 'Habilidade/possibilidade: qual modal usar?', options: ['can', 'must', 'should', 'will'] }
+      ]
+    },
+    'soa1-alfabeto': {
+      dialogue: 'The letter ___1___ sounds like "ei". ___2___ is pronounced "double-you".',
+      blanks: [
+        { answer: 'A', hint: 'Qual letra do alfabeto tem o som "ei"?', options: ['A', 'E', 'I', 'H'] },
+        { answer: 'W', hint: 'Qual letra tem o nome incomum "double-you"?', options: ['W', 'V', 'U', 'Y'] }
+      ]
+    },
+    'soa1-numeros': {
+      dialogue: 'I have ___1___ brothers. My sister is ___2___ years old.',
+      blanks: [
+        { answer: 'two', hint: 'Como escrever o número 2 em inglês?', options: ['two', 'twelve', 'twenty', 'ten'] },
+        { answer: 'fifteen', hint: 'Como escrever 15 em inglês? (atenção: teen ou ty?)', options: ['fifteen', 'fifty', 'fiveteen', 'fourteen'] }
+      ]
+    },
+    'soa1-cumprimentos': {
+      dialogue: '___1___ morning! How ___2___ you?',
+      blanks: [
+        { answer: 'Good', hint: 'Saudação pela manhã em inglês: "Good ___"', options: ['Good', 'Nice', 'Fine', 'Great'] },
+        { answer: 'are', hint: 'Pergunta de cortesia: "How ___ you?" — qual forma do to be?', options: ['are', 'is', 'am', 'do'] }
+      ]
+    },
+    'soa1-tobe-afirm': {
+      dialogue: 'I ___1___ Brazilian. My friends ___2___ from São Paulo.',
+      blanks: [
+        { answer: 'am', hint: 'To be com "I": am, is ou are?', options: ['am', 'is', 'are', 'be'] },
+        { answer: 'are', hint: 'To be com "my friends" (plural): am, is ou are?', options: ['are', 'is', 'am', 'were'] }
+      ]
+    },
+    'soa2-pronomes-sujeito': {
+      dialogue: '___1___ is my boss. ___2___ work together every day.',
+      blanks: [
+        { answer: 'He', hint: 'Pronome sujeito masculino singular: He, Him ou His?', options: ['He', 'Him', 'His', 'She'] },
+        { answer: 'We', hint: 'Pronome sujeito para "eu e outros": I, We ou Us?', options: ['We', 'Us', 'They', 'I'] }
+      ]
+    },
+    'soa2-tobe-perg-neg': {
+      dialogue: '___1___ she from Brazil? No, she ___2___.',
+      blanks: [
+        { answer: 'Is', hint: 'Para perguntar com "she" usando to be, qual palavra vem primeiro?', options: ['Is', 'Are', 'Does', 'Do'] },
+        { answer: "isn't", hint: 'Resposta negativa curta com "she": "No, she ___"', options: ["isn't", "aren't", "don't", "doesn't"] }
+      ]
+    },
+    'soa2-possessivos': {
+      dialogue: 'This is ___1___ phone. That car is ___2___.',
+      blanks: [
+        { answer: 'my', hint: 'Possessivo de "eu" antes de substantivo: my, mine ou me?', options: ['my', 'mine', 'me', 'I'] },
+        { answer: 'hers', hint: 'Possessivo de "ela" sem substantivo depois: her ou hers?', options: ['hers', 'her', 'she', 'his'] }
+      ]
+    },
+    'soa2-this-that': {
+      dialogue: '___1___ is my bag (aqui). ___2___ are your keys (ali).',
+      blanks: [
+        { answer: 'This', hint: 'Coisa perto, singular: this ou these?', options: ['This', 'These', 'That', 'Those'] },
+        { answer: 'Those', hint: 'Coisas longe, plural: that ou those?', options: ['Those', 'That', 'These', 'This'] }
+      ]
+    },
+    'soa3-present-afirm': {
+      dialogue: 'I ___1___ English every day. She ___2___ at 7am.',
+      blanks: [
+        { answer: 'study', hint: 'Com "I" no present simple, o verbo leva -s ou fica na base?', options: ['study', 'studies', 'studied', 'studying'] },
+        { answer: 'wakes up', hint: 'Com "she", adiciona -s: "wake up" vira "_____"', options: ['wakes up', 'wake up', 'woke up', 'waking up'] }
+      ]
+    },
+    'soa3-third-person-s': {
+      dialogue: 'He ___1___ to music. She ___2___ French.',
+      blanks: [
+        { answer: 'listens', hint: 'listen + s/es/ies? "listen" termina em consoante comum.', options: ['listens', 'listen', 'listenes', 'listening'] },
+        { answer: 'teaches', hint: '"teach" termina em -ch: teach + ___?', options: ['teaches', 'teachs', 'teach', 'teached'] }
+      ]
+    },
+    'soa3-frequencia': {
+      dialogue: 'She ___1___ wakes up early. I ___2___ forget my keys.',
+      blanks: [
+        { answer: 'always', hint: 'Frequência máxima, 100% das vezes: never, always ou sometimes?', options: ['always', 'never', 'sometimes', 'usually'] },
+        { answer: 'never', hint: 'Frequência zero: always, never ou usually?', options: ['never', 'always', 'often', 'rarely'] }
+      ]
+    },
+    'soa4-wh-questions': {
+      dialogue: '___1___ do you live? ___2___ is your name?',
+      blanks: [
+        { answer: 'Where', hint: 'Pergunta de lugar: What, Where ou When?', options: ['Where', 'What', 'When', 'Who'] },
+        { answer: 'What', hint: 'Pergunta de nome/coisa: What, Who ou How?', options: ['What', 'Who', 'How', 'Where'] }
+      ]
+    },
+    'soa4-prep-tempo': {
+      dialogue: 'My birthday is ___1___ July. The class is ___2___ 3pm.',
+      blanks: [
+        { answer: 'in', hint: 'Mês = período amplo: in, on ou at?', options: ['in', 'on', 'at', 'by'] },
+        { answer: 'at', hint: 'Hora exata: in, on ou at?', options: ['at', 'in', 'on', 'for'] }
+      ]
+    },
+    'soa4-rotina': {
+      dialogue: 'I ___1___ up at 7am. Then I ___2___ breakfast.',
+      blanks: [
+        { answer: 'wake', hint: 'Verbo de rotina para começar o dia: wake ou woke?', options: ['wake', 'woke', 'get', 'stand'] },
+        { answer: 'have', hint: '"Tomar café da manhã" em inglês: have ou eat breakfast?', options: ['have', 'eat', 'do', 'make'] }
+      ]
+    },
+    'soa5-past-regular': {
+      dialogue: 'Yesterday I ___1___ to the gym. She ___2___ the report.',
+      blanks: [
+        { answer: 'walked', hint: '"walk" no passado regular: walk + _____?', options: ['walked', 'walk', 'walkt', 'walking'] },
+        { answer: 'finished', hint: '"finish" no passado regular: finish + _____?', options: ['finished', 'finish', 'finishs', 'finishing'] }
+      ]
+    },
+    'soa5-past-perguntas': {
+      dialogue: '___1___ you sleep well? No, I ___2___.',
+      blanks: [
+        { answer: 'Did', hint: 'Para perguntas no passado simples, qual auxiliar usar: Did ou Does?', options: ['Did', 'Does', 'Do', 'Was'] },
+        { answer: "didn't", hint: 'Resposta negativa no passado: "No, I ___"', options: ["didn't", "don't", "doesn't", "wasn't"] }
+      ]
+    },
+    'soa5-past-negativa': {
+      dialogue: 'I ___1___ go to school. She ___2___ the answer.',
+      blanks: [
+        { answer: "didn't", hint: 'Negação de ação no passado com "I": didn\'t ou don\'t?', options: ["didn't", "don't", "doesn't", "wasn't"] },
+        { answer: "didn't know", hint: '"know" no negativo passado: didn\'t know ou didn\'t knew?', options: ["didn't know", "didn't knew", "don't know", "wasn't know"] }
+      ]
+    },
+    'soa6-can': {
+      dialogue: 'I ___1___ swim. She ___2___ drive yet.',
+      blanks: [
+        { answer: 'can', hint: 'Habilidade positiva: can ou could?', options: ['can', 'could', 'must', 'should'] },
+        { answer: "can't", hint: 'Habilidade negativa: can\'t ou doesn\'t can?', options: ["can't", "doesn't can", "don't can", "mustn't"] }
+      ]
+    },
+    'soa6-like-ing': {
+      dialogue: 'I ___1___ reading. She ___2___ to music every evening.',
+      blanks: [
+        { answer: 'love', hint: '"like/love" + verbo: o verbo leva -ing ou to + base?', options: ['love', 'want', 'need', 'decide'] },
+        { answer: 'listens', hint: 'Ação habitual de "she" no presente simples: qual forma?', options: ['listens', 'listen', 'listened', 'listening'] }
+      ]
+    },
+    'soa6-want-to': {
+      dialogue: 'I ___1___ to learn English. She ___2___ to travel.',
+      blanks: [
+        { answer: 'want', hint: '"querer" em inglês: want + to ou want + ing?', options: ['want', 'wants', 'like', 'love'] },
+        { answer: 'needs', hint: '"she" + "need": qual forma do presente simples?', options: ['needs', 'need', 'want', 'decide'] }
+      ]
     }
   };
 
   const INTERACTIVE_TABLES = {
     pronomes: {
+      headers: ['Português', 'Inglês', 'Exemplo'],
       rows: [
         { pt: 'Eu', en: 'I', category: 'subject', example: 'I work every day.' },
         { pt: 'Você', en: 'You', category: 'subject', example: 'You speak English.' },
@@ -1846,6 +2183,311 @@
         { pt: 'Você (objeto)', en: 'You', category: 'object', example: 'I saw you at the store.' },
         { pt: 'Ele (objeto)', en: 'Him', category: 'object', example: 'I saw him.' },
         { pt: 'Ela (objeto)', en: 'Her', category: 'object', example: 'I helped her.' }
+      ]
+    },
+    perguntas: {
+      headers: ['Sujeito', 'Auxiliar', 'Tipo', 'Exemplo'],
+      rows: [
+        { pt: 'I / You / We / They', en: 'do', category: 'subject', example: 'Do you like coffee?' },
+        { pt: 'He / She / It', en: 'does', category: 'subject', example: 'Does she work here?' },
+        { pt: 'Qualquer sujeito (passado)', en: 'did', category: 'subject', example: 'Did they arrive?' },
+        { pt: 'O quê / qual', en: 'What', category: 'object', example: 'What do you want?' },
+        { pt: 'Onde', en: 'Where', category: 'object', example: 'Where does she live?' },
+        { pt: 'Quem', en: 'Who', category: 'object', example: 'Who called you?' },
+        { pt: 'Quando', en: 'When', category: 'object', example: 'When did they arrive?' },
+        { pt: 'Como', en: 'How', category: 'object', example: 'How do you say this?' }
+      ]
+    },
+    negativa: {
+      headers: ['Situação', 'Negação', 'Exemplo'],
+      rows: [
+        { pt: 'to be (I)', en: "I'm not", category: 'subject', example: "I'm not ready." },
+        { pt: 'to be (she/he)', en: "isn't", category: 'subject', example: "She isn't home." },
+        { pt: 'to be (they/we)', en: "aren't", category: 'subject', example: "They aren't here." },
+        { pt: 'ação presente (I/you/we/they)', en: "don't", category: 'object', example: "I don't eat meat." },
+        { pt: 'ação presente (he/she/it)', en: "doesn't", category: 'object', example: "She doesn't like loud music." },
+        { pt: 'ação passado (qualquer)', en: "didn't", category: 'object', example: "I didn't sleep well." },
+        { pt: 'nunca', en: 'never', category: 'object', example: 'I never drink soda.' },
+        { pt: 'ninguém', en: 'nobody', category: 'object', example: 'Nobody called.' }
+      ]
+    },
+    passado: {
+      headers: ['Base', 'Passado', 'Português'],
+      rows: [
+        { pt: 'ir', en: 'go → went', category: 'subject', example: 'I went to the store.' },
+        { pt: 'vir', en: 'come → came', category: 'subject', example: 'She came early.' },
+        { pt: 'ver', en: 'see → saw', category: 'subject', example: 'I saw him yesterday.' },
+        { pt: 'fazer', en: 'do → did', category: 'subject', example: 'He did the homework.' },
+        { pt: 'ter', en: 'have → had', category: 'object', example: 'We had dinner at 7.' },
+        { pt: 'obter', en: 'get → got', category: 'object', example: 'She got the job.' },
+        { pt: 'saber', en: 'know → knew', category: 'object', example: "I knew the answer." },
+        { pt: 'falar', en: 'say → said', category: 'object', example: 'He said goodbye.' }
+      ]
+    },
+    preposicoes: {
+      headers: ['Preposição', 'Uso', 'Exemplo'],
+      rows: [
+        { pt: 'in (lugar)', en: 'in', category: 'subject', example: 'I live in Brazil.' },
+        { pt: 'on (superfície)', en: 'on', category: 'subject', example: 'The book is on the table.' },
+        { pt: 'at (ponto)', en: 'at', category: 'subject', example: "She's at the office." },
+        { pt: 'in (período)', en: 'in + mês/ano', category: 'object', example: 'In July. In 2024.' },
+        { pt: 'on (dia)', en: 'on + dia', category: 'object', example: 'On Monday.' },
+        { pt: 'at (hora)', en: 'at + hora', category: 'object', example: 'At 3pm.' },
+        { pt: 'to (movimento)', en: 'to', category: 'object', example: 'I go to work.' },
+        { pt: 'from (origem)', en: 'from', category: 'object', example: "I'm from Brazil." }
+      ]
+    },
+    verbos: {
+      headers: ['Verbo', 'Função', 'Exemplo'],
+      rows: [
+        { pt: 'To be — identidade', en: 'am/is/are', category: 'subject', example: "I'm a student." },
+        { pt: 'To be — estado', en: 'am/is/are', category: 'subject', example: "She's tired." },
+        { pt: 'Can — habilidade', en: 'can', category: 'subject', example: 'I can swim.' },
+        { pt: 'Must — obrigação', en: 'must', category: 'subject', example: 'You must call.' },
+        { pt: 'Should — conselho', en: 'should', category: 'object', example: 'You should rest.' },
+        { pt: 'Would — desejo', en: 'would', category: 'object', example: "I'd love that." },
+        { pt: 'Phrasal: look up', en: 'look up', category: 'object', example: 'Look it up online.' },
+        { pt: 'Phrasal: give up', en: 'give up', category: 'object', example: "Don't give up." }
+      ]
+    },
+    'soa1-alfabeto': {
+      headers: ['Letra', 'Som em inglês', 'Dica'],
+      rows: [
+        { pt: 'A', en: 'ei', category: 'subject', example: 'April, Apple, Ace' },
+        { pt: 'E', en: 'ii', category: 'subject', example: 'Easy, Even, Each' },
+        { pt: 'I', en: 'ai', category: 'subject', example: 'Ice, Idea, Island' },
+        { pt: 'G', en: 'djii', category: 'subject', example: 'George, Gym, Gene' },
+        { pt: 'H', en: 'eitsh', category: 'object', example: 'Hotel, Hour, High' },
+        { pt: 'R', en: 'ar', category: 'object', example: 'Red, Right, Rain' },
+        { pt: 'W', en: 'double-you', category: 'object', example: 'Work, Water, Win' },
+        { pt: 'Y', en: 'wai', category: 'object', example: 'Yes, Year, Young' }
+      ]
+    },
+    'soa1-numeros': {
+      headers: ['Número', 'Inglês', 'Dica'],
+      rows: [
+        { pt: '1–5', en: 'one / two / three / four / five', category: 'subject', example: 'one apple, two cars' },
+        { pt: '6–10', en: 'six / seven / eight / nine / ten', category: 'subject', example: 'six days, ten minutes' },
+        { pt: '11–12', en: 'eleven / twelve', category: 'subject', example: 'irregulares — decorar' },
+        { pt: '13–19', en: '-teen: thirteen, fourteen…', category: 'subject', example: '13=thirteen, 15=fifteen' },
+        { pt: '20–90', en: '-ty: twenty, thirty…', category: 'object', example: '20=twenty, 50=fifty' },
+        { pt: 'teen vs ty', en: 'thirTEEN vs thirTY', category: 'object', example: 'Stress na sílaba errada!' },
+        { pt: '1º / 2º / 3º', en: '1st / 2nd / 3rd', category: 'object', example: 'First, second, third' },
+        { pt: '4º em diante', en: '4th, 5th, 6th…', category: 'object', example: 'fourth, fifth, sixth…' }
+      ]
+    },
+    'soa1-cumprimentos': {
+      headers: ['Situação', 'Inglês', 'Nível'],
+      rows: [
+        { pt: 'Bom dia', en: 'Good morning', category: 'subject', example: '(até ~12h)' },
+        { pt: 'Boa tarde', en: 'Good afternoon', category: 'subject', example: '(12h~18h)' },
+        { pt: 'Boa noite (encontrar)', en: 'Good evening', category: 'subject', example: 'ao encontrar alguém' },
+        { pt: 'Boa noite (ir dormir)', en: 'Good night', category: 'subject', example: 'apenas ao se despedir' },
+        { pt: 'Como vai? (formal)', en: 'How are you?', category: 'object', example: 'Fine, thanks. And you?' },
+        { pt: 'E aí? (informal)', en: "What's up? / How's it going?", category: 'object', example: "Good, thanks!" },
+        { pt: 'Tchau', en: 'Goodbye / Bye / See you', category: 'object', example: 'See you later!' },
+        { pt: 'Prazer em conhecer', en: 'Nice to meet you', category: 'object', example: 'Nice to meet you too.' }
+      ]
+    },
+    'soa1-tobe-afirm': {
+      headers: ['Sujeito', 'To be', 'Contração', 'Exemplo'],
+      rows: [
+        { pt: 'I', en: 'am', category: 'subject', example: "I'm Brazilian." },
+        { pt: 'You', en: 'are', category: 'subject', example: "You're a student." },
+        { pt: 'He', en: 'is', category: 'subject', example: "He's my boss." },
+        { pt: 'She', en: 'is', category: 'subject', example: "She's from Rio." },
+        { pt: 'It', en: 'is', category: 'subject', example: "It's cold today." },
+        { pt: 'We', en: 'are', category: 'object', example: "We're a team." },
+        { pt: 'You (pl.)', en: 'are', category: 'object', example: "You're both right." },
+        { pt: 'They', en: 'are', category: 'object', example: "They're from São Paulo." }
+      ]
+    },
+    'soa2-pronomes-sujeito': {
+      headers: ['Português', 'Inglês', 'Exemplo'],
+      rows: [
+        { pt: 'Eu', en: 'I', category: 'subject', example: 'I study every day.' },
+        { pt: 'Você', en: 'You', category: 'subject', example: 'You speak very well.' },
+        { pt: 'Ele', en: 'He', category: 'subject', example: 'He works downtown.' },
+        { pt: 'Ela', en: 'She', category: 'subject', example: 'She is a doctor.' },
+        { pt: 'Isso/aquilo', en: 'It', category: 'subject', example: "It's raining outside." },
+        { pt: 'Nós', en: 'We', category: 'object', example: 'We are a team.' },
+        { pt: 'Vocês', en: 'You', category: 'object', example: 'You are all welcome.' },
+        { pt: 'Eles/Elas', en: 'They', category: 'object', example: 'They eat lunch together.' }
+      ]
+    },
+    'soa2-tobe-perg-neg': {
+      headers: ['Tipo', 'Estrutura', 'Exemplo'],
+      rows: [
+        { pt: 'Pergunta com I', en: 'Am I...?', category: 'subject', example: 'Am I late?' },
+        { pt: 'Pergunta com he/she', en: 'Is he/she...?', category: 'subject', example: 'Is she home?' },
+        { pt: 'Pergunta com we/they', en: 'Are we/they...?', category: 'subject', example: 'Are they ready?' },
+        { pt: 'Negativa I', en: "I'm not", category: 'subject', example: "I'm not tired." },
+        { pt: 'Negativa he/she', en: "isn't", category: 'object', example: "He isn't here." },
+        { pt: 'Negativa we/they', en: "aren't", category: 'object', example: "They aren't from here." },
+        { pt: 'Resposta curta sim', en: 'Yes, I am / she is', category: 'object', example: 'Yes, she is.' },
+        { pt: 'Resposta curta não', en: "No, I'm not / she isn't", category: 'object', example: "No, I'm not." }
+      ]
+    },
+    'soa2-possessivos': {
+      headers: ['Sujeito', 'Antes do nome', 'Sozinho', 'Exemplo'],
+      rows: [
+        { pt: 'I → my / mine', en: 'my bag / mine', category: 'subject', example: "This is my bag. That's mine." },
+        { pt: 'You → your / yours', en: 'your car / yours', category: 'subject', example: "Is this your coat? Yes, it's yours." },
+        { pt: 'He → his / his', en: 'his book / his', category: 'subject', example: "His phone is new. That one is his." },
+        { pt: 'She → her / hers', en: 'her jacket / hers', category: 'subject', example: "Her jacket is nice. That's hers." },
+        { pt: 'We → our / ours', en: 'our house / ours', category: 'object', example: "Our house is small. But ours is cozy." },
+        { pt: 'They → their / theirs', en: 'their dog / theirs', category: 'object', example: "Their dog is big. That dog is theirs." }
+      ]
+    },
+    'soa2-this-that': {
+      headers: ['Distância', 'Singular', 'Plural', 'Exemplo'],
+      rows: [
+        { pt: 'Perto — singular', en: 'this', category: 'subject', example: 'This is my phone.' },
+        { pt: 'Perto — plural', en: 'these', category: 'subject', example: 'These are my keys.' },
+        { pt: 'Longe — singular', en: 'that', category: 'subject', example: "That's his car." },
+        { pt: 'Longe — plural', en: 'those', category: 'subject', example: 'Those are her shoes.' },
+        { pt: 'Pergunta com this', en: 'What is this?', category: 'object', example: "What is this? — It's a pen." },
+        { pt: 'Pergunta com those', en: 'Are those yours?', category: 'object', example: 'Are those your keys? Yes, they are.' }
+      ]
+    },
+    'soa3-present-afirm': {
+      headers: ['Sujeito', 'Verbo', 'Regra', 'Exemplo'],
+      rows: [
+        { pt: 'I', en: 'base', category: 'subject', example: 'I work here.' },
+        { pt: 'You', en: 'base', category: 'subject', example: 'You speak English.' },
+        { pt: 'We / They', en: 'base', category: 'subject', example: 'They eat lunch at noon.' },
+        { pt: 'He / She / It', en: 'base + s', category: 'subject', example: 'She works here.' },
+        { pt: 'He / She + -ch/-sh', en: 'base + es', category: 'object', example: 'He teaches English.' },
+        { pt: 'He / She + consoante+y', en: '-y → ies', category: 'object', example: 'She studies hard.' },
+        { pt: 'Uso: hábito', en: 'always / every day', category: 'object', example: 'I go to the gym on Mondays.' },
+        { pt: 'Uso: fato geral', en: 'Water boils at 100°C.', category: 'object', example: 'The sun rises in the east.' }
+      ]
+    },
+    'soa3-third-person-s': {
+      headers: ['Terminação', 'Regra', 'Exemplo'],
+      rows: [
+        { pt: 'a maioria dos verbos', en: '+ s', category: 'subject', example: 'work → works, play → plays' },
+        { pt: '-ss, -sh, -ch, -x, -o', en: '+ es', category: 'subject', example: 'teach → teaches, go → goes' },
+        { pt: 'consoante + y', en: '-y → ies', category: 'subject', example: 'study → studies, carry → carries' },
+        { pt: 'vogal + y', en: '+ s (normal)', category: 'object', example: 'play → plays, say → says' },
+        { pt: 'have (irregular)', en: 'have → has', category: 'object', example: "She has a car." },
+        { pt: 'do (irregular)', en: 'do → does', category: 'object', example: 'She does yoga.' }
+      ]
+    },
+    'soa3-frequencia': {
+      headers: ['Advérbio', 'Frequência', 'Posição', 'Exemplo'],
+      rows: [
+        { pt: 'always', en: '100%', category: 'subject', example: 'I always brush my teeth.' },
+        { pt: 'usually', en: '~80%', category: 'subject', example: 'She usually wakes up early.' },
+        { pt: 'often', en: '~60%', category: 'subject', example: 'They often eat out.' },
+        { pt: 'sometimes', en: '~40%', category: 'subject', example: 'I sometimes take the bus.' },
+        { pt: 'rarely / seldom', en: '~20%', category: 'object', example: 'He rarely complains.' },
+        { pt: 'never', en: '0%', category: 'object', example: 'She never drinks coffee.' },
+        { pt: 'Posição: antes do verbo', en: 'I always work late.', category: 'object', example: 'always / usually / never' },
+        { pt: 'Posição: depois de to be', en: "She's always tired.", category: 'object', example: "He's never late." }
+      ]
+    },
+    'soa4-wh-questions': {
+      headers: ['Pergunta', 'Inglês', 'Exemplo'],
+      rows: [
+        { pt: 'O quê / qual', en: 'What', category: 'subject', example: "What's your name?" },
+        { pt: 'Onde', en: 'Where', category: 'subject', example: 'Where do you live?' },
+        { pt: 'Quem', en: 'Who', category: 'subject', example: 'Who is your teacher?' },
+        { pt: 'Quando', en: 'When', category: 'subject', example: 'When does it start?' },
+        { pt: 'Por quê', en: 'Why', category: 'object', example: 'Why are you late?' },
+        { pt: 'Como', en: 'How', category: 'object', example: 'How do you say this?' },
+        { pt: 'Quanto (incontável)', en: 'How much', category: 'object', example: 'How much does it cost?' },
+        { pt: 'Quantos (contável)', en: 'How many', category: 'object', example: 'How many brothers do you have?' }
+      ]
+    },
+    'soa4-prep-tempo': {
+      headers: ['Preposição', 'Quando usar', 'Exemplo'],
+      rows: [
+        { pt: 'in', en: 'meses, anos, estações, períodos', category: 'subject', example: 'In July. In 2024. In the morning.' },
+        { pt: 'on', en: 'dias da semana, datas', category: 'subject', example: 'On Monday. On July 4th.' },
+        { pt: 'at', en: 'horas, momentos exatos', category: 'subject', example: 'At 3pm. At midnight. At noon.' },
+        { pt: 'in the morning', en: 'durante a manhã', category: 'object', example: "I exercise in the morning." },
+        { pt: 'in the afternoon', en: 'durante a tarde', category: 'object', example: 'Class is in the afternoon.' },
+        { pt: 'at night', en: 'exceção: noite usa at', category: 'object', example: "I study at night." }
+      ]
+    },
+    'soa4-rotina': {
+      headers: ['Verbo', 'Significado', 'Exemplo de rotina'],
+      rows: [
+        { pt: 'wake up', en: 'acordar', category: 'subject', example: 'I wake up at 6am.' },
+        { pt: 'get up', en: 'levantar da cama', category: 'subject', example: 'I get up at 6:30.' },
+        { pt: 'have breakfast', en: 'tomar café', category: 'subject', example: 'She has breakfast at 7.' },
+        { pt: 'go to work', en: 'ir ao trabalho', category: 'subject', example: 'He goes to work by bus.' },
+        { pt: 'have lunch', en: 'almoçar', category: 'object', example: 'We have lunch at noon.' },
+        { pt: 'come home', en: 'voltar pra casa', category: 'object', example: 'I come home at 6pm.' },
+        { pt: 'have dinner', en: 'jantar', category: 'object', example: 'They have dinner at 8.' },
+        { pt: 'go to bed', en: 'ir dormir', category: 'object', example: 'I go to bed at 11.' }
+      ]
+    },
+    'soa5-past-regular': {
+      headers: ['Base', 'Regra', 'Passado', 'Exemplo'],
+      rows: [
+        { pt: 'a maioria', en: '+ ed', category: 'subject', example: 'work → worked, play → played' },
+        { pt: 'termina em -e', en: '+ d', category: 'subject', example: 'love → loved, live → lived' },
+        { pt: 'consoante + y', en: '-y → ied', category: 'subject', example: 'study → studied, carry → carried' },
+        { pt: 'vogal + consoante (breve)', en: 'dobrar + ed', category: 'subject', example: 'stop → stopped, plan → planned' },
+        { pt: 'Pronúncia -ed como /t/', en: 'após sons surdos', category: 'object', example: 'walked, watched, cooked' },
+        { pt: 'Pronúncia -ed como /d/', en: 'após sons sonoros', category: 'object', example: 'lived, played, called' },
+        { pt: 'Pronúncia -ed como /id/', en: 'após t ou d', category: 'object', example: 'wanted, needed, waited' }
+      ]
+    },
+    'soa5-past-perguntas': {
+      headers: ['Tipo', 'Estrutura', 'Exemplo'],
+      rows: [
+        { pt: 'Pergunta sim/não', en: 'Did + sujeito + base?', category: 'subject', example: 'Did you sleep well?' },
+        { pt: 'Resposta positiva', en: 'Yes, I/he/she did.', category: 'subject', example: 'Yes, I did.' },
+        { pt: 'Resposta negativa', en: "No, I/he/she didn't.", category: 'subject', example: "No, she didn't." },
+        { pt: 'Pergunta com wh-', en: "What/Where/When + did + base?", category: 'object', example: 'What did you do?' },
+        { pt: 'Who como sujeito', en: 'Who + verbo passado?', category: 'object', example: 'Who called you?' },
+        { pt: 'Was / Were', en: 'to be no passado', category: 'object', example: 'Was she there? Were they happy?' }
+      ]
+    },
+    'soa5-past-negativa': {
+      headers: ['Sujeito', 'Negação', 'Exemplo'],
+      rows: [
+        { pt: 'qualquer sujeito + ação', en: "didn't + base", category: 'subject', example: "I didn't go. She didn't call." },
+        { pt: 'I / he / she / it', en: "wasn't", category: 'subject', example: "He wasn't at home." },
+        { pt: 'we / you / they', en: "weren't", category: 'subject', example: "They weren't ready." },
+        { pt: 'Erro comum', en: "❌ didn't went", category: 'object', example: "✅ didn't go (base form!)" },
+        { pt: 'Erro comum', en: "❌ she didn't knows", category: 'object', example: "✅ she didn't know" }
+      ]
+    },
+    'soa6-can': {
+      headers: ['Uso', 'Forma', 'Exemplo'],
+      rows: [
+        { pt: 'habilidade', en: 'can + base', category: 'subject', example: 'I can swim.' },
+        { pt: 'negação', en: "can't / cannot", category: 'subject', example: "She can't drive." },
+        { pt: 'pergunta', en: 'Can + sujeito + base?', category: 'subject', example: 'Can you help me?' },
+        { pt: 'resposta curta', en: 'Yes, I can. / No, I can\'t.', category: 'subject', example: 'Can you come? Yes, I can.' },
+        { pt: 'possibilidade', en: 'can (informal)', category: 'object', example: "It can be cold in July." },
+        { pt: 'pedido educado', en: "Can you...? / Could you...?", category: 'object', example: 'Can you open the window?' }
+      ]
+    },
+    'soa6-like-ing': {
+      headers: ['Verbo', 'Seguido de', 'Exemplo'],
+      rows: [
+        { pt: 'like', en: 'like + -ing', category: 'subject', example: 'I like reading.' },
+        { pt: 'love', en: 'love + -ing', category: 'subject', example: 'She loves dancing.' },
+        { pt: 'enjoy', en: 'enjoy + -ing', category: 'subject', example: 'They enjoy cooking.' },
+        { pt: 'hate', en: 'hate + -ing', category: 'subject', example: "He hates waiting." },
+        { pt: 'Erro: like + base', en: '❌ I like go', category: 'object', example: '✅ I like going' },
+        { pt: 'want / need', en: 'want/need + to + base', category: 'object', example: 'I want to learn. I need to go.' }
+      ]
+    },
+    'soa6-want-to': {
+      headers: ['Verbo', 'Estrutura', 'Exemplo'],
+      rows: [
+        { pt: 'want', en: 'want + to + base', category: 'subject', example: 'I want to travel.' },
+        { pt: 'need', en: 'need + to + base', category: 'subject', example: 'She needs to study.' },
+        { pt: 'decide', en: 'decide + to + base', category: 'subject', example: 'He decided to quit.' },
+        { pt: 'try', en: 'try + to + base', category: 'subject', example: "I'm trying to learn." },
+        { pt: 'Erro: want + base', en: '❌ I want go', category: 'object', example: '✅ I want to go' },
+        { pt: 'Erro: want + ing', en: '❌ I want going', category: 'object', example: '✅ I want to go' }
       ]
     }
   };
@@ -1863,7 +2505,182 @@
       { difficulty: 'easy', q: 'Complete: "She called ___"', options: ['I', 'Me', 'My'], correct: 1, hints: ['Use objeto depois do verbo', 'After a verb = object', 'Resposta: Me'] },
       { difficulty: 'moderate', q: '"with you and ___" — qual usar?', options: ['I', 'Me', 'My'], correct: 1, hints: ['Preposição (with) + objeto', 'Teste: "with me" vs "with I"', 'Resposta: Me'] },
       { difficulty: 'moderate', q: 'Qual frase está correta?', options: ['Her lives here.', 'She lives here.', 'Her is here.'], correct: 1, hints: ['Quem faz a ação? → subject', 'Subject: I, you, he, she', 'Resposta: She lives here.'] },
-      { difficulty: 'hard', q: 'Complete a frase: "___ enjoy cooking. Can you help ___?"', options: ['I / I', 'Me / me', 'I / me'], correct: 2, hints: ['1ª lacuna: sujeito antes do verbo', '2ª lacuna: objeto depois do verbo', 'Resposta: I / me'] }
+      { difficulty: 'hard', q: 'Complete a frase: "___ enjoy cooking. Can you help ___?"', options: ['I / I', 'Me / me', 'I / me'], correct: 2, hints: ['1ª lacuna: sujeito antes do verbo', '2ª lacuna: objeto depois do verbo', '1ª lacuna: antes do verbo = sujeito (I). 2ª: depois do verbo = objeto (me). → Resposta: I / me'] }
+    ],
+    perguntas: [
+      { difficulty: 'easy', q: 'Qual palavra inicia a pergunta: "___ you speak English?"', options: ['Do', 'Does', 'Did'], correct: 0, hints: ['Sujeito: "you" — singular ou grupo I/you/we/they?', 'Do = I/you/we/they. Does = he/she/it.', 'Resposta: Do'] },
+      { difficulty: 'easy', q: '"___ she live in Rio?" — qual auxiliar?', options: ['Do', 'Does', 'Did'], correct: 1, hints: ['Sujeito: "she" — 3ª pessoa singular', 'She/He/It = Does', 'Resposta: Does'] },
+      { difficulty: 'moderate', q: '"___ they arrive yesterday?" — passado ou presente?', options: ['Do', 'Does', 'Did'], correct: 2, hints: ['Palavra-chave: "yesterday" = passado', 'Passado = Did, para qualquer sujeito', 'Resposta: Did'] },
+      { difficulty: 'moderate', q: 'Qual frase está correta?', options: ['Where she lives?', 'Where does she live?', 'Where does she lives?'], correct: 1, hints: ['Pergunta com wh-: word + does/do + base', 'Depois de "does", o verbo volta à base (sem -s)', 'Resposta: Where does she live?'] },
+      { difficulty: 'hard', q: '"Who called you?" — por que não há "did" aqui?', options: ['Erro de gramática', '"Who" é o sujeito da frase', '"Who" é sempre informal'], correct: 1, hints: ['Pergunta: quem fez a ação? Who = sujeito', 'Quando wh- é o sujeito, a estrutura muda: sem auxiliar', 'Resposta: Who é o sujeito'] }
+    ],
+    negativa: [
+      { difficulty: 'easy', q: 'Negue: "She is a doctor."', options: ["She isn't a doctor.", "She don't a doctor.", "She doesn't a doctor."], correct: 0, hints: ['To be se nega sozinho: is + not', 'isn\'t = is not (forma contraída)', 'Resposta: She isn\'t a doctor.'] },
+      { difficulty: 'easy', q: 'Complete: "I ___ eat meat." (presente, hábito)', options: ["don't", "doesn't", "isn't"], correct: 0, hints: ['Negar ação com "I": don\'t ou doesn\'t?', 'I/you/we/they = don\'t', 'Resposta: don\'t'] },
+      { difficulty: 'moderate', q: 'Corrija: "She doesn\'t likes coffee."', options: ["She don't like coffee.", "She doesn't like coffee.", "She isn't like coffee."], correct: 1, hints: ['Depois de "doesn\'t", o verbo volta à base', '❌ doesn\'t likes → ✅ doesn\'t like', 'Resposta: She doesn\'t like coffee.'] },
+      { difficulty: 'moderate', q: 'Negue no passado: "He went home."', options: ["He didn't went home.", "He doesn't go home.", "He didn't go home."], correct: 2, hints: ['Passado negativo: didn\'t + base', 'didn\'t já carrega o passado — verbo fica na base', 'Resposta: He didn\'t go home.'] },
+      { difficulty: 'hard', q: 'Qual frase está correta em inglês padrão?', options: ["I don't know nothing.", "I never know nothing.", "I don't know anything."], correct: 2, hints: ['Inglês evita dupla negação', '"don\'t + anything" = negação correta', 'Resposta: I don\'t know anything.'] }
+    ],
+    passado: [
+      { difficulty: 'easy', q: 'Qual é o passado de "go"?', options: ['goed', 'went', 'gone'], correct: 1, hints: ['"go" é irregular — não aceita -ed', 'go → went (decorar!)', 'Resposta: went'] },
+      { difficulty: 'easy', q: 'Complete: "Yesterday she ___ to work." (walk, passado regular)', options: ['walks', 'walked', 'walking'], correct: 1, hints: ['"Walk" é regular: walk + ed', 'Passado regular = base + -ed', 'Resposta: walked'] },
+      { difficulty: 'moderate', q: 'Qual é o passado de "have"?', options: ['haved', 'had', 'has'], correct: 1, hints: ['"have" é irregular', 'have → had', 'Resposta: had'] },
+      { difficulty: 'moderate', q: 'Complete: "I ___ (not/go) to the party."', options: ["didn't went", "didn't go", "don't went"], correct: 1, hints: ['Negação passado: didn\'t + base', '❌ didn\'t went → ✅ didn\'t go', 'Resposta: didn\'t go'] },
+      { difficulty: 'hard', q: '"She was working when I ___." (arrive)', options: ['arrive', 'arrived', 'was arriving'], correct: 1, hints: ['Ação que interrompeu = past simple', '"when I arrived" = ação pontual no passado', 'Resposta: arrived'] }
+    ],
+    preposicoes: [
+      { difficulty: 'easy', q: 'Complete: "I live ___ Brazil."', options: ['in', 'on', 'at'], correct: 0, hints: ['País = área grande (dentro)', 'in = dentro de um espaço/área', 'Resposta: in'] },
+      { difficulty: 'easy', q: 'Complete: "The book is ___ the table."', options: ['in', 'on', 'at'], correct: 1, hints: ['Sobre uma superfície plana', 'on = em cima de, sobre', 'Resposta: on'] },
+      { difficulty: 'moderate', q: '"My meeting is ___ Monday." — qual preposição?', options: ['in', 'on', 'at'], correct: 1, hints: ['Dia da semana: in, on ou at?', 'on + dia da semana', 'Resposta: on'] },
+      { difficulty: 'moderate', q: '"Class starts ___ 9am." — qual preposição?', options: ['in', 'on', 'at'], correct: 2, hints: ['Hora específica: in, on ou at?', 'at + hora exata', 'Resposta: at'] },
+      { difficulty: 'hard', q: 'Qual frase usa a preposição ERRADA?', options: ["I'll see you in Monday.", "She was born in 1990.", "The party starts at midnight."], correct: 0, hints: ['Veja cada preposição e seu uso', 'Dia da semana usa "on", não "in"', 'Resposta: "in Monday" está errado → on Monday'] }
+    ],
+    verbos: [
+      { difficulty: 'easy', q: 'Complete: "She ___ a teacher." (to be, presente)', options: ['am', 'is', 'are'], correct: 1, hints: ['To be com "she" (3ª pessoa)', 'she = is', 'Resposta: is'] },
+      { difficulty: 'easy', q: '"I ___ swim." — qual modal para habilidade?', options: ['can', 'must', 'should'], correct: 0, hints: ['Habilidade/capacidade: can, must ou should?', 'can = conseguir fazer algo', 'Resposta: can'] },
+      { difficulty: 'moderate', q: 'Qual frase expressa conselho?', options: ['You must stop.', 'You should rest.', 'You can go.'], correct: 1, hints: ['must = obrigação forte. can = possibilidade.', 'should = conselho suave', 'Resposta: You should rest.'] },
+      { difficulty: 'moderate', q: '"Look ___ the word in the dictionary." (phrasal)', options: ['up', 'at', 'on'], correct: 0, hints: ['Phrasal verb: buscar informação = look ___', 'look up = pesquisar/consultar', 'Resposta: up'] },
+      { difficulty: 'hard', q: 'Qual frase usa o modal corretamente?', options: ["She can to swim.", "She can swims.", "She can swim."], correct: 2, hints: ['Depois de modal (can/must/should), o verbo fica na base', '❌ can to swim / can swims → ✅ can swim', 'Resposta: She can swim.'] }
+    ],
+    'soa1-alfabeto': [
+      { difficulty: 'easy', q: 'Qual é o som da letra "A" em inglês?', options: ['ah', 'ei', 'aa'], correct: 1, hints: ['Pense no nome da letra, não no som do português', '"A" se chama "ei" em inglês', 'Resposta: ei'] },
+      { difficulty: 'easy', q: 'Como se soletra "Rio" em inglês? Qual letra vem primeiro?', options: ['R — ar', 'R — rr', 'R — re'], correct: 0, hints: ['A letra R em inglês tem som de "ar"', 'R = ar, I = ai, O = ou', 'Resposta: ar'] },
+      { difficulty: 'moderate', q: 'Qual letra tem o nome "double-you"?', options: ['V', 'W', 'U'], correct: 1, hints: ['Letra incomum com nome composto', '"Double" = duplo. Pense na forma visual da letra.', 'Resposta: W'] },
+      { difficulty: 'moderate', q: 'Como se pronuncia o som "TH" em inglês (think)?', options: ['d', 't', 'th (língua nos dentes)'], correct: 2, hints: ['TH não existe em português', 'É necessário colocar a ponta da língua entre os dentes', 'Resposta: th (língua nos dentes)'] },
+      { difficulty: 'hard', q: 'Soletrar "Brazil" em inglês: qual a sequência correta?', options: ['B-R-A-Z-I-L', 'B-R-E-Z-I-L', 'B-R-A-S-I-L'], correct: 0, hints: ['Em inglês, Brazil tem Z (não S)', 'B(bi) R(ar) A(ei) Z(zi) I(ai) L(el)', 'Resposta: B-R-A-Z-I-L'] }
+    ],
+    'soa1-numeros': [
+      { difficulty: 'easy', q: 'Como se escreve o número 5 em inglês?', options: ['fife', 'five', 'fíve'], correct: 1, hints: ['Número pequeno, 1-5', '5 = five (rima com "hive")', 'Resposta: five'] },
+      { difficulty: 'easy', q: 'Como se escreve 13 em inglês?', options: ['thirty', 'thirten', 'thirteen'], correct: 2, hints: ['13 = teen (não "ty")', '13 = thir + teen', 'Resposta: thirteen'] },
+      { difficulty: 'moderate', q: 'Qual a diferença entre "thirteen" e "thirty"?', options: ['São a mesma coisa', '13 vs 30', '30 vs 13'], correct: 1, hints: ['-teen = 13-19. -ty = 20/30/40…', 'thirTEEN = 13. THIRty = 30', 'Resposta: 13 vs 30'] },
+      { difficulty: 'moderate', q: 'Como se diz "segundo" (ordinal) em inglês?', options: ['second', 'secondth', 'two'], correct: 0, hints: ['Ordinais: 1st, 2nd, 3rd, 4th…', '2nd = second (irregular)', 'Resposta: second'] },
+      { difficulty: 'hard', q: 'Qual está escrito corretamente?', options: ['fourty', 'forty', 'fourtie'], correct: 1, hints: ['40 é exceção — não segue o padrão "four + ty"', '40 = forty (sem o "u"!)', 'Resposta: forty'] }
+    ],
+    'soa1-cumprimentos': [
+      { difficulty: 'easy', q: 'Que saudação usar às 8 da manhã?', options: ['Good night', 'Good morning', 'Good evening'], correct: 1, hints: ['Manhã: até ~12h', 'Good morning = bom dia', 'Resposta: Good morning'] },
+      { difficulty: 'easy', q: '"Good night" significa:', options: ['Boa noite (ao encontrar)', 'Boa noite (ao se despedir)', 'Boa tarde'], correct: 1, hints: ['"Good night" é despedida, não saudação ao chegar', '"Good evening" = ao encontrar alguém à noite', 'Resposta: ao se despedir'] },
+      { difficulty: 'moderate', q: 'Como responder "How are you?"', options: ['I am fine, thanks.', 'I fine.', 'Yes, I am.'], correct: 0, hints: ['Resposta completa + educada', 'Fine / Good / Great + thanks', 'Resposta: I am fine, thanks.'] },
+      { difficulty: 'moderate', q: '"Nice to meet you" — quando usar?', options: ['Ao se despedir', 'Ao conhecer alguém pela primeira vez', 'Para pedir desculpa'], correct: 1, hints: ['Esta frase é para apresentações', 'Ao conhecer = "Nice to meet you"', 'Resposta: ao conhecer alguém pela primeira vez'] },
+      { difficulty: 'hard', q: 'Alguém diz "What\'s up?" — qual a melhor resposta casual?', options: ['I\'m fine, thank you very much.', 'Not much, you?', 'Good morning!'], correct: 1, hints: ['"What\'s up?" é informal', 'Resposta casual: "Not much", "Good", "Nothing much"', 'Resposta: Not much, you?'] }
+    ],
+    'soa1-tobe-afirm': [
+      { difficulty: 'easy', q: 'Complete: "I ___ a student."', options: ['am', 'is', 'are'], correct: 0, hints: ['I + to be = ?', 'I am (única combinação possível)', 'Resposta: am'] },
+      { difficulty: 'easy', q: 'Complete: "She ___ from Brazil."', options: ['am', 'is', 'are'], correct: 1, hints: ['She = 3ª pessoa singular', 'he/she/it = is', 'Resposta: is'] },
+      { difficulty: 'moderate', q: 'Complete a contração: "They ___ ready."', options: ["They're", "Theyre", "They is"], correct: 0, hints: ['they + are = contração', "they're = they are", "Resposta: They're"] },
+      { difficulty: 'moderate', q: 'Qual frase está correta?', options: ['He are my friend.', 'He am my friend.', 'He is my friend.'], correct: 2, hints: ['he/she/it = is', '❌ he are / he am → ✅ he is', 'Resposta: He is my friend.'] },
+      { difficulty: 'hard', q: 'Traduza: "Nós somos uma equipe e eles são os melhores."', options: ["We are a team and they are the best.", "We is a team and they is the best.", "We are a team and they is the best."], correct: 0, hints: ['we = are, they = are', 'Ambos são plurais → are', 'Resposta: We are a team and they are the best.'] }
+    ],
+    'soa2-pronomes-sujeito': [
+      { difficulty: 'easy', q: 'Qual pronome substitui "Carlos"?', options: ['He', 'She', 'They'], correct: 0, hints: ['Carlos = nome masculino', 'Masculino singular = He', 'Resposta: He'] },
+      { difficulty: 'easy', q: 'Qual pronome para "o cachorro"?', options: ['He', 'She', 'It'], correct: 2, hints: ['Animal (gênero não especificado) = It', 'It = coisas e animais (gênero neutro)', 'Resposta: It'] },
+      { difficulty: 'moderate', q: 'Complete: "___ is raining." — qual pronome?', options: ['He', 'It', 'They'], correct: 1, hints: ['Em inglês, frases impessoais PRECISAM de sujeito', '"It" é usado para clima e situações impessoais', 'Resposta: It'] },
+      { difficulty: 'moderate', q: '"Ana e eu" = ?', options: ['I and Ana', 'Me and Ana', 'Ana and I'], correct: 2, hints: ['Em inglês, a educação pede que o outro venha primeiro', 'Ana and I (não "I and Ana")', 'Resposta: Ana and I'] },
+      { difficulty: 'hard', q: 'Qual frase usa pronome ERRADO?', options: ["She goes to school.", "Him is my teacher.", "They study together."], correct: 1, hints: ['Pronome vem antes do verbo = sujeito', '"Him" é objeto, não sujeito', 'Resposta: Him is my teacher (errado — deveria ser "He")'] }
+    ],
+    'soa2-tobe-perg-neg': [
+      { difficulty: 'easy', q: 'Como perguntar "Ela é professora?"', options: ['She is a teacher?', 'Is she a teacher?', 'Does she is a teacher?'], correct: 1, hints: ['Pergunta com to be: invertemos sujeito e verbo', 'Is + she + ...?', 'Resposta: Is she a teacher?'] },
+      { difficulty: 'easy', q: 'Complete a negativa: "They ___ from here."', options: ["isn't", "aren't", "don't"], correct: 1, hints: ['They = plural → are/aren\'t', "aren't = are not", "Resposta: aren't"] },
+      { difficulty: 'moderate', q: 'Responda negativamente: "Is he at home?"', options: ['No, he don\'t.', 'No, he isn\'t.', 'No, he aren\'t.'], correct: 1, hints: ['He = singular → is/isn\'t', "Short answer: No, he isn't.", "Resposta: No, he isn't."] },
+      { difficulty: 'moderate', q: 'Qual pergunta está correta?', options: ['Are they happy?', 'They are happy?', 'Do they are happy?'], correct: 0, hints: ['Com to be, inverte sujeito e verbo', '"Do" não se usa com to be', 'Resposta: Are they happy?'] },
+      { difficulty: 'hard', q: 'Traduza: "Você não está cansado, está?"', options: ["You aren't tired, are you?", "You aren't tired, isn't it?", "You don't tired, are you?"], correct: 0, hints: ['Tag question: frase negativa → tag positiva', '"aren\'t you?" espelha "you aren\'t"', "Resposta: You aren't tired, are you?"] }
+    ],
+    'soa2-possessivos': [
+      { difficulty: 'easy', q: 'Complete: "This is ___ bag." (minha)', options: ['my', 'mine', 'me'], correct: 0, hints: ['Antes do substantivo (bag está na frase)', 'my + substantivo', 'Resposta: my'] },
+      { difficulty: 'easy', q: 'Complete: "The bag is ___." (dela)', options: ['her', 'hers', 'she'], correct: 1, hints: ['O substantivo não aparece depois', 'Possessivo sozinho = hers (not her)', 'Resposta: hers'] },
+      { difficulty: 'moderate', q: 'Complete: "___ car is fast." (dele)', options: ['Him', 'His', 'He'], correct: 1, hints: ['Possessivo de he: His + substantivo', '"Him" é objeto, não possessivo', 'Resposta: His'] },
+      { difficulty: 'moderate', q: '"This coffee is ___." (seu, informal, de você)', options: ['your', 'yours', 'you'], correct: 1, hints: ['Possessivo sem substantivo = yours', 'your bag = yours (sem bag)', 'Resposta: yours'] },
+      { difficulty: 'hard', q: 'Qual frase está correta?', options: ["That is their house.", "That is theirs house.", "That house is their."], correct: 0, hints: ['their + substantivo = possessivo adj', '"theirs" fica sozinho (sem substantivo depois)', 'Resposta: That is their house.'] }
+    ],
+    'soa2-this-that': [
+      { difficulty: 'easy', q: 'Objeto perto de você, singular:', options: ['this', 'these', 'that'], correct: 0, hints: ['Perto = this (singular) ou these (plural)', 'Singular + perto = this', 'Resposta: this'] },
+      { difficulty: 'easy', q: 'Coisas longe, no plural:', options: ['this', 'those', 'that'], correct: 1, hints: ['Longe plural = those', '"those" = plural de "that"', 'Resposta: those'] },
+      { difficulty: 'moderate', q: '"___ are my keys." (aqui, plural)', options: ['This', 'These', 'Those'], correct: 1, hints: ['Perto + plural = these', '"keys" é plural', 'Resposta: These'] },
+      { difficulty: 'moderate', q: '"___ is your car?" "The blue one." — qual demonstrativo?', options: ['What', 'Which', 'That'], correct: 1, hints: ['Escolha entre opções específicas = which', 'which = qual (entre opções)', 'Resposta: Which'] },
+      { difficulty: 'hard', q: '"Is ___ your coffee?" "No, ___ is mine." (longe/perto)', options: ['that / this', 'this / that', 'those / these'], correct: 0, hints: ['1ª: longe (pointing at the cup) = that', '2ª: perto (pointing at yours) = this', 'Resposta: that / this'] }
+    ],
+    'soa3-present-afirm': [
+      { difficulty: 'easy', q: 'Complete: "She ___ English." (speak, presente)', options: ['speak', 'speaks', 'is speak'], correct: 1, hints: ['She = 3ª pessoa singular', 'He/she/it + base + s', 'Resposta: speaks'] },
+      { difficulty: 'easy', q: 'Complete: "I ___ to the gym every day." (go)', options: ['goes', 'go', 'going'], correct: 1, hints: ['I = 1ª pessoa → sem -s', 'I go (sem -s)', 'Resposta: go'] },
+      { difficulty: 'moderate', q: '"She ___ French." (teach)', options: ['teachs', 'teached', 'teaches'], correct: 2, hints: ['teach termina em -ch → +es', 'teach → teaches', 'Resposta: teaches'] },
+      { difficulty: 'moderate', q: '"He ___ to music every night." (listen)', options: ['listen', 'listens', 'listenes'], correct: 1, hints: ['listen: consoante + en → +s', 'listen → listens', 'Resposta: listens'] },
+      { difficulty: 'hard', q: '"She ___ hard every day." (study)', options: ['studys', 'studies', 'studyes'], correct: 1, hints: ['study: consoante + y → -ies', 'study → studies', 'Resposta: studies'] }
+    ],
+    'soa3-third-person-s': [
+      { difficulty: 'easy', q: '"work" com "he" no presente simples:', options: ['work', 'works', 'workies'], correct: 1, hints: ['work termina em consoante comum → +s', 'work → works', 'Resposta: works'] },
+      { difficulty: 'easy', q: '"go" com "she" no presente simples:', options: ['gos', 'goes', 'go'], correct: 1, hints: ['go termina em -o → +es', 'go → goes', 'Resposta: goes'] },
+      { difficulty: 'moderate', q: '"carry" com "he":', options: ['carrys', 'carries', 'carring'], correct: 1, hints: ['carry: consoante + y → ies', 'carry → carries', 'Resposta: carries'] },
+      { difficulty: 'moderate', q: '"have" com "she":', options: ['haves', 'hase', 'has'], correct: 2, hints: ['"have" é irregular', 'have → has (único irregular)', 'Resposta: has'] },
+      { difficulty: 'hard', q: '"She ___ (not/study) on Sundays."', options: ["doesn't studies", "doesn't study", "don't study"], correct: 1, hints: ['She = doesn\'t. Depois de doesn\'t: base form', '❌ doesn\'t studies → ✅ doesn\'t study', "Resposta: doesn't study"] }
+    ],
+    'soa3-frequencia': [
+      { difficulty: 'easy', q: 'Onde vai o advérbio? "I ___ wake up early." (always)', options: ['always / antes do verbo', 'always / depois do verbo', 'always / no final'], correct: 0, hints: ['always/never/usually vão ANTES do verbo principal', 'I always wake up...', 'Resposta: antes do verbo'] },
+      { difficulty: 'easy', q: '"She is ___ late." — onde vai "never"?', options: ['never / antes de is', 'never / depois de is', 'never / no início'], correct: 1, hints: ['Depois de to be, o advérbio vai depois', 'She is never late.', 'Resposta: depois de is'] },
+      { difficulty: 'moderate', q: 'Qual frase está correta?', options: ['He goes always to the gym.', 'He always goes to the gym.', 'Always he goes to the gym.'], correct: 1, hints: ['Posição padrão: antes do verbo principal', 'He always goes', 'Resposta: He always goes to the gym.'] },
+      { difficulty: 'moderate', q: '"I eat ___ at home." — frequência ~40%:', options: ['always', 'never', 'sometimes'], correct: 2, hints: ['~40% = sometimes', 'sometimes = às vezes', 'Resposta: sometimes'] },
+      { difficulty: 'hard', q: 'Traduza: "Ela raramente reclama."', options: ['She always complains.', 'She rarely complains.', 'She not complains.'], correct: 1, hints: ['raramente = rarely / seldom', 'She rarely complains.', 'Resposta: She rarely complains.'] }
+    ],
+    'soa4-wh-questions': [
+      { difficulty: 'easy', q: '"___ is your name?" — qual palavra de pergunta?', options: ['Where', 'What', 'Who'], correct: 1, hints: ['Nome = coisa/informação → What', 'What = o quê / qual', 'Resposta: What'] },
+      { difficulty: 'easy', q: '"___ do you live?" — lugar', options: ['Where', 'When', 'Why'], correct: 0, hints: ['Lugar = Where', 'Where = onde', 'Resposta: Where'] },
+      { difficulty: 'moderate', q: '"___ does the class start?" — horário', options: ['Where', 'When', 'Why'], correct: 1, hints: ['Tempo/horário = When', 'When = quando', 'Resposta: When'] },
+      { difficulty: 'moderate', q: '"___ much does it cost?" — preço', options: ['How', 'What', 'Which'], correct: 0, hints: ['Quantidade incontável = How much', 'How much = quanto (preço, quantidade)', 'Resposta: How'] },
+      { difficulty: 'hard', q: 'Qual frase está correta?', options: ['Where you live?', 'Where do you live?', 'Where does you live?'], correct: 1, hints: ['wh- + do/does + sujeito + base', '"you" = do (não does)', 'Estrutura wh- = palavra + do/does + sujeito + base. "You" usa "do". → Resposta: Where do you live?'] }
+    ],
+    'soa4-prep-tempo': [
+      { difficulty: 'easy', q: '"My birthday is ___ July."', options: ['in', 'on', 'at'], correct: 0, hints: ['Mês = período amplo', 'in + mês', 'Resposta: in'] },
+      { difficulty: 'easy', q: '"The meeting is ___ Monday."', options: ['in', 'on', 'at'], correct: 1, hints: ['Dia da semana = on', 'on + dia', 'Resposta: on'] },
+      { difficulty: 'moderate', q: '"Class starts ___ 9am."', options: ['in', 'on', 'at'], correct: 2, hints: ['Hora específica = at', 'at + hora', 'Resposta: at'] },
+      { difficulty: 'moderate', q: '"I study ___ the morning."', options: ['in', 'on', 'at'], correct: 0, hints: ['Período do dia: morning/afternoon/evening = in', 'in the morning / afternoon / evening', 'Resposta: in'] },
+      { difficulty: 'hard', q: '"She works ___ night." — exceção!', options: ['in', 'on', 'at'], correct: 2, hints: ['night é exceção: usa "at" (não "in")', 'at night (exceção ao padrão)', 'Resposta: at'] }
+    ],
+    'soa4-rotina': [
+      { difficulty: 'easy', q: '"Acordar" em inglês:', options: ['wake up', 'get up', 'stand up'], correct: 0, hints: ['Wake up = acordar (abrir os olhos)', 'wake up ≠ get up (get up = sair da cama)', 'Resposta: wake up'] },
+      { difficulty: 'easy', q: '"Tomar café da manhã" em inglês:', options: ['eat breakfast', 'have breakfast', 'do breakfast'], correct: 1, hints: ['Em inglês, usa "have" para refeições', 'have breakfast / lunch / dinner', 'Resposta: have breakfast'] },
+      { difficulty: 'moderate', q: '"She ___ to work at 8." (go, present simple, she)', options: ['go', 'goes', 'is going'], correct: 1, hints: ['She + go → goes (3ª pessoa)', 'Hábito de rotina = present simple', 'Resposta: goes'] },
+      { difficulty: 'moderate', q: '"I ___ home at 6pm." (come)', options: ['come', 'comes', 'go'], correct: 0, hints: ['I = sem -s', 'come home (não go home — já estou vindo)', 'Resposta: come'] },
+      { difficulty: 'hard', q: 'Descreva sua rotina: "Eu sempre _____ às 7h e _____ às 23h."', options: ['wake up / go to bed', 'wakes up / go to bed', 'wake up / sleep'], correct: 0, hints: ['I (sem -s) + wake up. go to bed = dormir formalmente.', 'I wake up... I go to bed', 'Resposta: wake up / go to bed'] }
+    ],
+    'soa5-past-regular': [
+      { difficulty: 'easy', q: '"walk" no passado regular:', options: ['walkt', 'walked', 'walking'], correct: 1, hints: ['Verbo regular: base + ed', 'walk → walked', 'Resposta: walked'] },
+      { difficulty: 'easy', q: '"love" no passado:', options: ['loved', 'loveed', 'lovet'], correct: 0, hints: ['Termina em -e: base + d (apenas d)', 'love → loved', 'Resposta: loved'] },
+      { difficulty: 'moderate', q: '"stop" no passado (vogal+consoante breve):', options: ['stoped', 'stopped', 'stopd'], correct: 1, hints: ['CVC curto: dobrar a consoante + ed', 'stop → stopped', 'Resposta: stopped'] },
+      { difficulty: 'moderate', q: '"study" no passado:', options: ['studyed', 'studid', 'studied'], correct: 2, hints: ['consoante + y → ied', 'study → studied', 'Resposta: studied'] },
+      { difficulty: 'hard', q: '"walked" se pronuncia como:', options: ['/walkɛd/', '/walkt/', '/walkd/'], correct: 1, hints: ['Após som surdo (k), -ed soa /t/', 'walked = /walkt/', 'Resposta: /walkt/'] }
+    ],
+    'soa5-past-perguntas': [
+      { difficulty: 'easy', q: '"___ you sleep well?" — passado', options: ['Do', 'Does', 'Did'], correct: 2, hints: ['Passado = Did, para todos', 'Did + sujeito + base', 'Resposta: Did'] },
+      { difficulty: 'easy', q: '"___ she call you?" — passado', options: ['Do', 'Does', 'Did'], correct: 2, hints: ['Passado: always Did', 'Did (não Does) no passado', 'Resposta: Did'] },
+      { difficulty: 'moderate', q: '"Where ___ you go yesterday?"', options: ['do', 'does', 'did'], correct: 2, hints: ['yesterday = passado', 'wh- + did + sujeito + base', 'Resposta: did'] },
+      { difficulty: 'moderate', q: 'Resposta negativa a "Did he come?"', options: ["No, he didn't.", "No, he don't.", "No, he doesn't."], correct: 0, hints: ['Negativo passado = didn\'t', "No, he didn't.", "Resposta: No, he didn't."] },
+      { difficulty: 'hard', q: '"Was she at the party?" — qual resposta curta positiva?', options: ['Yes, she was.', 'Yes, she did.', 'Yes, she is.'], correct: 0, hints: ['was/were = to be no passado', 'Curta: Yes, she was. (espelha o was da pergunta)', 'Resposta: Yes, she was.'] }
+    ],
+    'soa5-past-negativa': [
+      { difficulty: 'easy', q: '"She ___ go home." (negação passado)', options: ["didn't", "don't", "doesn't"], correct: 0, hints: ['Negação passado = didn\'t (qualquer sujeito)', "she didn't go", "Resposta: didn't"] },
+      { difficulty: 'easy', q: '"I didn\'t ___ there." (be)', options: ['was', 'be', 'am'], correct: 1, hints: ['Depois de didn\'t: verbo na base', "didn't + base (não passado)", 'Resposta: be'] },
+      { difficulty: 'moderate', q: 'Corrija: "I didn\'t went to school."', options: ["I didn't go to school.", "I didn't gone to school.", "I not went to school."], correct: 0, hints: ['didn\'t + base (não passado)', '❌ didn\'t went → ✅ didn\'t go', "Resposta: I didn't go to school."] },
+      { difficulty: 'moderate', q: '"He ___ at home." (was, negação)', options: ["wasn't", "weren't", "didn't was"], correct: 0, hints: ['To be no passado: was/wasn\'t (not didn\'t)', "wasn't = was not", "Resposta: wasn't"] },
+      { difficulty: 'hard', q: '"They ___ ready." (were, negação)', options: ["wasn't", "weren't", "didn't were"], correct: 1, hints: ['They = plural → were/weren\'t', "weren't = were not", "Lembre: they/we/you usam were no passado, então a negação é weren't. → Resposta: weren't"] }
+    ],
+    'soa6-can': [
+      { difficulty: 'easy', q: '"I ___ swim." (habilidade positiva)', options: ['can', 'cans', 'can to'], correct: 0, hints: ['Modal + base (sem to, sem -s)', 'can swim (não can to swim)', 'Resposta: can'] },
+      { difficulty: 'easy', q: '"She ___ drive." (negação)', options: ["can not drive", "can't drive", "doesn't can drive"], correct: 1, hints: ["can't = cannot (forma contraída)", "can't + base", "Resposta: can't drive"] },
+      { difficulty: 'moderate', q: '"___ you help me?" (pedido educado)', options: ['Do', 'Can', 'Should'], correct: 1, hints: ['Pedido = Can ou Could (mais educado)', 'Can you help me?', 'Resposta: Can'] },
+      { difficulty: 'moderate', q: '"She can ___." (swim, forma correta)', options: ['swims', 'swimming', 'swim'], correct: 2, hints: ['Depois de modal: verbo na base', 'can + swim (não can + swims)', 'Resposta: swim'] },
+      { difficulty: 'hard', q: 'Qual frase usa "can" INCORRETAMENTE?', options: ["I can't go.", "She can swims.", "Can you open this?"], correct: 1, hints: ['Modal nunca muda o verbo que vem depois', '❌ can swims → ✅ can swim', 'Modal nunca muda o verbo que segue — sem -s, sem -ed. → Resposta: She can swims. (a frase errada)'] }
+    ],
+    'soa6-like-ing': [
+      { difficulty: 'easy', q: '"I like ___." (dance)', options: ['dance', 'dancing', 'to dance'], correct: 1, hints: ['like + -ing (não base)', 'I like dancing', 'Resposta: dancing'] },
+      { difficulty: 'easy', q: '"She loves ___." (cook)', options: ['cook', 'cooks', 'cooking'], correct: 2, hints: ['love + -ing', 'She loves cooking', 'Resposta: cooking'] },
+      { difficulty: 'moderate', q: 'Corrija: "I like go to the gym."', options: ['I like going to the gym.', 'I like to go to the gym.', 'Ambas estão corretas'], correct: 2, hints: ['like + -ing OU like + to + base — ambas são aceitas!', 'like going / like to go = ambas corretas', 'Resposta: Ambas estão corretas'] },
+      { difficulty: 'moderate', q: '"He hates ___." (wait)', options: ['wait', 'waiting', 'to wait'], correct: 1, hints: ['hate + -ing (forma mais natural)', 'He hates waiting', 'Resposta: waiting'] },
+      { difficulty: 'hard', q: '"I ___ to learn English." (want)', options: ['want', 'want to', 'wanting'], correct: 1, hints: ['want + to + base (não -ing!)', 'want to go, want to learn', 'Resposta: want to'] }
+    ],
+    'soa6-want-to': [
+      { difficulty: 'easy', q: '"I ___ to travel." (want)', options: ['want', 'wants', 'wanting'], correct: 0, hints: ['I + want (sem -s)', 'want + to + base', 'Resposta: want'] },
+      { difficulty: 'easy', q: '"She ___ to study." (need)', options: ['need', 'needs', 'needing'], correct: 1, hints: ['she/he = +s no present simple', 'She needs (3ª pessoa)', 'Resposta: needs'] },
+      { difficulty: 'moderate', q: 'Corrija: "I want go home."', options: ['I want going home.', 'I want to go home.', 'I wants to go home.'], correct: 1, hints: ['want + to + base', '❌ want go → ✅ want to go', 'Resposta: I want to go home.'] },
+      { difficulty: 'moderate', q: '"He decided ___ quit his job."', options: ['quit', 'to quit', 'quitting'], correct: 1, hints: ['decide + to + base', 'decided to quit', 'Resposta: to quit'] },
+      { difficulty: 'hard', q: '"She is ___ to become a doctor." (try)', options: ['trying', 'try', 'tries'], correct: 0, hints: ['is + -ing = present continuous', 'She is trying', 'Resposta: trying'] }
     ]
   };
 
@@ -1871,7 +2688,184 @@
     pronomes: [
       { q: 'Em "She calls me", qual é a função de "me"?', options: ['Sujeito', 'Objeto', 'Possessivo'], correct: 1 },
       { q: '"This is for I" — o que está errado?', options: ['Nada, está correto', 'Deveria ser "for me"', 'Falta o verbo'], correct: 1 },
-      { q: 'Complete: "___ am going to the party."', options: ['Me', 'I', 'My'], correct: 1 }
+      { q: 'Complete: "___ am going to the party."', options: ['Me', 'I', 'My'], correct: 1 },
+      { q: '"The bag is ___." (dela)', options: ['her', 'hers', 'she'], correct: 1 },
+      { q: 'Qual frase está correta?', options: ['Him is my boss.', 'He is my boss.', 'His is my boss.'], correct: 1 }
+    ],
+    perguntas: [
+      { q: 'Qual palavra abre uma pergunta de sim/não com "she"?', options: ['Do', 'Does', 'Did'], correct: 1 },
+      { q: '"Where ___ she live?" — qual auxiliar?', options: ['do', 'does', 'did'], correct: 1 },
+      { q: '"Who called you?" — por que sem "did"?', options: ['Erro gramatical', '"Who" é o sujeito', 'Regra antiga'], correct: 1 },
+      { q: 'Forma correta de perguntar no passado:', options: ['Do you went?', 'Did you go?', 'Does you went?'], correct: 1 },
+      { q: '"You\'re from Brazil, ___ ___?" — tag question', options: ["isn't it?", "aren't you?", "don't you?"], correct: 1 }
+    ],
+    negativa: [
+      { q: '"She ___ like coffee." — presente, ação', options: ["don't", "doesn't", "isn't"], correct: 1 },
+      { q: 'Corrija: "She doesn\'t likes pizza."', options: ["She don't like pizza.", "She doesn't like pizza.", "She isn't like pizza."], correct: 1 },
+      { q: 'Negar no passado: "He went home."', options: ["He didn't went home.", "He didn't go home.", "He don't go home."], correct: 1 },
+      { q: '"I ___ know anything." (nunca) — forma correta', options: ["don't never know", "never know", "never knew"], correct: 1 },
+      { q: 'Qual usa dupla negação (errada em inglês padrão)?', options: ["I don't know anything.", "I never eat meat.", "I don't know nothing."], correct: 2 }
+    ],
+    passado: [
+      { q: 'Passado de "go":', options: ['goed', 'went', 'gone'], correct: 1 },
+      { q: '"I ___ (not/eat) breakfast today."', options: ["didn't ate", "didn't eat", "don't eat"], correct: 1 },
+      { q: 'Passado de "have":', options: ['haved', 'had', 'has'], correct: 1 },
+      { q: '"She ___ working when I arrived." (was/were)', options: ['were', 'was', 'is'], correct: 1 },
+      { q: '"Did he call?" — resposta negativa curta:', options: ["No, he don't.", "No, he didn't.", "No, he doesn't."], correct: 1 }
+    ],
+    preposicoes: [
+      { q: '"I live ___ Brazil."', options: ['on', 'in', 'at'], correct: 1 },
+      { q: '"The meeting is ___ Monday."', options: ['in', 'on', 'at'], correct: 1 },
+      { q: '"Class starts ___ 9am."', options: ['in', 'on', 'at'], correct: 2 },
+      { q: '"She was born ___ 1990."', options: ['on', 'at', 'in'], correct: 2 },
+      { q: 'Qual está ERRADA?', options: ["In the morning.", "At Monday.", "On July 4th."], correct: 1 }
+    ],
+    verbos: [
+      { q: '"She ___ a doctor." (to be, presente)', options: ['am', 'is', 'are'], correct: 1 },
+      { q: '"I ___ swim." (habilidade)', options: ['can', 'must', 'should'], correct: 0 },
+      { q: '"You ___ rest." (conselho suave)', options: ['must', 'should', 'can'], correct: 1 },
+      { q: '"Look ___ the word." (phrasal: pesquisar)', options: ['at', 'up', 'on'], correct: 1 },
+      { q: 'Modal + verbo: qual está certo?', options: ["She can swims.", "She can swim.", "She cans swim."], correct: 1 }
+    ],
+    'soa1-alfabeto': [
+      { q: 'Som da letra "A" em inglês:', options: ['ah', 'ei', 'aa'], correct: 1 },
+      { q: 'Letra com nome "double-you":', options: ['V', 'W', 'U'], correct: 1 },
+      { q: 'Som TH (think) em inglês:', options: ['d', 't', 'língua nos dentes'], correct: 2 },
+      { q: '"Brazil" em inglês tem qual letra no lugar do S?', options: ['Z', 'C', 'SS'], correct: 0 },
+      { q: 'Qual letra soa "ar" em inglês?', options: ['A', 'R', 'L'], correct: 1 }
+    ],
+    'soa1-numeros': [
+      { q: 'Como escrever 13 em inglês?', options: ['thirty', 'thirteen', 'thirten'], correct: 1 },
+      { q: 'Como escrever 40 em inglês? (atenção à grafia)', options: ['fourty', 'forty', 'forety'], correct: 1 },
+      { q: 'O "segundo" em ordinal:', options: ['second', 'secondth', 'two'], correct: 0 },
+      { q: 'Qual é a diferença entre "fifteen" e "fifty"?', options: ['São iguais', '15 vs 50', '50 vs 15'], correct: 1 },
+      { q: 'Como se escreve 100?', options: ['a hundred', 'one hundred', 'Ambas corretas'], correct: 2 }
+    ],
+    'soa1-cumprimentos': [
+      { q: 'Saudação para a tarde (12h–18h):', options: ['Good morning', 'Good afternoon', 'Good evening'], correct: 1 },
+      { q: '"Good night" se usa:', options: ['Ao encontrar alguém à noite', 'Ao se despedir para dormir', 'Em qualquer horário'], correct: 1 },
+      { q: 'Resposta para "How are you?":', options: ['I fine.', 'I am fine, thanks.', 'Yes, fine.'], correct: 1 },
+      { q: '"Nice to meet you" — quando usar?', options: ['Ao se despedir', 'Ao conhecer alguém', 'Como agradecimento'], correct: 1 },
+      { q: '"What\'s up?" é:', options: ['Formal', 'Ofensivo', 'Informal/casual'], correct: 2 }
+    ],
+    'soa1-tobe-afirm': [
+      { q: '"I ___ Brazilian."', options: ['am', 'is', 'are'], correct: 0 },
+      { q: '"She ___ from Rio."', options: ['am', 'is', 'are'], correct: 1 },
+      { q: '"We ___ a team."', options: ['am', 'is', 'are'], correct: 2 },
+      { q: 'Qual frase está correta?', options: ['He are my friend.', 'He is my friend.', 'He am my friend.'], correct: 1 },
+      { q: 'Contração de "They are":', options: ["They're", "Theyre", "Their"], correct: 0 }
+    ],
+    'soa2-pronomes-sujeito': [
+      { q: 'Pronome sujeito masculino singular:', options: ['Him', 'He', 'His'], correct: 1 },
+      { q: 'Pronome para clima/situação: "___ is raining."', options: ['He', 'She', 'It'], correct: 2 },
+      { q: '"Ana e eu" em inglês (ordem correta):', options: ['I and Ana', 'Me and Ana', 'Ana and I'], correct: 2 },
+      { q: 'Pronome sujeito plural (eles/elas):', options: ['Them', 'Their', 'They'], correct: 2 },
+      { q: 'Qual frase usa pronome errado?', options: ["She goes to school.", "Him is my teacher.", "They study together."], correct: 1 }
+    ],
+    'soa2-tobe-perg-neg': [
+      { q: '"___ she at home?" (pergunta)', options: ['Do', 'Is', 'Are'], correct: 1 },
+      { q: '"They ___ from here." (negativa)', options: ["isn't", "aren't", "don't"], correct: 1 },
+      { q: 'Resposta negativa: "Is he tired?"', options: ["No, he don't.", "No, he isn't.", "No, he aren't."], correct: 1 },
+      { q: '"Are you ready?" — resposta positiva curta:', options: ['Yes, I am.', 'Yes, I do.', 'Yes, I be.'], correct: 0 },
+      { q: 'Qual pergunta está correta?', options: ['They are ready?', 'Are they ready?', 'Do they are ready?'], correct: 1 }
+    ],
+    'soa2-possessivos': [
+      { q: '"This is ___ bag." (minha)', options: ['my', 'mine', 'me'], correct: 0 },
+      { q: '"The bag is ___." (dela)', options: ['her', 'hers', 'she'], correct: 1 },
+      { q: '"___ car is fast." (dele)', options: ['Him', 'His', 'He'], correct: 1 },
+      { q: '"That coffee is ___." (seu, de você)', options: ['your', 'yours', 'you'], correct: 1 },
+      { q: 'Qual está correto?', options: ["That is theirs house.", "That is their house.", "That house is their."], correct: 1 }
+    ],
+    'soa2-this-that': [
+      { q: 'Objeto perto, singular:', options: ['this', 'these', 'that'], correct: 0 },
+      { q: 'Objetos longe, plural:', options: ['this', 'that', 'those'], correct: 2 },
+      { q: '"___ are my keys." (aqui, plural)', options: ['This', 'These', 'Those'], correct: 1 },
+      { q: '"___ is your bag?" — escolha entre opções', options: ['What', 'Which', 'That'], correct: 1 },
+      { q: '"Is ___ your car?" (longe)', options: ['this', 'these', 'that'], correct: 2 }
+    ],
+    'soa3-present-afirm': [
+      { q: '"She ___ English." (speak)', options: ['speak', 'speaks', 'is speak'], correct: 1 },
+      { q: '"He ___ French." (teach)', options: ['teachs', 'teaches', 'teached'], correct: 1 },
+      { q: '"She ___ hard." (study)', options: ['studys', 'studies', 'studyes'], correct: 1 },
+      { q: '"I ___ to the gym." (go, hábito)', options: ['goes', 'go', 'going'], correct: 1 },
+      { q: '"She ___ not study on Sundays." (doesn\'t)', options: ["doesn't studies", "doesn't study", "don't study"], correct: 1 }
+    ],
+    'soa3-third-person-s': [
+      { q: '"work" com "he":', options: ['work', 'works', 'workies'], correct: 1 },
+      { q: '"go" com "she":', options: ['gos', 'goes', 'go'], correct: 1 },
+      { q: '"carry" com "he":', options: ['carrys', 'carries', 'carrying'], correct: 1 },
+      { q: '"have" com "she":', options: ['haves', 'have', 'has'], correct: 2 },
+      { q: '"study" com "she" (negativa):', options: ["doesn't studies", "doesn't study", "don't studies"], correct: 1 }
+    ],
+    'soa3-frequencia': [
+      { q: 'Posição de "always": "I ___ wake up early."', options: ['always (antes)', 'always (depois)', 'always (final)'], correct: 0 },
+      { q: '"She is ___ late." — "never" vai:', options: ['antes de is', 'depois de is', 'no final'], correct: 1 },
+      { q: 'Frequência ~40%:', options: ['always', 'never', 'sometimes'], correct: 2 },
+      { q: '"She ___ complains." (raramente)', options: ['rarely complains', 'complains rarely', 'never complains'], correct: 0 },
+      { q: 'Qual frase está correta?', options: ['He goes always to the gym.', 'He always goes to the gym.', 'Always he goes to the gym.'], correct: 1 }
+    ],
+    'soa4-wh-questions': [
+      { q: '"___ is your name?"', options: ['Where', 'What', 'Who'], correct: 1 },
+      { q: '"___ do you live?"', options: ['Where', 'When', 'Why'], correct: 0 },
+      { q: '"___ does the class start?"', options: ['Where', 'When', 'Why'], correct: 1 },
+      { q: '"___ much does it cost?"', options: ['How', 'What', 'Which'], correct: 0 },
+      { q: 'Qual está correto?', options: ['Where you live?', 'Where do you live?', 'Where does you live?'], correct: 1 }
+    ],
+    'soa4-prep-tempo': [
+      { q: '"My birthday is ___ July."', options: ['in', 'on', 'at'], correct: 0 },
+      { q: '"The meeting is ___ Monday."', options: ['in', 'on', 'at'], correct: 1 },
+      { q: '"Class starts ___ 9am."', options: ['in', 'on', 'at'], correct: 2 },
+      { q: '"I study ___ the morning."', options: ['in', 'on', 'at'], correct: 0 },
+      { q: '"She studies ___ night." (exceção!)', options: ['in', 'on', 'at'], correct: 2 }
+    ],
+    'soa4-rotina': [
+      { q: '"Acordar" em inglês:', options: ['get up', 'wake up', 'stand up'], correct: 1 },
+      { q: '"Tomar café" = have ou eat?', options: ['eat breakfast', 'have breakfast', 'do breakfast'], correct: 1 },
+      { q: '"She ___ to work at 8." (go, presente, she)', options: ['go', 'goes', 'going'], correct: 1 },
+      { q: '"I ___ home at 6." (come, presente, I)', options: ['come', 'comes', 'go'], correct: 0 },
+      { q: '"Ir dormir" em inglês:', options: ['go to sleep', 'go to bed', 'Ambas corretas'], correct: 2 }
+    ],
+    'soa5-past-regular': [
+      { q: '"walk" no passado:', options: ['walkt', 'walked', 'walking'], correct: 1 },
+      { q: '"love" no passado:', options: ['loved', 'loveed', 'lovet'], correct: 0 },
+      { q: '"stop" no passado:', options: ['stoped', 'stopped', 'stopd'], correct: 1 },
+      { q: '"study" no passado:', options: ['studyed', 'studied', 'studid'], correct: 1 },
+      { q: '"walked" se pronuncia como:', options: ['/walkɛd/', '/walkt/', '/walkd/'], correct: 1 }
+    ],
+    'soa5-past-perguntas': [
+      { q: '"___ you sleep well?" (passado)', options: ['Do', 'Does', 'Did'], correct: 2 },
+      { q: '"___ she call you?" (passado)', options: ['Do', 'Does', 'Did'], correct: 2 },
+      { q: '"Where ___ you go yesterday?"', options: ['do', 'does', 'did'], correct: 2 },
+      { q: 'Resposta negativa: "Did he come?"', options: ["No, he don't.", "No, he didn't.", "No, he doesn't."], correct: 1 },
+      { q: '"Was she at the party?" — resposta positiva:', options: ['Yes, she was.', 'Yes, she did.', 'Yes, she is.'], correct: 0 }
+    ],
+    'soa5-past-negativa': [
+      { q: '"She ___ go home." (negação passado)', options: ["didn't", "don't", "doesn't"], correct: 0 },
+      { q: '"I didn\'t ___ there." (be, base)', options: ['was', 'be', 'am'], correct: 1 },
+      { q: 'Corrija: "I didn\'t went to school."', options: ["I didn't go to school.", "I didn't gone to school.", "I not went to school."], correct: 0 },
+      { q: '"He ___ at home." (was, negação)', options: ["wasn't", "weren't", "didn't was"], correct: 0 },
+      { q: '"They ___ ready." (were, negação)', options: ["wasn't", "weren't", "didn't were"], correct: 1 }
+    ],
+    'soa6-can': [
+      { q: '"I ___ swim."', options: ['can', 'cans', 'can to'], correct: 0 },
+      { q: '"She ___ drive." (negação)', options: ["can not drive", "can't drive", "doesn't can drive"], correct: 1 },
+      { q: '"___ you help me?" (pedido)', options: ['Do', 'Can', 'Should'], correct: 1 },
+      { q: '"She can ___." (swim — forma correta)', options: ['swims', 'swimming', 'swim'], correct: 2 },
+      { q: 'Qual usa "can" INCORRETAMENTE?', options: ["I can't go.", "She can swims.", "Can you open this?"], correct: 1 }
+    ],
+    'soa6-like-ing': [
+      { q: '"I like ___." (dance)', options: ['dance', 'dancing', 'dances'], correct: 1 },
+      { q: '"She loves ___." (cook)', options: ['cook', 'cooks', 'cooking'], correct: 2 },
+      { q: '"I like go" → correto:', options: ['I like going.', 'I like to go.', 'Ambas corretas'], correct: 2 },
+      { q: '"He hates ___." (wait)', options: ['wait', 'waiting', 'waits'], correct: 1 },
+      { q: '"I ___ to learn." (want)', options: ['want', 'want to', 'wanting'], correct: 1 }
+    ],
+    'soa6-want-to': [
+      { q: '"I ___ to travel." (want)', options: ['want', 'wants', 'wanting'], correct: 0 },
+      { q: '"She ___ to study." (need)', options: ['need', 'needs', 'needing'], correct: 1 },
+      { q: 'Corrija: "I want go home."', options: ['I want going home.', 'I want to go home.', 'I wants to go home.'], correct: 1 },
+      { q: '"He decided ___ quit." (decide + to + base)', options: ['quit', 'to quit', 'quitting'], correct: 1 },
+      { q: '"She is ___ to become a doctor." (try)', options: ['trying', 'try', 'tries'], correct: 0 }
     ]
   };
 
@@ -1917,7 +2911,7 @@
         test: {
           kicker: 'Fechamento',
           title: 'Valide se a lógica ficou clara sem depender da tabela.',
-          copy: 'Se você passa aqui, significa que já consegue distinguir função na frase e escolher a forma certa com mais naturalidade.'
+          copy: 'Se você passa aqui, significa que já consegue distinguir função na frase e escolher a forma certa com mais naturalidade. Quer ir além? Treine as frases em voz alta e conquiste o status Dominado.'
         }
       }
     },
@@ -1942,7 +2936,29 @@
           focus: 'Confirmação',
           summary: 'Por fim, a aula entra no inglês mais conversado. Essas perguntinhas curtas dão tom de naturalidade e mostram como o idioma pede espelhamento e contraste.'
         }
-      ]
+      ],
+      phases: {
+        anchor: {
+          kicker: 'Aquecimento',
+          title: 'Complete o diálogo de perguntas antes de ver a teoria.',
+          copy: 'Tente identificar o auxiliar e a estrutura certa antes de consultar a tabela. Errar aqui é parte do processo.'
+        },
+        table: {
+          kicker: 'Mapa rápido',
+          title: 'Estrutura completa das perguntas em inglês.',
+          copy: 'Compare as três situações: sim/não, perguntas abertas com wh- e tag questions. Veja o padrão em cada uma.'
+        },
+        exercises: {
+          kicker: 'Prática guiada',
+          title: 'Monte perguntas reais com os padrões aprendidos.',
+          copy: 'Cada exercício testa uma decisão diferente: o auxiliar certo, a palavra certa, a ordem certa. Do automático ao reflexivo.'
+        },
+        test: {
+          kicker: 'Fechamento',
+          title: 'Valide se você consegue montar qualquer pergunta em inglês.',
+          copy: 'Se você passa aqui, já sai desta aula capaz de abrir conversas sem travar na estrutura. Quer ir além? Treine as frases em voz alta.'
+        }
+      }
     },
     negativa: {
       kicker: 'Trilha guiada',
@@ -1993,7 +3009,29 @@
           focus: 'Cena interrompida',
           summary: 'O fechamento troca lista por narrativa. Você aprende a contar o que estava rolando quando outra ação entrou em cena e cortou o fluxo.'
         }
-      ]
+      ],
+      phases: {
+        anchor: {
+          kicker: 'Aquecimento',
+          title: 'Complete as cenas no passado antes de ver a explicação.',
+          copy: 'Aqui você já vai encontrar verbos irregulares. Tente reconhecê-los pelo contexto antes de consultar a tabela.'
+        },
+        table: {
+          kicker: 'Mapa rápido',
+          title: 'Passado regular, irregular e continuous — lado a lado.',
+          copy: 'Use esta tabela como referência enquanto pratica. Os irregulares mais frequentes estão aqui.'
+        },
+        exercises: {
+          kicker: 'Prática guiada',
+          title: 'Escolha a forma de passado correta em cada contexto.',
+          copy: 'A chave é identificar: ação concluída (simple), verbo que foge do -ed (irregular) ou cena em andamento (was/were + -ing).'
+        },
+        test: {
+          kicker: 'Fechamento',
+          title: 'Valide se você navega os três tipos de passado sem consultar.',
+          copy: 'Se você passa aqui, já consegue contar histórias no passado com naturalidade. Treine em voz alta para fixar os irregulares.'
+        }
+      }
     },
     preposicoes: {
       kicker: 'Trilha guiada',
@@ -2024,22 +3062,336 @@
       intro: 'Esta aula junta verbos que aparecem o tempo todo, mas por razões diferentes. Primeiro vem o to be, depois os modais que mudam o peso da frase e, por fim, os phrasal verbs que exigem leitura por bloco.',
       journey: ['Dominar o verbo base do idioma', 'Ajustar força e intenção com modais', 'Aprender verbos que mudam ao ganhar uma partícula'],
       sections: [
-        {
-          label: 'Bloco 1',
-          focus: 'To be',
-          summary: 'A aula começa pelo verbo mais estrutural do inglês. Ele serve para identidade, estado, pergunta e várias outras construções que se espalham pelo idioma inteiro.'
-        },
-        {
-          label: 'Bloco 2',
-          focus: 'Modais',
-          summary: 'Em seguida entram os verbos que ajustam poder, obrigação, conselho e possibilidade. O ponto central aqui é perceber que eles mexem no tom da frase inteira.'
-        },
-        {
-          label: 'Bloco 3',
-          focus: 'Phrasal verbs',
-          summary: 'O fechamento assume um fato importante do inglês real: muitas ações do cotidiano aparecem em blocos de duas peças. O sentido não se deduz palavra por palavra.'
-        }
-      ]
+        { label: 'Bloco 1', focus: 'To be', summary: 'A aula começa pelo verbo mais estrutural do inglês. Ele serve para identidade, estado, pergunta e várias outras construções que se espalham pelo idioma inteiro.' },
+        { label: 'Bloco 2', focus: 'Modais', summary: 'Em seguida entram os verbos que ajustam poder, obrigação, conselho e possibilidade. O ponto central aqui é perceber que eles mexem no tom da frase inteira.' },
+        { label: 'Bloco 3', focus: 'Phrasal verbs', summary: 'O fechamento assume um fato importante do inglês real: muitas ações do cotidiano aparecem em blocos de duas peças. O sentido não se deduz palavra por palavra.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete o diálogo com o verbo correto.', copy: 'Antes de ver a explicação, tente identificar qual verbo ou modal encaixa em cada lacuna.' },
+        table: { kicker: 'Mapa rápido', title: 'Veja o quadro de verbos essenciais.', copy: 'Use esta tabela para comparar to be, modais e phrasal verbs lado a lado.' },
+        exercises: { kicker: 'Prática guiada', title: 'Aplique o verbo certo em cada contexto.', copy: 'Cada exercício aumenta um pouco em complexidade. Pense na função do verbo antes de escolher.' },
+        test: { kicker: 'Fechamento', title: 'Valide se você distingue to be, modais e phrasal verbs.', copy: 'Se você passa aqui, significa que já consegue escolher a estrutura verbal certa sem depender de tradução literal. Quer ir além? Treine as frases em voz alta e conquiste o status Dominado.' }
+      }
+    },
+    'soa1-alfabeto': {
+      kicker: 'Módulo 01 · Pronúncia',
+      headline: 'As 26 letras que viram sons: o alfabeto inglês pelo nome e pela pronúncia.',
+      intro: 'O nome de cada letra em inglês é diferente do português. Saber como cada uma soa é essencial para soletrar, entender siglas e reconhecer palavras de ouvido.',
+      journey: ['Conhecer o nome de cada letra', 'Identificar os sons difíceis para brasileiros', 'Praticar soletrar nomes reais'],
+      sections: [
+        { label: 'Bloco 1', focus: 'As 26 letras', summary: 'Cada letra tem um nome fixo em inglês. Aqui você ouve e repete todas elas.' },
+        { label: 'Bloco 2', focus: 'Sons difíceis', summary: 'Algumas letras enganam o brasileiro: G, H, J, R, W, Y e Z soam completamente diferentes do português.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete a frase com a letra correta.', copy: 'Tente identificar as letras pelo som antes de ver a tabela.' },
+        table: { kicker: 'Mapa rápido', title: 'As letras mais confusas para brasileiros.', copy: 'Clique em cada linha para ouvir o nome da letra e um exemplo.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha a resposta correta sobre pronúncia.', copy: 'Do mais direto ao mais sutil — cada questão treina uma distinção real.' },
+        test: { kicker: 'Fechamento', title: 'Valide seu conhecimento do alfabeto inglês.', copy: 'Se você passa aqui, já consegue soletrar e identificar letras no inglês real.' }
+      }
+    },
+    'soa1-numeros': {
+      kicker: 'Módulo 01 · Vocabulário',
+      headline: 'De 1 a 100: números com pronúncia, ordinais e o detalhe que muda tudo.',
+      intro: 'Números em inglês têm armadilhas reais: "fifteen" vs "fifty", "forty" sem o "u". Esta aula resolve esses pontos com clareza.',
+      journey: ['Números de 1 a 20', 'Dezenas: twenty a hundred', 'Ordinais: first, second, third…'],
+      sections: [
+        { label: 'Bloco 1', focus: '1 a 20', summary: 'A base. 1-12 são irregulares, 13-19 seguem o padrão teen.' },
+        { label: 'Bloco 2', focus: 'Dezenas e ordinais', summary: 'De 20 em diante com o padrão -ty, e os ordinais para sequências.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete com o número escrito por extenso.', copy: 'Tente escrever os números antes de ver a tabela.' },
+        table: { kicker: 'Mapa rápido', title: 'Números com regras e exceções.', copy: 'Preste atenção em "forty" (sem u), "twelve" (irregular) e teen vs ty.' },
+        exercises: { kicker: 'Prática guiada', title: 'Reconheça e diferencie os números.', copy: 'O foco aqui são as confusões mais comuns: teen/ty e grafia irregular.' },
+        test: { kicker: 'Fechamento', title: 'Valide números e ordinais.', copy: 'Se você passa aqui, já consegue usar números em conversas reais.' }
+      }
+    },
+    'soa1-cumprimentos': {
+      kicker: 'Módulo 01 · Situações reais',
+      headline: 'Bom dia, boa tarde, tchau: como cumprimentar sem errar o horário.',
+      intro: 'Saudações em inglês variam pelo horário e contexto. Esta aula cobre todos os momentos: chegada, apresentação e despedida — formal e informal.',
+      journey: ['Saudações por horário', 'Apresentação pessoal', 'Despedidas naturais'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Cumprimentos por horário', summary: 'Good morning, Good afternoon, Good evening — cada um tem seu momento.' },
+        { label: 'Bloco 2', focus: 'Apresentação e despedida', summary: 'How are you? Nice to meet you. See you later. — o ciclo completo de uma interação.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete o diálogo de saudação.', copy: 'Como você cumprimentaria alguém às 8h? Como responderia?' },
+        table: { kicker: 'Mapa rápido', title: 'Saudações por situação.', copy: 'Cada linha cobre um momento diferente: chegada, cortesia e despedida.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha a saudação certa para cada cena.', copy: 'Contexto importa: "Good night" não é o mesmo que "Good evening".' },
+        test: { kicker: 'Fechamento', title: 'Valide cumprimentos em inglês.', copy: 'Se você passa aqui, já sabe navegar desde a entrada até a despedida em qualquer horário.' }
+      }
+    },
+    'soa1-tobe-afirm': {
+      kicker: 'Módulo 01 · Gramática',
+      headline: 'Am, is, are: o verbo que a maioria subestima mas usa todo segundo.',
+      intro: 'To be é o verbo mais frequente do inglês. Ele une sujeito com identidade, estado e característica — e cada sujeito tem sua forma específica.',
+      journey: ['Conjugação am/is/are', 'Formas contraídas', 'Uso em frases reais'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Am / Is / Are', summary: 'I = am, he/she/it = is, you/we/they = are. A base do idioma.' },
+        { label: 'Bloco 2', focus: 'Contrações', summary: "I'm, you're, he's, she's, it's, we're, they're — como falantes nativos realmente falam." }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete o diálogo com a forma correta de "to be".', copy: 'Antes de ver a tabela, tente lembrar qual forma vai com cada sujeito.' },
+        table: { kicker: 'Mapa rápido', title: 'Conjugação completa do to be.', copy: 'Oito combinações possíveis — clique em cada linha para ouvir.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha am, is ou are.', copy: 'Do singular ao plural, do positivo ao erro clássico de brasileiro.' },
+        test: { kicker: 'Fechamento', title: 'Valide to be no presente.', copy: 'Se você passa aqui, já usa am/is/are sem hesitar.' }
+      }
+    },
+    'soa2-pronomes-sujeito': {
+      kicker: 'Módulo 02 · Gramática',
+      headline: 'I, you, he, she, it, we, they: os oito pronomes que puxam toda frase.',
+      intro: 'Em inglês toda frase precisa de um sujeito explícito. Esta aula fixa os oito pronomes sujeito e explica por que "It is raining" existe onde o português diz apenas "Está chovendo".',
+      journey: ['Os oito pronomes sujeito', 'Uso obrigatório em inglês', 'Diferença entre he/she e it'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Os 8 pronomes', summary: 'I, you, he, she, it, we, you, they — cada um com seu uso específico.' },
+        { label: 'Bloco 2', focus: 'Pronome obrigatório', summary: 'Diferente do português, inglês não admite frase sem sujeito explícito.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Qual pronome substitui esse nome?', copy: 'Antes de ver a tabela, tente identificar o pronome correto para cada sujeito.' },
+        table: { kicker: 'Mapa rápido', title: 'Os oito pronomes sujeito em contexto.', copy: 'Cada linha mostra o pronome, o português e um exemplo de uso real.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha o pronome sujeito correto.', copy: 'Foco nos erros mais comuns: Him/He, It para tempo/clima, ordem "Ana and I".' },
+        test: { kicker: 'Fechamento', title: 'Valide pronomes sujeito.', copy: 'Se você passa aqui, já substitui nomes por pronomes sem hesitar.' }
+      }
+    },
+    'soa2-tobe-perg-neg': {
+      kicker: 'Módulo 02 · Gramática',
+      headline: 'Is she? Aren\'t they? To be em perguntas e negativas.',
+      intro: 'Depois de afirmar com am/is/are, esta aula ensina a inverter a estrutura para perguntar e negar — com e sem contrações.',
+      journey: ['Inversão para perguntar', 'Negação com not', 'Respostas curtas'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Perguntas', summary: 'Basta inverter: Is she a teacher? Are they from Brazil?' },
+        { label: 'Bloco 2', focus: 'Negativas', summary: "I'm not, she isn't, they aren't — três formas, todas úteis." }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete a pergunta e a resposta.', copy: 'Tente montar a estrutura antes de ver o padrão.' },
+        table: { kicker: 'Mapa rápido', title: 'To be em perguntas e negativas.', copy: 'Lado a lado: afirmativa, interrogativa e negativa para cada sujeito.' },
+        exercises: { kicker: 'Prática guiada', title: 'Forme perguntas e negativas corretamente.', copy: 'Do simples ao sutil — inclui respostas curtas e tag questions.' },
+        test: { kicker: 'Fechamento', title: 'Valide to be interrogativo e negativo.', copy: 'Se você passa aqui, já consegue perguntar e negar com to be naturalmente.' }
+      }
+    },
+    'soa2-possessivos': {
+      kicker: 'Módulo 02 · Gramática',
+      headline: 'Meu, teu, dele, dela: dois jeitos de mostrar posse em inglês.',
+      intro: 'Inglês tem dois grupos de possessivos: um que fica antes do substantivo (my, your, his…) e um que fica sozinho (mine, yours, his…). Esta aula separa os dois com clareza.',
+      journey: ['Possessivos adjetivos (my/your…)', 'Possessivos pronomes (mine/yours…)', 'Quando usar cada um'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Antes do nome', summary: 'my bag, your car, his book — o possessivo "cola" no substantivo.' },
+        { label: 'Bloco 2', focus: 'Sozinho', summary: 'mine, yours, his, hers, ours, theirs — quando o substantivo já foi dito.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete a frase de posse.', copy: 'Tente identificar se o substantivo aparece ou não na frase — isso determina qual forma usar.' },
+        table: { kicker: 'Mapa rápido', title: 'Possessivos: antes do nome vs sozinhos.', copy: 'Seis sujeitos, dois grupos cada — o padrão fica claro nesta tabela.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha my/mine, your/yours…', copy: 'O segredo é ver se o substantivo ainda aparece na frase ou não.' },
+        test: { kicker: 'Fechamento', title: 'Valide possessivos.', copy: 'Se você passa aqui, já não confunde "her" com "hers" nem "your" com "yours".' }
+      }
+    },
+    'soa2-this-that': {
+      kicker: 'Módulo 02 · Vocabulário',
+      headline: 'This, that, these, those: perto ou longe, um ou vários.',
+      intro: 'Demonstrativos em inglês funcionam por dois eixos: distância (perto/longe) e número (singular/plural). Esta aula organiza as quatro formas com exemplos do cotidiano.',
+      journey: ['This/these (perto)', 'That/those (longe)', 'Uso em perguntas e apresentações'],
+      sections: [
+        { label: 'Bloco 1', focus: 'This / These', summary: 'Perto de você: this (singular) e these (plural).' },
+        { label: 'Bloco 2', focus: 'That / Those', summary: 'Longe: that (singular) e those (plural).' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete com o demonstrativo correto.', copy: 'Perto ou longe? Singular ou plural? Tente antes de ver a tabela.' },
+        table: { kicker: 'Mapa rápido', title: 'Quatro demonstrativos, dois eixos.', copy: 'Distância × número — simples e sistemático.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha this, that, these ou those.', copy: 'Cada questão ativa um eixo diferente: foco na lógica, não na memorização.' },
+        test: { kicker: 'Fechamento', title: 'Valide demonstrativos.', copy: 'Se você passa aqui, já aponta coisas em inglês sem hesitar.' }
+      }
+    },
+    'soa3-present-afirm': {
+      kicker: 'Módulo 03 · Gramática',
+      headline: 'Verbo no presente: hábitos, fatos e a regra do -s que brasileiros esquecem.',
+      intro: 'O present simple afirmativo expressa hábitos e fatos. A única complicação é o -s na 3ª pessoa — mas mesmo aí existe lógica para quando adicionar -s, -es ou -ies.',
+      journey: ['Forma base com I/you/we/they', 'A regra do -s/-es/-ies com he/she/it', 'Quando usar present simple'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Base e 3ª pessoa', summary: 'A maioria dos verbos só ganha um -s. Mas -ch, -sh, -x, -o pedem -es e consoante+y vira -ies.' },
+        { label: 'Bloco 2', focus: 'Quando usar', summary: 'Hábitos, rotinas, fatos científicos — o present simple é para o que é verdade de forma geral.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete com o verbo no present simple.', copy: 'Preste atenção no sujeito: I/you precisam de base, she/he precisam de +s.' },
+        table: { kicker: 'Mapa rápido', title: 'Regras da 3ª pessoa.', copy: 'Cada linha mostra a terminação do verbo e a regra que se aplica.' },
+        exercises: { kicker: 'Prática guiada', title: 'Conjuge o verbo no present simple.', copy: 'Do mais simples ao mais sutil — foco na 3ª pessoa e nas irregularidades.' },
+        test: { kicker: 'Fechamento', title: 'Valide present simple afirmativo.', copy: 'Se você passa aqui, já aplica o -s/-es/-ies automaticamente.' }
+      }
+    },
+    'soa3-third-person-s': {
+      kicker: 'Módulo 03 · Gramática',
+      headline: 'He works, she teaches, it flies: as regras do -s na 3ª pessoa.',
+      intro: 'Detalhe que distingue iniciantes de intermediários: adicionar o -s/-es/-ies no lugar certo — e entender as exceções "have → has" e "do → does".',
+      journey: ['+s (maioria)', '+es (terminações especiais)', '-y → ies e irregulares'],
+      sections: [
+        { label: 'Bloco 1', focus: '+s / +es / -ies', summary: 'Três regras, quase todos os verbos cobertas.' },
+        { label: 'Bloco 2', focus: 'Irregulares', summary: '"have → has" e "do → does" são as únicas exceções relevantes.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Qual é a forma correta com "she"?', copy: 'Tente identificar a regra antes de ver a tabela.' },
+        table: { kicker: 'Mapa rápido', title: 'Regras da 3ª pessoa: +s, +es, -ies.', copy: 'Cada linha mostra a terminação do verbo e o que acontece.' },
+        exercises: { kicker: 'Prática guiada', title: 'Conjuge corretamente.', copy: 'Foco nos erros de brasileiro: -ch/-sh, -y e os dois irregulares.' },
+        test: { kicker: 'Fechamento', title: 'Valide 3ª pessoa do present simple.', copy: 'Se você passa aqui, já conjuga sem pensar.' }
+      }
+    },
+    'soa3-frequencia': {
+      kicker: 'Módulo 03 · Vocabulário',
+      headline: 'Always, never, sometimes: dizer com que frequência você faz algo.',
+      intro: 'Advérbios de frequência em inglês têm uma posição fixa na frase. Esta aula ensina os seis principais e onde cada um deve ir.',
+      journey: ['Os seis advérbios: always → never', 'Posição: antes do verbo principal', 'Exceção: depois de to be'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Os advérbios', summary: 'always, usually, often, sometimes, rarely, never — do mais ao menos frequente.' },
+        { label: 'Bloco 2', focus: 'Posição na frase', summary: 'Antes do verbo principal, mas depois de to be — regra simples, efeito imediato.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete com o advérbio correto.', copy: 'Identifique a frequência descrita e onde o advérbio deve ir na frase.' },
+        table: { kicker: 'Mapa rápido', title: 'Frequência e posição na frase.', copy: 'Cada linha mostra o advérbio, a frequência percentual e um exemplo de posição.' },
+        exercises: { kicker: 'Prática guiada', title: 'Posicione o advérbio corretamente.', copy: 'Foco na posição — erro mais comum do brasileiro neste tema.' },
+        test: { kicker: 'Fechamento', title: 'Valide advérbios de frequência.', copy: 'Se você passa aqui, já usa always/never/sometimes no lugar certo.' }
+      }
+    },
+    'soa4-wh-questions': {
+      kicker: 'Módulo 04 · Gramática',
+      headline: 'What, where, who, when, why, how: as perguntas que guiam conversas.',
+      intro: 'Cada wh- word puxa um tipo de informação. Esta aula organiza as oito principais e mostra como montar a pergunta completa com a estrutura correta.',
+      journey: ['What / Where / Who / When / Why / How', 'How much vs How many', 'Estrutura completa da pergunta'],
+      sections: [
+        { label: 'Bloco 1', focus: 'As 6 wh- principais', summary: 'What, Where, Who, When, Why, How — cada uma puxa um tipo de dado.' },
+        { label: 'Bloco 2', focus: 'How much / many', summary: 'How much (incontável) vs How many (contável) — distinção importante para preço e quantidade.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Qual wh- word completa cada pergunta?', copy: 'Identifique que tipo de informação é pedida para escolher a palavra certa.' },
+        table: { kicker: 'Mapa rápido', title: 'Oito wh- words com uso e exemplo.', copy: 'Clique em cada linha para ouvir a pergunta.' },
+        exercises: { kicker: 'Prática guiada', title: 'Forme perguntas com wh- words.', copy: 'Do simples ao completo — cada questão exercita uma palavra diferente.' },
+        test: { kicker: 'Fechamento', title: 'Valide wh- questions.', copy: 'Se você passa aqui, já abre perguntas abertas em inglês naturalmente.' }
+      }
+    },
+    'soa4-prep-tempo': {
+      kicker: 'Módulo 04 · Gramática',
+      headline: 'In July, on Monday, at 3pm: as três preposições de tempo que nunca mudam.',
+      intro: 'A lógica é simples: in para períodos amplos (meses, anos), on para dias, at para horas. Uma exceção: "at night".',
+      journey: ['in + mês/ano/estação/período', 'on + dia', 'at + hora (exceção: at night)'],
+      sections: [
+        { label: 'Bloco 1', focus: 'In / On / At', summary: 'Três preposições, três níveis de especificidade no tempo.' },
+        { label: 'Bloco 2', focus: 'Exceções', summary: '"at night" quebra o padrão de "in" para período. Mais nada para decorar.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Qual preposição de tempo encaixa?', copy: 'Identifique: é um mês (in), um dia (on) ou uma hora (at)?' },
+        table: { kicker: 'Mapa rápido', title: 'In, on, at: quando usar cada um.', copy: 'Cada linha mostra a situação e o exemplo correspondente.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha in, on ou at.', copy: 'Foco nas distinções e na exceção "at night".' },
+        test: { kicker: 'Fechamento', title: 'Valide preposições de tempo.', copy: 'Se você passa aqui, já usa in/on/at sem hesitar em datas e horários.' }
+      }
+    },
+    'soa4-rotina': {
+      kicker: 'Módulo 04 · Vocabulário',
+      headline: 'Wake up, have breakfast, go to bed: os verbos da rotina diária.',
+      intro: 'Esta aula junta os verbos que descrevem um dia típico em inglês — com as colocações certas (have breakfast, não do breakfast) e a ordem natural de apresentação.',
+      journey: ['Da manhã até a noite', 'Colocações corretas (have vs do vs make)', 'Present simple para descrever rotina'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Manhã e trabalho', summary: 'wake up, get up, have breakfast, go to work — as primeiras horas do dia.' },
+        { label: 'Bloco 2', focus: 'Tarde e noite', summary: 'have lunch, come home, have dinner, go to bed — a segunda metade da rotina.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete a rotina.', copy: 'Qual verbo descreve cada momento do dia?' },
+        table: { kicker: 'Mapa rápido', title: 'Verbos de rotina do início ao fim do dia.', copy: 'Oito verbos com significado e exemplo de uso.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha o verbo certo para cada momento.', copy: 'Foco nas colocações corretas e nas 3ªs pessoas.' },
+        test: { kicker: 'Fechamento', title: 'Valide verbos de rotina.', copy: 'Se você passa aqui, já descreve sua rotina diária em inglês.' }
+      }
+    },
+    'soa5-past-regular': {
+      kicker: 'Módulo 05 · Gramática',
+      headline: 'Walked, loved, stopped: as regras do passado regular.',
+      intro: 'O passado em inglês parece simples — afinal, basta adicionar -ed. Mas há três variações ortográficas, três pronúncias diferentes para o -ed e um grupo inteiro de verbos que não seguem regra nenhuma. Esta lição organiza tudo isso em partes: primeiro a forma previsível, depois os irregulares mais usados.',
+      journey: ['Base + ed (maioria)', 'Terminações especiais', 'Pronúncia de -ed'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Regras de formação', summary: '+ed para a maioria, +d para verbos em -e, -ied para consoante+y, dobrar para CVC curto.' },
+        { label: 'Bloco 2', focus: 'Pronúncia do -ed', summary: '/t/, /d/ ou /ɪd/ — depende do som final do verbo.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Coloque o verbo no passado.', copy: 'Tente aplicar a regra antes de ver a tabela.' },
+        table: { kicker: 'Mapa rápido', title: 'Regras do passado regular.', copy: 'Cada linha mostra uma terminação e a regra que se aplica.' },
+        exercises: { kicker: 'Prática guiada', title: 'Forme o passado regular corretamente.', copy: 'Do simples ao sutil — inclui pronúncia do -ed.' },
+        test: { kicker: 'Fechamento', title: 'Valide passado regular.', copy: 'Se você passa aqui, já forma o passado regular sem errar.' }
+      }
+    },
+    'soa5-past-perguntas': {
+      kicker: 'Módulo 05 · Gramática',
+      headline: 'Did you go? Where did she work? Perguntas no passado simples.',
+      intro: '"Did" é o auxiliar do passado para perguntas — igual para todos os sujeitos. Depois de "did", o verbo principal volta à forma base.',
+      journey: ['Did + sujeito + base?', 'Wh- + did + sujeito + base?', 'Respostas curtas com did/didn\'t'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Estrutura com Did', summary: '"Did" abre a pergunta. Verbo principal fica na base.' },
+        { label: 'Bloco 2', focus: 'Wh- + did', summary: 'What did you do? Where did she go? — wh- word + did + base.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete a pergunta no passado.', copy: 'Qual auxiliar abre uma pergunta de passado? E qual forma fica no verbo principal?' },
+        table: { kicker: 'Mapa rápido', title: 'Estrutura de perguntas no passado.', copy: 'Sim/não e wh- questions lado a lado.' },
+        exercises: { kicker: 'Prática guiada', title: 'Forme perguntas corretamente no passado.', copy: 'Foco em "did + base" e no uso de was/were para to be no passado.' },
+        test: { kicker: 'Fechamento', title: 'Valide perguntas no passado.', copy: 'Se você passa aqui, já pergunta sobre o passado sem errar o auxiliar.' }
+      }
+    },
+    'soa5-past-negativa': {
+      kicker: 'Módulo 05 · Gramática',
+      headline: 'Didn\'t go, wasn\'t there: negar no passado sem errar o verbo.',
+      intro: '"Didn\'t" + base é a fórmula para negar ações no passado. "Wasn\'t / weren\'t" para to be. E o erro clássico "didn\'t went" se resolve aqui de uma vez.',
+      journey: ["didn't + base (ações)", "wasn't / weren't (to be)", 'Erro clássico: didn\'t went → didn\'t go'],
+      sections: [
+        { label: 'Bloco 1', focus: "Didn't + base", summary: '"Didn\'t" já carrega passado. O verbo principal volta à base.' },
+        { label: 'Bloco 2', focus: "Wasn't / weren't", summary: 'To be no passado tem sua própria negação: wasn\'t e weren\'t.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete a negação no passado.', copy: 'Tente identificar a estrutura correta antes de ver a tabela.' },
+        table: { kicker: 'Mapa rápido', title: 'Negação no passado: ações e to be.', copy: 'Lado a lado: didn\'t e wasn\'t/weren\'t.' },
+        exercises: { kicker: 'Prática guiada', title: 'Negue corretamente no passado.', copy: 'Foco no erro "didn\'t went" e na diferença entre didn\'t e wasn\'t.' },
+        test: { kicker: 'Fechamento', title: 'Valide negação no passado.', copy: 'Se você passa aqui, já nega no passado sem cair no erro clássico.' }
+      }
+    },
+    'soa6-can': {
+      kicker: 'Módulo 06 · Gramática',
+      headline: 'Can you swim? I can\'t drive: habilidade e possibilidade com can.',
+      intro: 'Modais como "can" são ferramentas de ajuste de tom: a mesma ideia muda de peso dependendo do modal que você usa. "Can" abre possibilidade e habilidade. Entender como ele funciona — e que ele nunca leva -s nem "to" depois — é a base para usar todos os outros modais com segurança.',
+      journey: ['can + base (habilidade)', "can't (negação)", 'Can...? (pedido e pergunta)'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Can afirmativo e negativo', summary: 'I can swim. She can\'t drive. Mesma regra para todos.' },
+        { label: 'Bloco 2', focus: 'Can em perguntas', summary: 'Can you help me? — pedido educado e pergunta de habilidade.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete com can ou can\'t.', copy: 'Habilidade positiva ou negativa? O verbo depois sempre fica na base.' },
+        table: { kicker: 'Mapa rápido', title: 'Can: usos e estrutura.', copy: 'Afirmativo, negativo e interrogativo com exemplos reais.' },
+        exercises: { kicker: 'Prática guiada', title: 'Use can corretamente.', copy: 'Foco em "can + base" (nunca can to swim ou can swims).' },
+        test: { kicker: 'Fechamento', title: 'Valide can.', copy: 'Se você passa aqui, já usa can sem pensar.' }
+      }
+    },
+    'soa6-like-ing': {
+      kicker: 'Módulo 06 · Gramática',
+      headline: 'I like dancing, she loves cooking: verbos seguidos de -ing.',
+      intro: '"Like", "love", "enjoy" e "hate" são seguidos de verbo com -ing. Esta aula também mostra a fronteira com "want to", que segue a regra diferente.',
+      journey: ['like/love/enjoy/hate + -ing', 'want/need/decide + to + base', 'Diferença de estrutura'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Like/love + -ing', summary: 'I like reading. She loves dancing. They enjoy cooking.' },
+        { label: 'Bloco 2', focus: 'Want/need + to', summary: 'I want to go. She needs to study. — estrutura diferente de like.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete com o verbo na forma correta.', copy: 'Like/love/enjoy → -ing. Want/need → to + base.' },
+        table: { kicker: 'Mapa rápido', title: 'Verbos + -ing vs Verbos + to.', copy: 'Dois grupos com exemplos — clique para ouvir.' },
+        exercises: { kicker: 'Prática guiada', title: 'Escolha -ing ou to + base.', copy: 'O segredo é saber de qual família o verbo principal faz parte.' },
+        test: { kicker: 'Fechamento', title: 'Valide like + -ing.', copy: 'Se você passa aqui, já não confunde "I like go" com "I like going".' }
+      }
+    },
+    'soa6-want-to': {
+      kicker: 'Módulo 06 · Gramática',
+      headline: 'I want to travel, she needs to study: verbos seguidos de to + base.',
+      intro: '"Want", "need", "decide" e "try" pedem "to" antes do próximo verbo. Esta é a outra família — diferente de like/love que pedem -ing.',
+      journey: ['want/need/decide/try + to + base', 'Erro: want + base ou want + -ing', 'Uso no cotidiano'],
+      sections: [
+        { label: 'Bloco 1', focus: 'Want/need + to', summary: 'I want to travel. She needs to call. He decided to leave.' },
+        { label: 'Bloco 2', focus: 'Erro clássico', summary: '"I want go" ou "I want going" — ambos errados. "I want to go" é o único caminho.' }
+      ],
+      phases: {
+        anchor: { kicker: 'Aquecimento', title: 'Complete com "to" ou "-ing".', copy: 'Want/need/decide sempre pedem "to". Like/love/enjoy sempre pedem "-ing".' },
+        table: { kicker: 'Mapa rápido', title: 'Verbos + to + base.', copy: 'Quatro verbos principais dessa família com exemplos.' },
+        exercises: { kicker: 'Prática guiada', title: 'Forme frases com want/need/decide.', copy: 'Foco no erro clássico: want + base vs want + to + base.' },
+        test: { kicker: 'Fechamento', title: 'Valide want to + base.', copy: 'Se você passa aqui, já não diz "I want go" nem "I want going".' }
+      }
     }
   };
 
@@ -2148,6 +3500,66 @@
         'phrasal-verbs': {
           content: 'Phrasal verb não é quebra-cabeça de palavra solta. O sentido mora no bloco inteiro, como expressão pronta do dia a dia.',
           exercise: 'Colinha: não traduza cada pedaço sozinho. Compare a ideia em português com o bloco inteiro e pense na situação real da frase.'
+        }
+      }
+    },
+    'soa3-frequencia': {
+      anchor: 'Olhe o contexto da frase. Se tem TO BE, o advérbio mora depois. Se não tem, mora antes do verbo principal.',
+      scaffolded: 'Antes de escolher, se pergunte: qual é o verbo principal da frase? O advérbio de frequência quase sempre vai logo antes dele.',
+      sections: {
+        escala: {
+          content: 'Pensa numa régua de 0% a 100%. Cada advérbio tem seu lugar fixo nela. Never é zero, always é cem, e os outros ficam no meio.',
+          exercise: 'Colinha: cheque se a frase tem TO BE. Tem? Advérbio depois. Não tem? Advérbio antes do verbo principal. Never já nega — não combine com don\'t.'
+        }
+      }
+    },
+    'soa4-wh-questions': {
+      anchor: 'Primeiro identifique qual informação a pergunta quer puxar: lugar, tempo, pessoa, razão ou modo. Depois encaixe a palavra certa.',
+      scaffolded: 'Leia a pergunta e pergunte: o que a frase quer saber? A resposta aponta direto pra palavra de pergunta certa.',
+      sections: {
+        'seis-wh': {
+          content: 'Cada palavra WH é uma seta que aponta pra um tipo de informação. What = coisa, Where = lugar, Who = pessoa, When = tempo, Why = razão, How = modo.',
+          exercise: 'Colinha: pense na RESPOSTA que você espera. Se seria um lugar → Where. Uma pessoa → Who. Uma hora → When. Isso guia a escolha antes de pensar no auxiliar.'
+        }
+      }
+    },
+    'soa5-past-regular': {
+      anchor: 'No passado, o verbo regular sempre ganha -ed no final. Cheque só se há variação ortográfica: y vira ied, e curto dobra a consoante.',
+      scaffolded: 'Dois passos: (1) o verbo é regular? Então -ed. (2) tem regra ortográfica especial? Aplique. Se o verbo fugir do -ed, é irregular.',
+      sections: {
+        'passado-ed': {
+          content: 'Verbos regulares são previsíveis: trabalham com -ed no passado, sem exceção de sujeito. A variação é só na grafia, não na lógica.',
+          exercise: 'Colinha: regular = -ed. Se termina em -e, só o -d. Se consoante+y, vira ied. Se CVC curto, dobra a consoante. Fora isso, é só walk → walked.'
+        }
+      }
+    },
+    'soa5-past-perguntas': {
+      anchor: 'Pergunta no passado = Did + sujeito + verbo base. O verbo volta à forma dicionário — o passado já tá no Did.',
+      scaffolded: 'Dois sinais: se tem "yesterday", "last week" ou "ago" → passado. No passado, Did entra pra qualquer sujeito.',
+      sections: {
+        'did-questions': {
+          content: 'Did é o passado de Do. Ele assume todo o peso do tempo verbal e o verbo principal vai descansar na forma base.',
+          exercise: 'Colinha: Did + sujeito + base. Se a resposta for sim, repete o Did. Se não, usa didn\'t. O verbo principal nunca vai no passado depois do Did.'
+        }
+      }
+    },
+    'soa5-past-negativa': {
+      anchor: 'Negação no passado: didn\'t + base. TO BE no passado se nega sozinho: wasn\'t / weren\'t.',
+      scaffolded: 'Dois caminhos: verbo de ação → didn\'t + base. TO BE → wasn\'t (singular) ou weren\'t (plural). Nunca "didn\'t was".',
+      sections: {
+        'negativa-passado': {
+          content: 'Didn\'t já carrega o passado inteiro. Ele dispensa o verbo de ir pro passado também — por isso o verbo fica na base.',
+          exercise: 'Colinha: didn\'t + base. Wasn\'t = he/she/it. Weren\'t = we/they/you. Teste: "Didn\'t went" → errado. "Didn\'t go" → certo.'
+        }
+      }
+    },
+    'soa6-can': {
+      anchor: 'Can é modal: não ganha -s, não pede "to", e o verbo depois dele sempre fica na base.',
+      scaffolded: 'Antes de responder, verifique: o verbo depois de can está na base? Está sem -s, -ed ou -ing? Então está certo.',
+      sections: {
+        'can-habilidade': {
+          content: 'Can funciona como uma chave de ignição: ele liga a possibilidade ou habilidade. Sozinho, sem to e sem marca de pessoa.',
+          exercise: 'Colinha: modal + base. Can swim (não can swims, não can to swim). A pergunta inverte: Can you? Sim → Yes, I can. Não → No, I can\'t.'
         }
       }
     }
@@ -2411,16 +3823,13 @@
     });
 
     const buttons = anchor.blanks.map((blank, blankIndex) => {
-      const options = Array.from(new Set([
-        blank.answer,
-        ...anchor.blanks.map(item => item.answer),
-        'I',
-        'me',
-        'my',
-        'you',
-        'him',
-        'her'
-      ])).slice(0, 6);
+      // Se o blank tem opções customizadas, usa elas; senão gera automaticamente
+      const options = blank.options
+        ? blank.options
+        : Array.from(new Set([
+            blank.answer,
+            ...anchor.blanks.map(item => item.answer)
+          ])).slice(0, 4);
 
       return `
         <div class="lp-anchor-buttons" id="buttons-${slug}-${blankIndex}">
@@ -2491,6 +3900,11 @@
     if (!table) return '';
     const editorial = getPedagogicalEditorial(slug, lessons[slug]);
     const phase = editorial.phases?.table || {};
+    const headers = table.headers || ['Português', 'Inglês', 'Exemplo'];
+
+    const sideNote = slug === 'pronomes'
+      ? '<aside class="lp-table-side-note"><div class="lp-table-side-kicker">Leitura prática</div><p>Se a palavra vem antes do verbo, pense em sujeito. Se aparece depois do verbo ou de uma preposição, pense em objeto.</p></aside>'
+      : '';
 
     return `
       <div class="lp-table-wrap" id="table-${slug}">
@@ -2502,27 +3916,30 @@
         <div class="lp-table-shell">
           <table class="lp-interactive-table">
             <thead>
-              <tr>
-                <th>Função</th>
-                <th>Pronome</th>
-                <th>Exemplo</th>
-              </tr>
+              <tr>${headers.map(h => `<th>${escapePedagogicalHtml(h)}</th>`).join('')}</tr>
             </thead>
             <tbody>
-              ${table.rows.map((row) => `
-                <tr class="${row.category === 'subject' ? 'lp-table-subject' : 'lp-table-object'}">
-                  <td><span class="lp-glossary-trigger" onmouseenter="window.showGlossary('${row.category === 'subject' ? 'sujeito' : 'objeto'}', event)" onmouseleave="window.hideGlossary()">${escapePedagogicalHtml(row.pt)}</span></td>
-                  <td>${escapePedagogicalHtml(row.en)}</td>
-                  <td>${escapePedagogicalHtml(row.example)}</td>
-                </tr>`).join('')}
+              ${table.rows.map((row) => {
+                const speakText = (row.example || row.en || '').replace(/'/g, "\\'");
+                const speakBtn = speakText ? `<button class="lp-ct-play" type="button" aria-label="Ouvir exemplo" onclick="window._griloSpeak&&window._griloSpeak('${speakText}',this)">▶</button>` : '';
+                if (slug === 'pronomes') {
+                  return `<tr class="${row.category === 'subject' ? 'lp-table-subject' : 'lp-table-object'}">
+                    <td><span class="lp-glossary-trigger" onmouseenter="window.showGlossary('${row.category === 'subject' ? 'sujeito' : 'objeto'}', event)" onmouseleave="window.hideGlossary()">${escapePedagogicalHtml(row.pt)}</span></td>
+                    <td>${escapePedagogicalHtml(row.en)}</td>
+                    <td>${escapePedagogicalHtml(row.example)}${speakBtn}</td>
+                  </tr>`;
+                }
+                return `<tr class="${row.category === 'subject' ? 'lp-table-subject' : 'lp-table-object'}">
+                  <td>${escapePedagogicalHtml(row.pt)}</td>
+                  <td><strong>${escapePedagogicalHtml(row.en)}</strong></td>
+                  <td>${escapePedagogicalHtml(row.example)}${speakBtn}</td>
+                </tr>`;
+              }).join('')}
             </tbody>
           </table>
-          <aside class="lp-table-side-note">
-            <div class="lp-table-side-kicker">Leitura prática</div>
-            <p>Se a palavra vem antes do verbo, pense em sujeito. Se aparece depois do verbo ou de uma preposição, pense em objeto.</p>
-          </aside>
+          ${sideNote}
         </div>
-        <button class="lp-anchor-continue" type="button" onclick="window.nextPhase('${slug}', 'exercises')">Ir para a pratica guiada</button>
+        <button class="lp-anchor-continue" type="button" onclick="window.nextPhase('${slug}', 'exercises')">Ir para a prática guiada</button>
       </div>`;
   }
 
@@ -3557,7 +4974,8 @@
   }
 
   function nextPhase(slug, phase) {
-    const targetEl = document.getElementById(`${phase}-${slug}`);
+    const targetEl = document.getElementById(`phase-${phase}-${slug}`)
+      || document.getElementById(`${phase}-${slug}`);
     if (targetEl) {
       targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -3736,7 +5154,7 @@
       return { correct_answers: 0, total_questions: 1 };
     }
 
-    if (slug === 'pronomes') {
+    if (ANCHOR_DIALOGS[slug] || SCAFFOLDED_EXERCISES[slug] || FINAL_TESTS[slug]) {
       const anchorBlanks = (ANCHOR_DIALOGS[slug] && ANCHOR_DIALOGS[slug].blanks) || [];
       const scaffoldedExercises = SCAFFOLDED_EXERCISES[slug] || [];
       const finalTests = FINAL_TESTS[slug] || [];
@@ -3870,15 +5288,21 @@
     const label = document.getElementById('heroProgressLabel');
     if (!el || !fill || !label) return;
 
-    if (done === 0 && inProg === 0) { el.style.display = 'none'; return; }
     el.style.display = 'flex';
-    fill.style.width = Math.round((done / total) * 100) + '%';
+    const pct = Math.round((done / total) * 100);
+    window.requestAnimationFrame(() => {
+      fill.style.width = pct + '%';
+      el.classList.add('is-loaded');
+    });
+
     if (done === total) {
-      label.innerHTML = `<strong>🏆 Todas as ${total} aulas concluídas!</strong>`;
+      label.innerHTML = `<strong>Todas as ${total} aulas concluídas!</strong>`;
     } else if (done > 0) {
       label.innerHTML = `<strong>${done}</strong> de ${total} aulas concluídas`;
-    } else {
+    } else if (inProg > 0) {
       label.innerHTML = `${inProg} aula${inProg > 1 ? 's' : ''} em progresso`;
+    } else {
+      label.innerHTML = `<strong>${total}</strong> aulas disponíveis — comece quando quiser`;
     }
   }
 
@@ -3967,7 +5391,7 @@
     if (!modal || modal.hasAttribute('hidden') || modal.classList.contains('is-closing')) return;
     modal.classList.remove('active');
     modal.classList.add('is-closing');
-    document.title = 'Módulo - Lições';
+    document.title = 'Módulo A1 — GRILO';
 
     window.clearTimeout(lessonModalCloseTimer);
     lessonModalCloseTimer = window.setTimeout(() => {
@@ -4260,6 +5684,10 @@
     window.clearTimeout(lessonModalCloseTimer);
     modal.classList.remove('is-closing');
 
+    // Skeleton enquanto o conteúdo é montado
+    if (aside) aside.classList.add('is-loading');
+    if (main) main.classList.add('is-loading');
+
     // Usa a ordem oficial da trilha (não a ordem de declaração no objeto lessons)
     const trailIndex = TRAIL_ORDER.indexOf(slug);
     const index = trailIndex >= 0 ? trailIndex : LESSON_KEYS.indexOf(slug);
@@ -4291,18 +5719,19 @@
     if (crumbLesson) crumbLesson.textContent = `Aula ${num} — ${lesson.title}`;
 
     // ── sidebar ──
+    const hasPedagogical = !!(ANCHOR_DIALOGS[slug] || INTERACTIVE_TABLES[slug] || SCAFFOLDED_EXERCISES[slug] || FINAL_TESTS[slug]);
     if (aside) {
-      const editorialNav = slug === 'pronomes'
+      const lessonSections = lesson.sections || [];
+      const editorialNav = hasPedagogical
         ? [
             { id: `overview-${slug}`, label: 'Visão da aula' },
-            { id: `concept-${slug}-0`, label: 'Quem faz a ação' },
-            { id: `concept-${slug}-1`, label: 'Quem recebe a ação' },
-            { id: `concept-${slug}-2`, label: 'Como mostrar posse' },
-            { id: `table-${slug}`, label: 'Tabela de apoio' },
-            { id: `exercises-${slug}`, label: 'Prática guiada' },
-            { id: `test-${slug}`, label: 'Validação final' }
+            ...lessonSections.map((sec, i) => ({ id: `concept-${slug}-${i}`, label: sec.title })),
+            ...(ANCHOR_DIALOGS[slug] ? [{ id: `anchor-${slug}`, label: 'Aquecimento' }] : []),
+            ...(INTERACTIVE_TABLES[slug] ? [{ id: `table-${slug}`, label: 'Tabela de apoio' }] : []),
+            ...(SCAFFOLDED_EXERCISES[slug] ? [{ id: `exercises-${slug}`, label: 'Prática guiada' }] : []),
+            ...(FINAL_TESTS[slug] ? [{ id: `test-${slug}`, label: 'Validação final' }] : [])
           ]
-        : [{ id: `overview-${slug}`, label: 'Visão da aula' }, ...(lesson.sections || []).map((sec, i) => ({ id: `msec-${slug}-${i}`, label: sec.title }))];
+        : [{ id: `overview-${slug}`, label: 'Visão da aula' }, ...lessonSections.map((sec, i) => ({ id: `msec-${slug}-${i}`, label: sec.title }))];
 
       const navItems = editorialNav
         .map((item) => `
@@ -4314,6 +5743,7 @@
       const points = (lesson.teachingPoints || [])
         .map(p => `<li class="lp-aside-point">${p}</li>`).join('');
 
+      aside.classList.remove('is-loading');
       aside.innerHTML = `
         <span class="lp-aside-icon">${renderLessonIcon(lesson.icon)}</span>
         <span class="lp-aside-num">LIÇÃO ${num}</span>
@@ -4339,21 +5769,21 @@
 
     // ── main content ──
     if (main) {
+      main.classList.remove('is-loading');
       main.innerHTML = '';
 
-      const hasPedagogicalRenderer = typeof renderAnchorDialog === 'function'
-        && typeof renderInteractiveTable === 'function'
-        && typeof renderScaffoldedExercises === 'function'
-        && typeof renderFinalTest === 'function';
-
-      if (slug === 'pronomes' && hasPedagogicalRenderer) {
+      if (hasPedagogical) {
         window._testScore = 0;
+        const anchorHtml = ANCHOR_DIALOGS[slug] ? `<div class="lp-peda-phase" id="anchor-${slug}">${renderAnchorDialog(slug)}</div>` : '';
+        const tableHtml = INTERACTIVE_TABLES[slug] ? `<div class="lp-peda-phase" id="phase-table-${slug}">${renderInteractiveTable(slug)}</div>` : '';
+        const exercisesHtml = SCAFFOLDED_EXERCISES[slug] ? `<div class="lp-peda-phase" id="phase-exercises-${slug}">${renderScaffoldedExercises(slug)}</div>` : '';
+        const testHtml = FINAL_TESTS[slug] ? `<div class="lp-peda-phase" id="phase-test-${slug}">${renderFinalTest(slug)}</div>` : '';
         main.innerHTML = `
           ${renderPedagogicalOverview(slug, lesson)}
-          <div class="lp-peda-phase" id="anchor-${slug}">${renderAnchorDialog(slug)}</div>
-          <div class="lp-peda-phase" id="phase-table-${slug}">${renderInteractiveTable(slug)}</div>
-          <div class="lp-peda-phase" id="phase-exercises-${slug}">${renderScaffoldedExercises(slug)}</div>
-          <div class="lp-peda-phase" id="phase-test-${slug}">${renderFinalTest(slug)}</div>
+          ${anchorHtml}
+          ${tableHtml}
+          ${exercisesHtml}
+          ${testHtml}
         `;
       } else {
         main.innerHTML = renderPedagogicalOverview(slug, lesson, { sectionIdPrefix: 'overview-concept' });
@@ -4568,7 +5998,48 @@
   window._griloMarkComplete = function(slug, btn) {
     setLessonCompleted(slug);
     if (btn) { btn.textContent = '✓ Aula concluída'; btn.classList.add('is-done'); btn.disabled = true; }
+    showCompletionCelebration(slug);
   };
+
+  function showCompletionCelebration(slug) {
+    const existing = document.getElementById('grilo-toast-completion');
+    if (existing) existing.remove();
+
+    const lesson = lessons[slug];
+    const title = lesson ? lesson.title : 'Aula';
+    const toast = document.createElement('div');
+    toast.id = 'grilo-toast-completion';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.style.cssText = [
+      'position:fixed', 'bottom:24px', 'right:24px', 'z-index:99999',
+      'background:linear-gradient(135deg,#1eab6d,#2ec87d)', 'color:#fff',
+      'padding:14px 20px', 'border-radius:14px',
+      'box-shadow:0 8px 32px rgba(30,171,109,0.35)',
+      'font-weight:700', 'font-size:0.9rem', 'font-family:inherit',
+      'display:flex', 'align-items:center', 'gap:10px',
+      'transform:translateY(80px)', 'opacity:0',
+      'transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s ease',
+      'max-width:320px', 'line-height:1.3'
+    ].join(';');
+    toast.innerHTML = `<span style="font-size:1.4rem" aria-hidden="true">&#127919;</span><span>Lição concluída!<br><small style="font-weight:500;opacity:0.88">${title}</small></span>`;
+    document.body.appendChild(toast);
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+      });
+    });
+
+    window.setTimeout(() => {
+      toast.style.transform = 'translateY(80px)';
+      toast.style.opacity = '0';
+      window.setTimeout(() => toast.remove(), 400);
+    }, 3500);
+
+    updateHeroProgress();
+  }
 
   // ========== HELPER GLOBAL DE TTS (Text-to-Speech) ==========
   // Usado por botões de áudio em exemplos, soundboards, tabelas, etc.
