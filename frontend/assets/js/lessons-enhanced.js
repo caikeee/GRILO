@@ -5209,17 +5209,45 @@
   function showTestResult(slug) {
     const totalQ = FINAL_TESTS[slug].length;
     const score = window._testScore || 0;
-    const passing = Math.ceil(totalQ * 0.67);
-    const passed = score >= passing;
+    const wrong = totalQ - score;
+    const pct = totalQ > 0 ? Math.round((score / totalQ) * 100) : 0;
+
+    let emoji, headline;
+    if (pct === 100)     { emoji = '🎉'; headline = 'Perfeito! Você acertou tudo!'; }
+    else if (pct >= 70)  { emoji = '👍'; headline = 'Muito bom! Continue assim!'; }
+    else if (pct >= 50)  { emoji = '📚'; headline = 'Bom esforço! Continue praticando.'; }
+    else                 { emoji = '💪'; headline = 'Continue praticando! Você vai melhorar!'; }
+
     const resultEl = document.getElementById(`test-result-${slug}`);
-    resultEl.innerHTML = `<div class="lp-result-box ${passed ? 'is-passed' : 'is-failed'}"><h3>${passed ? '🎉 Parabéns!' : '📚 Continue praticando'}</h3><p>Você acertou ${score} de ${totalQ}</p><p>${passed ? 'Você desbloqueou esta lição!' : 'Tente novamente!'}</p></div>`;
+    resultEl.innerHTML = `
+      <div class="lp-result-box is-passed">
+        <h3>${emoji} ${headline}</h3>
+        <div class="lp-result-stats">
+          <span class="lp-result-stat lp-result-correct">✓ ${score} certa${score !== 1 ? 's' : ''}</span>
+          ${wrong > 0 ? `<span class="lp-result-stat lp-result-wrong">✗ ${wrong} errada${wrong !== 1 ? 's' : ''}</span>` : ''}
+          <span class="lp-result-stat lp-result-pct">${pct}% de acerto</span>
+        </div>
+      </div>`;
     resultEl.style.display = 'block';
+
+    // Marcar como concluída automaticamente ao responder todas as questões
     const completeBtn = document.getElementById(`test-complete-${slug}`);
-    if (completeBtn) completeBtn.style.display = passed ? 'block' : 'none';
+    if (completeBtn) completeBtn.style.display = 'none';
+    setLessonCompleted(slug);
+    _updateAsideBtnAfterComplete(slug);
+    showCompletionCelebration(slug);
   }
 
   function completeLesson(slug) {
     window._griloMarkComplete && window._griloMarkComplete(slug);
+  }
+
+  function _updateAsideBtnAfterComplete(slug) {
+    const btn = document.querySelector(`.lp-aside-complete-btn[data-slug="${slug}"]`);
+    if (!btn) return;
+    btn.textContent = '✓ Aula concluída';
+    btn.classList.add('is-done');
+    btn.disabled = true;
   }
 
   const PROGRESS_KEY = 'grilo_lesson_progress';
@@ -5275,12 +5303,39 @@
   }
 
   const STANDALONE_BACKEND_IDS = {
-    pronomes: 1001,
-    perguntas: 1002,
-    negativa: 1003,
-    passado: 1004,
-    preposicoes: 1005,
-    verbos: 1006
+    // Module 1
+    'pronomes':              1,
+    'perguntas':             2,
+    'negativa':              3,
+    'passado':               4,
+    'preposicoes':           5,
+    'verbos':                6,
+    // Module 2
+    'soa1-alfabeto':         7,
+    'soa1-numeros':          8,
+    'soa1-cumprimentos':     9,
+    'soa1-tobe-afirm':       10,
+    'soa2-pronomes-sujeito': 11,
+    'soa2-tobe-perg-neg':    12,
+    'soa2-possessivos':      13,
+    'soa2-this-that':        14,
+    // Module 3
+    'soa3-present-afirm':     15,
+    'soa3-third-person-s':    16,
+    'soa3-present-continuous': 17,
+    'soa3-frequencia':        18,
+    // Module 4
+    'soa4-wh-questions':     19,
+    'soa4-prep-tempo':       20,
+    'soa4-rotina':           21,
+    // Module 5
+    'soa5-past-regular':     22,
+    'soa5-past-perguntas':   23,
+    'soa5-past-negativa':    24,
+    // Module 6
+    'soa6-can':              25,
+    'soa6-like-ing':         26,
+    'soa6-want-to':          27,
   };
 
   // Expõe os dados das aulas pro lessons-trainer-bridge.js poder montar
@@ -5615,7 +5670,6 @@
       phraseVoiceBtn.addEventListener('click', () => {
         const slug = window._currentLessonSlug;
         const title = window._currentLessonTitle || 'Aula';
-        // Backend ID se disponível; senão, usa o slug — o trainer-bridge intercepta
         const lessonRef = STANDALONE_BACKEND_IDS[slug] || slug;
         if (typeof window.openPhraseVoiceTrainer !== 'function') {
           (window.showGriloToast || alert)('O treinador de voz não carregou. Recarregue a página para tentar de novo.', 'error');

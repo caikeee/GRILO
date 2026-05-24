@@ -1,4 +1,5 @@
 from datetime import datetime
+import hashlib
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,6 +13,7 @@ from backend.db_models import (
     Conversation,
     LessonPhraseBank,
     LessonProgress,
+    LessonQuizError,
     PhraseError,
     ShadowModeAnalytic,
     User,
@@ -21,25 +23,14 @@ from backend.db_models import (
     WordProfile,
 )
 from backend.utils import mark_activity, award_xp, track_metric_event
-from backend.quiz_questions import (
-    get_all_questions,
-    get_questions_by_category,
-    get_random_questions,
-    validate_answer,
-)
+from backend.lessons import LESSON_REGISTRY, SLUG_TO_ID, get_lesson_by_id as get_lesson_from_registry
 
 router = APIRouter(tags=["lessons"])
 logger = logging.getLogger(__name__)
 
+# Slug lookup for all 27 lessons (used to resolve analytics slug label)
 _STANDALONE_LESSON_SLUGS = {
-    1001: "pronomes",
-    1002: "perguntas",
-    1003: "negativa",
-    1004: "passado",
-    1005: "futuro",
-    1006: "gerundio",
-    1007: "preposicoes",
-    1008: "verbos",
+    lesson_id: slug for lesson_id, (slug, _) in LESSON_REGISTRY.items()
 }
 
 
@@ -56,6 +47,57 @@ def _exercise_option_to_text(option):
             return f"{english_word} = {portuguese_word}"
         return str(option)
     return str(option)
+
+
+def _question_hash(question_text: str) -> str:
+    return hashlib.sha256(question_text.encode()).hexdigest()[:16]
+
+
+def _upsert_quiz_error(
+    db: Session,
+    user_id: int,
+    lesson_id: int,
+    exercise: dict,
+    correct_answer_text: str,
+    wrong_answer_text: str,
+    is_correct: bool,
+):
+    """Cria ou atualiza um registro de erro de questão MC para o painel de Dificuldades."""
+    q_text = exercise.get("question", "")
+    q_hash = _question_hash(q_text)
+
+    existing = (
+        db.query(LessonQuizError)
+        .filter(
+            LessonQuizError.user_id == user_id,
+            LessonQuizError.lesson_id == lesson_id,
+            LessonQuizError.question_hash == q_hash,
+        )
+        .first()
+    )
+
+    if existing:
+        existing.attempts += 1
+        existing.last_attempted_at = datetime.utcnow()
+        existing.updated_at = datetime.utcnow()
+        if not is_correct:
+            existing.wrong_count += 1
+            wrongs = list(existing.wrong_answers or [])
+            if wrong_answer_text not in wrongs:
+                wrongs.append(wrong_answer_text)
+            existing.wrong_answers = wrongs[-10:]  # mantém até 10 erros distintos
+    else:
+        db.add(LessonQuizError(
+            user_id=user_id,
+            lesson_id=lesson_id,
+            question_hash=q_hash,
+            question_text=q_text,
+            correct_answer=correct_answer_text,
+            wrong_answers=[wrong_answer_text] if not is_correct else [],
+            wrong_count=0 if is_correct else 1,
+            attempts=1,
+        ))
+    db.commit()
 
 
 def _resolve_correct_index(exercise):
@@ -133,15 +175,16 @@ async def get_all_lessons_v2(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    """Get all A1 lessons in V2 format."""
+    """Get all A1 lessons from the registry."""
     try:
-        from backend.lessons_v2 import get_all_lessons
-
-        lessons = get_all_lessons()
-        logger.info("[LESSONS-V2] Retrieved %s lessons for user %s", len(lessons), user_id)
+        lessons = [
+            {"id": lid, "slug": slug}
+            for lid, (slug, _) in LESSON_REGISTRY.items()
+        ]
+        logger.info("[LESSONS] Retrieved %s lessons for user %s", len(lessons), user_id)
         return {"success": True, "total": len(lessons), "lessons": lessons}
     except Exception as exc:
-        logger.error("[LESSONS-V2] Error loading lessons: %s", str(exc))
+        logger.error("[LESSONS] Error loading lessons: %s", str(exc))
         raise HTTPException(status_code=500, detail="Error loading lessons")
 
 
@@ -150,21 +193,22 @@ async def get_lesson_categories(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    """Get all available lesson categories."""
+    """Get lesson module groupings."""
     try:
-        from backend.lessons_v2 import get_all_categories, get_lessons_count
-
-        categories = get_all_categories()
-        total_lessons = get_lessons_count()
-        logger.info("[LESSONS-V2] Retrieved %s categories for user %s", len(categories), user_id)
+        from collections import defaultdict
+        by_module = defaultdict(list)
+        for lid, (slug, lesson_data) in LESSON_REGISTRY.items():
+            m = lesson_data.get("module", 1)
+            by_module[m].append({"id": lid, "slug": slug, "title": lesson_data.get("title", slug)})
+        categories = [{"module": m, "lessons": items} for m, items in sorted(by_module.items())]
         return {
             "success": True,
             "total_categories": len(categories),
-            "total_lessons": total_lessons,
+            "total_lessons": len(LESSON_REGISTRY),
             "categories": categories,
         }
     except Exception as exc:
-        logger.error("[LESSONS-V2] Error loading categories: %s", str(exc))
+        logger.error("[LESSONS] Error loading categories: %s", str(exc))
         raise HTTPException(status_code=500, detail="Error loading categories")
 
 
@@ -200,11 +244,8 @@ async def track_lesson_access(
 ):
     """Persist every lesson open so dashboard access counters reflect real usage."""
     try:
-        from backend.lessons_v2 import get_lesson_by_id
-
-        lesson = get_lesson_by_id(lesson_id)
         standalone_slug = _get_standalone_lesson_slug(lesson_id)
-        if not lesson and not standalone_slug:
+        if not standalone_slug:
             raise HTTPException(status_code=404, detail="Lesson not found")
 
         uid = int(user_id)
@@ -216,7 +257,7 @@ async def track_lesson_access(
             "lesson_access",
             lesson_id=lesson_id,
             details={
-                "source": "standalone" if standalone_slug else "catalog",
+                "source": "standalone",
                 "standalone_slug": standalone_slug,
             },
         )
@@ -237,38 +278,16 @@ async def submit_lesson_exercise(
 ):
     """Submit answer to a lesson exercise using selected option index."""
     try:
-        from backend.lessons_v2 import get_lesson_by_id
-
-        lesson = get_lesson_by_id(lesson_id)
         standalone_slug = _get_standalone_lesson_slug(lesson_id)
-        if not lesson and not standalone_slug:
+        if not standalone_slug:
             raise HTTPException(status_code=404, detail="Lesson not found")
 
-        if lesson:
-            exercises = lesson.get("content", {}).get("exercises", [])
-            if body.exercise_index < 0 or body.exercise_index >= len(exercises):
-                raise HTTPException(status_code=400, detail="Invalid exercise index")
-
-            exercise = exercises[body.exercise_index]
-            options = exercise.get("options") or []
-            if not isinstance(options, list):
-                options = []
-
-            correct_index = _resolve_correct_index(exercise)
-            if correct_index < 0:
-                raise HTTPException(status_code=422, detail="Exercise answer key unavailable")
-
-            is_correct = body.selected_index == correct_index
-            xp_earned = 10 if is_correct else 0
-        else:
-            # Standalone lessons are authored in the frontend and sync analytics here.
-            is_correct = body.is_correct
-            xp_earned = 0
+        # All lessons are standalone — frontend manages exercise display and validation.
+        # Backend receives is_correct from the client (trusted for XP/analytics only).
+        is_correct = body.is_correct
+        xp_earned = 0
 
         xp_result = {"xp_earned": 0, "new_total": 0, "level_up": False, "new_level": 1}
-        if xp_earned > 0:
-            xp_result = award_xp(db, int(user_id), xp_earned, source="lesson_exercise")
-            mark_activity(db, int(user_id), "lesson")
 
         track_metric_event(
             db,
@@ -279,7 +298,7 @@ async def submit_lesson_exercise(
             details={
                 "exercise_index": body.exercise_index,
                 "is_correct": is_correct,
-                "source": body.source or ("standalone" if standalone_slug else "catalog"),
+                "source": body.source or "standalone",
                 "standalone_slug": standalone_slug,
                 "time_spent_ms": body.time_spent_ms,
                 "hint_used": body.hint_used or False,
@@ -307,9 +326,6 @@ async def submit_lesson_exercise(
         return {
             "success": True,
             "correct": is_correct,
-            "correct_index": correct_index,
-            "correct_answer": _exercise_option_to_text(options[correct_index]) if options else "",
-            "explanation": exercise.get("explanation", ""),
             "xp_earned": xp_result["xp_earned"],
             "user_total_xp": xp_result["new_total"],
             "level_up": xp_result["level_up"],
@@ -713,7 +729,6 @@ async def get_user_stats(
         sessions_delta = curr_week_voice_count - prev_week_voice_count
 
         # Resume-where-you-stopped (most recently touched lesson with progress < 100)
-        from backend.lessons_v2 import get_lesson_by_id as _get_lesson
         resume = None
         in_progress_records = sorted(
             [r for r in lesson_records if (r.dominated_phrases_count or 0) < 100],
@@ -722,7 +737,7 @@ async def get_user_stats(
         )
         if in_progress_records:
             r = in_progress_records[0]
-            lesson_meta = _get_lesson(r.lesson_id) or {}
+            lesson_meta = get_lesson_from_registry(r.lesson_id) or {}
             resume = {
                 "lesson_id": r.lesson_id,
                 "title": lesson_meta.get("title", f"Aula {r.lesson_id}"),

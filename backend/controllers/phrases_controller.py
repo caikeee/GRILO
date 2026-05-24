@@ -19,6 +19,7 @@ from backend.database import get_db
 from backend.db_models import (
     LessonPhraseBank,
     LessonProgress,
+    LessonQuizError,
     PhraseError,
 )
 from backend.utils import award_xp, mark_activity, track_metric_event
@@ -352,59 +353,107 @@ async def submit_phrase_result(
 async def get_user_difficulties(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
-    limit: int = 5,
+    limit: int = 10,
 ):
-    """Retorna as frases mais difíceis do usuário para o painel Dificuldades."""
+    """Retorna dificuldades do usuário: erros de voz (PhraseError) + erros de MC (LessonQuizError)."""
     try:
         uid = int(user_id)
+        from backend.lessons import get_lesson_by_id as _get_lesson
+        lesson_titles: dict = {}
 
-        rows = (
+        def _lesson_title(lid: int) -> str:
+            if lid not in lesson_titles:
+                lesson = _get_lesson(lid)
+                lesson_titles[lid] = (lesson or {}).get("title", f"Aula {lid}")
+            return lesson_titles[lid]
+
+        # ── 1. Erros de voz (source: phrase_voice) ─────────────────────────────
+        voice_rows = (
             db.query(PhraseError, LessonPhraseBank)
             .join(LessonPhraseBank, PhraseError.phrase_id == LessonPhraseBank.id)
-            .filter(
-                PhraseError.user_id == uid,
-                PhraseError.status == "dificil",
-            )
+            .filter(PhraseError.user_id == uid, PhraseError.status == "dificil")
             .order_by(PhraseError.attempts.desc(), PhraseError.last_attempted_at.desc())
             .limit(max(1, limit))
             .all()
         )
 
-        # Total de difíceis
-        total_difficult = (
+        voice_items = [
+            {
+                "source": "voice",
+                "phrase_id": phrase.id,
+                "phrase_en": phrase.phrase_en,
+                "phrase_pt": phrase.phrase_pt or "",
+                "phonetic": phrase.phonetic or "",
+                "warning_pt": phrase.warning_pt or "",
+                "lesson_id": phrase.lesson_id,
+                "lesson_title": _lesson_title(phrase.lesson_id),
+                "attempts": err.attempts,
+                "wrong_count": err.attempts - err.correct_sessions,
+                "skipped_count": err.skipped_count,
+                "last_wrong_words": err.last_wrong_words or [],
+                "last_attempted_at": err.last_attempted_at.isoformat() if err.last_attempted_at else None,
+            }
+            for err, phrase in voice_rows
+        ]
+
+        total_voice = (
             db.query(PhraseError)
             .filter(PhraseError.user_id == uid, PhraseError.status == "dificil")
             .count()
         )
 
-        # Resolver títulos das aulas (cache simples)
-        from backend.lessons_v2 import get_lesson_by_id
-        lesson_titles = {}
-        items = []
-        for err, phrase in rows:
-            lid = phrase.lesson_id
-            if lid not in lesson_titles:
-                lesson = get_lesson_by_id(lid)
-                lesson_titles[lid] = (lesson or {}).get("title", f"Aula {lid}")
+        # ── 2. Erros de exercícios MC (source: quiz) ────────────────────────────
+        quiz_rows = (
+            db.query(LessonQuizError)
+            .filter(
+                LessonQuizError.user_id == uid,
+                LessonQuizError.wrong_count > 0,
+            )
+            .order_by(LessonQuizError.wrong_count.desc(), LessonQuizError.last_attempted_at.desc())
+            .limit(max(1, limit))
+            .all()
+        )
 
-            items.append({
-                "phrase_id": phrase.id,
-                "phrase_en": phrase.phrase_en,
-                "phrase_pt": phrase.phrase_pt,
-                "phonetic": phrase.phonetic,
-                "warning_pt": phrase.warning_pt,
-                "lesson_id": lid,
-                "lesson_title": lesson_titles[lid],
-                "attempts": err.attempts,
-                "skipped_count": err.skipped_count,
-                "last_wrong_words": err.last_wrong_words or [],
-                "last_attempted_at": err.last_attempted_at.isoformat() if err.last_attempted_at else None,
-            })
+        quiz_items = [
+            {
+                "source": "quiz",
+                "phrase_id": None,
+                "quiz_error_id": row.id,
+                "phrase_en": row.question_text,
+                "phrase_pt": f"Resposta correta: {row.correct_answer}",
+                "phonetic": "",
+                "warning_pt": "",
+                "lesson_id": row.lesson_id,
+                "lesson_title": _lesson_title(row.lesson_id),
+                "attempts": row.attempts,
+                "wrong_count": row.wrong_count,
+                "skipped_count": 0,
+                "last_wrong_words": row.wrong_answers or [],
+                "last_attempted_at": row.last_attempted_at.isoformat() if row.last_attempted_at else None,
+                "correct_answer": row.correct_answer,
+            }
+            for row in quiz_rows
+        ]
+
+        total_quiz = (
+            db.query(LessonQuizError)
+            .filter(LessonQuizError.user_id == uid, LessonQuizError.wrong_count > 0)
+            .count()
+        )
+
+        # ── Mescla e ordena por data mais recente ────────────────────────────────
+        all_items = voice_items + quiz_items
+        all_items.sort(
+            key=lambda x: x.get("last_attempted_at") or "",
+            reverse=True,
+        )
 
         return {
             "success": True,
-            "total_difficult": total_difficult,
-            "phrases": items,
+            "total_difficult": total_voice + total_quiz,
+            "total_voice": total_voice,
+            "total_quiz": total_quiz,
+            "phrases": all_items[:limit],
         }
     except Exception as exc:
         logger.error("[DIFFICULTIES] Error: %s", str(exc))
@@ -420,7 +469,7 @@ async def get_lessons_progress_extended(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    """Progresso por aula incluindo: aprendida (learned_at), dominated_phrases_count, total."""
+    """Progresso por aula incluindo: aprendida (learned_at), dominated_phrases_count, quiz_errors_count, total."""
     try:
         uid = int(user_id)
 
@@ -440,6 +489,15 @@ async def get_lessons_progress_extended(
         )
         totals = {lid: count for lid, count in totals_rows}
 
+        # erros de MC por aula (apenas questões com wrong_count > 0)
+        quiz_error_rows = (
+            db.query(LessonQuizError.lesson_id, func.count(LessonQuizError.id))
+            .filter(LessonQuizError.user_id == uid, LessonQuizError.wrong_count > 0)
+            .group_by(LessonQuizError.lesson_id)
+            .all()
+        )
+        quiz_errors_by_lesson = {lid: count for lid, count in quiz_error_rows}
+
         progress_map = {}
         for record in records:
             total = totals.get(record.lesson_id, 0)
@@ -455,7 +513,26 @@ async def get_lessons_progress_extended(
                 "total_phrases_in_lesson": total,
                 "dominated_at": record.dominated_at.isoformat() if record.dominated_at else None,
                 "dominated": record.dominated_at is not None,
+                "quiz_errors_count": quiz_errors_by_lesson.get(record.lesson_id, 0),
             }
+
+        # inclui aulas com erros MC mas sem LessonProgress ainda (edge case)
+        for lid, count in quiz_errors_by_lesson.items():
+            if lid not in progress_map:
+                progress_map[lid] = {
+                    "lesson_id": lid,
+                    "correct_answers": 0,
+                    "total_questions": 0,
+                    "attempts": 0,
+                    "completed_at": None,
+                    "learned_at": None,
+                    "learned": False,
+                    "dominated_phrases_count": 0,
+                    "total_phrases_in_lesson": totals.get(lid, 0),
+                    "dominated_at": None,
+                    "dominated": False,
+                    "quiz_errors_count": count,
+                }
 
         return {
             "success": True,

@@ -2427,6 +2427,37 @@ body.app-lessons::before {
   line-height: 1.65;
 }
 
+.lp-result-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.lp-result-stat {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.lp-result-correct {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.lp-result-wrong {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.lp-result-pct {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
 .lp-test-complete {
   display: block;
   width: 100%;

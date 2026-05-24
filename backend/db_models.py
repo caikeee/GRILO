@@ -201,6 +201,26 @@ class AnalyticsEvent(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
 
+class LessonQuizError(Base):
+    """Rastreia erros de exercícios de múltipla escolha por usuário/questão.
+    Uma linha por questão distinta — upsert a cada nova tentativa errada."""
+    __tablename__ = "lesson_quiz_errors"
+    __table_args__ = (UniqueConstraint("user_id", "lesson_id", "question_hash", name="unique_user_lesson_question"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lesson_id = Column(Integer, nullable=False, index=True)
+    question_hash = Column(String(64), nullable=False)       # SHA256[:16] do question text — identifica a questão
+    question_text = Column(Text, nullable=False)              # Texto da pergunta
+    correct_answer = Column(Text, nullable=False)             # Resposta correta
+    wrong_answers = Column(JSON, nullable=True)               # Lista de respostas erradas dadas
+    wrong_count = Column(Integer, default=1)                  # Vezes que errou
+    attempts = Column(Integer, default=1)                     # Total de tentativas (incluindo acertos)
+    last_attempted_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class ShadowModeAnalytic(Base):
     """Voice Help Shadowing - pronunciation practice analytics for pedagogical use."""
     __tablename__ = "shadow_mode_analytics"

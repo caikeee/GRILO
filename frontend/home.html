@@ -4744,8 +4744,8 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
 }
 .dificuldades-item {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 12px;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px 12px;
     align-items: center;
     padding: 11px 13px;
     background: #fff;
@@ -4810,6 +4810,25 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     background-size: 200% 100%;
     animation: difLoad 1.6s ease infinite;
     border-radius: 8px;
+}
+.dificuldades-source-icon {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    opacity: 0.75;
+}
+.dificuldades-content {
+    min-width: 0;
+}
+.dificuldades-item--quiz {
+    border-left-color: #4a6fa4;
+}
+.dificuldades-item--quiz:hover {
+    border-left-color: #6a8fc4;
+    background: #f6f8fc;
+}
+.dificuldades-meta-pill--wrong {
+    background: rgba(196, 74, 44, 0.14);
+    color: #a83220;
 }
 @keyframes difLoad {
     0% { background-position: 200% 0; }
@@ -6784,6 +6803,13 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
 @keyframes dominatedPulse {
     0%, 100% { box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.25); }
     50%      { box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18); }
+}
+
+/* ── Badge: Erro em exercício MC ── */
+.badge-difficulty {
+    background: rgba(74, 111, 164, 0.12);
+    color: #2d5a9e;
+    border: 1px solid rgba(74, 111, 164, 0.25);
 }
 
 /* ── Card "is-dominated": borda superior dourada + leve glow ── */

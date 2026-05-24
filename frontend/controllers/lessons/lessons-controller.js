@@ -229,6 +229,7 @@ function _makeCardLessonV2(lesson) {
     const dominated = !!(progress && progress.dominated);
     const dominatedCount = Number((progress && progress.dominated_phrases_count) || 0);
     const totalPhrases   = Number((progress && progress.total_phrases_in_lesson) || 0);
+    const quizErrorsCount = Number((progress && progress.quiz_errors_count) || 0);
     // alvo de exibição: 100 quando há banco completo; total atual quando ainda em construção
     const phraseTarget   = totalPhrases >= 100 ? 100 : Math.max(totalPhrases, 5);
 
@@ -265,6 +266,10 @@ function _makeCardLessonV2(lesson) {
         statusBadgeHTML = '<span class="lesson-card-badge badge-dominated">★ Dominada</span>';
     }
 
+    const diffBadgeHTML = quizErrorsCount > 0
+        ? `<span class="lesson-card-badge badge-difficulty" title="${quizErrorsCount} questão${quizErrorsCount > 1 ? 'ões' : ''} com erro">📝 ${quizErrorsCount} erro${quizErrorsCount > 1 ? 's' : ''}</span>`
+        : '';
+
     const levelBadge = lesson.level ? `<span class="lesson-card-badge badge-level">${lesson.level}</span>` : '';
     const story = lesson.content && lesson.content.story_context;
     const hook = story ? story : (lesson.description || (lesson.content && lesson.content.introduction) || 'Clique para começar');
@@ -287,7 +292,7 @@ function _makeCardLessonV2(lesson) {
     card.innerHTML = `
         <div class="lesson-card-header">
             <span class="lesson-card-number">Aula ${lesson.id}</span>
-            <div class="lesson-card-badges">${statusBadgeHTML}${levelBadge}</div>
+            <div class="lesson-card-badges">${statusBadgeHTML}${diffBadgeHTML}${levelBadge}</div>
         </div>
         <h3 class="lesson-card-title">${escapeHtml(lesson.title)}</h3>
         <p class="lesson-card-intro">${escapeHtml(hook)}</p>
@@ -558,8 +563,8 @@ function confirmExerciseAnswer() {
     document.getElementById('btnConfirmExercise').style.display = 'none';
     document.getElementById('btnNextExercise').style.display    = 'inline-block';
 
-    // Send to backend (fire-and-forget)
-    _submitExerciseToBackend(carouselCurrentIndex, carouselSelectedIndex).catch(() => {});
+    // Send to backend (fire-and-forget — inclui is_correct para o painel de dificuldades)
+    _submitExerciseToBackend(carouselCurrentIndex, carouselSelectedIndex, isCorrect).catch(() => {});
 }
 
 async function advanceExercise() {
@@ -645,13 +650,17 @@ function nextLesson() {
 }
 
 // ─── Backend fire-and-forget (individual exercise) ────────────────────────────
-async function _submitExerciseToBackend(exerciseIndex, selectedIndex) {
+async function _submitExerciseToBackend(exerciseIndex, selectedIndex, isCorrect) {
     if (!currentLessonDetailV2) return;
     try {
         await fetch(`${API_BASE_URL}/api/lessons/${currentLessonDetailV2.id}/submit-exercise`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-            body: JSON.stringify({ exercise_index: exerciseIndex, selected_index: selectedIndex })
+            body: JSON.stringify({
+                exercise_index: exerciseIndex,
+                selected_index: selectedIndex,
+                is_correct: isCorrect,
+            })
         });
     } catch (e) { /* ignore */ }
 }
@@ -761,12 +770,19 @@ async function loadUserDifficulties() {
 
 function renderDifficultiesPanel(data, container, counter, cta) {
     const total = Number(data.total_difficult || 0);
+    const totalVoice = Number(data.total_voice || 0);
+    const totalQuiz = Number(data.total_quiz || 0);
     const items = Array.isArray(data.phrases) ? data.phrases : [];
 
     if (counter) {
-        counter.textContent = total === 0
-            ? 'Nenhuma frase difícil ainda'
-            : `${total} ${total === 1 ? 'frase' : 'frases'} para praticar`;
+        if (total === 0) {
+            counter.textContent = 'Nenhuma dificuldade registrada ainda';
+        } else {
+            const parts = [];
+            if (totalVoice > 0) parts.push(`${totalVoice} de voz`);
+            if (totalQuiz > 0) parts.push(`${totalQuiz} de exercício`);
+            counter.textContent = `${total} ${total === 1 ? 'dificuldade' : 'dificuldades'} · ${parts.join(' + ')}`;
+        }
     }
     if (cta) {
         cta.style.display = total === 0 ? 'none' : '';
@@ -776,36 +792,60 @@ function renderDifficultiesPanel(data, container, counter, cta) {
         container.innerHTML = `
             <div class="dificuldades-empty">
                 <strong>Sem dificuldades registradas.</strong>
-                Faça o exercício de voz no fim de cada aula — as frases que você pular ou errar aparecem aqui automaticamente.
+                Responda os exercícios e pratique a pronúncia — erros e frases difíceis aparecem aqui automaticamente.
             </div>`;
         return;
     }
 
     container.innerHTML = items.map(item => {
-        const wrong = Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0
-            ? `<span class="dificuldades-meta-pill" title="Palavras que erraram">${item.last_wrong_words.length} palavra${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
+        const isQuiz = item.source === 'quiz';
+        const sourceIcon = isQuiz ? '📝' : '🎙';
+        const sourceLabel = isQuiz ? 'Exercício' : 'Pronúncia';
+
+        const wrongInfo = isQuiz
+            ? (Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0
+                ? `<span class="dificuldades-meta-pill" title="Respostas erradas dadas">${item.last_wrong_words.length} erro${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
+                : '')
+            : (Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0
+                ? `<span class="dificuldades-meta-pill" title="Palavras que erraram">${item.last_wrong_words.length} palavra${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
+                : '');
+
+        const subtitleText = isQuiz
+            ? `Resposta: ${escapeHtml(item.correct_answer || '')} · ${escapeHtml(item.lesson_title || '')}`
+            : `${escapeHtml(item.phrase_pt || '')} · ${escapeHtml(item.lesson_title || '')}`;
+
+        const wrongCountBadge = (item.wrong_count > 0)
+            ? `<span class="dificuldades-meta-pill dificuldades-meta-pill--wrong">${item.wrong_count}× errou</span>`
             : '';
+
         return `
-            <div class="dificuldades-item" data-lesson-id="${item.lesson_id}" data-phrase-id="${item.phrase_id}">
-                <div>
+            <div class="dificuldades-item dificuldades-item--${item.source || 'voice'}"
+                 data-lesson-id="${item.lesson_id}"
+                 data-phrase-id="${item.phrase_id || ''}"
+                 data-quiz-error-id="${item.quiz_error_id || ''}">
+                <div class="dificuldades-source-icon" title="${sourceLabel}">${sourceIcon}</div>
+                <div class="dificuldades-content">
                     <p class="dificuldades-en">"${escapeHtml(item.phrase_en)}"</p>
-                    <p class="dificuldades-pt">${escapeHtml(item.phrase_pt || '')} · ${escapeHtml(item.lesson_title || '')}</p>
+                    <p class="dificuldades-pt">${subtitleText}</p>
                 </div>
                 <div class="dificuldades-meta">
+                    ${wrongCountBadge}
                     <span class="dificuldades-meta-pill">${item.attempts || 0}× tentou</span>
-                    ${wrong}
+                    ${wrongInfo}
                 </div>
             </div>
         `;
     }).join('');
 
-    // Click → abre a aula correspondente em lessons.html
+    // Click → abre a aula correspondente
     container.querySelectorAll('.dificuldades-item').forEach(el => {
         el.addEventListener('click', () => {
             const lid = el.getAttribute('data-lesson-id');
             const pid = el.getAttribute('data-phrase-id');
+            const qid = el.getAttribute('data-quiz-error-id');
             if (lid) {
-                window.location.href = `lessons.html?lesson=${lid}&practice_phrase=${pid}`;
+                const param = pid ? `practice_phrase=${pid}` : (qid ? `practice_quiz=${qid}` : '');
+                window.location.href = `lessons.html?lesson=${lid}${param ? '&' + param : ''}`;
             }
         });
     });

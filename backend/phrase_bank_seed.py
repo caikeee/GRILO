@@ -262,6 +262,20 @@ PHRASE_BANK_SEED = {
 }
 
 
+def _build_registry_seed() -> dict:
+    """Builds phrase entries from the new lesson registry's coach_phrases."""
+    from backend.lessons import LESSON_REGISTRY
+    result = {}
+    for lesson_id, (slug, lesson_data) in LESSON_REGISTRY.items():
+        coach_phrases = lesson_data.get("coach_phrases", [])
+        if coach_phrases:
+            result[lesson_id] = [
+                {"phrase_en": p, "phrase_pt": "", "difficulty_level": 1, "source": "coach"}
+                for p in coach_phrases
+            ]
+    return result
+
+
 def seed_phrase_bank(db: Session, force: bool = False) -> dict:
     """Insere as 5 frases por aula. Idempotente — só insere se a aula está vazia.
 
@@ -274,7 +288,10 @@ def seed_phrase_bank(db: Session, force: bool = False) -> dict:
     inserted_lessons = []
     total_phrases = 0
 
-    for lesson_id, phrases in PHRASE_BANK_SEED.items():
+    # Merge: static seed + registry coach phrases (registry takes precedence for new IDs)
+    all_seeds = {**PHRASE_BANK_SEED, **_build_registry_seed()}
+
+    for lesson_id, phrases in all_seeds.items():
         existing = (
             db.query(LessonPhraseBank)
             .filter(LessonPhraseBank.lesson_id == lesson_id)
