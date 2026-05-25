@@ -1395,7 +1395,7 @@ async def evaluate_writing_response(request, user_id: int, db: Session):
     Both LLM calls run in parallel for ~50% latency reduction.
     """
     try:
-        from utils.prompts import prompt_continue_conversation, prompt_evaluate_writing
+        from backend.utils.prompts import prompt_continue_conversation, prompt_evaluate_writing
 
         message = request.message
         level = request.level or "intermediate"
@@ -1529,7 +1529,7 @@ async def evaluate_writing_response(request, user_id: int, db: Session):
         db.commit()
 
         # Update XP via centralized engine (handles level-up + xp_daily)
-        from utils import award_xp
+        from backend.utils import award_xp
         xp_result = award_xp(db, user_id, xp_earned, source="writing_chat")
 
         print(f"[WRITE-CHAT] Saved to DB | corrections={len(corrections)} | xp={xp_earned} | level_up={xp_result['level_up']}")
