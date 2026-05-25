@@ -14,9 +14,9 @@
     --v4-sage: #7A9E84;
     --v4-sage-deep: #3A5E47;
     --v4-sage-soft: #B5CDB0;
-    --v4-amber: #C9916B;
-    --v4-amber-deep: #A87650;
-    --v4-amber-soft: rgba(201,145,107,0.12);
+    --v4-amber: #FFD700;
+    --v4-amber-deep: #CCA800;
+    --v4-amber-soft: rgba(255,215,0,0.13);
 
     --v4-bg: #FBFCFB;
     --v4-bg-warm: #F9F5F0;
@@ -36,7 +36,7 @@
         radial-gradient(80% 60% at 80% 0%, rgba(201,145,107,0.06) 0%, transparent 60%),
         radial-gradient(70% 60% at 10% 100%, rgba(122,158,132,0.08) 0%, transparent 60%),
         linear-gradient(180deg, #FBFCFB 0%, #F4F7F4 100%);
-    padding: 120px 0 100px;
+    padding: 20px 0 100px;
     overflow: hidden;
 }
 
@@ -74,7 +74,7 @@
     font-size: 0.82rem;
     font-weight: 500;
     letter-spacing: 0;
-    margin-bottom: 32px;
+    margin-bottom: 14px;
 }
 
 .v4-hero-tag-dot {
