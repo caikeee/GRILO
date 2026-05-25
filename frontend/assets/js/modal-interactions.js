@@ -6,39 +6,21 @@
 (function() {
   'use strict';
 
-  let asideCollapsed = false;
   const ASIDE_STATE_KEY = 'grilo_lesson_aside_collapsed';
 
-  // ============================================================
-  // ESTADO DO PAINEL
-  // ============================================================
-
-  function loadAsideState() {
-    const saved = localStorage.getItem(ASIDE_STATE_KEY);
-    asideCollapsed = saved === 'true';
+  function isCollapsed() {
+    return localStorage.getItem(ASIDE_STATE_KEY) === 'true';
   }
 
-  function saveAsideState() {
-    localStorage.setItem(ASIDE_STATE_KEY, asideCollapsed);
-  }
-
-  function updateAsideUI() {
+  function applyAsideState() {
     const modal = document.getElementById('lessonContent');
     const toggle = document.getElementById('lessonAsideToggle');
-    const aside = document.getElementById('lessonModalAside');
-
-    if (!modal || !toggle) return;
-
-    if (asideCollapsed) {
-      modal.classList.add('is-aside-collapsed');
-      toggle.classList.add('is-collapsed');
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.textContent = 'Mostrar painel';
-    } else {
-      modal.classList.remove('is-aside-collapsed');
-      toggle.classList.remove('is-collapsed');
-      toggle.setAttribute('aria-expanded', 'true');
-      toggle.textContent = 'Ocultar painel';
+    if (!modal) return;
+    const collapsed = isCollapsed();
+    modal.classList.toggle('is-aside-collapsed', collapsed);
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      toggle.setAttribute('aria-label', collapsed ? 'Mostrar painel' : 'Ocultar painel');
     }
   }
 
@@ -47,21 +29,10 @@
   // ============================================================
 
   function setupToggleButton() {
-    const toggle = document.getElementById('lessonAsideToggle');
-    if (!toggle) return;
-
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      asideCollapsed = !asideCollapsed;
-      saveAsideState();
-      updateAsideUI();
-
-      // Feedback visual
-      toggle.style.transform = 'scale(0.95)';
-      setTimeout(() => {
-        toggle.style.transform = '';
-      }, 150);
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#lessonAsideToggle')) return;
+      localStorage.setItem(ASIDE_STATE_KEY, isCollapsed() ? 'false' : 'true');
+      applyAsideState();
     });
   }
 
@@ -166,7 +137,7 @@
       });
     }
 
-    if (aside && !asideCollapsed) {
+    if (aside && !isCollapsed()) {
       aside.style.opacity = '0';
       aside.style.transform = 'translateX(-8px)';
       aside.style.transition = 'none';
@@ -317,33 +288,23 @@
   // ============================================================
 
   function init() {
-    loadAsideState();
     setupToggleButton();
     setupCloseButton();
     setupKeyboardShortcuts();
-
-    // Espera pelo modal existir
+    // Apply persisted state once modal is in DOM
     const checkModal = () => {
       const modal = document.getElementById('lessonContent');
-      if (!modal) {
-        setTimeout(checkModal, 200);
-        return;
-      }
-
-      updateAsideUI();
+      if (!modal) { setTimeout(checkModal, 200); return; }
+      applyAsideState();
     };
-
     checkModal();
   }
 
   document.addEventListener('DOMContentLoaded', init);
 
-  // Exposição global
+  // Global: called after aside innerHTML is re-injected to re-sync toggle button attrs
+  window._applyAsideState = applyAsideState;
+
   window._closeLesson = closeLesson;
-  window._toggleLessonAside = () => {
-    asideCollapsed = !asideCollapsed;
-    saveAsideState();
-    updateAsideUI();
-  };
 
 })();

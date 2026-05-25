@@ -63,7 +63,7 @@ def _upsert_quiz_error(
     is_correct: bool,
 ):
     """Cria ou atualiza um registro de erro de questão MC para o painel de Dificuldades."""
-    q_text = exercise.get("question", "")
+    q_text = exercise.get("q") or exercise.get("question") or ""
     q_hash = _question_hash(q_text)
 
     existing = (
@@ -118,6 +118,42 @@ def _resolve_correct_index(exercise):
     return 0 if options else -1
 
 
+def _get_exercise_at_index(lesson_data: dict, exercise_index: int) -> dict | None:
+    """Resolve um exercício pelo índice linear usado pelo frontend.
+
+    Mapeamento de índices (definido no frontend lessons-enhanced.js):
+      0..N-1   → section_exercises (EXERCISE_MC via _griloAnswer)
+      100+     → anchor_blanks (sem 'correct' — ignorados)
+      200+exIndex → scaffolded_exercises (checkScaffoldedAnswer)
+      300+qIdx → final_test (checkFinalTest)
+    """
+    scaffolded = lesson_data.get("scaffolded_exercises") or []
+    final_test = lesson_data.get("final_test") or []
+
+    if exercise_index >= 300:
+        idx = exercise_index - 300
+        if 0 <= idx < len(final_test):
+            ex = final_test[idx]
+            if isinstance(ex, dict):
+                return ex
+
+    elif exercise_index >= 200:
+        idx = exercise_index - 200
+        if 0 <= idx < len(scaffolded):
+            ex = scaffolded[idx]
+            if isinstance(ex, dict):
+                return ex
+
+    elif exercise_index >= 100:
+        # anchor_blank — sem campo 'correct', não registramos
+        return None
+
+    # else: índice 0-99 → section exercises (EXERCISE_MC) vivem só no frontend
+    # backend não tem esses dados; o caller usa body.question_text como fallback
+
+    return None
+
+
 class _ExerciseSubmitBody(BaseModel):
     exercise_index: int
     selected_index: int
@@ -125,6 +161,10 @@ class _ExerciseSubmitBody(BaseModel):
     source: str | None = None
     time_spent_ms: int | None = None      # ms desde que o exercício apareceu até submit
     hint_used: bool | None = None         # usuário clicou em dica antes de responder
+    # campos opcionais para exercícios de seção (EXERCISE_MC — dados só no frontend)
+    question_text: str | None = None
+    correct_answer: str | None = None
+    wrong_answer: str | None = None
 
 
 class _SaveProgressBody(BaseModel):
@@ -288,6 +328,30 @@ async def submit_lesson_exercise(
         xp_earned = 0
 
         xp_result = {"xp_earned": 0, "new_total": 0, "level_up": False, "new_level": 1}
+
+        # Registra erro no painel Dificuldades a cada resposta (certo ou errado atualiza tentativas)
+        try:
+            lesson_data = get_lesson_from_registry(lesson_id)
+            if lesson_data:
+                exercise = _get_exercise_at_index(lesson_data, body.exercise_index)
+                if exercise:
+                    # scaffolded / final_test — dados completos no registry
+                    options = exercise.get("options") or []
+                    correct_idx = _resolve_correct_index(exercise)
+                    correct_text = _exercise_option_to_text(options[correct_idx]) if 0 <= correct_idx < len(options) else ""
+                    wrong_text = _exercise_option_to_text(options[body.selected_index]) if 0 <= body.selected_index < len(options) else ""
+                    _upsert_quiz_error(db, int(user_id), lesson_id, exercise, correct_text, wrong_text, bool(is_correct))
+                elif body.question_text and body.correct_answer is not None:
+                    # section exercises (EXERCISE_MC) — frontend envia os dados
+                    synthetic = {"q": body.question_text, "options": [], "correct": -1}
+                    _upsert_quiz_error(
+                        db, int(user_id), lesson_id, synthetic,
+                        body.correct_answer,
+                        body.wrong_answer or "",
+                        bool(is_correct),
+                    )
+        except Exception as _quiz_err:
+            logger.warning("[LESSON-EXERCISE] quiz error upsert failed: %s", _quiz_err)
 
         track_metric_event(
             db,

@@ -21,6 +21,7 @@ from backend.db_models import (
     LessonProgress,
     LessonQuizError,
     PhraseError,
+    ShadowModeAnalytic,
 )
 from backend.utils import award_xp, mark_activity, track_metric_event
 
@@ -441,8 +442,50 @@ async def get_user_difficulties(
             .count()
         )
 
+        # ── 3. Erros de pronúncia do chat de voz (source: shadow) ──────────────
+        shadow_rows = (
+            db.query(ShadowModeAnalytic)
+            .filter(
+                ShadowModeAnalytic.user_id == uid,
+                (ShadowModeAnalytic.final_score < 70) | (ShadowModeAnalytic.auto_progressed == True),
+            )
+            .order_by(ShadowModeAnalytic.created_at.desc())
+            .limit(max(1, limit))
+            .all()
+        )
+
+        shadow_items = [
+            {
+                "source": "shadow",
+                "phrase_id": None,
+                "shadow_id": row.id,
+                "phrase_en": row.expected_text,
+                "phrase_pt": "",
+                "phonetic": "",
+                "warning_pt": ", ".join(row.pronunciation_errors or []),
+                "lesson_id": None,
+                "lesson_title": f"{row.conversation_topic or 'Chat de voz'} · {row.voice_mode or 'livre'}",
+                "attempts": row.user_attempts,
+                "wrong_count": 0 if (row.final_score or 0) >= 70 else 1,
+                "skipped_count": 1 if row.skipped else 0,
+                "last_wrong_words": row.pronunciation_errors or [],
+                "last_attempted_at": row.created_at.isoformat() if row.created_at else None,
+                "score": row.final_score,
+            }
+            for row in shadow_rows
+        ]
+
+        total_shadow = (
+            db.query(ShadowModeAnalytic)
+            .filter(
+                ShadowModeAnalytic.user_id == uid,
+                (ShadowModeAnalytic.final_score < 70) | (ShadowModeAnalytic.auto_progressed == True),
+            )
+            .count()
+        )
+
         # ── Mescla e ordena por data mais recente ────────────────────────────────
-        all_items = voice_items + quiz_items
+        all_items = voice_items + quiz_items + shadow_items
         all_items.sort(
             key=lambda x: x.get("last_attempted_at") or "",
             reverse=True,
@@ -450,9 +493,10 @@ async def get_user_difficulties(
 
         return {
             "success": True,
-            "total_difficult": total_voice + total_quiz,
+            "total_difficult": total_voice + total_quiz + total_shadow,
             "total_voice": total_voice,
             "total_quiz": total_quiz,
+            "total_shadow": total_shadow,
             "phrases": all_items[:limit],
         }
     except Exception as exc:

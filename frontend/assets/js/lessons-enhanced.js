@@ -5555,7 +5555,7 @@
   const LESSON_MODAL_ANIM_MS = 620;
   let lessonModalCloseTimer = null;
   let lastLessonTriggerRect = null;
-  let lessonAsideCollapsed = false;
+  const lessonAsideCollapsed = false; // state owned by modal-interactions.js via localStorage
 
   function revealLessonsStage() {
     const cosmos = document.getElementById('lessonsCosmos');
@@ -5612,23 +5612,13 @@
   }
 
   function syncLessonAsideState() {
-    const modal = document.getElementById('lessonContent');
-    const toggle = document.getElementById('lessonAsideToggle');
-    if (!modal || !toggle) return;
-
-    modal.classList.toggle('is-aside-collapsed', lessonAsideCollapsed);
-    toggle.textContent = lessonAsideCollapsed ? 'Mostrar painel' : 'Ocultar painel';
-    toggle.setAttribute('aria-expanded', String(!lessonAsideCollapsed));
-    toggle.classList.toggle('is-collapsed', lessonAsideCollapsed);
-  }
-
-  function setLessonAsideCollapsed(collapsed) {
-    lessonAsideCollapsed = Boolean(collapsed);
-    syncLessonAsideState();
+    // State is owned by modal-interactions.js — just re-apply it after aside re-render
+    if (typeof window._applyAsideState === 'function') window._applyAsideState();
   }
 
   function toggleLessonAside() {
-    setLessonAsideCollapsed(!lessonAsideCollapsed);
+    const toggle = document.getElementById('lessonAsideToggle');
+    if (toggle) toggle.click();
   }
 
   function closeLessonModal() {
@@ -5989,6 +5979,9 @@
 
       aside.classList.remove('is-loading');
       aside.innerHTML = `
+        <button id="lessonAsideToggle" class="lp-aside-toggle-btn" type="button" aria-controls="lessonModalAside" aria-expanded="true" aria-label="Ocultar painel">
+          <svg class="lp-aside-menu-icon" viewBox="0 0 18 14" width="16" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="1" y1="2" x2="17" y2="2"/><line x1="1" y1="7" x2="17" y2="7"/><line x1="1" y1="12" x2="17" y2="12"/></svg>
+        </button>
         <span class="lp-aside-icon">${renderLessonIcon(lesson.icon)}</span>
         <span class="lp-aside-num">LIÇÃO ${num}</span>
         <div class="lp-aside-title">${lesson.title}</div>
@@ -6003,12 +5996,9 @@
             onclick="window._griloMarkComplete && window._griloMarkComplete(this.dataset.slug, this)">
             ${status.completed ? '✓ Aula concluída' : '✓ Marcar como concluída'}
           </button>
-          <button class="lp-aside-chat-btn" data-slug="${slug}"
-            onclick="window._griloOpenChat && window._griloOpenChat(this.dataset.slug)">
-            🤖 Perguntar ao GRILO
-          </button>
         </div>
       `;
+      syncLessonAsideState();
     }
 
     // ── main content ──
@@ -6230,11 +6220,19 @@
 
     // Fire-and-forget: submit exercise to backend so analytics reflect standalone submissions
     try {
+      const _mcExtra = { is_correct: isCorrect, source: 'section_exercise' };
+      if (!isCorrect && mc) {
+        _mcExtra.question_text = typeof btn.closest('.lp-exr-interactive')?.querySelector('.lp-exr-q-text')?.textContent === 'string'
+          ? btn.closest('.lp-exr-interactive').querySelector('.lp-exr-q-text').textContent.trim()
+          : '';
+        _mcExtra.correct_answer = mc.options[mc.correct] || '';
+        _mcExtra.wrong_answer = mc.options[optIdx] || '';
+      }
       void _submitStandaloneExerciseToBackend(
         slug,
         _getStandaloneSectionExerciseIndex(slug, secIdx, exIdx),
         optIdx,
-        { is_correct: isCorrect, source: 'section_exercise' }
+        _mcExtra
       );
     } catch (e) {}
   };
@@ -6410,16 +6408,92 @@
 
   window._griloOpenChat = function(slug) {
     const lesson = lessons[slug];
-    if (!lesson) return;
-    try {
-      sessionStorage.setItem('grilo_lesson_context', JSON.stringify({
-        slug,
-        title: lesson.title,
-        objective: lesson.objective
-      }));
-    } catch (e) {}
-    window.location.href = 'home.html';
+    if (lesson) {
+      try {
+        sessionStorage.setItem('grilo_lesson_context', JSON.stringify({
+          slug,
+          title: lesson.title,
+          objective: lesson.objective
+        }));
+      } catch (e) {}
+    }
+    window._griloToggleChat && window._griloToggleChat(true);
   };
+
+  window._griloToggleChat = function(forceOpen) {
+    const panel = document.getElementById('griloChatPanel');
+    const fab = document.getElementById('griloFab');
+    if (!panel) return;
+    const open = forceOpen !== undefined ? forceOpen : panel.hidden;
+    panel.hidden = !open;
+    if (fab) fab.classList.toggle('is-open', open);
+    if (open) {
+      const input = document.getElementById('griloChatInput');
+      if (input) input.focus();
+      const msgs = document.getElementById('griloChatMessages');
+      if (msgs && msgs.children.length === 0) {
+        const ctx = (() => { try { return JSON.parse(sessionStorage.getItem('grilo_lesson_context') || '{}'); } catch(e) { return {}; } })();
+        _griloAppendMsg('assistant', ctx.title ? `Olá! Estou aqui pra te ajudar com a aula "${ctx.title}". Pode perguntar!` : 'Olá! Como posso te ajudar com esta aula?');
+      }
+    }
+  };
+
+  window._griloSendMessage = async function() {
+    const input = document.getElementById('griloChatInput');
+    const msg = input?.value?.trim();
+    if (!msg) return;
+    const sendBtn = document.getElementById('griloChatSend');
+    if (sendBtn) sendBtn.disabled = true;
+    const ctx = (() => { try { return JSON.parse(sessionStorage.getItem('grilo_lesson_context') || '{}'); } catch(e) { return {}; } })();
+    _griloAppendMsg('user', msg);
+    input.value = '';
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        _griloAppendMsg('assistant', 'Você precisa estar logado para usar o assistente. Faça login e tente novamente.');
+        return;
+      }
+      const res = await fetch('/api/chat/write', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ message: msg, context: ctx.title ? `Estamos estudando a lição: "${ctx.title}". Objetivo: ${ctx.objective || ''}` : '' })
+      });
+      if (res.status === 401) {
+        _griloAppendMsg('assistant', 'Sessão expirada. Faça login novamente para continuar.');
+        return;
+      }
+      if (!res.ok) {
+        _griloAppendMsg('assistant', 'Erro ao processar sua pergunta. Tente novamente.');
+        return;
+      }
+      const data = await res.json();
+      _griloAppendMsg('assistant', data.response || data.message || '...');
+    } catch (e) {
+      _griloAppendMsg('assistant', 'Erro ao conectar. Verifique sua conexão e tente novamente.');
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      input?.focus();
+    }
+  };
+
+  function _griloAppendMsg(role, text) {
+    const container = document.getElementById('griloChatMessages');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = `lp-grilo-chat__msg lp-grilo-chat__msg--${role}`;
+    div.textContent = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const chatInput = document.getElementById('griloChatInput');
+    if (chatInput) {
+      chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window._griloSendMessage(); }
+      });
+    }
+  });
 
   // ── Category bar ──────────────────────────────────────────
   function initCategoryBar() {

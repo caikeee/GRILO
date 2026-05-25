@@ -799,19 +799,18 @@ function renderDifficultiesPanel(data, container, counter, cta) {
 
     container.innerHTML = items.map(item => {
         const isQuiz = item.source === 'quiz';
-        const sourceIcon = isQuiz ? '📝' : '🎙';
-        const sourceLabel = isQuiz ? 'Exercício' : 'Pronúncia';
+        const isShadow = item.source === 'shadow';
+        const sourceIcon = isQuiz ? '📝' : isShadow ? '🗣' : '🎙';
+        const sourceLabel = isQuiz ? 'Exercício' : isShadow ? 'Chat de voz' : 'Pronúncia';
 
-        const wrongInfo = isQuiz
-            ? (Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0
-                ? `<span class="dificuldades-meta-pill" title="Respostas erradas dadas">${item.last_wrong_words.length} erro${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
-                : '')
-            : (Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0
-                ? `<span class="dificuldades-meta-pill" title="Palavras que erraram">${item.last_wrong_words.length} palavra${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
-                : '');
+        const wrongInfo = (Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0)
+            ? `<span class="dificuldades-meta-pill" title="Erros detectados">${item.last_wrong_words.length} erro${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
+            : '';
 
         const subtitleText = isQuiz
             ? `Resposta: ${escapeHtml(item.correct_answer || '')} · ${escapeHtml(item.lesson_title || '')}`
+            : isShadow
+            ? `${escapeHtml(item.lesson_title || 'Chat de voz')}${item.score != null ? ' · score ' + item.score + '%' : ''}`
             : `${escapeHtml(item.phrase_pt || '')} · ${escapeHtml(item.lesson_title || '')}`;
 
         const wrongCountBadge = (item.wrong_count > 0)
@@ -820,7 +819,7 @@ function renderDifficultiesPanel(data, container, counter, cta) {
 
         return `
             <div class="dificuldades-item dificuldades-item--${item.source || 'voice'}"
-                 data-lesson-id="${item.lesson_id}"
+                 data-lesson-id="${item.lesson_id || ''}"
                  data-phrase-id="${item.phrase_id || ''}"
                  data-quiz-error-id="${item.quiz_error_id || ''}">
                 <div class="dificuldades-source-icon" title="${sourceLabel}">${sourceIcon}</div>
@@ -837,7 +836,7 @@ function renderDifficultiesPanel(data, container, counter, cta) {
         `;
     }).join('');
 
-    // Click → abre a aula correspondente
+    // Click → abre a aula correspondente (itens shadow sem lesson_id não navegam)
     container.querySelectorAll('.dificuldades-item').forEach(el => {
         el.addEventListener('click', () => {
             const lid = el.getAttribute('data-lesson-id');
