@@ -2848,6 +2848,7 @@ body.app-lessons::before {
   z-index: 1200;
   transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
 }
+.lp-grilo-fab[hidden] { display: none !important; }
 .lp-grilo-fab:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(58,94,71,0.4); }
 .lp-grilo-fab.is-open { background: #1a3d28; }
 .lp-grilo-fab__icon { width: 28px; height: 28px; }

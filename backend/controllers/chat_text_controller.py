@@ -15,6 +15,8 @@ from backend.database import get_db
 from backend.utils import mark_activity, track_metric_event
 from backend.schemas import (
     ChatWriteResponse,
+    LessonAskRequest,
+    LessonAskResponse,
     WritingChatRequest,
 )
 
@@ -77,6 +79,52 @@ async def write_chat(
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.error("[WRITE-CHAT] ERROR | user_id=%s | %.2fs | %s", user_id, elapsed, str(exc))
         raise HTTPException(status_code=500, detail="Chat unavailable. Please try again.")
+
+
+@router.post("/api/lessons/ask", response_model=LessonAskResponse)
+@_limiter.limit("30/minute")
+async def ask_lesson_doubt(
+    request: Request,
+    body: LessonAskRequest,
+    user_id: int = Depends(get_current_user_id),
+):
+    """
+    Grilo answers a student's question (in Portuguese) about the lesson currently open.
+    Uses the FULL lesson content as grounding (all sections), not just the section in focus.
+    Lightweight: no DB writes, no XP, no grammar correction.
+    """
+    import asyncio
+    from backend.services import client, MODEL
+    from backend.utils.prompts import prompt_lesson_doubt
+
+    logger.info(
+        "[LESSON-ASK] user_id=%s slug=%s q=%s",
+        user_id, body.lesson_context.slug, body.question[:80],
+    )
+    start_time = datetime.now()
+
+    try:
+        lesson_ctx_dict = body.lesson_context.model_dump()
+        history = [h for h in (body.history or []) if h.get("content")]
+        prompt = prompt_lesson_doubt(body.question, lesson_ctx_dict, history)
+
+        def call_llm():
+            return client.chat.completions.create(
+                model=MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.5,
+                max_tokens=300,
+            )
+
+        response = await asyncio.to_thread(call_llm)
+        reply = response.choices[0].message.content.strip()
+
+        elapsed = (datetime.now() - start_time).total_seconds()
+        logger.info("[LESSON-ASK] SUCCESS | user_id=%s | %.2fs | reply=%s", user_id, elapsed, reply[:80])
+        return LessonAskResponse(reply=reply)
+    except Exception as exc:
+        logger.error("[LESSON-ASK] ERROR | user_id=%s | %s", user_id, str(exc))
+        raise HTTPException(status_code=500, detail="Não consegui responder agora. Tente de novo.")
 
 
 class TranslationImmersionRequest(BaseModel):

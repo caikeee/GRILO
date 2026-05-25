@@ -5908,6 +5908,15 @@
     window._currentLessonSlug = slug;
     window._currentLessonTitle = lesson.title;
 
+    // Prepara contexto completo da aula para o chat do Grilo
+    try {
+      const griloCtx = (typeof _griloBuildLessonContext === 'function') ? _griloBuildLessonContext(slug) : null;
+      if (griloCtx) sessionStorage.setItem('grilo_lesson_context', JSON.stringify(griloCtx));
+      window._griloChatHistory = [];
+      const msgs = document.getElementById('griloChatMessages');
+      if (msgs) msgs.innerHTML = '';
+    } catch (e) {}
+
     revealLessonsStage();
 
     const modal = document.getElementById('lessonContent');
@@ -6413,16 +6422,28 @@
     window._griloSpeak(text.trim(), null);
   });
 
-  window._griloOpenChat = function(slug) {
+  function _griloBuildLessonContext(slug) {
     const lesson = lessons[slug];
-    if (lesson) {
-      try {
-        sessionStorage.setItem('grilo_lesson_context', JSON.stringify({
-          slug,
-          title: lesson.title,
-          objective: lesson.objective
-        }));
-      } catch (e) {}
+    if (!lesson) return null;
+    const sections = (lesson.sections || []).map(s => ({
+      title: s.title || '',
+      explanation: s.explanation || '',
+      examples: (s.examples || []).map(e => ({ en: e.en || '', pt: e.pt || '' }))
+    }));
+    return {
+      slug,
+      title: lesson.title || '',
+      objective: lesson.objective || '',
+      teaching_points: lesson.teachingPoints || [],
+      sections
+    };
+  }
+
+  window._griloOpenChat = function(slug) {
+    const ctx = _griloBuildLessonContext(slug);
+    if (ctx) {
+      try { sessionStorage.setItem('grilo_lesson_context', JSON.stringify(ctx)); } catch (e) {}
+      window._griloChatHistory = [];
     }
     window._griloToggleChat && window._griloToggleChat(true);
   };
@@ -6452,18 +6473,43 @@
     const sendBtn = document.getElementById('griloChatSend');
     if (sendBtn) sendBtn.disabled = true;
     const ctx = (() => { try { return JSON.parse(sessionStorage.getItem('grilo_lesson_context') || '{}'); } catch(e) { return {}; } })();
+    if (!ctx || !ctx.slug) {
+      _griloAppendMsg('assistant', 'Abra uma aula primeiro pra eu poder te ajudar com o conteúdo dela.');
+      if (sendBtn) sendBtn.disabled = false;
+      return;
+    }
     _griloAppendMsg('user', msg);
     input.value = '';
+    window._griloChatHistory = window._griloChatHistory || [];
+    window._griloChatHistory.push({ role: 'user', content: msg });
+
+    const visibleSectionTitle = (() => {
+      try {
+        const sections = document.querySelectorAll('#lessonContent .lesson-section, #lessonContent [data-section-title]');
+        for (const el of sections) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < window.innerHeight * 0.6) {
+            return el.dataset.sectionTitle || el.querySelector('h2,h3')?.textContent?.trim() || '';
+          }
+        }
+      } catch (e) {}
+      return '';
+    })();
+
     try {
       const token = getAuthToken();
       if (!token) {
         _griloAppendMsg('assistant', 'Você precisa estar logado para usar o assistente. Faça login e tente novamente.');
         return;
       }
-      const res = await fetch('/api/chat/write', {
+      const res = await fetch('/api/lessons/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ message: msg, context: ctx.title ? `Estamos estudando a lição: "${ctx.title}". Objetivo: ${ctx.objective || ''}` : '' })
+        body: JSON.stringify({
+          question: msg,
+          lesson_context: { ...ctx, current_section_title: visibleSectionTitle },
+          history: window._griloChatHistory.slice(-6)
+        })
       });
       if (res.status === 401) {
         _griloAppendMsg('assistant', 'Sessão expirada. Faça login novamente para continuar.');
@@ -6474,7 +6520,9 @@
         return;
       }
       const data = await res.json();
-      _griloAppendMsg('assistant', data.reply || data.response || data.message || '...');
+      const reply = data.reply || '...';
+      _griloAppendMsg('assistant', reply);
+      window._griloChatHistory.push({ role: 'assistant', content: reply });
     } catch (e) {
       _griloAppendMsg('assistant', 'Erro ao conectar. Verifique sua conexão e tente novamente.');
     } finally {

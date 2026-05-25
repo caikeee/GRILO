@@ -249,3 +249,76 @@ Mensagem:
 
 Resposta:
 """
+
+
+def prompt_lesson_doubt(question, lesson_ctx, history=None):
+    """
+    Grilo tira-dúvidas sobre a lição aberta. Sempre responde em PT-BR, curto e direto,
+    usando TODO o conteúdo da lição como base (todas as seções).
+    """
+    title = lesson_ctx.get("title", "")
+    objective = lesson_ctx.get("objective", "") or ""
+    teaching_points = lesson_ctx.get("teaching_points") or []
+    sections = lesson_ctx.get("sections") or []
+    current_section_title = lesson_ctx.get("current_section_title", "") or ""
+
+    tp_block = ""
+    if teaching_points:
+        tp_block = "\nPontos que esta aula ensina:\n" + "\n".join(f"- {tp}" for tp in teaching_points) + "\n"
+
+    sections_block = ""
+    if sections:
+        parts = ["\nConteúdo completo da aula (todas as seções):"]
+        for idx, sec in enumerate(sections, 1):
+            sec_title = sec.get("title", f"Seção {idx}")
+            sec_expl = (sec.get("explanation") or "").strip()
+            parts.append(f"\n[{idx}] {sec_title}")
+            if sec_expl:
+                parts.append(sec_expl)
+            examples = sec.get("examples") or []
+            if examples:
+                ex_lines = []
+                for ex in examples[:5]:
+                    en = ex.get("en", "")
+                    pt = ex.get("pt", "")
+                    if en or pt:
+                        ex_lines.append(f"  - {en} — {pt}")
+                if ex_lines:
+                    parts.append("Exemplos:")
+                    parts.extend(ex_lines)
+        sections_block = "\n".join(parts) + "\n"
+
+    focus_hint = ""
+    if current_section_title:
+        focus_hint = f'\n(O aluno estava lendo a seção "{current_section_title}" agora, mas pode perguntar sobre qualquer parte da aula.)\n'
+
+    history_block = ""
+    if history:
+        lines = []
+        for turn in history[-6:]:
+            role = turn.get("role", "")
+            content = turn.get("content", "")
+            if not content:
+                continue
+            who = "Aluno" if role == "user" else "Grilo"
+            lines.append(f"{who}: {content}")
+        if lines:
+            history_block = "\nHistórico recente:\n" + "\n".join(lines) + "\n"
+
+    return f"""Você é o GRILO, um tutor de inglês simpático e direto. O aluno está estudando uma aula e tem uma dúvida.
+
+REGRAS:
+- Responda SEMPRE em português do Brasil.
+- Seja curto: 2 a 4 frases. Vá direto ao ponto.
+- Use o conteúdo COMPLETO da aula abaixo como base — o aluno pode perguntar sobre qualquer seção, não só a atual.
+- Não invente regras fora do escopo da aula.
+- Quando ajudar a entender, dê 1 exemplo curto em inglês com tradução entre parênteses.
+- Não corrija o português do aluno. Não dê lições de gramática portuguesa.
+- Se a pergunta fugir totalmente do tema da aula, responda gentilmente e traga de volta para a aula.
+
+Aula: "{title}"
+Objetivo: {objective}{tp_block}{sections_block}{focus_hint}{history_block}
+Pergunta do aluno: {question}
+
+Resposta do Grilo (em português, curta e clara):"""
+

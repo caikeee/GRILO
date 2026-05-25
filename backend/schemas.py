@@ -320,6 +320,33 @@ class ChatWriteResponse(BaseModel):
     conversation_theme: Optional[str] = None  # Detected or confirmed conversation theme
 
 
+class LessonSectionPayload(BaseModel):
+    title: str
+    explanation: Optional[str] = None
+    examples: Optional[List[Dict[str, str]]] = None  # [{en, pt}, ...]
+
+
+class LessonContextPayload(BaseModel):
+    """Snapshot of the lesson currently open in the UI"""
+    slug: str
+    title: str
+    objective: Optional[str] = None
+    teaching_points: Optional[List[str]] = None
+    sections: Optional[List[LessonSectionPayload]] = None
+    current_section_title: Optional[str] = None  # only for emphasis hint
+
+
+class LessonAskRequest(BaseModel):
+    """User asks a question (in Portuguese) about the open lesson"""
+    question: str
+    lesson_context: LessonContextPayload
+    history: Optional[List[Dict[str, str]]] = None
+
+
+class LessonAskResponse(BaseModel):
+    reply: str
+
+
 class WritingChatRequest(BaseModel):
     """Request for writing mode chat"""
     message: str  # User's message in English
