@@ -5628,6 +5628,11 @@
     modal.classList.add('is-closing');
     document.title = 'Módulo A1 — GRILO';
 
+    const griloFab = document.getElementById('griloFab');
+    if (griloFab) { griloFab.hidden = true; griloFab.classList.remove('is-open'); }
+    const griloPanel = document.getElementById('griloChatPanel');
+    if (griloPanel) griloPanel.hidden = true;
+
     window.clearTimeout(lessonModalCloseTimer);
     lessonModalCloseTimer = window.setTimeout(() => {
       modal.classList.remove('is-closing');
@@ -6163,6 +6168,8 @@
     window.requestAnimationFrame(() => {
       modal.classList.add('active');
     });
+    const griloFab = document.getElementById('griloFab');
+    if (griloFab) griloFab.hidden = false;
     document.body.style.overflow = 'hidden';
     document.title = `${lesson.title} — GRILO`;
     if (main)  main.scrollTop = 0;
@@ -6467,7 +6474,7 @@
         return;
       }
       const data = await res.json();
-      _griloAppendMsg('assistant', data.response || data.message || '...');
+      _griloAppendMsg('assistant', data.reply || data.response || data.message || '...');
     } catch (e) {
       _griloAppendMsg('assistant', 'Erro ao conectar. Verifique sua conexão e tente novamente.');
     } finally {
