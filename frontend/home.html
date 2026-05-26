@@ -4618,20 +4618,21 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
 .month-cal {
     background: linear-gradient(180deg, #FFFFFF 0%, #F8FBF8 100%);
     border: 1px solid rgba(122,158,132,0.20);
-    border-radius: 18px;
-    padding: 24px 26px 22px;
-    box-shadow: 0 2px 14px rgba(122,158,132,0.06);
+    border-radius: 14px;
+    padding: 14px 16px 12px;
+    box-shadow: 0 2px 10px rgba(122,158,132,0.05);
+    max-width: 460px;
 }
 .month-cal-head {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    gap: 16px;
-    margin-bottom: 18px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
 }
 .month-cal-title {
-    font-size: 1.05rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: #1A2A22;
     margin: 0;
@@ -4639,54 +4640,54 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
 }
 .month-cal-sub {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.68rem;
     color: #7A8B82;
     font-weight: 500;
-    margin-top: 3px;
+    margin-top: 2px;
     text-transform: lowercase;
 }
 .month-cal-stat {
     display: flex;
     align-items: baseline;
-    gap: 6px;
+    gap: 4px;
     background: rgba(122,158,132,0.10);
-    padding: 6px 12px;
+    padding: 4px 9px;
     border-radius: 999px;
 }
 .month-cal-stat-num {
-    font-size: 1.25rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #5A7E66;
     line-height: 1;
 }
 .month-cal-stat-lbl {
-    font-size: 0.72rem;
+    font-size: 0.62rem;
     color: #5A7E66;
     font-weight: 500;
 }
 .month-cal-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-    margin-bottom: 8px;
+    gap: 3px;
+    margin-bottom: 4px;
 }
 .month-cal-weekdays span {
     text-align: center;
-    font-size: 0.7rem;
+    font-size: 0.58rem;
     font-weight: 600;
     color: #98A39C;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 .month-cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
+    gap: 3px;
 }
 .month-cal-cell {
     position: relative;
     aspect-ratio: 1 / 1;
-    border-radius: 10px;
+    border-radius: 6px;
     background: #FFFFFF;
     border: 1px solid rgba(122,158,132,0.22);
     display: flex;
@@ -4696,15 +4697,15 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
 }
 .month-cal-cell .mc-num {
     position: absolute;
-    top: 5px;
-    left: 7px;
-    font-size: 0.68rem;
+    top: 2px;
+    left: 3px;
+    font-size: 0.5rem;
     color: #98A39C;
     font-weight: 500;
     line-height: 1;
 }
 .month-cal-cell .mc-check {
-    font-size: 1.35rem;
+    font-size: 0.85rem;
     color: #98A39C;
     font-weight: 700;
     line-height: 1;
@@ -4761,13 +4762,274 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 .month-cal-foot {
-    margin-top: 16px;
-    padding-top: 14px;
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px dashed rgba(122,158,132,0.18);
-    font-size: 0.82rem;
+    font-size: 0.66rem;
     color: #5A6B62;
-    line-height: 1.5;
+    line-height: 1.4;
     margin-bottom: 0;
+}
+
+/* ─────────── Vocab card clickable affordance ─────────── */
+.pl2-pulse-card-clickable { cursor: pointer; }
+.pl2-pulse-card-clickable:hover { border-color: rgba(122,158,132,0.55); }
+.pl2-pulse-card-clickable:focus-visible {
+    outline: 2px solid #5A7E66;
+    outline-offset: 3px;
+}
+.pl2-pulse-hint {
+    font-size: 0.58rem;
+    color: #5A7E66;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-weight: 600;
+    margin-left: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.pl2-pulse-card-clickable:hover .pl2-pulse-hint,
+.pl2-pulse-card-clickable:focus-visible .pl2-pulse-hint { opacity: 1; }
+
+/* ─────────── Vocabulary Modal ─────────── */
+.vocab-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 35, 28, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s cubic-bezier(0.16,1,0.3,1);
+    padding: 24px;
+}
+.vocab-modal-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.vocab-modal {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8FBF8 100%);
+    border-radius: 22px;
+    width: min(720px, 100%);
+    max-height: min(82vh, 780px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow:
+        0 30px 80px -20px rgba(20, 50, 35, 0.45),
+        0 8px 24px -8px rgba(20, 50, 35, 0.2),
+        inset 0 1px 0 0 rgba(255,255,255,0.8);
+    border: 1px solid rgba(122,158,132,0.22);
+    transform: translateY(16px) scale(0.96);
+    transition: transform 0.32s cubic-bezier(0.16,1,0.3,1);
+}
+.vocab-modal-backdrop.is-open .vocab-modal {
+    transform: translateY(0) scale(1);
+}
+.vocab-modal-header {
+    position: relative;
+    padding: 26px 28px 20px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(122,158,132,0.12) 0%, transparent 60%),
+        linear-gradient(180deg, #FFFFFF 0%, #F4F8F4 100%);
+    border-bottom: 1px solid rgba(122,158,132,0.16);
+}
+.vocab-modal-kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6B8C76;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.vocab-modal-kicker::before {
+    content: '📚';
+    font-size: 1.05rem;
+}
+.vocab-modal-title {
+    font-family: var(--font-premium, 'Space Grotesk', sans-serif);
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #1A2A22;
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+.vocab-modal-subtitle {
+    font-size: 0.85rem;
+    color: #5A6B62;
+    margin: 6px 0 0;
+    line-height: 1.45;
+}
+.vocab-modal-stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+.vocab-modal-stat {
+    background: rgba(122,158,132,0.12);
+    border: 1px solid rgba(122,158,132,0.18);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.72rem;
+    color: #3F5E4D;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.vocab-modal-stat strong {
+    color: #1A2A22;
+    font-weight: 800;
+    font-size: 0.82rem;
+}
+.vocab-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(122,158,132,0.22);
+    background: rgba(255,255,255,0.85);
+    color: #5A6B62;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+    line-height: 1;
+}
+.vocab-modal-close:hover {
+    background: #5A7E66;
+    color: #fff;
+    border-color: #5A7E66;
+    transform: rotate(90deg);
+}
+.vocab-modal-search-wrap {
+    padding: 14px 28px 0;
+    background: linear-gradient(180deg, #F4F8F4 0%, transparent 100%);
+}
+.vocab-modal-search {
+    width: 100%;
+    padding: 11px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(122,158,132,0.22);
+    background: #FFFFFF;
+    font-size: 0.92rem;
+    color: #1A2A22;
+    font-family: inherit;
+    transition: all 0.18s ease;
+    box-sizing: border-box;
+}
+.vocab-modal-search:focus {
+    outline: none;
+    border-color: #5A7E66;
+    box-shadow: 0 0 0 3px rgba(90,126,102,0.15);
+}
+.vocab-modal-body {
+    overflow-y: auto;
+    padding: 14px 28px 22px;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122,158,132,0.35) transparent;
+}
+.vocab-modal-body::-webkit-scrollbar { width: 8px; }
+.vocab-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(122,158,132,0.35);
+    border-radius: 4px;
+}
+.vocab-modal-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.vocab-modal-item {
+    position: relative;
+    background: #FFFFFF;
+    border: 1px solid rgba(122,158,132,0.20);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.18s ease;
+    cursor: default;
+}
+.vocab-modal-item:hover {
+    border-color: rgba(122,158,132,0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -6px rgba(90,126,102,0.22);
+}
+.vocab-modal-item-word {
+    font-family: var(--font-premium, 'Space Grotesk', sans-serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1A2A22;
+    letter-spacing: -0.01em;
+    text-transform: lowercase;
+}
+.vocab-modal-item-meta {
+    font-size: 0.7rem;
+    color: #7A8B82;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.vocab-modal-item-acc {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #5A7E66;
+    font-weight: 600;
+}
+.vocab-modal-item-acc::before {
+    content: '●';
+    font-size: 0.55rem;
+}
+.vocab-modal-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #98A39C;
+    font-size: 0.92rem;
+    font-style: italic;
+}
+.vocab-modal-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #7A8B82;
+    font-size: 0.9rem;
+}
+.vocab-modal-loading::after {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-left: 8px;
+    border: 2px solid rgba(122,158,132,0.25);
+    border-top-color: #5A7E66;
+    border-radius: 50%;
+    animation: vocab-spin 0.7s linear infinite;
+    vertical-align: middle;
+}
+@keyframes vocab-spin { to { transform: rotate(360deg); } }
+@media (max-width: 600px) {
+    .vocab-modal-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .vocab-modal-title { font-size: 1.3rem; }
+    .vocab-modal-header { padding: 22px 20px 16px; }
+    .vocab-modal-search-wrap, .vocab-modal-body { padding-left: 20px; padding-right: 20px; }
 }
 @media (max-width: 600px) {
     .month-cal { padding: 18px 16px 16px; border-radius: 14px; }
@@ -10037,9 +10299,9 @@ body.beta-modal-open .main-content.active {
                         <div>
                             <div class="pl2-section-label">Esta semana</div>
                             <div class="pl2-pulse">
-                                <div class="pl2-pulse-card">
+                                <div class="pl2-pulse-card pl2-pulse-card-clickable" id="pl2VocabCard" role="button" tabindex="0" aria-label="Ver lista de palavras dominadas">
                                     <div>
-                                        <span class="pl2-pulse-label">Vocabulário</span>
+                                        <span class="pl2-pulse-label">Vocabulário <span class="pl2-pulse-hint">ver lista →</span></span>
                                         <span class="pl2-pulse-value" id="pl2VocabValue">--</span>
                                         <span class="pl2-pulse-unit">palavras<br>dominadas</span>
                                         <span class="pl2-pulse-foot" id="pl2VocabDelta">—</span>
@@ -11960,6 +12222,109 @@ body.beta-modal-open .main-content.active {
     </div>
   </div>
 </div>
+
+<!-- Vocabulary Modal -->
+<div class="vocab-modal-backdrop" id="vocabModalBackdrop" aria-hidden="true">
+  <div class="vocab-modal" role="dialog" aria-modal="true" aria-labelledby="vocabModalTitle">
+    <div class="vocab-modal-header">
+      <div class="vocab-modal-kicker">Seu vocabulário</div>
+      <h2 class="vocab-modal-title" id="vocabModalTitle">Palavras dominadas</h2>
+      <p class="vocab-modal-subtitle">Cada palavra abaixo você usou com precisão suficiente para considerar dominada.</p>
+      <div class="vocab-modal-stats">
+        <span class="vocab-modal-stat"><strong id="vocabModalCount">0</strong> palavras</span>
+        <span class="vocab-modal-stat">+<strong id="vocabModalWeek">0</strong> nesta semana</span>
+      </div>
+      <button type="button" class="vocab-modal-close" id="vocabModalClose" aria-label="Fechar">✕</button>
+    </div>
+    <div class="vocab-modal-search-wrap">
+      <input type="text" class="vocab-modal-search" id="vocabModalSearch" placeholder="Buscar palavra..." autocomplete="off" />
+    </div>
+    <div class="vocab-modal-body" id="vocabModalBody">
+      <div class="vocab-modal-loading">Carregando palavras</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+    const card = document.getElementById('pl2VocabCard');
+    const backdrop = document.getElementById('vocabModalBackdrop');
+    const closeBtn = document.getElementById('vocabModalClose');
+    const body = document.getElementById('vocabModalBody');
+    const search = document.getElementById('vocabModalSearch');
+    const countEl = document.getElementById('vocabModalCount');
+    const weekEl = document.getElementById('vocabModalWeek');
+    if (!card || !backdrop) return;
+
+    function fmtRel(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        const diff = (Date.now() - d.getTime()) / 86400000;
+        if (diff < 1) return 'hoje';
+        if (diff < 2) return 'ontem';
+        if (diff < 7) return `${Math.floor(diff)}d atrás`;
+        if (diff < 30) return `${Math.floor(diff/7)}sem atrás`;
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    }
+
+    function render(filter) {
+        const list = Array.isArray(window.__vocabMasteredList) ? window.__vocabMasteredList : [];
+        const total = window.__vocabMasteredTotal || list.length;
+        const week = window.__vocabMasteredWeek || 0;
+        countEl.textContent = total;
+        weekEl.textContent = week;
+
+        const q = (filter || '').trim().toLowerCase();
+        const filtered = q ? list.filter(w => (w.word || '').toLowerCase().includes(q)) : list;
+
+        if (!list.length) {
+            body.innerHTML = '<div class="vocab-modal-empty">Você ainda não dominou nenhuma palavra. Continue praticando! 🌱</div>';
+            return;
+        }
+        if (!filtered.length) {
+            body.innerHTML = `<div class="vocab-modal-empty">Nenhuma palavra encontrada para "${q}".</div>`;
+            return;
+        }
+        const html = filtered.map(w => `
+            <li class="vocab-modal-item">
+                <span class="vocab-modal-item-word">${(w.word || '').replace(/[<>&]/g, '')}</span>
+                <span class="vocab-modal-item-meta">
+                    <span class="vocab-modal-item-acc">${w.accuracy || 0}%</span>
+                    <span>·</span>
+                    <span>${w.uses || 0} usos</span>
+                    ${w.last_seen ? `<span>·</span><span>${fmtRel(w.last_seen)}</span>` : ''}
+                </span>
+            </li>
+        `).join('');
+        body.innerHTML = `<ul class="vocab-modal-list">${html}</ul>`;
+    }
+
+    function open() {
+        render('');
+        if (search) search.value = '';
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => search && search.focus(), 280);
+    }
+    function close() {
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && backdrop.classList.contains('is-open')) close();
+    });
+    if (search) search.addEventListener('input', (e) => render(e.target.value));
+})();
+</script>
 
 <!-- Include beta modal controller -->
 <script src="./assets/js/voice-recognition-utils.js?v=1"></script>

@@ -666,6 +666,24 @@ async def get_user_stats(
             .scalar()
         ) or 0
 
+        vocab_mastered_rows = (
+            db.query(WordProfile.word, WordProfile.total_uses, WordProfile.correct_uses, WordProfile.last_seen_at, WordProfile.first_seen_at)
+            .filter(WordProfile.user_id == uid, WordProfile.mastered.is_(True))
+            .order_by(WordProfile.last_seen_at.desc().nullslast())
+            .limit(200)
+            .all()
+        )
+        vocab_mastered_list = [
+            {
+                "word": r[0],
+                "uses": int(r[1] or 0),
+                "accuracy": round((float(r[2] or 0) / float(r[1])) * 100) if r[1] else 0,
+                "last_seen": r[3].isoformat() if r[3] else None,
+                "first_seen": r[4].isoformat() if r[4] else None,
+            }
+            for r in vocab_mastered_rows
+        ]
+
         # CEFR progression (1=A1 .. 6=C2)
         cefr_labels = {1: "A1", 2: "A2", 3: "B1", 4: "B2", 5: "C1", 6: "C2"}
         cefr_current = cefr_labels.get(level, "A1")
@@ -843,6 +861,7 @@ async def get_user_stats(
             "vocab_mastered_total": vocab_mastered_total,
             "vocab_mastered_week": vocab_mastered_week,
             "vocab_total_seen": vocab_total_seen,
+            "vocab_mastered_list": vocab_mastered_list,
             "cefr": {
                 "current": cefr_current,
                 "next": cefr_next,

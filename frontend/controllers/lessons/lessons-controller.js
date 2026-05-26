@@ -1064,6 +1064,9 @@ function _renderPulse(stats, mergedStats) {
     // Vocabulário dominado
     const vocabTotal = stats.vocab_mastered_total || 0;
     const vocabWeek = stats.vocab_mastered_week || 0;
+    window.__vocabMasteredList = Array.isArray(stats.vocab_mastered_list) ? stats.vocab_mastered_list : [];
+    window.__vocabMasteredTotal = vocabTotal;
+    window.__vocabMasteredWeek = vocabWeek;
     _pd('pl2VocabValue', vocabTotal);
     const vocabDeltaEl = document.getElementById('pl2VocabDelta');
     if (vocabDeltaEl) {
