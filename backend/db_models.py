@@ -31,6 +31,11 @@ class User(Base):
     onboarding_step = Column(Integer, default=0)  # 0=welcome, 1=why_learn, 2=interests, 3=practical_demo, 4=done
     learning_why = Column(Text, nullable=True)  # Por que quer aprender
     daily_interests = Column(Text, nullable=True)  # O que gosta de fazer no dia a dia
+
+    # SESSÃO DE DIFICULDADES (meta semanal 7/7)
+    weekly_difficulty_count = Column(Integer, default=0)            # 0–7 quadradinhos verdes na semana
+    weekly_difficulty_week_start = Column(DateTime, nullable=True)  # Segunda-feira (BRT) da semana corrente
+    weekly_difficulty_completed_at = Column(DateTime, nullable=True)  # Quando bateu 7/7 (None se ainda não bateu)
     
     # Relationships
     conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
@@ -219,6 +224,23 @@ class LessonQuizError(Base):
     last_attempted_at = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class DifficultySessionLog(Base):
+    """Log de cada sessão de Dificuldades concluída (ou abandonada).
+    Usado para análise; o estado vivo está em User.weekly_difficulty_*."""
+    __tablename__ = "difficulty_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    started_at = Column(DateTime, default=datetime.utcnow, index=True)
+    completed_at = Column(DateTime, nullable=True)
+    total_items = Column(Integer, default=0)                # itens enfileirados no início
+    items_attempted = Column(Integer, default=0)            # acertos + erros (cada item conta 1 vez no fim)
+    items_mastered_count = Column(Integer, default=0)       # quantos itens dominados (todos no fim, se completou)
+    items_wrong_first_try = Column(JSON, nullable=True)     # ids dos que erraram na 1ª tentativa
+    xp_earned = Column(Integer, default=0)
+    week_completed_in_this_session = Column(Boolean, default=False)
 
 
 class ShadowModeAnalytic(Base):

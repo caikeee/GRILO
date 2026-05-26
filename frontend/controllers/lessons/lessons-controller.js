@@ -864,119 +864,89 @@ window.loadUserDifficulties = loadUserDifficulties;
 async function loadUserActivity() {
     if (!authToken) return;
     try {
-        const res = await fetch(`${API_BASE_URL}/api/user/activity`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/lesson-calendar`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (!res.ok) return;
         const data = await res.json();
         if (data.success) {
-            window._lastActivity = data.activity;
-            renderActivityHeatmap(data.activity);
+            window._lastLessonCalendar = data;
+            renderActivityHeatmap(data);
         }
-    } catch (e) { console.error('[ACTIVITY]', e); }
+    } catch (e) { console.error('[LESSON-CAL]', e); }
 }
 
-function renderActivityHeatmap(activity) {
+function renderActivityHeatmap(data) {
     const container = document.getElementById('activityHeatmap');
     if (!container) return;
 
-    const MONTH_NAMES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const DAY_LABELS  = ['Dom','','Ter','','Qui','','Sáb'];
+    const MONTH_NAMES_FULL = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    const SUPERSCRIPTS = { 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
+
+    const { year, month, days = {}, total_days_practiced = 0, total_lessons_in_month = 0 } = data;
+
+    // Atualiza header/footer
+    const subEl = document.getElementById('monthCalSub');
+    if (subEl) subEl.textContent = `aulas concluídas em ${MONTH_NAMES_FULL[month - 1]}`;
+    const numEl = document.getElementById('monthCalDaysNum');
+    if (numEl) numEl.textContent = String(total_days_practiced);
+    const footExtra = document.getElementById('monthCalFootExtra');
+    if (footExtra) {
+        footExtra.textContent = total_lessons_in_month > 0
+            ? `${total_lessons_in_month} aula${total_lessons_in_month !== 1 ? 's' : ''} no total este mês.`
+            : 'Comece sua primeira aula do mês.';
+    }
+
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const totalDays = lastDay.getDate();
+    const startDow = firstDay.getDay(); // 0=Dom
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const year = today.getFullYear();
+    const isCurrentMonth = today.getFullYear() === year && (today.getMonth() + 1) === month;
 
-    // Span the full calendar year, padded to full Sun–Sat weeks
-    const jan1 = new Date(year, 0, 1);
-    const start = new Date(jan1);
-    start.setDate(start.getDate() - start.getDay());
+    let html = '';
 
-    const dec31 = new Date(year, 11, 31);
-    const end = new Date(dec31);
-    end.setDate(end.getDate() + (6 - end.getDay()));
-
-    // Build weeks
-    const weeks = [];
-    const d = new Date(start);
-    while (d <= end) {
-        const week = [];
-        for (let i = 0; i < 7; i++) {
-            const inYear = d.getFullYear() === year;
-            const isFuture = d > today;
-            const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-            week.push({ ds, inYear, isFuture, day: d.getDate(), month: d.getMonth(), dateObj: new Date(d) });
-            d.setDate(d.getDate() + 1);
-        }
-        weeks.push(week);
+    // Padding inicial (dias antes do dia 1 da semana)
+    for (let i = 0; i < startDow; i++) {
+        html += '<div class="month-cal-cell empty"></div>';
     }
 
-    // Month labels at first week the 1st falls in-year
-    const monthAt = {};
-    weeks.forEach((week, wi) => {
-        week.forEach(cell => { if (cell.inYear && cell.day === 1) monthAt[wi] = MONTH_NAMES[cell.month]; });
-    });
+    for (let day = 1; day <= totalDays; day++) {
+        const ds = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const count = days[ds] || 0;
+        const isToday = isCurrentMonth && day === today.getDate();
+        const isFuture = isCurrentMonth && day > today.getDate();
 
-    let html = '<div class="hm-wrap">';
+        const classes = ['month-cal-cell'];
+        if (count > 0) classes.push('done');
+        if (isToday) classes.push('today');
+        if (isFuture) classes.push('future');
 
-    // Month row
-    html += '<div class="hm-months"><div class="hm-day-spacer"></div>';
-    weeks.forEach((_, wi) => {
-        html += `<div class="hm-mcol">${monthAt[wi] || ''}</div>`;
-    });
-    html += '</div>';
+        let checkInner = '';
+        if (count > 0) {
+            const sup = count > 1 ? `<sup>${SUPERSCRIPTS[count] || `^${count}`}</sup>` : '';
+            checkInner = `✓${sup}`;
+        } else if (!isFuture) {
+            checkInner = '·';
+        }
 
-    // Main area: day labels + grid
-    html += '<div class="hm-main">';
-    html += '<div class="hm-days">' + DAY_LABELS.map(l => `<div class="hm-dlbl">${l}</div>`).join('') + '</div>';
-    html += '<div class="hm-grid">';
-    weeks.forEach(week => {
-        html += '<div class="hm-col">';
-        week.forEach(({ ds, inYear, isFuture, dateObj }) => {
-            if (!inYear) {
-                html += '<div class="hm-cell lv-f"></div>';
-                return;
-            }
-            if (isFuture) {
-                html += '<div class="hm-cell lv-f"></div>';
-                return;
-            }
+        let tip;
+        if (count > 0) {
+            tip = `${day}/${month}: ${count} aula${count !== 1 ? 's' : ''} concluída${count !== 1 ? 's' : ''}`;
+        } else if (isFuture) {
+            tip = '';
+        } else {
+            tip = `${day}/${month}: sem aulas`;
+        }
 
-            // Resolve activity data (new: object, legacy: number)
-            const raw = activity[ds];
-            let total = 0, lessons = 0, chats = 0, voices = 0;
-            if (raw && typeof raw === 'object') {
-                total   = raw.total   || 0;
-                lessons = raw.lesson  || 0;
-                chats   = raw.chat    || 0;
-                voices  = raw.voice   || 0;
-            } else if (typeof raw === 'number') {
-                total = raw;
-            }
-
-            const lvl = total === 0 ? 'lv-0'
-                      : total <= 2  ? 'lv-1'
-                      : total <= 5  ? 'lv-2'
-                                    : 'lv-3';
-
-            // Build tooltip
-            let tip = '';
-            const fmtDate = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-            if (total > 0) {
-                const parts = [];
-                if (lessons > 0) parts.push(`${lessons} aula${lessons !== 1 ? 's' : ''}`);
-                if (chats   > 0) parts.push(`${chats} msg`);
-                if (voices  > 0) parts.push(`${voices} sessão${voices !== 1 ? 'ões' : ''} de voz`);
-                tip = `${fmtDate}  ${parts.length ? parts.join(' · ') : total + ' atividades'}`;
-            } else {
-                tip = `${fmtDate}  sem atividade`;
-            }
-
-            html += `<div class="hm-cell ${lvl}" data-tip="${tip}"></div>`;
-        });
-        html += '</div>';
-    });
-    html += '</div></div></div>';
+        const tipAttr = tip ? ` data-tip="${tip}"` : '';
+        html += `<div class="${classes.join(' ')}"${tipAttr}>`
+              + `<span class="mc-num">${day}</span>`
+              + `<span class="mc-check">${checkInner}</span>`
+              + `</div>`;
+    }
 
     container.innerHTML = html;
 }

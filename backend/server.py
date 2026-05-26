@@ -24,6 +24,7 @@ from backend.controllers.chat_text_controller import router as chat_text_router
 from backend.controllers.chat_voice_controller import router as chat_voice_router
 from backend.controllers.lessons_controller import router as lessons_router
 from backend.controllers.phrases_controller import router as phrases_router
+from backend.controllers.difficulties_session_controller import router as difficulties_session_router
 from backend.controllers.analytics_controller import router as analytics_router
 from backend.controllers.pmf_controller import router as pmf_router
 from backend.admin_controller import router as admin_router
@@ -147,6 +148,26 @@ def _run_migrations():
             _run_migration_step(
                 "added locked_until to users",
                 "ALTER TABLE users ADD COLUMN locked_until TIMESTAMP",
+                engine,
+            )
+
+        # weekly difficulty (meta semanal 7/7) on users
+        if "weekly_difficulty_count" not in cols_users:
+            _run_migration_step(
+                "added weekly_difficulty_count to users",
+                "ALTER TABLE users ADD COLUMN weekly_difficulty_count INTEGER NOT NULL DEFAULT 0",
+                engine,
+            )
+        if "weekly_difficulty_week_start" not in cols_users:
+            _run_migration_step(
+                "added weekly_difficulty_week_start to users",
+                "ALTER TABLE users ADD COLUMN weekly_difficulty_week_start TIMESTAMP",
+                engine,
+            )
+        if "weekly_difficulty_completed_at" not in cols_users:
+            _run_migration_step(
+                "added weekly_difficulty_completed_at to users",
+                "ALTER TABLE users ADD COLUMN weekly_difficulty_completed_at TIMESTAMP",
                 engine,
             )
 
@@ -464,6 +485,7 @@ app.include_router(chat_text_router)
 app.include_router(chat_voice_router)
 app.include_router(lessons_router)
 app.include_router(phrases_router)
+app.include_router(difficulties_session_router)
 app.include_router(analytics_router)
 app.include_router(pmf_router)
 app.include_router(admin_router)

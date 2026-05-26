@@ -895,6 +895,61 @@ async def get_user_activity(
         raise HTTPException(status_code=500, detail="Error loading activity")
 
 
+@router.get("/api/user/lesson-calendar")
+async def get_lesson_calendar(
+    year: int | None = None,
+    month: int | None = None,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Return per-day lesson completion counts for a given month (default: current month)."""
+    try:
+        from datetime import date
+        from calendar import monthrange
+
+        uid = int(user_id)
+        today = date.today()
+        y = year or today.year
+        m = month or today.month
+
+        if not (1 <= m <= 12):
+            raise HTTPException(status_code=400, detail="Invalid month")
+
+        last_day = monthrange(y, m)[1]
+        start = datetime(y, m, 1)
+        end = datetime(y, m, last_day, 23, 59, 59)
+
+        rows = (
+            db.query(LessonProgress)
+            .filter(
+                LessonProgress.user_id == uid,
+                LessonProgress.learned_at.isnot(None),
+                LessonProgress.learned_at >= start,
+                LessonProgress.learned_at <= end,
+            )
+            .all()
+        )
+
+        days: dict[str, int] = {}
+        for r in rows:
+            ds = r.learned_at.strftime("%Y-%m-%d")
+            days[ds] = days.get(ds, 0) + 1
+
+        return {
+            "success": True,
+            "year": y,
+            "month": m,
+            "days": days,
+            "total_days_practiced": len(days),
+            "total_lessons_in_month": sum(days.values()),
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("[LESSON-CALENDAR] Error: %s", str(exc))
+        raise HTTPException(status_code=500, detail="Error loading lesson calendar")
+
+
 # ==================== QUIZ ENDPOINTS ====================
 
 @router.get("/api/quiz/questions")
