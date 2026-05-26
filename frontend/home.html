@@ -4960,6 +4960,450 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* ─────────────────────────────────────────────────
+ * Painel Dificuldades · meta semanal 7/7
+ * ──────────────────────────────────────────────── */
+.dif-panel {
+    background: var(--bg-accent, #faf9f7);
+    border: 1px solid var(--border-light, rgba(15,15,15,0.08));
+    border-radius: var(--radius-lg, 14px);
+    padding: 20px 22px 18px;
+    margin: 18px 0 22px;
+    position: relative;
+    overflow: hidden;
+}
+.dif-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #c44a2c 0%, #e88a3c 60%, transparent 100%);
+}
+.dif-panel[data-state="locked"]::before {
+    background: linear-gradient(90deg, #b08a3c 0%, #e8c468 50%, #b08a3c 100%);
+}
+.dif-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+.dif-panel-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+.dif-panel-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary, #1c1c1c);
+    margin: 0;
+}
+.dif-panel-sub {
+    font-size: 0.82rem;
+    color: var(--text-secondary, #5a5a5a);
+}
+.dif-panel-meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+.dif-panel-meta-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary, #888);
+    font-weight: 700;
+}
+.dif-panel-meta-value {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary, #1c1c1c);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Quadradinhos */
+.dif-squares {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin: 6px 0 14px;
+}
+.dif-square {
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    background: rgba(196, 74, 44, 0.22);
+    border: 1px solid rgba(196, 74, 44, 0.45);
+    transition: background 220ms ease, border-color 220ms ease, transform 240ms cubic-bezier(.4,1.6,.6,1);
+    min-height: 24px;
+    max-height: 36px;
+}
+.dif-square.is-green {
+    background: rgba(86, 158, 116, 0.55);
+    border-color: rgba(86, 158, 116, 0.9);
+}
+.dif-square.is-gold {
+    background: linear-gradient(135deg, #f4cd6b, #b58932);
+    border-color: #8a6620;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.4) inset;
+}
+.dif-square.just-filled {
+    transform: scale(1.18);
+}
+
+.dif-panel-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.dif-panel-helper {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary, #5a5a5a);
+    line-height: 1.35;
+    flex: 1 1 200px;
+}
+.dif-panel-cta {
+    appearance: none;
+    border: none;
+    background: var(--accent-primary, #c44a2c);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.92rem;
+    padding: 10px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease;
+    white-space: nowrap;
+}
+.dif-panel-cta:hover { background: #a83b22; transform: translateY(-1px); }
+.dif-panel-cta:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* Estado "Modo Desafiado" — semana completa */
+.dif-panel[data-state="locked"] .dif-panel-head,
+.dif-panel[data-state="locked"] .dif-panel-squares,
+.dif-panel[data-state="locked"] .dif-panel-foot { display: none; }
+.dif-panel[data-state="locked"] {
+    background: linear-gradient(135deg, rgba(244,205,107,0.18), rgba(181,137,50,0.10));
+    border-color: rgba(181,137,50,0.35);
+}
+.dif-panel-locked {
+    text-align: center;
+    padding: 8px 12px 4px;
+}
+.dif-panel-locked-badge {
+    font-size: 2.4rem;
+    line-height: 1;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 2px 6px rgba(181,137,50,0.35));
+}
+.dif-panel-locked-title {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: #6e4f12;
+    text-transform: uppercase;
+}
+.dif-panel-locked-text {
+    margin: 0 auto 6px;
+    max-width: 460px;
+    color: #5a4214;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+.dif-panel-locked-sub {
+    margin: 4px 0 0;
+    font-size: 0.8rem;
+    color: rgba(110, 79, 18, 0.7);
+}
+
+/* ─────────────────────────────────────────────────
+ * Modal · Sessão de Dificuldades (fullscreen)
+ * ──────────────────────────────────────────────── */
+.dif-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 20, 0.78);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding: 24px;
+    animation: difModalFade 220ms ease-out;
+}
+.dif-modal[hidden] { display: none; }
+@keyframes difModalFade { from { opacity: 0; } to { opacity: 1; } }
+
+.dif-modal-shell {
+    background: #fbfaf8;
+    width: min(720px, 100%);
+    max-height: 100%;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.dif-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.dif-modal-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #1c1c1c;
+}
+.dif-modal-close {
+    appearance: none;
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: #888;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+.dif-modal-close:hover { color: #1c1c1c; }
+
+.dif-modal-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 22px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.78rem;
+    color: #5a5a5a;
+    flex-wrap: wrap;
+}
+.dif-modal-progress-bar {
+    flex: 1 1 200px;
+    height: 6px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.dif-modal-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #c44a2c, #e88a3c);
+    border-radius: 999px;
+    transition: width 320ms ease;
+}
+.dif-modal-progress-text { font-weight: 700; color: #1c1c1c; font-variant-numeric: tabular-nums; }
+.dif-modal-progress-week {
+    font-weight: 700;
+    color: #56965a;
+    background: rgba(86, 158, 116, 0.12);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+}
+
+.dif-modal-body {
+    padding: 28px 26px 30px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Card de item */
+.dif-item-card { display: flex; flex-direction: column; gap: 16px; }
+.dif-item-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.05);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #5a5a5a;
+}
+.dif-item-source--voice { background: rgba(196,74,44,0.12); color: #a83220; }
+.dif-item-source--quiz { background: rgba(60,110,180,0.12); color: #2a5390; }
+.dif-item-source--shadow { background: rgba(86,158,116,0.14); color: #2e6840; }
+.dif-item-prompt {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: #1c1c1c;
+    line-height: 1.3;
+    margin: 0;
+}
+.dif-item-pt {
+    color: #6a6a6a;
+    font-size: 0.95rem;
+    margin: -8px 0 0;
+}
+.dif-item-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.dif-btn {
+    appearance: none;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: #fff;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #1c1c1c;
+    text-align: left;
+    cursor: pointer;
+    transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+.dif-btn:hover { background: #f4f2ee; border-color: rgba(0,0,0,0.2); }
+.dif-btn:active { transform: scale(0.99); }
+.dif-btn.is-correct { background: rgba(86,158,116,0.18); border-color: #56965a; color: #2e6840; }
+.dif-btn.is-wrong { background: rgba(196,74,44,0.12); border-color: #c44a2c; color: #a83220; }
+.dif-btn--primary {
+    background: #c44a2c;
+    color: #fff;
+    border-color: #c44a2c;
+    text-align: center;
+    font-weight: 700;
+}
+.dif-btn--primary:hover { background: #a83b22; border-color: #a83b22; }
+.dif-btn--ghost { background: transparent; border-color: rgba(0,0,0,0.12); }
+
+/* Estado de gravação do voice */
+.dif-voice-recorder {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    padding: 18px 0 8px;
+}
+.dif-voice-mic {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: none;
+    background: #c44a2c;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(196,74,44,0.35);
+    transition: transform 160ms ease, background 160ms ease;
+}
+.dif-voice-mic:hover { transform: scale(1.05); }
+.dif-voice-mic.is-listening {
+    background: #56965a;
+    box-shadow: 0 0 0 8px rgba(86,158,116,0.25), 0 6px 18px rgba(86,158,116,0.35);
+    animation: difPulse 1.2s ease-in-out infinite;
+}
+@keyframes difPulse {
+    0%, 100% { box-shadow: 0 0 0 6px rgba(86,158,116,0.25), 0 6px 18px rgba(86,158,116,0.35); }
+    50% { box-shadow: 0 0 0 14px rgba(86,158,116,0.10), 0 6px 18px rgba(86,158,116,0.35); }
+}
+.dif-voice-status { font-size: 0.85rem; color: #5a5a5a; min-height: 1.2em; }
+.dif-voice-transcript {
+    font-size: 0.95rem;
+    color: #1c1c1c;
+    background: rgba(0,0,0,0.04);
+    padding: 8px 12px;
+    border-radius: 8px;
+    min-height: 1.4em;
+    font-style: italic;
+    align-self: stretch;
+    text-align: center;
+}
+
+/* Feedback de erro */
+.dif-feedback-card {
+    background: rgba(196,74,44,0.06);
+    border: 1px solid rgba(196,74,44,0.25);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.dif-feedback-title {
+    margin: 0;
+    font-size: 1rem;
+    color: #a83220;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+.dif-feedback-row { display: flex; flex-direction: column; gap: 4px; }
+.dif-feedback-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    font-weight: 700;
+}
+.dif-feedback-value {
+    font-size: 1.05rem;
+    color: #1c1c1c;
+    font-weight: 600;
+}
+.dif-feedback-hint { font-size: 0.9rem; color: #5a5a5a; line-height: 1.4; }
+
+/* Celebração final */
+.dif-celebration {
+    text-align: center;
+    padding: 18px 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+}
+.dif-celebration-emoji { font-size: 4rem; line-height: 1; }
+.dif-celebration-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1c1c1c;
+}
+.dif-celebration-week-title {
+    color: #b58932;
+}
+.dif-celebration-text {
+    margin: 0;
+    max-width: 460px;
+    color: #5a5a5a;
+    font-size: 0.98rem;
+    line-height: 1.45;
+}
+.dif-celebration-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.dif-celebration-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.dif-celebration-stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1c1c1c;
+    font-variant-numeric: tabular-nums;
+}
+.dif-celebration-stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    font-weight: 700;
+}
+
 .painel-section-header {
     display: flex;
     justify-content: space-between;
@@ -9736,21 +10180,65 @@ body.beta-modal-open .main-content.active {
                             </aside>
                         </section>
 
-                        <!-- ── Painel Dificuldades: frases puladas/difíceis em tempo real ── -->
-                        <section class="dificuldades-panel" id="dificuldadesPanel" aria-labelledby="dificuldadesTitle">
-                            <div class="dificuldades-head">
-                                <div class="dificuldades-title-wrap">
-                                    <h3 class="dificuldades-title" id="dificuldadesTitle">⚠ Dificuldades</h3>
-                                    <span class="dificuldades-counter" id="dificuldadesCounter">— frases para praticar</span>
+                        <!-- ── Painel Dificuldades · Meta semanal 7/7 ── -->
+                        <section class="dif-panel" id="difPanel" aria-labelledby="difPanelTitle" data-state="loading">
+                            <div class="dif-panel-head">
+                                <div class="dif-panel-title-wrap">
+                                    <h3 class="dif-panel-title" id="difPanelTitle">⚠ Dificuldades</h3>
+                                    <span class="dif-panel-sub" id="difPanelSub">Carregando…</span>
                                 </div>
-                                <a class="dificuldades-cta" id="dificuldadesCta" href="lessons.html">Treinar nas aulas →</a>
+                                <div class="dif-panel-meta" id="difPanelMeta" aria-live="polite">
+                                    <span class="dif-panel-meta-label">Meta semanal</span>
+                                    <span class="dif-panel-meta-value" id="difPanelMetaValue">0/7</span>
+                                </div>
                             </div>
-                            <div class="dificuldades-list" id="dificuldadesList">
-                                <div class="dificuldades-loading"></div>
-                                <div class="dificuldades-loading" style="opacity:0.6"></div>
-                                <div class="dificuldades-loading" style="opacity:0.4"></div>
+
+                            <div class="dif-squares" id="difSquares" role="list" aria-label="Progresso semanal">
+                                <span class="dif-square" role="listitem"></span>
+                                <span class="dif-square" role="listitem"></span>
+                                <span class="dif-square" role="listitem"></span>
+                                <span class="dif-square" role="listitem"></span>
+                                <span class="dif-square" role="listitem"></span>
+                                <span class="dif-square" role="listitem"></span>
+                                <span class="dif-square" role="listitem"></span>
+                            </div>
+
+                            <div class="dif-panel-foot">
+                                <p class="dif-panel-helper" id="difPanelHelper"></p>
+                                <button type="button" class="dif-panel-cta" id="difPanelCta">Treinar agora · ≈ 5 min</button>
+                            </div>
+
+                            <!-- Estado "Modo Desafiado" (semana completa) -->
+                            <div class="dif-panel-locked" id="difPanelLocked" hidden>
+                                <div class="dif-panel-locked-badge">🔒</div>
+                                <h4 class="dif-panel-locked-title">Modo Desafiado</h4>
+                                <p class="dif-panel-locked-text">
+                                    Você superou suas dificuldades dessa semana.
+                                    <strong>Está acima das expectativas.</strong>
+                                </p>
+                                <p class="dif-panel-locked-sub" id="difPanelLockedSub"></p>
                             </div>
                         </section>
+
+                        <!-- ── Modal Sessão de Dificuldades ── -->
+                        <div class="dif-modal" id="difModal" hidden aria-hidden="true" role="dialog" aria-labelledby="difModalTitle">
+                            <div class="dif-modal-shell">
+                                <header class="dif-modal-head">
+                                    <h2 class="dif-modal-title" id="difModalTitle">Sessão de Dificuldades</h2>
+                                    <button type="button" class="dif-modal-close" id="difModalClose" aria-label="Fechar">✕</button>
+                                </header>
+
+                                <div class="dif-modal-progress">
+                                    <div class="dif-modal-progress-bar"><div class="dif-modal-progress-fill" id="difModalProgressFill"></div></div>
+                                    <span class="dif-modal-progress-text" id="difModalProgressText">0/0</span>
+                                    <span class="dif-modal-progress-week" id="difModalProgressWeek">Semana: 0/7</span>
+                                </div>
+
+                                <div class="dif-modal-body" id="difModalBody">
+                                    <!-- preenchido dinamicamente: card de item OU feedback OU celebração -->
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- ─────────── FASE 2: FOCO DO DIA ─────────── -->
                         <div>
@@ -11476,6 +11964,7 @@ body.beta-modal-open .main-content.active {
 <!-- Include beta modal controller -->
 <script src="./assets/js/voice-recognition-utils.js?v=1"></script>
 <script src="./assets/js/phrase-voice-trainer.js?v=4"></script>
+<script src="./assets/js/difficulties-session.js?v=1"></script>
 <script src="./assets/js/beta-modal-controller.js"></script>
 
 </body>

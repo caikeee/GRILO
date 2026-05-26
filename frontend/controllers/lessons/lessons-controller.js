@@ -743,112 +743,129 @@ async function loadUserStats() {
     } catch (e) { console.error('[STATS]', e); }
 }
 
-// ── Painel Dificuldades: frases que o usuário pulou ou marcou como difícil ──
+// ── Painel Dificuldades · meta semanal 7/7 ──
 async function loadUserDifficulties() {
-    const container = document.getElementById('dificuldadesList');
-    const counter   = document.getElementById('dificuldadesCounter');
-    const cta       = document.getElementById('dificuldadesCta');
-    if (!container || !authToken) return;
+    const panel = document.getElementById('difPanel');
+    if (!panel || !authToken) return;
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/user/difficulties?limit=5`, {
+        const res = await fetch(`${API_BASE_URL}/api/difficulties/summary`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (!res.ok) {
-            container.innerHTML = `<div class="dificuldades-empty">Não conseguimos carregar as dificuldades agora.</div>`;
+            renderDifficultiesError(panel);
             return;
         }
         const data = await res.json();
-        if (!data.success) return;
-        renderDifficultiesPanel(data, container, counter, cta);
+        if (!data.success) {
+            renderDifficultiesError(panel);
+            return;
+        }
+        renderDifficultiesPanel(data);
         window._lastDifficulties = data;
     } catch (e) {
         console.error('[DIFFICULTIES]', e);
-        container.innerHTML = `<div class="dificuldades-empty">Sem conexão para carregar dificuldades.</div>`;
+        renderDifficultiesError(panel);
     }
 }
 
-function renderDifficultiesPanel(data, container, counter, cta) {
-    const total = Number(data.total_difficult || 0);
-    const totalVoice = Number(data.total_voice || 0);
-    const totalQuiz = Number(data.total_quiz || 0);
-    const items = Array.isArray(data.phrases) ? data.phrases : [];
+function renderDifficultiesError(panel) {
+    panel.dataset.state = 'error';
+    const sub = document.getElementById('difPanelSub');
+    if (sub) sub.textContent = 'Não conseguimos carregar agora.';
+}
 
-    if (counter) {
-        if (total === 0) {
-            counter.textContent = 'Nenhuma dificuldade registrada ainda';
-        } else {
-            const parts = [];
-            if (totalVoice > 0) parts.push(`${totalVoice} de voz`);
-            if (totalQuiz > 0) parts.push(`${totalQuiz} de exercício`);
-            counter.textContent = `${total} ${total === 1 ? 'dificuldade' : 'dificuldades'} · ${parts.join(' + ')}`;
+function renderDifficultiesPanel(data) {
+    const panel    = document.getElementById('difPanel');
+    const sub      = document.getElementById('difPanelSub');
+    const metaVal  = document.getElementById('difPanelMetaValue');
+    const squares  = document.getElementById('difSquares');
+    const helper   = document.getElementById('difPanelHelper');
+    const cta      = document.getElementById('difPanelCta');
+    const locked   = document.getElementById('difPanelLocked');
+    const lockedSub = document.getElementById('difPanelLockedSub');
+    if (!panel) return;
+
+    const pool   = data.pool || { voice: 0, quiz: 0, shadow: 0, total: 0 };
+    const weekly = Number(data.weekly_count || 0);
+    const target = Number(data.weekly_target || 7);
+    const done   = Boolean(data.week_completed);
+    const days   = Number(data.days_left_in_week || 0);
+
+    // Quadradinhos
+    if (squares) {
+        const nodes = squares.querySelectorAll('.dif-square');
+        nodes.forEach((sq, idx) => {
+            sq.classList.remove('is-green', 'is-gold');
+            if (done) sq.classList.add('is-gold');
+            else if (idx < weekly) sq.classList.add('is-green');
+        });
+    }
+
+    if (metaVal) metaVal.textContent = `${Math.min(weekly, target)}/${target}`;
+
+    // Estado "Modo Desafiado"
+    if (done) {
+        panel.dataset.state = 'locked';
+        if (locked) locked.hidden = false;
+        if (lockedSub) {
+            lockedSub.textContent = days === 1
+                ? 'Reset em 1 dia.'
+                : `Reset em ${days} dias.`;
         }
-    }
-    if (cta) {
-        cta.style.display = total === 0 ? 'none' : '';
-    }
-
-    if (items.length === 0) {
-        container.innerHTML = `
-            <div class="dificuldades-empty">
-                <strong>Sem dificuldades registradas.</strong>
-                Responda os exercícios e pratique a pronúncia — erros e frases difíceis aparecem aqui automaticamente.
-            </div>`;
         return;
     }
 
-    container.innerHTML = items.map(item => {
-        const isQuiz = item.source === 'quiz';
-        const isShadow = item.source === 'shadow';
-        const sourceIcon = isQuiz ? '📝' : isShadow ? '🗣' : '🎙';
-        const sourceLabel = isQuiz ? 'Exercício' : isShadow ? 'Chat de voz' : 'Pronúncia';
+    panel.dataset.state = 'active';
+    if (locked) locked.hidden = true;
 
-        const wrongInfo = (Array.isArray(item.last_wrong_words) && item.last_wrong_words.length > 0)
-            ? `<span class="dificuldades-meta-pill" title="Erros detectados">${item.last_wrong_words.length} erro${item.last_wrong_words.length > 1 ? 's' : ''}</span>`
-            : '';
+    // Sub e helper baseados no pool e progresso
+    if (pool.total === 0) {
+        if (sub) sub.textContent = 'Sem dificuldades acumuladas';
+        if (helper) helper.textContent = 'Continue praticando — erros futuros vão aparecer aqui pra você revisar.';
+        if (cta) cta.disabled = true;
+        return;
+    }
 
-        const subtitleText = isQuiz
-            ? `Resposta: ${escapeHtml(item.correct_answer || '')} · ${escapeHtml(item.lesson_title || '')}`
-            : isShadow
-            ? `${escapeHtml(item.lesson_title || 'Chat de voz')}${item.score != null ? ' · score ' + item.score + '%' : ''}`
-            : `${escapeHtml(item.phrase_pt || '')} · ${escapeHtml(item.lesson_title || '')}`;
+    if (cta) cta.disabled = false;
 
-        const wrongCountBadge = (item.wrong_count > 0)
-            ? `<span class="dificuldades-meta-pill dificuldades-meta-pill--wrong">${item.wrong_count}× errou</span>`
-            : '';
+    if (sub) {
+        const parts = [];
+        if (pool.voice) parts.push(`${pool.voice} de voz`);
+        if (pool.quiz) parts.push(`${pool.quiz} de exercício`);
+        if (pool.shadow) parts.push(`${pool.shadow} de pronúncia`);
+        sub.textContent = `${pool.total} ${pool.total === 1 ? 'dificuldade' : 'dificuldades'} · ${parts.join(' · ')}`;
+    }
 
-        return `
-            <div class="dificuldades-item dificuldades-item--${item.source || 'voice'}"
-                 data-lesson-id="${item.lesson_id || ''}"
-                 data-phrase-id="${item.phrase_id || ''}"
-                 data-quiz-error-id="${item.quiz_error_id || ''}">
-                <div class="dificuldades-source-icon" title="${sourceLabel}">${sourceIcon}</div>
-                <div class="dificuldades-content">
-                    <p class="dificuldades-en">"${escapeHtml(item.phrase_en)}"</p>
-                    <p class="dificuldades-pt">${subtitleText}</p>
-                </div>
-                <div class="dificuldades-meta">
-                    ${wrongCountBadge}
-                    <span class="dificuldades-meta-pill">${item.attempts || 0}× tentou</span>
-                    ${wrongInfo}
-                </div>
-            </div>
-        `;
-    }).join('');
+    if (helper) {
+        const left = target - weekly;
+        if (weekly === 0) {
+            helper.textContent = 'Supere 7 dificuldades essa semana pra entrar no Modo Desafiado.';
+        } else if (left === 1) {
+            helper.textContent = 'Falta só 1 pra completar a semana 🔥';
+        } else if (left <= 2) {
+            helper.textContent = `Faltam ${left} pra completar a semana 🔥`;
+        } else {
+            helper.textContent = `${weekly} de ${target} essa semana. Continue assim.`;
+        }
+    }
+}
 
-    // Click → abre a aula correspondente (itens shadow sem lesson_id não navegam)
-    container.querySelectorAll('.dificuldades-item').forEach(el => {
-        el.addEventListener('click', () => {
-            const lid = el.getAttribute('data-lesson-id');
-            const pid = el.getAttribute('data-phrase-id');
-            const qid = el.getAttribute('data-quiz-error-id');
-            if (lid) {
-                const param = pid ? `practice_phrase=${pid}` : (qid ? `practice_quiz=${qid}` : '');
-                window.location.href = `lessons.html?lesson=${lid}${param ? '&' + param : ''}`;
+// Botão "Treinar agora" — abre o modal de sessão
+document.addEventListener('click', (ev) => {
+    const cta = ev.target.closest('#difPanelCta');
+    if (!cta || cta.disabled) return;
+    if (window.openDifficultiesSession) {
+        window.openDifficultiesSession({
+            onClose: (result) => {
+                // Recarrega o painel após qualquer fechamento (acertos contam mesmo abandonando)
+                loadUserDifficulties();
             }
         });
-    });
-}
+    } else {
+        console.warn('[DIFFICULTIES] openDifficultiesSession indisponível');
+    }
+});
 
 function escapeHtml(str) {
     return String(str || '')
