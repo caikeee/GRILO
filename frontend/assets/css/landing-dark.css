@@ -1,0 +1,106 @@
+/* ====================================================================
+   GRILO Landing — TEMA ESCURO COESO
+   Ativado pelo interruptor (data-theme="dark" no <html>).
+   Carregado por último para vencer no cascateamento.
+   Objetivo: o verde escuro de fundo é a base; texto, cartões, navbar e
+   mocks são harmonizados para boa legibilidade e contraste.
+==================================================================== */
+
+:root[data-theme="dark"] {
+    /* Texto — claro sobre o verde escuro */
+    --v4-ink:        #ECF4EF;   /* títulos / texto forte */
+    --v4-ink-2:      #C6D8CE;   /* texto secundário */
+    --v4-mute:       #A2B6AB;   /* corpo / descrições */
+    --v4-soft:       #87998E;   /* legendas */
+
+    /* Linhas / bordas — sutis mas visíveis no escuro */
+    --v4-line:        rgba(181, 205, 176, 0.14);
+    --v4-line-strong: rgba(181, 205, 176, 0.30);
+
+    /* Acentos — o verde "deep" precisa subir de tom p/ aparecer no escuro */
+    --v4-sage:      #93BE9D;
+    --v4-sage-deep: #ABD0B3;
+    --v4-sage-soft: #B5CDB0;
+
+    /* Superfícies */
+    --v4-bg:        #0E1A13;
+    --v4-bg-warm:   #122019;
+    --v4-bg-card:   #16271E;
+
+    /* token reutilizável para cartões/mocks */
+    --v4-surface:        #16271E;
+    --v4-surface-raised: #1B2E24;
+    --v4-surface-border: rgba(181, 205, 176, 0.12);
+}
+
+/* ---- Seções: gradientes verdes escuros coesos ---- */
+:root[data-theme="dark"] .v4-hero {
+    background:
+        radial-gradient(80% 60% at 80% 0%, rgba(229, 187, 149, 0.05) 0%, transparent 60%),
+        radial-gradient(70% 60% at 10% 100%, rgba(122, 158, 132, 0.12) 0%, transparent 60%),
+        linear-gradient(180deg, #0E1A13 0%, #122019 100%);
+}
+
+:root[data-theme="dark"] .v4-manifesto {
+    background: linear-gradient(180deg, #122019 0%, #0E1A13 100%);
+}
+
+:root[data-theme="dark"] .v4-demos {
+    background: linear-gradient(180deg, #0E1A13 0%, #112019 100%);
+}
+
+/* ---- Navbar: translúcida escura, não mais clara ---- */
+:root[data-theme="dark"] body.landing-page .navbar {
+    background: rgba(12, 21, 16, 0.82);
+    border-bottom-color: rgba(181, 205, 176, 0.10);
+}
+
+/* ---- Cartões / mocks: de branco para superfície escura ---- */
+:root[data-theme="dark"] .v4-hero-mock-frame,
+:root[data-theme="dark"] .v4-hero-mock-sticker,
+:root[data-theme="dark"] .v4-mock,
+:root[data-theme="dark"] .v4-demo-number {
+    background: var(--v4-surface);
+    border-color: var(--v4-surface-border);
+}
+
+:root[data-theme="dark"] .v4-hero-mock-frame {
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.03),
+        0 24px 60px -24px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="dark"] .v4-mock {
+    box-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="dark"] .v4-mock-voice {
+    background: linear-gradient(180deg, #1B2E23 0%, #14211A 100%);
+}
+
+/* ---- Detalhes internos dos mocks ---- */
+:root[data-theme="dark"] .v4-mock-voice-bubble--user {
+    background: rgba(122, 158, 132, 0.16);
+    border-color: rgba(181, 205, 176, 0.16);
+}
+
+:root[data-theme="dark"] .v4-mock-path-step::before {
+    background: var(--v4-surface-raised);
+    border-color: var(--v4-line-strong);
+}
+
+/* destaque "strong" / "em" sobre cartões escuros: tons mais legíveis */
+:root[data-theme="dark"] .v4-hero-mock-msg-text strong,
+:root[data-theme="dark"] .v4-hero-mock-tip strong {
+    background: rgba(122, 158, 132, 0.18);
+    color: var(--v4-sage-deep);
+}
+
+:root[data-theme="dark"] .v4-hero-mock-score {
+    background: rgba(122, 158, 132, 0.16);
+}
+
+/* foco visível dos campos do formulário no escuro */
+:root[data-theme="dark"] .v4-cta-card-input:focus {
+    border-color: rgba(229, 187, 149, 0.6);
+}

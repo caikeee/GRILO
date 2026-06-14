@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
@@ -37,6 +37,18 @@ from backend.schemas import (
     RefreshTokenRequest,
 )
 
+
+class RegisterCheckRequest(BaseModel):
+    """Check if email/username is available."""
+    field: str = Field(..., pattern="^(email|username)$")
+    value: str = Field(...)
+
+
+class RegisterCheckResponse(BaseModel):
+    """Response for availability check."""
+    available: bool
+    field: str
+
 router = APIRouter(tags=["auth"])
 
 # Account-lockout policy
@@ -50,6 +62,20 @@ def _issue_tokens(user: User) -> tuple[str, str]:
     access_token = create_access_token(data={"user_id": user.id, "tv": tv})
     refresh_token = create_refresh_token(data={"user_id": user.id, "tv": tv})
     return access_token, refresh_token
+
+
+@router.post("/api/register/check", response_model=RegisterCheckResponse)
+@_limiter.limit("20/minute")
+async def check_availability(request: Request, data: RegisterCheckRequest, db: Session = Depends(get_db)):
+    """Check if email or username is available (non-blocking, safe for UX)."""
+    if data.field == "email":
+        exists = db.query(User).filter(User.email == data.value).first() is not None
+    elif data.field == "username":
+        exists = db.query(User).filter(User.username == data.value).first() is not None
+    else:
+        raise HTTPException(status_code=400, detail="Invalid field")
+
+    return RegisterCheckResponse(available=not exists, field=data.field)
 
 
 @router.post("/api/register", response_model=TokenResponse)

@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="GRILO — inglês que insiste todo dia até virar parte do seu ambiente. Conversa em voz com IA, recap inteligente e trilha que sabe onde você está.">
     <meta name="theme-color" content="#3A5E47">
+
+    <!-- Tema: aplica antes de pintar a tela p/ evitar flash. Padrão inicial = preferência do SO. -->
+    <script>
+      (function () {
+        try {
+          var k = 'grilo-theme', s = localStorage.getItem(k);
+          var t = (s === 'dark' || s === 'light')
+            ? s
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+
     <meta property="og:title" content="GRILO — Inglês que vira hábito antes de virar nota">
     <meta property="og:description" content="Não substitui seu curso. Acelera. Voz, recap e trilha — para o inglês que já está em você sair pra fora.">
     <meta property="og:image" content="/assets/og-image.svg">
@@ -19,6 +35,9 @@
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/sage-color-system.css">
     <link rel="stylesheet" href="assets/css/landing-v4.css?v=2">
+    <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
+    <link rel="stylesheet" href="assets/css/form-validation-ux.css?v=1">
+    <link rel="stylesheet" href="assets/css/landing-dark.css?v=1">
 
     <style>
       .toast { padding:14px 22px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:0.92rem; font-weight:500; color:#fff; box-shadow:0 8px 32px rgba(0,0,0,.3); transition:opacity .3s,transform .3s; max-width:380px; }
@@ -39,7 +58,7 @@
             </button>
             <div class="navbar-content" id="navContent">
                 <ul class="navbar-nav">
-                    <li><a href="#manifesto">Manifesto</a></li>
+                    <li><a href="#manifesto">Nosso jeito</a></li>
                     <li><a href="#demos">Como funciona</a></li>
                 </ul>
                 <div class="navbar-actions">
@@ -74,12 +93,12 @@
 
                 <div class="v4-hero-cta">
                     <button class="v4-btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
-                        Começar de graça
+                        Experimentar grátis
                         <span class="v4-btn-primary-arrow">→</span>
                     </button>
                     <a class="v4-btn-ghost" href="#demos" onclick="document.getElementById('demos').scrollIntoView({behavior:'smooth'}); return false;">
                         <span class="v4-btn-ghost-icon">▸</span>
-                        Ver em 30 segundos
+                        Quero conhecer mais
                     </a>
                 </div>
             </div>
@@ -432,8 +451,18 @@
       });
     </script>
 
+    <!-- Interruptor de tema flutuante — lua que enche/mingua -->
+    <button class="theme-toggle theme-toggle--float" id="themeToggle" type="button"
+            aria-label="Alternar tema claro e escuro" aria-pressed="false" title="Alternar tema">
+        <span class="tt-orb" aria-hidden="true">
+            <span class="tt-shade"></span>
+        </span>
+    </button>
+
     <script src="assets/js/utils.js"></script>
-    <script src="assets/js/form-handler.js?v=5"></script>
+    <script src="assets/js/theme-toggle.js?v=2"></script>
+    <script src="assets/js/registration-validator.js?v=1"></script>
+    <script src="assets/js/form-handler.js?v=6"></script>
 
     <script>
         function closeNavbarMenu() {
