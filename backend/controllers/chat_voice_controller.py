@@ -23,7 +23,6 @@ from backend.schemas import ChatRequest, ShadowModeData
 from backend.services import chat_concise_voice, generate_voice_recap
 from backend.voice_metrics import voice_metrics
 from backend.voice_cache import voice_cache
-from backend.fallback import GraciousFallback, ErrorScenario
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 

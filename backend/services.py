@@ -15,9 +15,9 @@ import langdetect
 import logging
 
 # Import new optimization modules
-from backend.decision_engine import voice_router, VoiceRequestClassification
+from backend.decision_engine import classify_voice_request, get_model_for_classification, NO_LLM, LIGHT_LLM, FULL_LLM
 from backend.voice_cache import voice_cache
-from backend.fallback import GraciousFallback, ErrorScenario
+from backend.fallback import get_fallback_response, log_fallback_usage, RATE_LIMIT, TIMEOUT, API_ERROR
 
 logger = logging.getLogger(__name__)
 
@@ -826,11 +826,11 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         is_opening_turn = (request.message or "").strip() == "__voice_session_start__"
         
         # ======== DECISION ENGINE: Classificar requisição ========
-        classification = voice_router.classify(request)
-        logger.info(f"[CLASSIFICATION] {classification.value} | text: {request.message[:40]}...")
-        
+        classification = classify_voice_request(request)
+        logger.info(f"[CLASSIFICATION] {classification} | text: {request.message[:40]}...")
+
         # ======== ROTA 1: NO_LLM (Resposta local - 0 API tokens) ========
-        if classification == VoiceRequestClassification.NO_LLM:
+        if classification == NO_LLM:
             normalized = request.message.strip().lower()
             if normalized in _NO_LLM_RESPONSES:
                 reply = _NO_LLM_RESPONSES[normalized]
@@ -885,12 +885,12 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         # ======== ROTA 3 & 4: LLM CALLS (LIGHT ou FULL) ========
         # Force FULL_LLM for opening turn to enable personalized kickoff
         if is_opening_turn:
-            classification = VoiceRequestClassification.FULL_LLM
+            classification = FULL_LLM
             logger.info(f"[CLASSIFICATION-OVERRIDE] Opening turn forced to FULL_LLM for personalized kickoff")
-        
+
         # Selecionar modelo baseado em classificação
-        model_name = voice_router.get_model_for_classification(classification, groq_tokens_remaining=100000)
-        logger.info(f"[MODEL-SELECTION] {model_name} | classification: {classification.value}")
+        model_name = get_model_for_classification(classification, groq_tokens_remaining=100000)
+        logger.info(f"[MODEL-SELECTION] {model_name} | classification: {classification}")
         
         # ======== BUILD CONTEXT: Sistema Prompt + Histórico ========
         input_bridge_mode = bool(getattr(request, "input_bridge_mode", False))
@@ -900,7 +900,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         # Estratégia de histórico diferente por classificação
         messages = []
         
-        if classification == VoiceRequestClassification.LIGHT_LLM:
+        if classification == LIGHT_LLM:
             # LIGHT_LLM: Último turno de histórico para contexto mínimo (mantém naturalidade)
             system_msg = MINIMAL_SYSTEM_PROMPT
             
@@ -1045,7 +1045,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         # ======== VALIDAÇÃO FINAL: Nunca retornar resposta vazia ========
         if not result.get("reply") or not result.get("reply").strip():
             logger.error("[CRITICAL] Result reply is empty! Falling back...")
-            fallback = GraciousFallback.get_fallback_response(voice_mode, ErrorScenario.API_ERROR, level)
+            fallback = get_fallback_response(voice_mode, API_ERROR, level)
             return {
                 "reply": fallback.get("response", "I couldn't generate a response. Try again?"),
                 "translation_pt": None,
@@ -1066,8 +1066,8 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
 
     except asyncio.TimeoutError:
         logger.error("[TIMEOUT] Groq API timeout")
-        fallback = GraciousFallback.get_fallback_response(voice_mode, ErrorScenario.TIMEOUT, level)
-        GraciousFallback.log_fallback_usage(0, voice_mode, ErrorScenario.TIMEOUT, level)
+        fallback = get_fallback_response(voice_mode, TIMEOUT, level)
+        log_fallback_usage(0, voice_mode, TIMEOUT, level)
         # Convert fallback format to standard result format
         return {
             "reply": fallback.get("response", ""),
@@ -1085,14 +1085,14 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         
         # Detectar tipo de erro para fallback apropriado
         if "429" in error_msg or "rate" in error_msg.lower():
-            scenario = ErrorScenario.RATE_LIMIT
+            scenario = RATE_LIMIT
         elif "timeout" in error_msg.lower():
-            scenario = ErrorScenario.TIMEOUT
+            scenario = TIMEOUT
         else:
-            scenario = ErrorScenario.API_ERROR
-        
-        fallback = GraciousFallback.get_fallback_response(voice_mode, scenario, level)
-        GraciousFallback.log_fallback_usage(0, voice_mode, scenario, level)
+            scenario = API_ERROR
+
+        fallback = get_fallback_response(voice_mode, scenario, level)
+        log_fallback_usage(0, voice_mode, scenario, level)
         # Convert fallback format to standard result format
         return {
             "reply": fallback.get("response", ""),
