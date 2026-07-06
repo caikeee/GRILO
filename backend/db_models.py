@@ -131,6 +131,10 @@ class LessonProgress(Base):
     dominated_phrases_count = Column(Integer, default=0)      # 0..100 — contador de frases dominadas
     dominated_at = Column(DateTime, nullable=True)            # timestamp quando atingiu 100/100
 
+    # ── Retomar exato (hero da home: "você parou no exercício X de Y") ──
+    last_exercise_index = Column(Integer, nullable=True)      # posição linear (1-based) do último exercício respondido
+    total_exercises = Column(Integer, nullable=True)          # total de exercícios do fluxo quando registrado
+
 
 class LessonPhraseBank(Base):
     """Banco de frases por aula — alimenta o exercício de voz.

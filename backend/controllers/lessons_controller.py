@@ -165,6 +165,9 @@ class _ExerciseSubmitBody(BaseModel):
     question_text: str | None = None
     correct_answer: str | None = None
     wrong_answer: str | None = None
+    # retomar exato (hero da home): posição linear 1-based no fluxo + total
+    exercise_position: int | None = None
+    total_exercises: int | None = None
 
 
 class _SaveProgressBody(BaseModel):
@@ -181,6 +184,43 @@ class _LessonAbandonBody(BaseModel):
     lesson_id: int
     exercise_index_reached: int | None = None   # última questão que viu
     time_spent_ms: int | None = None
+    # retomar exato (hero da home): posição linear 1-based no fluxo + total
+    exercise_position: int | None = None
+    total_exercises: int | None = None
+
+
+def _persist_resume_position(db: Session, user_id: int, lesson_id: int, position: int | None, total: int | None) -> None:
+    """Guarda a posição do último exercício respondido para o hero da home
+    ("você parou no exercício X de Y"). Cria o registro de progresso se a aula
+    ainda não tem um (0/0 — não conta como concluída em nenhuma métrica)."""
+    if position is None:
+        return
+    try:
+        prog = (
+            db.query(LessonProgress)
+            .filter(LessonProgress.user_id == user_id, LessonProgress.lesson_id == lesson_id)
+            .first()
+        )
+        if prog:
+            prog.last_exercise_index = int(position)
+            if total:
+                prog.total_exercises = int(total)
+            prog.updated_at = datetime.utcnow()
+        else:
+            db.add(
+                LessonProgress(
+                    user_id=user_id,
+                    lesson_id=lesson_id,
+                    correct_answers=0,
+                    total_questions=0,
+                    last_exercise_index=int(position),
+                    total_exercises=int(total) if total else None,
+                )
+            )
+        db.commit()
+    except Exception as pos_err:
+        db.rollback()
+        logger.warning("[LESSON-RESUME] position persist failed: %s", pos_err)
 
 
 def _get_standalone_lesson_slug(lesson_id: int) -> str | None:
@@ -353,6 +393,9 @@ async def submit_lesson_exercise(
         except Exception as _quiz_err:
             logger.warning("[LESSON-EXERCISE] quiz error upsert failed: %s", _quiz_err)
 
+        # Retomar exato — persiste a posição para o hero da home
+        _persist_resume_position(db, int(user_id), lesson_id, body.exercise_position, body.total_exercises)
+
         track_metric_event(
             db,
             int(user_id),
@@ -417,11 +460,17 @@ async def save_lesson_progress(
             .first()
         )
 
+        # Registro pode existir só pela posição de retomada (0/0, sem learned_at) —
+        # "primeira conclusão" é definida por learned_at, não pela existência da linha.
+        was_learned = bool(existing and existing.learned_at)
+
         if existing:
             existing.correct_answers = body.correct_answers
             existing.total_questions = body.total_questions
             existing.attempts += 1
             existing.updated_at = datetime.utcnow()
+            # Aula concluída — limpa a posição de retomada (hero volta ao fallback)
+            existing.last_exercise_index = None
             # Se ainda não tinha learned_at, marca agora (1ª vez que conclui)
             if not existing.learned_at:
                 existing.learned_at = datetime.utcnow()
@@ -440,7 +489,7 @@ async def save_lesson_progress(
 
         # Award lesson completion XP only on first completion
         xp_result = {"xp_earned": 0, "new_total": 0, "level_up": False, "new_level": 1}
-        if not existing:
+        if not was_learned:
             # 50 XP flat for completing the lesson
             xp_result = award_xp(db, int(user_id), 50, source="lesson_complete")
 
@@ -454,7 +503,7 @@ async def save_lesson_progress(
             details={
                 "correct_answers": body.correct_answers,
                 "total_questions": body.total_questions,
-                "is_first_completion": existing is None,
+                "is_first_completion": not was_learned,
                 "time_spent_ms": body.time_spent_ms,
             },
         )
@@ -491,6 +540,9 @@ async def track_lesson_abandoned(
 ):
     """Track when user leaves a lesson mid-way without saving progress."""
     try:
+        # Retomar exato — persiste a posição para o hero da home
+        _persist_resume_position(db, int(user_id), body.lesson_id, body.exercise_position, body.total_exercises)
+
         track_metric_event(
             db,
             int(user_id),
@@ -523,7 +575,12 @@ async def get_user_stats(
 
         # Lesson progress
         lesson_records = db.query(LessonProgress).filter(LessonProgress.user_id == uid).all()
-        lessons_completed = len(lesson_records)
+        # Concluídas = learned_at marcado (ou legado com questões salvas).
+        # Registros criados só pela posição de retomada (0/0) não contam.
+        lessons_completed = len([
+            r for r in lesson_records
+            if r.learned_at is not None or (r.total_questions or 0) > 0
+        ])
         total_lessons = 50
 
         accuracies = [
@@ -824,6 +881,9 @@ async def get_user_stats(
                 "lesson_id": r.lesson_id,
                 "title": lesson_meta.get("title", f"Aula {r.lesson_id}"),
                 "dominated": int(r.dominated_phrases_count or 0),
+                # Retomar exato — "você parou no exercício X de Y" (null se não houver)
+                "last_exercise_index": r.last_exercise_index,
+                "total_exercises": r.total_exercises,
             }
 
         return {

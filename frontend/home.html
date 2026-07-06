@@ -121,6 +121,12 @@
         <!-- Top Bar -->
         <header class="topbar">
             <span class="topbar-logo">◆ GRILO</span>
+            <nav class="topbar-nav" aria-label="Navegação principal">
+                <button class="nav-btn active" data-tab="painel" onclick="switchTab('painel')">Painel</button>
+                <a class="nav-btn" href="lessons.html">Aulas</a>
+                <a class="nav-btn" href="voice.html">Chat de Voz</a>
+                <button class="nav-btn" id="adminNavBtn" data-tab="admin" onclick="switchTab('admin')" style="display:none;">Admin</button>
+            </nav>
             <div class="topbar-user">
                 <div class="user-badge">
                     <div class="user-avatar" id="userAvatarInitials">?</div>
@@ -129,317 +135,98 @@
                 <div id="streakTopbar" style="display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#fff5ed,#ffecd8);border:1.5px solid #f4c89a;border-radius:99px;padding:5px 12px 5px 8px;font-size:.82rem;font-weight:700;color:#a0622a;font-family:'Space Grotesk',sans-serif;">
                     <span>🔥</span><span id="streakTopbarNum">0</span><span style="font-size:.75rem;opacity:.8;">dias</span>
                 </div>
-                <div class="xp-chip"><span id="xpDisplay">0</span> XP</div>
                 <button class="btn-logout" onclick="handleLogout()">Sair</button>
             </div>
         </header>
 
-        <!-- App Layout -->
-        <div class="app-layout">
-
-            <!-- Sidebar -->
-            <aside class="sidebar">
-
-                <!-- Compact Stats Widget -->
-                <div class="sidebar-stats">
-                    <div class="stats-top-row">
-                        <div class="stats-level-badge">
-                            <span class="badge-icon">⚡</span>
-                            <span class="badge-label">Nv.</span>
-                            <span class="badge-value" id="levelDisplay">1</span>
-                        </div>
-                        <div class="stats-streak-pill">
-                            <span class="streak-fire">🔥</span>
-                            <span class="streak-num" id="streakDisplay">0</span>
-                            <span class="streak-unit">dias</span>
-                        </div>
-                    </div>
-                    <div class="xp-bar-track">
-                        <div class="xp-fill" id="xpBar" style="width: 0%"></div>
-                    </div>
-                    <div class="xp-sub" id="xpProgressDisplay">0 / 1000 XP</div>
-                </div>
-
-                <!-- Navigation -->
-                <div class="sidebar-nav">
-                    <div class="sidebar-nav-label">Navegação</div>
-
-                    <button class="nav-btn active" data-tab="painel" onclick="switchTab('painel')">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                        Painel de Aprendizagem
-                    </button>
-
-                    <a class="nav-btn" href="voice.html">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                        Chat de Voz
-                    </a>
-
-                    <a class="nav-btn" href="lessons.html">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 0 6.5 17H20V5H6.5A2.5 2.5 0 0 0 4 7.5z"/><path d="M20 21V5"/></svg>
-                        Aulas
-                    </a>
-
-                    <button class="nav-btn" id="adminNavBtn" data-tab="admin" onclick="switchTab('admin')" style="display:none;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0 1 12 0v1"/><path d="M19 8h2m-2 4h2m-2-8h2"/></svg>
-                        Admin
-                    </button>
-                </div>
-
-                <!-- Footer Action -->
-                <div class="sidebar-footer">
-                    <button class="btn-complete" onclick="window.location.href='voice.html'">Falar agora</button>
-                </div>
-
-            </aside>
-
-            <!-- Session Panels (floating, outside sidebar to avoid overflow clipping) -->
-
             <!-- Main Panel -->
             <div class="main-panel">
-
-                <!-- Tab Bar -->
-                <div class="tab-bar">
-                    <button class="tab-btn active" data-tab="painel" onclick="switchTab('painel')">
-                        📊 Painel de Aprendizagem
-                    </button>
-                    <a class="tab-btn" href="voice.html">
-                        🎤 Chat de Voz
-                    </a>
-                    <button class="tab-btn" id="adminTabBtn" data-tab="admin" onclick="switchTab('admin')" style="display:none;">
-                        🔧 Admin
-                    </button>
-                </div>
 
                 <!-- Meu Painel Tab -->
                 <div class="tab-content active" id="painelTab">
                     <div class="painel-container">
 
-                        <!-- ─────────── FASE 1: HERO IDENTITÁRIO ─────────── -->
-                        <section class="pl2-hero" aria-labelledby="pl2HeroGreet">
-                            <div class="pl2-hero-kicker" id="pl2HeroKicker">de volta por aqui</div>
+                      <div class="painel-main">
+
+                        <!-- ── Saudação ── -->
+                        <div class="pl2-greet-block">
+                            <div class="pl2-hero-kicker" id="pl2HeroKicker">&nbsp;</div>
                             <h2 class="pl2-hero-greet" id="pl2HeroGreet">Bom dia.</h2>
                             <p class="pl2-hero-sub" id="pl2HeroSub">Carregando seu progresso...</p>
-                            <div class="pl2-hero-cta">
-                                <a class="pl2-hero-cta-primary" id="pl2HeroResume" href="lessons.html">
-                                    <span class="pl2-cta-arrow">▶</span>
-                                    <span class="pl2-cta-text">
-                                        <span class="pl2-cta-title">Continuar onde parou</span>
-                                        <span class="pl2-cta-meta" id="pl2HeroResumeMeta">Carregando aula...</span>
-                                    </span>
-                                </a>
-                                <div class="pl2-hero-cta-secondary">
-                                    <a href="#" id="pl2CtaPractice">Frases difíceis</a>
-                                    <span class="pl2-dot">·</span>
-                                    <a href="voice.html">Sessão de voz</a>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- ─────────── CALENDÁRIO MENSAL DE AULAS (destaque) ─────────── -->
-                        <section class="month-cal" aria-labelledby="monthCalTitle">
-                            <div class="month-cal-head">
-                                <div>
-                                    <h3 class="month-cal-title" id="monthCalTitle">Seu mês</h3>
-                                    <span class="month-cal-sub" id="monthCalSub">aulas concluídas</span>
-                                </div>
-                                <div class="month-cal-stat">
-                                    <span class="month-cal-stat-num" id="monthCalDaysNum">0</span>
-                                    <span class="month-cal-stat-lbl">dias praticados</span>
-                                </div>
-                            </div>
-                            <div class="month-cal-weekdays">
-                                <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
-                            </div>
-                            <div class="month-cal-grid" id="activityHeatmap"></div>
-                            <p class="month-cal-foot">Cada ✓ é uma aula concluída. <span id="monthCalFootExtra"></span></p>
-                        </section>
-
-                        <!-- ─────────── FASE 1: PULSO SEMANAL ─────────── -->
-                        <div>
-                            <div class="pl2-section-label">Esta semana</div>
-                            <div class="pl2-pulse">
-                                <div class="pl2-pulse-card pl2-pulse-card-clickable" id="pl2VocabCard" role="button" tabindex="0" aria-label="Ver lista de palavras dominadas">
-                                    <div>
-                                        <span class="pl2-pulse-label">Vocabulário <span class="pl2-pulse-hint">ver lista →</span></span>
-                                        <span class="pl2-pulse-value" id="pl2VocabValue">--</span>
-                                        <span class="pl2-pulse-unit">palavras<br>dominadas</span>
-                                        <span class="pl2-pulse-foot" id="pl2VocabDelta">—</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; justify-content: center;">
-                                        <svg width="90" height="90" viewBox="0 0 90 90" style="opacity: 0.8;">
-                                            <circle cx="45" cy="45" r="40" fill="rgba(122,158,132,0.08)" stroke="rgba(122,158,132,0.24)" stroke-width="1"/>
-                                            <text x="45" y="50" font-size="32" font-weight="700" text-anchor="middle" fill="#5A7E66" font-family="'Space Grotesk'">📚</text>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="pl2-pulse-card">
-                                    <div>
-                                        <span class="pl2-pulse-label">Pronúncia</span>
-                                        <span class="pl2-pulse-value" id="pl2VoiceValue">--</span>
-                                        <span class="pl2-pulse-unit">qualidade<br>média</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; justify-content: center;">
-                                        <svg class="pl2-sparkline" id="pl2VoiceSparkline" viewBox="0 0 120 60" preserveAspectRatio="xMidYMid meet"></svg>
-                                    </div>
-                                </div>
-                                <div class="pl2-pulse-card">
-                                    <div>
-                                        <span class="pl2-pulse-label">Constância</span>
-                                        <span class="pl2-pulse-value"><span id="pl2StreakValue">--</span></span>
-                                        <span class="pl2-pulse-unit">dias<br>seguidos</span>
-                                        <span class="pl2-pulse-foot" id="pl2ChallengeFoot">
-                                            <span class="pl2-streak-icon">🔥</span> <span id="pl2ChallengeText" style="margin-top: 2px;">0 de 7</span>
-                                        </span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; justify-content: center;">
-                                        <div style="font-size: 3.2rem;">🎯</div>
-                                    </div>
-                                </div>
-                                <div class="pl2-pulse-card">
-                                    <div>
-                                        <span class="pl2-pulse-label">Nível CEFR</span>
-                                        <span class="pl2-cefr-track">
-                                            <span id="pl2CefrCurrent">A1</span>
-                                            <span class="pl2-cefr-arrow">→</span>
-                                            <span id="pl2CefrNext">A2</span>
-                                        </span>
-                                        <div class="pl2-cefr-bar">
-                                            <div class="pl2-cefr-fill" id="pl2CefrFill" style="width:0%"></div>
-                                        </div>
-                                        <span class="pl2-pulse-foot"><span id="pl2CefrPct">0</span>% até próximo</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; justify-content: center;">
-                                        <svg width="90" height="90" viewBox="0 0 90 90" style="opacity: 0.85;">
-                                            <defs>
-                                                <linearGradient id="cefr-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                    <stop offset="0%" style="stop-color:#7A9E84;stop-opacity:0.2" />
-                                                    <stop offset="100%" style="stop-color:#5A7E66;stop-opacity:0.4" />
-                                                </linearGradient>
-                                            </defs>
-                                            <circle cx="45" cy="45" r="38" fill="url(#cefr-grad)" stroke="#7A9E84" stroke-width="2"/>
-                                            <circle cx="45" cy="45" r="32" fill="none" stroke="rgba(122,158,132,0.15)" stroke-width="1"/>
-                                            <text x="45" y="48" font-size="20" font-weight="700" text-anchor="middle" fill="#7A9E84" font-family="'Space Grotesk'" letter-spacing="2">A1</text>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
-                        <section class="daily-word-panel" id="dailyWordPanel" aria-labelledby="dailyWordTitle">
-                            <div class="daily-word-main">
-                                <div class="daily-word-kicker">
-                                    <span>Palavra do dia</span>
-                                    <span id="dailyWordDateLabel">Hoje</span>
-                                </div>
-
-                                <div class="daily-word-header">
-                                    <div class="daily-word-title-wrap">
-                                        <h3 id="dailyWordTitle">Carregando…</h3>
-                                        <p class="daily-word-pronunciation" id="dailyWordPronunciation"></p>
-                                    </div>
-                                    <div class="daily-word-tag" id="dailyWordTag">Foco de hoje</div>
-                                </div>
-
-                                <p class="daily-word-definition" id="dailyWordDefinition"></p>
-
-                                <div class="daily-word-meta">
-                                    <span class="daily-word-pill" id="dailyWordContextPill">Contexto</span>
-                                    <span class="daily-word-pill" id="dailyWordLevelPill">Nível</span>
-                                    <span class="daily-word-pill" id="dailyWordMoodPill">Uso</span>
-                                </div>
-
-                                <div class="daily-word-grid">
-                                    <article class="daily-word-card">
-                                        <p class="daily-word-card-label">Como usar</p>
-                                        <p id="dailyWordUsage"></p>
-                                    </article>
-
-                                    <article class="daily-word-card">
-                                        <p class="daily-word-card-label">Armadilha comum</p>
-                                        <p id="dailyWordTrap"></p>
-                                    </article>
-
-                                    <article class="daily-word-card">
-                                        <p class="daily-word-card-label">Expressão irmã</p>
-                                        <p id="dailyWordRelated"></p>
-                                    </article>
-
-                                    <article class="daily-word-card">
-                                        <p class="daily-word-card-label">Citação famosa</p>
-                                        <blockquote id="dailyWordQuote"></blockquote>
-                                    </article>
-                                </div>
-                            </div>
-
-                            <aside class="daily-word-side daily-word-practice" id="dwPractice">
-                                <div class="dw-practice-header">
-                                    <div class="dw-practice-label">Pratique a palavra</div>
-                                    <div class="dw-practice-progress" id="dwProgress" aria-label="Progresso dos exercícios">
-                                        <span class="dw-dot is-active" data-step="0"></span>
-                                        <span class="dw-dot" data-step="1"></span>
-                                        <span class="dw-dot" data-step="2"></span>
-                                        <span class="dw-dot" data-step="3"></span>
-                                    </div>
-                                    <div class="dw-practice-step-title" id="dwStepTitle">1 de 4 · 📖 Leia e identifique</div>
-                                </div>
-
-                                <div class="dw-practice-body" id="dwStepContent">
-                                    <p class="dw-practice-instruction">Carregando exercícios…</p>
-                                </div>
-
-                                <div class="dw-practice-feedback" id="dwStepFeedback" hidden></div>
-
-                                <div class="dw-practice-footer">
-                                    <button type="button" class="dw-practice-btn dw-practice-btn-ghost" id="dwPrev" disabled>← Voltar</button>
-                                    <button type="button" class="dw-practice-btn dw-practice-btn-primary" id="dwNext" disabled>Próximo →</button>
-                                </div>
-
-                                <div class="daily-word-note">
-                                    <p class="daily-word-note-title">Por que esse painel ajuda</p>
-                                    <p id="dailyWordInsight"></p>
-                                </div>
-                            </aside>
+                        <!-- ── Herói: continue de onde parou ── -->
+                        <section class="pl2-hero" aria-labelledby="pl2HeroTitle">
+                            <div class="pl2-hero-eyebrow">Continue de onde parou</div>
+                            <h3 class="pl2-hero-title" id="pl2HeroTitle">Carregando aula…</h3>
+                            <p class="pl2-hero-meta" id="pl2HeroResumeMeta">&nbsp;</p>
+                            <a class="pl2-hero-btn" id="pl2HeroResume" href="lessons.html">
+                                <span class="pl2-hero-btn-play" aria-hidden="true"></span>
+                                <span>Continuar agora</span>
+                            </a>
                         </section>
 
-                        <!-- ── Painel Dificuldades · Meta semanal 7/7 ── -->
-                        <section class="dif-panel" id="difPanel" aria-labelledby="difPanelTitle" data-state="loading">
-                            <div class="dif-panel-head">
-                                <div class="dif-panel-title-wrap">
-                                    <h3 class="dif-panel-title" id="difPanelTitle">⚠ Dificuldades</h3>
-                                    <span class="dif-panel-sub" id="difPanelSub">Carregando…</span>
-                                </div>
-                                <div class="dif-panel-meta" id="difPanelMeta" aria-live="polite">
-                                    <span class="dif-panel-meta-label">Meta semanal</span>
-                                    <span class="dif-panel-meta-value" id="difPanelMetaValue">0/7</span>
-                                </div>
-                            </div>
+                        <!-- ── Pendência: revisar dificuldades · desafio da semana ── -->
+                        <button type="button" class="pend-row" id="pendDif" hidden>
+                            <span class="pend-ico" id="pendDifIco" aria-hidden="true">⟳</span>
+                            <span class="pend-txt">
+                                <b id="pendDifTitle">Revisar frases difíceis</b>
+                                <small id="pendDifSub">Carregando…</small>
+                            </span>
+                            <span class="pend-chev" aria-hidden="true">›</span>
+                        </button>
 
-                            <div class="dif-squares" id="difSquares" role="list" aria-label="Progresso semanal">
-                                <span class="dif-square" role="listitem"></span>
-                                <span class="dif-square" role="listitem"></span>
-                                <span class="dif-square" role="listitem"></span>
-                                <span class="dif-square" role="listitem"></span>
-                                <span class="dif-square" role="listitem"></span>
-                                <span class="dif-square" role="listitem"></span>
-                                <span class="dif-square" role="listitem"></span>
+                        <!-- ── Sua semana ── -->
+                        <section class="week-strip" aria-label="Sua semana">
+                            <div class="week-strip-head">
+                                <span>Sua semana</span>
+                                <span class="week-strip-count" id="weekStripCount"></span>
                             </div>
-
-                            <div class="dif-panel-foot">
-                                <p class="dif-panel-helper" id="difPanelHelper"></p>
-                                <button type="button" class="dif-panel-cta" id="difPanelCta">Treinar agora · ≈ 5 min</button>
-                            </div>
-
-                            <!-- Estado "Modo Desafiado" (semana completa) -->
-                            <div class="dif-panel-locked" id="difPanelLocked" hidden>
-                                <div class="dif-panel-locked-badge">🔒</div>
-                                <h4 class="dif-panel-locked-title">Modo Desafiado</h4>
-                                <p class="dif-panel-locked-text">
-                                    Você superou suas dificuldades dessa semana.
-                                    <strong>Está acima das expectativas.</strong>
-                                </p>
-                                <p class="dif-panel-locked-sub" id="difPanelLockedSub"></p>
-                            </div>
+                            <div class="week-strip-dots" id="weekStrip"></div>
                         </section>
+
+                      </div><!-- /painel-main -->
+
+                      <!-- ── Lateral: seu progresso (read-only) ── -->
+                      <aside class="painel-side" aria-label="Seu progresso">
+                          <div class="side-label">Seu progresso</div>
+
+                          <section class="side-card side-phoneme" id="sidePhoneme" hidden>
+                              <div class="side-phoneme-glyph" id="sidePhonemeGlyph">—</div>
+                              <div class="side-phoneme-txt">
+                                  <div class="side-card-label">Pronúncia · insight da semana</div>
+                                  <p id="sidePhonemeBody"></p>
+                              </div>
+                          </section>
+
+                          <section class="side-card" id="sideCefr">
+                              <div class="side-cefr-track">
+                                  <span id="sideCefrCurrent">A1</span>
+                                  <span class="side-cefr-arrow">→</span>
+                                  <span id="sideCefrNext">A2</span>
+                              </div>
+                              <div class="side-cefr-bar"><div class="side-cefr-fill" id="sideCefrFill" style="width:0%"></div></div>
+                              <div class="side-cefr-pct"><span id="sideCefrPct">0</span>% até o próximo nível</div>
+                          </section>
+
+                          <section class="side-card" id="sideVocab">
+                              <div class="side-vocab-num" id="sideVocabNum">--</div>
+                              <div class="side-vocab-label">palavras dominadas</div>
+                              <span class="side-vocab-delta" id="sideVocabDelta" hidden></span>
+                          </section>
+
+                          <section class="side-card" id="sideBadge">
+                              <div class="side-badge-row">
+                                  <div class="side-badge-medal" id="sideBadgeIcon">🪶</div>
+                                  <div>
+                                      <div class="side-badge-name" id="sideBadgeName">Próxima conquista</div>
+                                      <div class="side-badge-desc" id="sideBadgeDesc"></div>
+                                  </div>
+                              </div>
+                              <div class="side-badge-track"><div class="side-badge-fill" id="sideBadgeFill" style="width:0%"></div></div>
+                              <div class="side-badge-label" id="sideBadgeLabel"></div>
+                          </section>
+                      </aside>
 
                         <!-- ── Modal Sessão de Dificuldades ── -->
                         <div class="dif-modal" id="difModal" hidden aria-hidden="true" role="dialog" aria-labelledby="difModalTitle">
@@ -461,52 +248,6 @@
                             </div>
                         </div>
 
-                        <!-- ─────────── FASE 2: FOCO DO DIA ─────────── -->
-                        <div>
-                            <div class="pl2-section-label">Foco do dia</div>
-                            <div class="pl2-focus-grid">
-                                <div class="pl2-focus-card">
-                                    <p class="pl2-focus-title">A IA recomenda</p>
-                                    <p class="pl2-focus-headline" id="pl2FocusHeadline">Você tem <em>algumas frases</em> prestes a esquecer.</p>
-                                    <div class="pl2-focus-list" id="pl2FocusList">
-                                        <div class="pl2-empty">Carregando...</div>
-                                    </div>
-                                    <a class="pl2-focus-cta" href="lessons.html" id="pl2FocusCta">Revisar agora →</a>
-                                </div>
-                                <div class="pl2-focus-card pl2-phoneme">
-                                    <p class="pl2-focus-title">Pronúncia · insight</p>
-                                    <div class="pl2-phoneme-symbol" id="pl2PhonemeSymbol">—</div>
-                                    <p class="pl2-phoneme-name" id="pl2PhonemeName">Sem dados ainda</p>
-                                    <p class="pl2-phoneme-stat" id="pl2PhonemeStat">Faça uma sessão de voz para receber seu primeiro insight.</p>
-                                    <a class="pl2-focus-cta" href="voice.html">Treinar pronúncia →</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ─────────── FASE 3: JORNADA E CONQUISTAS ─────────── -->
-                        <div>
-                            <div class="pl2-section-label">Jornada e conquistas</div>
-                            <div class="pl2-journey-grid">
-                                <div class="pl2-focus-card">
-                                    <p class="pl2-focus-title">Suas aulas</p>
-                                    <p class="pl2-focus-headline" id="pl2RingsHeadline">Aulas em progresso</p>
-                                    <div class="pl2-rings" id="pl2Rings">
-                                        <div class="pl2-empty">Comece uma aula para ver seu progresso aqui.</div>
-                                    </div>
-                                </div>
-                                <div class="pl2-focus-card">
-                                    <p class="pl2-focus-title">A caminho de…</p>
-                                    <div class="pl2-badge-medal" id="pl2BadgeIcon">🪶</div>
-                                    <h3 class="pl2-badge-name" id="pl2BadgeName">Próxima conquista</h3>
-                                    <p class="pl2-badge-desc" id="pl2BadgeDesc">Continue praticando para desbloquear sua primeira medalha.</p>
-                                    <div class="pl2-badge-progress-track">
-                                        <div class="pl2-badge-progress-fill" id="pl2BadgeFill" style="width:0%"></div>
-                                    </div>
-                                    <p class="pl2-badge-progress-label" id="pl2BadgeLabel">0 / 100 XP</p>
-                                    <span class="pl2-badge-link" id="pl2BadgeEarned">Já conquistadas: 0 medalhas</span>
-                                </div>
-                            </div>
-                        </div>
 
                     </div>
                 </div>
@@ -1048,7 +789,6 @@
                 </div>
 
             </div><!-- /main-panel -->
-        </div><!-- /app-layout -->
     </div><!-- /main-content -->
 
     <!-- Scripts -->
@@ -1059,16 +799,13 @@
 
 
 
-    <!-- Session submenu behavior: close on outside click, Esc, keyboard nav, select-closes -->
-    <script src="controllers/dashboard/session-panels.js?v=1"></script>
 
-    <!-- Sync sidebar nav highlight with tab switches + auto-open panels for chat -->
-    <script src="controllers/dashboard/sidebar-nav-sync.js?v=1"></script>
+    <!-- Bootstrap do painel: iniciais do avatar + primeiro load de stats -->
+    <script src="controllers/dashboard/sidebar-nav-sync.js?v=2"></script>
 
     <!-- ===== ONBOARDING + STREAK + XP TOAST LOGIC ===== -->
     <script src="controllers/dashboard/onboarding-streak.js?v=1"></script>
 
-    <script src="controllers/dashboard/daily-word-panel.js?v=1"></script>
     <!-- Voice setup modal moved to voice.html -->
     <div class="voice-setup-modal" id="voiceSetupModal" style="display:none!important;">
         <div class="voice-setup-card">
@@ -1200,29 +937,6 @@
   </div>
 </div>
 
-<!-- Vocabulary Modal -->
-<div class="vocab-modal-backdrop" id="vocabModalBackdrop" aria-hidden="true">
-  <div class="vocab-modal" role="dialog" aria-modal="true" aria-labelledby="vocabModalTitle">
-    <div class="vocab-modal-header">
-      <div class="vocab-modal-kicker">Seu vocabulário</div>
-      <h2 class="vocab-modal-title" id="vocabModalTitle">Palavras dominadas</h2>
-      <p class="vocab-modal-subtitle">Cada palavra abaixo você usou com precisão suficiente para considerar dominada.</p>
-      <div class="vocab-modal-stats">
-        <span class="vocab-modal-stat"><strong id="vocabModalCount">0</strong> palavras</span>
-        <span class="vocab-modal-stat">+<strong id="vocabModalWeek">0</strong> nesta semana</span>
-      </div>
-      <button type="button" class="vocab-modal-close" id="vocabModalClose" aria-label="Fechar">✕</button>
-    </div>
-    <div class="vocab-modal-search-wrap">
-      <input type="text" class="vocab-modal-search" id="vocabModalSearch" placeholder="Buscar palavra..." autocomplete="off" />
-    </div>
-    <div class="vocab-modal-body" id="vocabModalBody">
-      <div class="vocab-modal-loading">Carregando palavras</div>
-    </div>
-  </div>
-</div>
-
-<script src="controllers/dashboard/vocab-modal-controller.js?v=1"></script>
 
 <!-- Include beta modal controller -->
 <script src="./assets/js/voice-recognition-utils.js?v=1"></script>

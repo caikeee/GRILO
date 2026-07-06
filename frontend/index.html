@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GRILO — inglês que insiste todo dia até virar parte do seu ambiente. Conversa em voz com IA, recap inteligente e trilha que sabe onde você está.">
+    <meta name="description" content="GRILO — prática de inglês todo dia: conversa em voz com IA, recap que vira plano e trilha que sabe onde você está.">
     <meta name="theme-color" content="#3A5E47">
 
     <!-- Tema: aplica antes de pintar a tela p/ evitar flash. Padrão inicial = preferência do SO. -->
@@ -22,7 +22,7 @@
     </script>
 
     <meta property="og:title" content="GRILO — Inglês que vira hábito antes de virar nota">
-    <meta property="og:description" content="Não substitui seu curso. Acelera. Voz, recap e trilha — para o inglês que já está em você sair pra fora.">
+    <meta property="og:description" content="Não substitui seu curso. Acelera. Comunidade, conteúdo no padrão internacional e um mapa 360 do seu aprendizado.">
     <meta property="og:image" content="/assets/og-image.svg">
 
     <title>GRILO — Inglês que vira hábito antes de virar nota</title>
@@ -34,10 +34,9 @@
     <link rel="stylesheet" href="assets/css/variables.css">
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/sage-color-system.css">
-    <link rel="stylesheet" href="assets/css/landing-v4.css?v=2">
     <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
     <link rel="stylesheet" href="assets/css/form-validation-ux.css?v=1">
-    <link rel="stylesheet" href="assets/css/landing-dark.css?v=1">
+    <link rel="stylesheet" href="assets/css/landing-v5.css?v=1">
 
     <style>
       .toast { padding:14px 22px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:0.92rem; font-weight:500; color:#fff; box-shadow:0 8px 32px rgba(0,0,0,.3); transition:opacity .3s,transform .3s; max-width:380px; }
@@ -58,8 +57,8 @@
             </button>
             <div class="navbar-content" id="navContent">
                 <ul class="navbar-nav">
-                    <li><a href="#manifesto">Nosso jeito</a></li>
-                    <li><a href="#demos">Como funciona</a></li>
+                    <li><a href="#metodo"><span class="nav-i">01</span>Método</a></li>
+                    <li><a href="#pilares"><span class="nav-i">02</span>Pilares</a></li>
                 </ul>
                 <div class="navbar-actions">
                     <button class="navbar-cta-btn" id="navEntrarBtn" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Entrar</button>
@@ -69,357 +68,213 @@
     </nav>
 
     <!-- ============================================================
-         HERO — uma ideia, um visual, sem slider
+         HERO — copy à esquerda, acesso à direita. A página inteira
+         converge para este cartão.
     ============================================================ -->
-    <section class="v4-hero">
-        <div class="v4-hero-inner">
-            <div class="v4-hero-copy">
-                <div class="v4-hero-tag">
-                    <span class="v4-hero-tag-dot" aria-hidden="true"></span>
-                    Até o inglês virar hábito
+    <section class="v5-hero">
+        <div class="v5-hero-inner">
+            <div class="v5-hero-copy">
+                <div class="v5-tag v5-reveal">
+                    <span class="v5-tag-dot" aria-hidden="true"></span>
+                    Beta aberta · grátis
                 </div>
 
-                <h1 class="v4-hero-headline">
-                    Bem-vindo ao ecossistema que coloca seu inglês em movimento.
+                <h1 class="v5-headline v5-reveal" data-delay="1">
+                    Ninguém aprende inglês <em>por você.</em>
                 </h1>
 
-                <p class="v4-hero-sub">
-                    GRILO é o inglês que insiste todo dia, na sua voz, no seu ritmo. Sem turma, sem agenda, sem julgamento.
+                <p class="v5-sub v5-reveal" data-delay="2">
+                    Mas ninguém deveria aprender sozinho. Prática de voz com IA, gente atrás do mesmo objetivo e um mapa honesto do seu nível. Sem medalha, sem ofensiva, sem culpa.
                 </p>
 
-                <p class="v4-hero-sub-2">
-                    Não substitui seu curso. Acelera ele.
+                <p class="v5-sub-2 v5-reveal" data-delay="2">
+                    Não substitui seu curso. <strong>Acelera ele.</strong>
                 </p>
 
-                <div class="v4-hero-cta">
-                    <button class="v4-btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
-                        Experimentar grátis
-                        <span class="v4-btn-primary-arrow">→</span>
-                    </button>
-                    <a class="v4-btn-ghost" href="#demos" onclick="document.getElementById('demos').scrollIntoView({behavior:'smooth'}); return false;">
-                        <span class="v4-btn-ghost-icon">▸</span>
-                        Quero conhecer mais
-                    </a>
-                </div>
-            </div>
-
-            <div class="v4-hero-visual">
-                <div class="v4-hero-mock">
-                    <div class="v4-hero-mock-sticker">
-                        <span class="v4-hero-mock-sticker-emoji">🦗</span>
-                        <span><strong>+1</strong> dia de prática</span>
+                <div class="v5-sample v5-reveal" data-delay="3" aria-label="Exemplo de correção em uma sessão de voz">
+                    <div class="v5-sample-row">
+                        <span class="v5-sample-who">você</span>
+                        <span class="v5-sample-text">"I <em>have went</em> to the store yesterday."</span>
                     </div>
-
-                    <div class="v4-hero-mock-frame">
-                        <div class="v4-hero-mock-head">
-                            <div class="v4-hero-mock-status">
-                                <span class="v4-hero-mock-status-dot" aria-hidden="true"></span>
-                                Sessão ao vivo
-                            </div>
-                            <div class="v4-hero-mock-time">00:47</div>
-                        </div>
-
-                        <div class="v4-hero-mock-msg">
-                            <p class="v4-hero-mock-msg-label">você disse</p>
-                            <p class="v4-hero-mock-msg-text">
-                                "I <em>have went</em> to the store yesterday."
-                            </p>
-                        </div>
-
-                        <div class="v4-hero-mock-msg">
-                            <p class="v4-hero-mock-msg-label">grilo devolve</p>
-                            <p class="v4-hero-mock-msg-text">
-                                "I <strong>went</strong> to the store yesterday."
-                            </p>
-                        </div>
-
-                        <div class="v4-hero-mock-wave" aria-hidden="true">
-                            <span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span>
-                        </div>
-
-                        <div class="v4-hero-mock-foot">
-                            <p class="v4-hero-mock-tip">
-                                <strong>past simple</strong> não usa "have" antes
-                            </p>
-                            <div class="v4-hero-mock-score">
-                                <span class="v4-hero-mock-score-value">92</span>
-                                <span class="v4-hero-mock-score-unit">/ 100</span>
-                            </div>
-                        </div>
+                    <div class="v5-sample-wave" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         MANIFESTO — a frase do grilo
-    ============================================================ -->
-    <section class="v4-manifesto" id="manifesto">
-        <div class="v4-manifesto-inner">
-            <div class="v4-manifesto-kicker">o método é o som</div>
-
-            <p class="v4-manifesto-text">
-                O grilo canta toda noite. Não precisa de ânimo, de bateria, de motivação. <em>Só repete</em> — até virar parte do ambiente.
-            </p>
-
-            <p class="v4-manifesto-coda">
-                Inglês funciona igual.
-            </p>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         DEMOS — três movimentos do produto, sem slider
-    ============================================================ -->
-    <section class="v4-demos" id="demos">
-        <div class="v4-demos-inner">
-            <div class="v4-demos-head">
-                <span class="v4-demos-eyebrow">por dentro</span>
-                <h2 class="v4-demos-title">Três coisas que o GRILO faz<br>e o resto do mundo não faz junto.</h2>
-                <p class="v4-demos-lead">
-                    Voz que ouve de verdade. Erro que vira plano. Trilha que sabe onde você está. Sem milagre, sem app cheio de feature inútil.
-                </p>
-            </div>
-
-            <!-- DEMO 1: VOZ -->
-            <div class="v4-demo">
-                <div class="v4-demo-copy">
-                    <div class="v4-demo-number">01</div>
-                    <span class="v4-demo-kicker">voz</span>
-                    <h3 class="v4-demo-title">Você fala. A IA escuta — e responde de verdade.</h3>
-                    <p class="v4-demo-body">
-                        Você abre, diz qualquer coisa, e a conversa anda. Ela ouve sua pronúncia, devolve a frase certa, te empurra pra continuar. <em>É a prática que falta entre uma aula e outra.</em>
-                    </p>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>Sem agenda, sem turma, sem custo de tempo</span>
-                    </div>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>Correção na hora, do jeito que você disse</span>
-                    </div>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>5 minutos por dia já mudam onde você trava</span>
-                    </div>
-                </div>
-
-                <div class="v4-demo-visual">
-                    <div class="v4-mock v4-mock-voice">
-                        <div class="v4-mock-voice-orb">
-                            <div class="v4-mock-voice-orb-core">🎙</div>
-                        </div>
-                        <div class="v4-mock-voice-dialogue">
-                            <div class="v4-mock-voice-bubble v4-mock-voice-bubble--user">
-                                "I <em>was go</em> to a party last night."
-                            </div>
-                            <div class="v4-mock-voice-bubble v4-mock-voice-bubble--ai">
-                                Quase! "I <strong>went</strong> to a party last night." Conta mais — <strong>quem</strong> tava lá?
-                            </div>
-                            <div class="v4-mock-voice-bubble v4-mock-voice-bubble--user">
-                                "My friend Lucas and his sister..."
-                            </div>
-                        </div>
+                    <div class="v5-sample-row v5-sample-row--ai">
+                        <span class="v5-sample-who">grilo</span>
+                        <span class="v5-sample-text">"I <strong>went</strong> to the store yesterday." Past simple não usa "have".</span>
                     </div>
                 </div>
             </div>
 
-            <!-- DEMO 2: RECAP -->
-            <div class="v4-demo v4-demo--reverse">
-                <div class="v4-demo-copy">
-                    <div class="v4-demo-number">02</div>
-                    <span class="v4-demo-kicker">recap</span>
-                    <h3 class="v4-demo-title">Erro vira plano. Não vira boletim.</h3>
-                    <p class="v4-demo-body">
-                        Cada frase que escapou na sessão volta no dia seguinte como foco. Você não estuda mais "de cabeça pra baixo" — você <em>fecha buracos</em> exatamente onde eles abriram.
-                    </p>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>O que travou virou o foco do dia</span>
-                    </div>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>Repetição espaçada, sem você ter que pensar nisso</span>
-                    </div>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>Recap honesto — não te diz que tá bom quando não tá</span>
-                    </div>
-                </div>
-
-                <div class="v4-demo-visual">
-                    <div class="v4-mock">
-                        <div class="v4-mock-recap-head">
-                            <h4 class="v4-mock-recap-title">Foco do dia</h4>
-                            <span class="v4-mock-recap-pill">3 pra revisar</span>
-                        </div>
-
-                        <div class="v4-mock-recap-item">
-                            <span class="v4-mock-recap-item-mark">!</span>
-                            <span class="v4-mock-recap-item-text">"I <em>have went</em>" → past simple</span>
-                            <span class="v4-mock-recap-item-meta">há 2 dias</span>
-                        </div>
-
-                        <div class="v4-mock-recap-item">
-                            <span class="v4-mock-recap-item-mark">!</span>
-                            <span class="v4-mock-recap-item-text">pronúncia de <em>"thought"</em></span>
-                            <span class="v4-mock-recap-item-meta">ontem</span>
-                        </div>
-
-                        <div class="v4-mock-recap-item">
-                            <span class="v4-mock-recap-item-mark v4-mock-recap-item-mark--ok">✓</span>
-                            <span class="v4-mock-recap-item-text">"used to" — dominado</span>
-                            <span class="v4-mock-recap-item-meta">hoje</span>
-                        </div>
-
-                        <div class="v4-mock-recap-cta">
-                            <span>Revisar agora</span>
-                            <span><strong>~4 min</strong></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- DEMO 3: TRILHA -->
-            <div class="v4-demo">
-                <div class="v4-demo-copy">
-                    <div class="v4-demo-number">03</div>
-                    <span class="v4-demo-kicker">trilha</span>
-                    <h3 class="v4-demo-title">Você sempre sabe onde está — e o que vem.</h3>
-                    <p class="v4-demo-body">
-                        Sem mapa, estudar é caminhar no escuro. A trilha do GRILO mostra o que você já domina, o que tá consolidando, e <em>qual é o próximo passo concreto</em>. Visibilidade muda tudo.
-                    </p>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>Nível CEFR estimado em tempo real</span>
-                    </div>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>Próximo passo claro, sempre</span>
-                    </div>
-                    <div class="v4-demo-bullet">
-                        <span class="v4-demo-bullet-dot" aria-hidden="true"></span>
-                        <span>Ritmo sustentável — sem maratona, sem culpa</span>
-                    </div>
-                </div>
-
-                <div class="v4-demo-visual">
-                    <div class="v4-mock">
-                        <div class="v4-mock-path-head">
-                            <div class="v4-mock-path-stage">
-                                <span>A2 → B1</span>
-                                <span class="v4-mock-path-stage-bar"></span>
-                                <span class="v4-mock-path-stage-pct">62%</span>
-                            </div>
-                            <p class="v4-mock-path-now">Você está aqui.</p>
-                            <p class="v4-mock-path-now-sub">Faltam ~18 sessões pra B1 estimado.</p>
-                        </div>
-
-                        <ul class="v4-mock-path-steps">
-                            <li class="v4-mock-path-step v4-mock-path-step--done">Saudações e small talk</li>
-                            <li class="v4-mock-path-step v4-mock-path-step--done">Past simple básico</li>
-                            <li class="v4-mock-path-step v4-mock-path-step--now">Past simple com verbos irregulares</li>
-                            <li class="v4-mock-path-step">Present perfect — primeiros usos</li>
-                            <li class="v4-mock-path-step">Conditionals (zero e first)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         PROVA — números honestos da beta
-    ============================================================ -->
-    <section class="v4-proof">
-        <div class="v4-proof-inner">
-            <div class="v4-proof-stat">
-                <div class="v4-proof-stat-value">5 min</div>
-                <p class="v4-proof-stat-label">é o que basta por dia<br>pra mudar onde você trava</p>
-                <p class="v4-proof-stat-meta">prática focada &gt; maratona aleatória</p>
-            </div>
-
-            <div class="v4-proof-stat">
-                <div class="v4-proof-stat-value v4-proof-stat-value--amber">100%</div>
-                <p class="v4-proof-stat-label">da sua sessão é a sua voz —<br>não um vídeo, não um quiz</p>
-                <p class="v4-proof-stat-meta">você não decora, você fala</p>
-            </div>
-
-            <div class="v4-proof-stat">
-                <div class="v4-proof-stat-value">0</div>
-                <p class="v4-proof-stat-label">cobrança nessa fase.<br>beta aberta, em construção</p>
-                <p class="v4-proof-stat-meta">você cresce junto com o produto</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         CTA FINAL
-    ============================================================ -->
-    <section class="v4-cta" id="cta">
-        <div class="v4-cta-inner">
-            <div class="v4-cta-copy">
-                <span class="v4-cta-kicker">comece hoje</span>
-                <h2 class="v4-cta-headline">
-                    Sua próxima frase em inglês<br>
-                    começa <em>aqui.</em>
-                </h2>
-                <p class="v4-cta-body">
-                    Crie sua conta em menos de dois minutos. A primeira sessão já te devolve uma frase que você não tinha. E a próxima, outra. E a próxima.
-                </p>
-                <div class="v4-cta-meta">
-                    <span class="v4-cta-meta-item">
-                        <span class="v4-cta-meta-check">✓</span> gratuito na beta
-                    </span>
-                    <span class="v4-cta-meta-item">
-                        <span class="v4-cta-meta-check">✓</span> sem cartão
-                    </span>
-                    <span class="v4-cta-meta-item">
-                        <span class="v4-cta-meta-check">✓</span> &lt; 2 min pra entrar
-                    </span>
-                </div>
-            </div>
-
-            <div class="v4-cta-card">
-                <div class="v4-cta-card-head">
-                    <h3 class="v4-cta-card-title" id="formTitle">Entrar</h3>
-                    <p class="v4-cta-card-sub" id="formSubtitle">Bem-vindo de volta.</p>
+            <div class="v5-auth v5-reveal" data-delay="2" id="cta">
+                <div class="v5-auth-head">
+                    <h2 class="v5-auth-title" id="formTitle">Entrar</h2>
+                    <p class="v5-auth-sub" id="formSubtitle">Bem-vindo de volta.</p>
                 </div>
 
                 <div id="authError" class="auth-error-v2" style="display:none;" role="alert"></div>
 
-                <form id="authForm" class="v4-cta-card-form" novalidate>
-                    <div class="v4-cta-card-field" id="registerFields" style="display:none;">
-                        <label class="v4-cta-card-label" for="email">E-mail</label>
-                        <input type="email" id="email" class="v4-cta-card-input form-input-v2" placeholder="seu@email.com" autocomplete="email">
+                <form id="authForm" class="v5-auth-form" novalidate>
+                    <div class="form-group" id="registerFields" style="display:none;">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" class="form-input-v2" placeholder="seu@email.com" autocomplete="email">
                     </div>
-                    <div class="v4-cta-card-field">
-                        <label class="v4-cta-card-label" for="username">Nome de usuário</label>
-                        <input type="text" id="username" class="v4-cta-card-input form-input-v2" placeholder="como você quer ser chamado" required autocomplete="username">
+                    <div class="form-group">
+                        <label for="username">Nome de usuário</label>
+                        <input type="text" id="username" class="form-input-v2" placeholder="como você quer ser chamado" required autocomplete="username">
                     </div>
-                    <div class="v4-cta-card-field">
-                        <label class="v4-cta-card-label" for="password">Senha</label>
-                        <input type="password" id="password" class="v4-cta-card-input form-input-v2" placeholder="mínimo 10 caracteres" required autocomplete="current-password" minlength="10">
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" class="form-input-v2" placeholder="mínimo 10 caracteres" required autocomplete="current-password" minlength="10">
                     </div>
-                    <button type="submit" class="v4-cta-card-submit btn-primary btn-primary--full">
+                    <button type="submit" class="v5-auth-submit">
                         <span id="submitText">Entrar</span>
-                        <span>→</span>
+                        <span class="v5-arrow" aria-hidden="true">→</span>
                     </button>
                 </form>
 
-                <div class="v4-cta-card-toggle">
+                <div class="v5-auth-foot">
                     <span>
                         <span id="toggleText">Novo aqui?</span>
-                        <button type="button" class="v4-cta-card-toggle-btn" id="toggleBtn">Criar conta</button>
+                        <button type="button" class="v5-auth-toggle-btn" id="toggleBtn">Criar conta</button>
                     </span>
-                    <span class="v4-cta-card-secure">
+                    <span class="v5-auth-secure">
                         <svg width="11" height="12" viewBox="0 0 11 12" fill="none" aria-hidden="true"><rect x="1" y="5.5" width="9" height="6" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="M3.5 5.5V3.5a2 2 0 0 1 4 0V5.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
-                        seguro
+                        conexão segura
                     </span>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         MÉTODO — constância vence intensidade
+    ============================================================ -->
+    <section class="v5-manifesto" id="metodo">
+        <div class="v5-manifesto-inner v5-reveal">
+            <div class="v5-eyebrow">constância vence intensidade</div>
+            <p class="v5-manifesto-text">
+                Fluência não nasce de maratona. Nasce de <strong>dias comuns, repetidos:</strong> dez minutos hoje, uma frase a mais amanhã, gente do seu lado a semana inteira.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PILARES — comunidade, conteúdo e mapa 360, cada um com um
+         pedaço real do produto ao lado
+    ============================================================ -->
+    <section class="v5-features" id="pilares">
+        <div class="v5-features-inner">
+            <div class="v5-features-head v5-reveal">
+                <span class="v5-feature-kicker">os pilares</span>
+                <h2 class="v5-features-title">Três coisas. Bem feitas.</h2>
+                <p class="v5-features-lead">
+                    Comunidade de verdade, conteúdo no padrão internacional e um mapa 360 do seu aprendizado. Nada além disso.
+                </p>
+            </div>
+
+            <!-- COMUNIDADE -->
+            <div class="v5-feature v5-reveal">
+                <div class="v5-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.25"/><path d="M2.75 19.5c0-3.2 2.8-5.25 6.25-5.25s6.25 2.05 6.25 5.25"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14.5c2.3.4 3.75 2 3.75 4.25"/></svg>
+                </div>
+                <div>
+                    <span class="v5-feature-kicker">comunidade</span>
+                    <h3 class="v5-feature-title">Você não estuda sozinho.</h3>
+                    <p class="v5-feature-body">
+                        Aqui você pratica com quem está atrás do mesmo objetivo, no mesmo nível que o seu. A constância de um puxa a do outro, e desistir fica mais difícil quando tem gente esperando você voltar.
+                    </p>
+                </div>
+                <div class="v5-feature-chip" aria-hidden="true">
+                    <div class="v5-chip-label">praticando agora · 12 online</div>
+                    <div class="v5-chip-line"><span>Sala de conversação · B1</span><span class="v5-chip-meta">19h</span></div>
+                    <div class="v5-chip-line"><span>Dupla de past simple</span><span class="v5-chip-meta">2 vagas</span></div>
+                    <div class="v5-chip-line"><span>Desafio da semana: small talk</span><span class="v5-chip-meta">4/7 dias</span></div>
+                </div>
+            </div>
+
+            <!-- CONTEÚDO -->
+            <div class="v5-feature v5-reveal">
+                <div class="v5-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.75 7.5 12 12l9.25-4.5L12 3Z"/><path d="M2.75 12 12 16.5l9.25-4.5"/><path d="M2.75 16.5 12 21l9.25-4.5"/></svg>
+                </div>
+                <div>
+                    <span class="v5-feature-kicker">conteúdo</span>
+                    <h3 class="v5-feature-title">O padrão que o mundo reconhece.</h3>
+                    <p class="v5-feature-body">
+                        Cada nível segue o que as principais instituições internacionais definem como necessário, do A1 ao C2. Você estuda o que conta de verdade, na ordem que faz sentido, sem conteúdo de enrolação.
+                    </p>
+                </div>
+                <div class="v5-feature-chip" aria-hidden="true">
+                    <div class="v5-chip-label">trilha B1 · padrão internacional</div>
+                    <div class="v5-chip-line"><span class="v5-chip-mark v5-chip-mark--ok">✓</span><span>Descrever experiências passadas</span><span class="v5-chip-meta">feito</span></div>
+                    <div class="v5-chip-line"><span class="v5-chip-mark">!</span><span>Opinar e justificar</span><span class="v5-chip-meta">agora</span></div>
+                    <div class="v5-chip-line"><span>Narrar em detalhe</span><span class="v5-chip-meta">próximo</span></div>
+                </div>
+            </div>
+
+            <!-- MAPA 360 -->
+            <div class="v5-feature v5-reveal">
+                <div class="v5-feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.25"/><path d="M15.5 8.5l-2 5-5 2 2-5 5-2Z"/></svg>
+                </div>
+                <div>
+                    <span class="v5-feature-kicker">mapa 360</span>
+                    <h3 class="v5-feature-title">Seus dados viram direção.</h3>
+                    <p class="v5-feature-body">
+                        Cada sessão alimenta uma análise completa do seu aprendizado. IA dedicada e profissionais olham para as suas maiores dificuldades e devolvem o próximo passo, não um relatório.
+                    </p>
+                </div>
+                <div class="v5-feature-chip" aria-hidden="true">
+                    <div class="v5-chip-label">seu mapa · últimos 30 dias</div>
+                    <div class="v5-chip-line"><div class="v5-chip-bar"><span></span></div><span class="v5-chip-meta">62%</span></div>
+                    <div class="v5-chip-line"><span class="v5-chip-mark">!</span><span>Pronúncia de "th"</span><span class="v5-chip-meta">em foco</span></div>
+                    <div class="v5-chip-line"><span class="v5-chip-mark v5-chip-mark--ok">✓</span><span>Conectivos básicos</span><span class="v5-chip-meta">dominado</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PROVA — três números honestos
+    ============================================================ -->
+    <section class="v5-proof">
+        <div class="v5-proof-inner">
+            <div class="v5-proof-stat v5-reveal">
+                <div class="v5-proof-value">5 min</div>
+                <p class="v5-proof-label">por dia já mudam onde você trava</p>
+            </div>
+            <div class="v5-proof-stat v5-reveal" data-delay="1">
+                <div class="v5-proof-value v5-proof-value--amber">100%</div>
+                <p class="v5-proof-label">da sessão é a sua voz, não um quiz</p>
+            </div>
+            <div class="v5-proof-stat v5-reveal" data-delay="2">
+                <div class="v5-proof-value">R$ 0</div>
+                <p class="v5-proof-label">na beta. Você cresce junto com o produto</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         CTA FINAL — devolve ao cartão de acesso
+    ============================================================ -->
+    <section class="v5-cta">
+        <div class="v5-cta-inner v5-reveal">
+            <span class="v5-feature-kicker">comece hoje</span>
+            <h2 class="v5-cta-title">Sua próxima frase começa <em>aqui.</em></h2>
+            <p class="v5-cta-body">
+                Conta criada em menos de dois minutos. Na primeira sessão você já sai falando. E amanhã tem gente esperando você voltar.
+            </p>
+            <button class="v5-cta-btn btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+                Criar minha conta
+                <span class="v5-arrow" aria-hidden="true">→</span>
+            </button>
+            <div class="v5-cta-meta">
+                <span><span class="v5-cta-check">✓</span> gratuito na beta</span>
+                <span><span class="v5-cta-check">✓</span> sem cartão</span>
+                <span><span class="v5-cta-check">✓</span> menos de 2 min</span>
             </div>
         </div>
     </section>
@@ -427,20 +282,18 @@
     <!-- ============================================================
          FOOTER
     ============================================================ -->
-    <footer class="v4-footer">
-        <div class="v4-footer-inner">
-            <div class="v4-footer-brand">
+    <footer class="v5-footer">
+        <div class="v5-footer-inner">
+            <span class="v5-footer-brand">
                 <span aria-hidden="true">🦗</span>
                 <span>GRILO</span>
-            </div>
-            <p class="v4-footer-tag">
-                O som que insiste todo dia até virar parte do ambiente.
-            </p>
-            <nav class="v4-footer-links" aria-label="Links do rodapé">
+            </span>
+            <p class="v5-footer-tag">Prática diária de verdade, construída junto com quem usa.</p>
+            <nav class="v5-footer-links" aria-label="Links do rodapé">
                 <a href="/privacidade.html">Privacidade</a>
                 <a href="/termos.html">Termos</a>
             </nav>
-            <p class="v4-footer-copy">© 2026 GRILO · ilustrações por Storyset / Freepik</p>
+            <p class="v5-footer-copy">© 2026 GRILO · ilustrações por Storyset / Freepik</p>
         </div>
     </footer>
 
@@ -496,6 +349,22 @@
                     });
                 });
             });
+
+            // Reveal on scroll — respeita prefers-reduced-motion via CSS
+            var revealEls = document.querySelectorAll('.v5-reveal');
+            if ('IntersectionObserver' in window) {
+                var io = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-in');
+                            io.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+                revealEls.forEach(function(el) { io.observe(el); });
+            } else {
+                revealEls.forEach(function(el) { el.classList.add('is-in'); });
+            }
         });
     </script>
 </body>

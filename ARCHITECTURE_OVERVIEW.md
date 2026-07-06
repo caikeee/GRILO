@@ -382,7 +382,7 @@ npx playwright install
 npm install --save-dev jest @testing-library/dom
 ```
 
-### 5. **Remover Código Morto**
+### 5. ✅ **Remover Código Morto** ~~(pendente)~~ — CONCLUÍDO
 ```
 Órfãos identificados:
 - grilo-v3.css (4134 LOC)      → rm
@@ -396,6 +396,8 @@ Liberado:
 - Cache mais limpo
 - Menos confusão onboarding
 ```
+
+> ✅ **Concluído em 2026-07-04** — 8.200 linhas removidas em 12 arquivos (grilo-v3.css, sage-landing.css, lesson-editorial-v4.css, lessons-v4-overlay.css, grilo-animations.js, lessons-trail.js, lessons-trainer-bridge.js, test-api.html, test-layout.html, verify-layout.html, MODAL_IMPROVEMENTS.md, VERIFICAR_CSS.md) + 7 SVGs órfãs (~866 KB).
 
 ### 6. **Otimizar Bundle (quando tiver build tool)**
 ```

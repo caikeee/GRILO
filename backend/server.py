@@ -222,6 +222,19 @@ def _run_migrations():
                     "ALTER TABLE lesson_progress ADD COLUMN dominated_at TIMESTAMP",
                     engine,
                 )
+            # Retomar exato — posição do último exercício (hero da home)
+            if "last_exercise_index" not in cols_lp:
+                _run_migration_step(
+                    "added last_exercise_index to lesson_progress",
+                    "ALTER TABLE lesson_progress ADD COLUMN last_exercise_index INTEGER",
+                    engine,
+                )
+            if "total_exercises" not in cols_lp:
+                _run_migration_step(
+                    "added total_exercises to lesson_progress",
+                    "ALTER TABLE lesson_progress ADD COLUMN total_exercises INTEGER",
+                    engine,
+                )
 
     except Exception as exc:
         logger.warning("Migration check failed (non-fatal): %s", exc)

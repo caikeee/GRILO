@@ -6198,15 +6198,40 @@
     return exerciseIndex + exIdx;
   }
 
+  // Converte o índice codificado do fluxo (0-99 seção MC, 100+ anchor, 200+ scaffolded,
+  // 300+ teste final) em posição linear 1-based — alimenta o hero da home
+  // ("você parou no exercício X de Y").
+  function _resumeFlowPosition(slug, codedIndex) {
+    const mcSections = EXERCISE_MC[slug] || [];
+    const mcTotal = mcSections.reduce((n, sec) => n + ((sec && sec.length) || 0), 0);
+    const anchorTotal = ((ANCHOR_DIALOGS[slug] || {}).blanks || []).length;
+    const scaffTotal = (SCAFFOLDED_EXERCISES[slug] || []).length;
+    const testTotal = (FINAL_TESTS[slug] || []).length;
+    const total = mcTotal + anchorTotal + scaffTotal + testTotal;
+    let pos;
+    if (codedIndex >= 300)      pos = mcTotal + anchorTotal + scaffTotal + (codedIndex - 300) + 1;
+    else if (codedIndex >= 200) pos = mcTotal + anchorTotal + (codedIndex - 200) + 1;
+    else if (codedIndex >= 100) pos = mcTotal + (codedIndex - 100) + 1;
+    else                        pos = codedIndex + 1;
+    return { position: Math.max(1, Math.min(pos, total)), total };
+  }
+
   async function _submitStandaloneExerciseToBackend(slug, exerciseIndex, optIdx, extra = {}) {
     try {
       const lessonId = STANDALONE_BACKEND_IDS[slug];
       const token = getAuthToken();
       if (!lessonId || !token) return;
+      const flow = _resumeFlowPosition(slug, exerciseIndex);
       await fetch(`${API_BASE_URL}/api/lessons/${lessonId}/submit-exercise`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ exercise_index: exerciseIndex, selected_index: optIdx, ...extra })
+        body: JSON.stringify({
+          exercise_index: exerciseIndex,
+          selected_index: optIdx,
+          exercise_position: flow.position,
+          total_exercises: flow.total,
+          ...extra
+        })
       });
     } catch (e) {
       console.warn('[LESSONS-STANDALONE] submit-exercise error:', e);

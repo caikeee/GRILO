@@ -660,6 +660,9 @@ async function _submitExerciseToBackend(exerciseIndex, selectedIndex, isCorrect)
                 exercise_index: exerciseIndex,
                 selected_index: selectedIndex,
                 is_correct: isCorrect,
+                // retomar exato (hero da home): posição linear no carrossel
+                exercise_position: carouselCurrentIndex + 1,
+                total_exercises: carouselExercises.length || null,
             })
         });
     } catch (e) { /* ignore */ }
@@ -743,48 +746,33 @@ async function loadUserStats() {
     } catch (e) { console.error('[STATS]', e); }
 }
 
-// ── Painel Dificuldades · meta semanal 7/7 ──
+// ── Pendência: revisar dificuldades · desafio da semana ──
 async function loadUserDifficulties() {
-    const panel = document.getElementById('difPanel');
-    if (!panel || !authToken) return;
+    const row = document.getElementById('pendDif');
+    if (!row || !authToken) return;
 
     try {
         const res = await fetch(`${API_BASE_URL}/api/difficulties/summary`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
-        if (!res.ok) {
-            renderDifficultiesError(panel);
-            return;
-        }
+        if (!res.ok) { row.hidden = true; return; }
         const data = await res.json();
-        if (!data.success) {
-            renderDifficultiesError(panel);
-            return;
-        }
-        renderDifficultiesPanel(data);
+        if (!data.success) { row.hidden = true; return; }
+        renderPendDif(data);
         window._lastDifficulties = data;
     } catch (e) {
         console.error('[DIFFICULTIES]', e);
-        renderDifficultiesError(panel);
+        const rowEl = document.getElementById('pendDif');
+        if (rowEl) rowEl.hidden = true;
     }
 }
 
-function renderDifficultiesError(panel) {
-    panel.dataset.state = 'error';
-    const sub = document.getElementById('difPanelSub');
-    if (sub) sub.textContent = 'Não conseguimos carregar agora.';
-}
-
-function renderDifficultiesPanel(data) {
-    const panel    = document.getElementById('difPanel');
-    const sub      = document.getElementById('difPanelSub');
-    const metaVal  = document.getElementById('difPanelMetaValue');
-    const squares  = document.getElementById('difSquares');
-    const helper   = document.getElementById('difPanelHelper');
-    const cta      = document.getElementById('difPanelCta');
-    const locked   = document.getElementById('difPanelLocked');
-    const lockedSub = document.getElementById('difPanelLockedSub');
-    if (!panel) return;
+function renderPendDif(data) {
+    const row   = document.getElementById('pendDif');
+    const ico   = document.getElementById('pendDifIco');
+    const title = document.getElementById('pendDifTitle');
+    const sub   = document.getElementById('pendDifSub');
+    if (!row) return;
 
     const pool   = data.pool || { voice: 0, quiz: 0, shadow: 0, total: 0 };
     const weekly = Number(data.weekly_count || 0);
@@ -792,68 +780,39 @@ function renderDifficultiesPanel(data) {
     const done   = Boolean(data.week_completed);
     const days   = Number(data.days_left_in_week || 0);
 
-    // Quadradinhos
-    if (squares) {
-        const nodes = squares.querySelectorAll('.dif-square');
-        nodes.forEach((sq, idx) => {
-            sq.classList.remove('is-green', 'is-gold');
-            if (done) sq.classList.add('is-gold');
-            else if (idx < weekly) sq.classList.add('is-green');
-        });
-    }
-
-    if (metaVal) metaVal.textContent = `${Math.min(weekly, target)}/${target}`;
-
-    // Estado "Modo Desafiado"
+    // Semana completa → Modo Desafiado (informativo, não clicável)
     if (done) {
-        panel.dataset.state = 'locked';
-        if (locked) locked.hidden = false;
-        if (lockedSub) {
-            lockedSub.textContent = days === 1
-                ? 'Reset em 1 dia.'
-                : `Reset em ${days} dias.`;
-        }
+        row.hidden = false;
+        row.disabled = true;
+        row.classList.add('pend-row-locked');
+        if (ico) ico.textContent = '🔒';
+        if (title) title.textContent = 'Modo Desafiado — semana completa';
+        if (sub) sub.textContent = days === 1
+            ? 'Você superou suas dificuldades. Reset em 1 dia.'
+            : `Você superou suas dificuldades. Reset em ${days} dias.`;
         return;
     }
 
-    panel.dataset.state = 'active';
-    if (locked) locked.hidden = true;
+    row.disabled = false;
+    row.classList.remove('pend-row-locked');
+    if (ico) ico.textContent = '⟳';
 
-    // Sub e helper baseados no pool e progresso
+    // Sem dificuldades acumuladas → a linha some, a tela encolhe
     if (pool.total === 0) {
-        if (sub) sub.textContent = 'Sem dificuldades acumuladas';
-        if (helper) helper.textContent = 'Continue praticando — erros futuros vão aparecer aqui pra você revisar.';
-        if (cta) cta.disabled = true;
+        row.hidden = true;
         return;
     }
 
-    if (cta) cta.disabled = false;
-
-    if (sub) {
-        const parts = [];
-        if (pool.voice) parts.push(`${pool.voice} de voz`);
-        if (pool.quiz) parts.push(`${pool.quiz} de exercício`);
-        if (pool.shadow) parts.push(`${pool.shadow} de pronúncia`);
-        sub.textContent = `${pool.total} ${pool.total === 1 ? 'dificuldade' : 'dificuldades'} · ${parts.join(' · ')}`;
-    }
-
-    if (helper) {
-        const left = target - weekly;
-        if (weekly === 0) {
-            helper.textContent = 'Supere 7 dificuldades essa semana pra entrar no Modo Desafiado.';
-        } else if (left === 1) {
-            helper.textContent = 'Falta só 1 pra completar a semana 🔥';
-        } else if (left <= 2) {
-            helper.textContent = `Faltam ${left} pra completar a semana 🔥`;
-        } else {
-            helper.textContent = `${weekly} de ${target} essa semana. Continue assim.`;
-        }
-    }
+    row.hidden = false;
+    if (title) title.textContent = pool.total === 1
+        ? 'Revisar 1 frase difícil'
+        : `Revisar ${pool.total} frases difíceis`;
+    if (sub) sub.textContent = `Desafio da semana: ${Math.min(weekly, target)} de ${target} · termina domingo · ≈ 5 min`;
 }
 
-// Botão "Treinar agora" — abre o modal de sessão
+// Linha de pendência — abre o modal de sessão de dificuldades
 document.addEventListener('click', (ev) => {
-    const cta = ev.target.closest('#difPanelCta');
+    const cta = ev.target.closest('#pendDif');
     if (!cta || cta.disabled) return;
     if (window.openDifficultiesSession) {
         window.openDifficultiesSession({
@@ -881,91 +840,53 @@ window.loadUserDifficulties = loadUserDifficulties;
 async function loadUserActivity() {
     if (!authToken) return;
     try {
-        const res = await fetch(`${API_BASE_URL}/api/user/lesson-calendar`, {
+        const res = await fetch(`${API_BASE_URL}/api/user/activity`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (!res.ok) return;
         const data = await res.json();
         if (data.success) {
-            window._lastLessonCalendar = data;
-            renderActivityHeatmap(data);
+            window._lastActivity = data.activity || {};
+            renderWeekStrip(window._lastActivity);
         }
-    } catch (e) { console.error('[LESSON-CAL]', e); }
+    } catch (e) { console.error('[ACTIVITY]', e); }
 }
 
-function renderActivityHeatmap(data) {
-    const container = document.getElementById('activityHeatmap');
+// Faixa "Sua semana": 7 círculos seg→dom, marcando dias com qualquer atividade
+function renderWeekStrip(activity) {
+    const container = document.getElementById('weekStrip');
     if (!container) return;
-
-    const MONTH_NAMES_FULL = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-    const SUPERSCRIPTS = { 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
-
-    const { year, month, days = {}, total_days_practiced = 0, total_lessons_in_month = 0 } = data;
-
-    // Atualiza header/footer
-    const subEl = document.getElementById('monthCalSub');
-    if (subEl) subEl.textContent = `aulas concluídas em ${MONTH_NAMES_FULL[month - 1]}`;
-    const numEl = document.getElementById('monthCalDaysNum');
-    if (numEl) numEl.textContent = String(total_days_practiced);
-    const footExtra = document.getElementById('monthCalFootExtra');
-    if (footExtra) {
-        footExtra.textContent = total_lessons_in_month > 0
-            ? `${total_lessons_in_month} aula${total_lessons_in_month !== 1 ? 's' : ''} no total este mês.`
-            : 'Comece sua primeira aula do mês.';
-    }
-
-    const firstDay = new Date(year, month - 1, 1);
-    const lastDay = new Date(year, month, 0);
-    const totalDays = lastDay.getDate();
-    const startDow = firstDay.getDay(); // 0=Dom
+    const act = activity || {};
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const isCurrentMonth = today.getFullYear() === year && (today.getMonth() + 1) === month;
+    const dow = (today.getDay() + 6) % 7; // 0=segunda
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - dow);
 
+    const LETTERS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
+    let activeCount = 0;
     let html = '';
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const dayAct = act[ds];
+        const isActive = !!(dayAct && dayAct.total > 0);
+        const isToday = d.getTime() === today.getTime();
+        const isFuture = d.getTime() > today.getTime();
+        if (isActive) activeCount++;
 
-    // Padding inicial (dias antes do dia 1 da semana)
-    for (let i = 0; i < startDow; i++) {
-        html += '<div class="month-cal-cell empty"></div>';
-    }
-
-    for (let day = 1; day <= totalDays; day++) {
-        const ds = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        const count = days[ds] || 0;
-        const isToday = isCurrentMonth && day === today.getDate();
-        const isFuture = isCurrentMonth && day > today.getDate();
-
-        const classes = ['month-cal-cell'];
-        if (count > 0) classes.push('done');
+        const classes = ['week-day'];
+        if (isActive) classes.push('done');
         if (isToday) classes.push('today');
         if (isFuture) classes.push('future');
-
-        let checkInner = '';
-        if (count > 0) {
-            const sup = count > 1 ? `<sup>${SUPERSCRIPTS[count] || `^${count}`}</sup>` : '';
-            checkInner = `✓${sup}`;
-        } else if (!isFuture) {
-            checkInner = '·';
-        }
-
-        let tip;
-        if (count > 0) {
-            tip = `${day}/${month}: ${count} aula${count !== 1 ? 's' : ''} concluída${count !== 1 ? 's' : ''}`;
-        } else if (isFuture) {
-            tip = '';
-        } else {
-            tip = `${day}/${month}: sem aulas`;
-        }
-
-        const tipAttr = tip ? ` data-tip="${tip}"` : '';
-        html += `<div class="${classes.join(' ')}"${tipAttr}>`
-              + `<span class="mc-num">${day}</span>`
-              + `<span class="mc-check">${checkInner}</span>`
-              + `</div>`;
+        html += `<span class="${classes.join(' ')}">${isActive ? '✓' : LETTERS[i]}</span>`;
     }
-
     container.innerHTML = html;
+
+    const count = document.getElementById('weekStripCount');
+    if (count) count.textContent = `${activeCount} de 7 dias`;
 }
 
 function showProgressDetail() {
@@ -993,13 +914,83 @@ function renderProgressDetail(stats) {
     const grammarEl = document.getElementById('pdGrammarArea');
     if (grammarEl) grammarEl.textContent = mergedStats.top_grammar_area || '--';
 
-    // ─────────── REDESIGNED PANEL (pl2-*) ───────────
+    // ─────────── RAMPA (pl2-*) ───────────
     _renderHero(stats, mergedStats);
-    _renderPulse(stats, mergedStats);
-    _renderFocus(stats);
-    _renderJourney(stats);
-    _renderBadge(stats);
-    _renderRhythmFoot(stats, mergedStats);
+    _renderSidebar(stats);
+}
+
+// ─────────── RAMPA: lateral "Seu progresso" (read-only) ───────────
+function _renderSidebar(stats) {
+    _renderPhonemeCard(stats.top_phoneme);
+    _renderCefrCard(stats.cefr);
+    _renderVocabCard(stats.vocab_mastered_total, stats.vocab_mastered_week);
+    _renderBadgeCard(stats.next_badge, stats.badges_earned_count);
+}
+
+function _renderPhonemeCard(topPhoneme) {
+    const card = document.getElementById('sidePhoneme');
+    if (!card) return;
+    if (!topPhoneme) {
+        card.hidden = true;
+        return;
+    }
+    card.hidden = false;
+    _pd('sidePhonemeGlyph', topPhoneme.symbol || '—');
+    const bodyEl = document.getElementById('sidePhonemeBody');
+    if (bodyEl) {
+        const occ = topPhoneme.occurrences || 0;
+        bodyEl.innerHTML = `O som <b>${_escape(topPhoneme.symbol || '')}</b> apareceu <b>${occ} ${occ === 1 ? 'vez' : 'vezes'}</b> nas suas últimas sessões de voz — é seu ponto mais frequente de tropeço.`;
+    }
+}
+
+function _renderCefrCard(cefr) {
+    const info = cefr || { current: 'A1', next: 'A2', progress_percent: 0 };
+    _pd('sideCefrCurrent', info.current || 'A1');
+    _pd('sideCefrNext', info.next || 'A2');
+    _pd('sideCefrPct', info.progress_percent || 0);
+    const fillEl = document.getElementById('sideCefrFill');
+    if (fillEl) fillEl.style.width = `${info.progress_percent || 0}%`;
+}
+
+function _renderVocabCard(total, week) {
+    _pd('sideVocabNum', total || 0);
+    const deltaEl = document.getElementById('sideVocabDelta');
+    if (deltaEl) {
+        if (week > 0) {
+            deltaEl.hidden = false;
+            deltaEl.textContent = `▲ +${week} nesta semana`;
+        } else {
+            deltaEl.hidden = true;
+        }
+    }
+}
+
+function _renderBadgeCard(nextBadge, earnedCount) {
+    const iconEl = document.getElementById('sideBadgeIcon');
+    const nameEl = document.getElementById('sideBadgeName');
+    const descEl = document.getElementById('sideBadgeDesc');
+    const fillEl = document.getElementById('sideBadgeFill');
+    const labelEl = document.getElementById('sideBadgeLabel');
+    const earned = earnedCount || 0;
+
+    if (nextBadge) {
+        if (iconEl) iconEl.textContent = nextBadge.icon || '🎖';
+        if (nameEl) nameEl.textContent = nextBadge.name || 'Próxima conquista';
+        if (descEl) descEl.textContent = nextBadge.description || '';
+        if (fillEl) fillEl.style.width = `${nextBadge.progress_percent || 0}%`;
+        if (labelEl) labelEl.textContent = `${nextBadge.xp_current || 0} / ${nextBadge.xp_required || 0} XP`;
+        return;
+    }
+
+    if (iconEl) iconEl.textContent = '✨';
+    if (nameEl) nameEl.textContent = earned > 0 ? 'Todas conquistadas' : 'Primeira conquista a caminho';
+    if (descEl) {
+        descEl.textContent = earned > 0
+            ? 'Você desbloqueou todas as medalhas disponíveis.'
+            : 'Continue praticando para desbloquear sua primeira medalha.';
+    }
+    if (fillEl) fillEl.style.width = earned > 0 ? '100%' : '0%';
+    if (labelEl) labelEl.textContent = '';
 }
 
 function _greetByHour() {
@@ -1010,10 +1001,19 @@ function _greetByHour() {
     return 'Boa noite';
 }
 
+function _kickerDate() {
+    const WD = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+    const M = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    const d = new Date();
+    return `${WD[d.getDay()]}, ${d.getDate()} de ${M[d.getMonth()]}`;
+}
+
 function _renderHero(stats, mergedStats) {
     const profile = stats.profile || {};
     const username = (profile.username || '').split(/[\s.@]/)[0] || '';
-    const why = (profile.learning_why || '').trim();
+
+    const kickerEl = document.getElementById('pl2HeroKicker');
+    if (kickerEl) kickerEl.textContent = _kickerDate();
 
     const greetEl = document.getElementById('pl2HeroGreet');
     if (greetEl) {
@@ -1027,232 +1027,38 @@ function _renderHero(stats, mergedStats) {
     if (subEl) {
         const streak = mergedStats.streak || 0;
         const lessons = mergedStats.lessons_completed || 0;
-        if (why) {
-            subEl.innerHTML = `Você quer inglês para <em style="font-style:italic;color:#5A7E66;">${_escape(why)}</em>. ${
-                streak > 0 ? `Você está no dia ${streak} dessa jornada.` :
-                lessons > 0 ? `Você já concluiu ${lessons} aula${lessons === 1 ? '' : 's'} até aqui.` :
-                'Hoje é um bom dia para começar.'
-            }`;
-        } else if (streak > 0) {
-            subEl.textContent = `Sua sequência: ${streak} dia${streak === 1 ? '' : 's'} consecutivo${streak === 1 ? '' : 's'}. Mantenha o ritmo.`;
+        if (streak > 0) {
+            subEl.textContent = `Sua sequência está em ${streak} dia${streak === 1 ? '' : 's'} — dez minutos hoje e ela vira ${streak + 1}.`;
         } else if (lessons > 0) {
-            subEl.textContent = `Você já concluiu ${lessons} aula${lessons === 1 ? '' : 's'}. Continue para construir uma sequência.`;
+            subEl.textContent = `Você já concluiu ${lessons} aula${lessons === 1 ? '' : 's'}. Dez minutos hoje recomeçam sua sequência.`;
         } else {
-            subEl.textContent = 'Comece com uma aula curta e construa uma sequência de aprendizagem diária.';
+            subEl.textContent = 'Comece com uma aula curta — dez minutos bastam.';
         }
     }
 
-    // Resume CTA
+    // Herói: continuar de onde parou
     const resume = stats.resume_lesson;
+    const titleEl = document.getElementById('pl2HeroTitle');
     const resumeMeta = document.getElementById('pl2HeroResumeMeta');
     const resumeLink = document.getElementById('pl2HeroResume');
-    if (resume && resumeMeta) {
-        resumeMeta.textContent = `Aula ${resume.lesson_id} · ${resume.title} · ${resume.dominated}% dominada`;
+    if (resume) {
+        if (titleEl) titleEl.textContent = `Aula ${resume.lesson_id} · ${resume.title}`;
+        if (resumeMeta) {
+            // Retomar exato quando o backend souber a posição; senão, % dominada
+            if (resume.last_exercise_index && resume.total_exercises) {
+                resumeMeta.textContent = `Você parou no exercício ${resume.last_exercise_index} de ${resume.total_exercises}`;
+            } else {
+                resumeMeta.textContent = `${resume.dominated}% dominada`;
+            }
+        }
         if (resumeLink) resumeLink.href = `lessons.html?lesson=${resume.lesson_id}`;
-    } else if (resumeMeta) {
-        resumeMeta.textContent = 'Escolher uma aula para começar';
-    }
-
-    // "Praticar frases difíceis" CTA — link to lessons page (difficulties tab)
-    const practiceLink = document.getElementById('pl2CtaPractice');
-    if (practiceLink) {
-        practiceLink.href = 'lessons.html#dificuldades';
-    }
-}
-
-function _renderPulse(stats, mergedStats) {
-    // Vocabulário dominado
-    const vocabTotal = stats.vocab_mastered_total || 0;
-    const vocabWeek = stats.vocab_mastered_week || 0;
-    window.__vocabMasteredList = Array.isArray(stats.vocab_mastered_list) ? stats.vocab_mastered_list : [];
-    window.__vocabMasteredTotal = vocabTotal;
-    window.__vocabMasteredWeek = vocabWeek;
-    _pd('pl2VocabValue', vocabTotal);
-    const vocabDeltaEl = document.getElementById('pl2VocabDelta');
-    if (vocabDeltaEl) {
-        if (vocabWeek > 0) {
-            vocabDeltaEl.innerHTML = `<span class="pl2-delta-up">▲ +${vocabWeek}</span> nesta semana`;
-        } else if (vocabTotal === 0) {
-            vocabDeltaEl.innerHTML = `<span class="pl2-delta-flat">—</span> sem palavras dominadas ainda`;
-        } else {
-            vocabDeltaEl.innerHTML = `<span class="pl2-delta-flat">·</span> nenhuma nova esta semana`;
-        }
-    }
-
-    // Pronúncia (sparkline + média)
-    const avgVoice = mergedStats.avg_voice_quality;
-    _pd('pl2VoiceValue', avgVoice != null ? Math.round(avgVoice) : '--');
-    _renderSparkline('pl2VoiceSparkline', stats.voice_quality_sparkline || []);
-
-    // Constância (streak + challenge)
-    _pd('pl2StreakValue', mergedStats.streak || 0);
-    _pd('pl2ChallengeText', `${mergedStats.challenge_days_completed || 0} de 7 desta semana`);
-
-    // CEFR
-    const cefr = stats.cefr || {};
-    _pd('pl2CefrCurrent', cefr.current || 'A1');
-    _pd('pl2CefrNext', cefr.next || 'A2');
-    _pd('pl2CefrPct', cefr.progress_percent || 0);
-    const cefrFill = document.getElementById('pl2CefrFill');
-    if (cefrFill) cefrFill.style.width = `${cefr.progress_percent || 0}%`;
-}
-
-function _renderSparkline(elementId, values) {
-    const svg = document.getElementById(elementId);
-    if (!svg) return;
-    if (!values || values.length < 2) {
-        svg.innerHTML = '<text x="50" y="20" text-anchor="middle" fill="#98A39C" font-size="9" font-style="italic">sem dados ainda</text>';
-        return;
-    }
-    const W = 100, H = 28, P = 3;
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
-    const step = (W - P * 2) / (values.length - 1);
-    const points = values.map((v, i) => {
-        const x = P + i * step;
-        const y = H - P - ((v - min) / range) * (H - P * 2);
-        return [x, y];
-    });
-    const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-    const last = points[points.length - 1];
-    svg.innerHTML = `<path d="${d}"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2"/>`;
-}
-
-function _renderFocus(stats) {
-    const focus = stats.today_focus_phrases || [];
-    const headlineEl = document.getElementById('pl2FocusHeadline');
-    const listEl = document.getElementById('pl2FocusList');
-
-    if (headlineEl) {
-        if (focus.length === 0) {
-            headlineEl.innerHTML = `Nenhuma frase <em>em risco</em> hoje. Bom trabalho.`;
-        } else {
-            headlineEl.innerHTML = `Você tem <em>${focus.length} frase${focus.length === 1 ? '' : 's'}</em> prestes a esquecer.`;
-        }
-    }
-
-    if (listEl) {
-        if (focus.length === 0) {
-            listEl.innerHTML = '<div class="pl2-empty">Continue praticando para abastecer este radar.</div>';
-        } else {
-            listEl.innerHTML = focus.map(p => {
-                const meta = p.days_since != null
-                    ? (p.days_since === 0 ? 'hoje' : `há ${p.days_since} dia${p.days_since === 1 ? '' : 's'}`)
-                    : '';
-                return `<div class="pl2-focus-phrase">
-                    <span class="pl2-focus-phrase-bullet"></span>
-                    <span class="pl2-focus-phrase-text">"${_escape(p.phrase_en || '')}"</span>
-                    <span class="pl2-focus-phrase-meta">${meta}</span>
-                </div>`;
-            }).join('');
-        }
-    }
-
-    // Phoneme insight
-    const ph = stats.top_phoneme;
-    const symEl = document.getElementById('pl2PhonemeSymbol');
-    const nameEl = document.getElementById('pl2PhonemeName');
-    const statEl = document.getElementById('pl2PhonemeStat');
-    if (ph && symEl && nameEl && statEl) {
-        symEl.textContent = ph.symbol || '—';
-        nameEl.textContent = `repetiu ${ph.occurrences || 0} vez${ph.occurrences === 1 ? '' : 'es'} nos últimos 30 dias`;
-        statEl.innerHTML = `Este foi seu <strong>ponto mais frequente</strong> de tropeço. Treinar 3 frases com esse som hoje pode acelerar sua próxima sessão.`;
-    } else if (symEl) {
-        symEl.textContent = '—';
-        if (nameEl) nameEl.textContent = 'Sem dados ainda';
-        if (statEl) statEl.textContent = 'Faça uma sessão de voz para receber seu primeiro insight.';
-    }
-}
-
-function _renderJourney(stats) {
-    const rings = stats.lesson_rings || [];
-    const ringsEl = document.getElementById('pl2Rings');
-    if (!ringsEl) return;
-    if (rings.length === 0) {
-        ringsEl.innerHTML = '<div class="pl2-empty">Comece uma aula para ver seu progresso aqui.</div>';
-        return;
-    }
-    const C = 2 * Math.PI * 22; // circumference (r=22)
-    ringsEl.innerHTML = rings.map(r => {
-        const pct = r.dominated || 0;
-        const dash = (pct / 100) * C;
-        const dom = r.is_dominated ? 'dominated' : '';
-        const lessonTitle = _lessonShortTitle(r.lesson_id);
-        return `<a class="pl2-ring-item ${dom}" href="lessons.html?lesson=${r.lesson_id}">
-            <svg class="pl2-ring-svg" viewBox="0 0 56 56">
-                <circle class="pl2-ring-bg" cx="28" cy="28" r="22"/>
-                <circle class="pl2-ring-fg" cx="28" cy="28" r="22"
-                        stroke-dasharray="${dash.toFixed(1)} ${C.toFixed(1)}"/>
-                <text class="pl2-ring-pct" x="28" y="29">${pct}%</text>
-            </svg>
-            <span class="pl2-ring-name">${_escape(lessonTitle)}</span>
-        </a>`;
-    }).join('');
-}
-
-function _lessonShortTitle(lessonId) {
-    // Try to read from window.lessonsData if available, else fallback
-    try {
-        const ld = window.lessonsData || window._allLessons || [];
-        const found = ld.find && ld.find(l => l.id === lessonId);
-        if (found && found.title) {
-            const t = found.title;
-            return t.length > 18 ? t.slice(0, 16) + '…' : t;
-        }
-    } catch (_) {}
-    return `Aula ${lessonId}`;
-}
-
-function _renderBadge(stats) {
-    const badge = stats.next_badge;
-    const earnedCount = stats.badges_earned_count || 0;
-
-    const iconEl = document.getElementById('pl2BadgeIcon');
-    const nameEl = document.getElementById('pl2BadgeName');
-    const descEl = document.getElementById('pl2BadgeDesc');
-    const fillEl = document.getElementById('pl2BadgeFill');
-    const labelEl = document.getElementById('pl2BadgeLabel');
-    const earnedEl = document.getElementById('pl2BadgeEarned');
-
-    if (badge) {
-        if (iconEl) iconEl.textContent = badge.icon || '🪶';
-        if (nameEl) nameEl.textContent = badge.name || 'Próxima conquista';
-        if (descEl) descEl.textContent = badge.description || '';
-        if (fillEl) fillEl.style.width = `${badge.progress_percent || 0}%`;
-        if (labelEl) labelEl.textContent = `${badge.xp_current || 0} / ${badge.xp_required || 0} XP`;
     } else {
-        if (iconEl) iconEl.textContent = '✨';
-        if (nameEl) nameEl.textContent = earnedCount > 0 ? 'Todas conquistadas' : 'Primeira conquista a caminho';
-        if (descEl) descEl.textContent = earnedCount > 0
-            ? 'Você desbloqueou todas as medalhas disponíveis. Continue praticando.'
-            : 'Continue praticando para desbloquear sua primeira medalha.';
-        if (fillEl) fillEl.style.width = earnedCount > 0 ? '100%' : '0%';
-        if (labelEl) labelEl.textContent = '';
-    }
-
-    if (earnedEl) {
-        earnedEl.textContent = earnedCount > 0
-            ? `Já conquistadas: ${earnedCount} medalha${earnedCount === 1 ? '' : 's'}`
-            : 'Nenhuma conquista ainda';
+        if (titleEl) titleEl.textContent = 'Começar sua primeira aula';
+        if (resumeMeta) resumeMeta.textContent = 'Aulas curtas de ~10 minutos, do zero.';
+        if (resumeLink) resumeLink.href = 'lessons.html';
     }
 }
 
-function _renderRhythmFoot(stats, mergedStats) {
-    const foot = document.getElementById('pl2RhythmFoot');
-    if (!foot) return;
-    const challenge = mergedStats.challenge_days_completed || 0;
-    const streak = mergedStats.streak || 0;
-    const lessons = mergedStats.lessons_completed || 0;
-    const parts = [];
-    parts.push(`Você esteve ativo em <strong>${challenge} dos últimos 7 dias</strong>.`);
-    if (streak >= 3) {
-        parts.push(`Sua sequência atual é de <strong>${streak} dia${streak === 1 ? '' : 's'}</strong>.`);
-    } else if (lessons >= 3) {
-        parts.push(`Já são <strong>${lessons} aulas</strong> nessa caminhada.`);
-    }
-    foot.innerHTML = parts.join(' ');
-}
 
 function _escape(s) {
     return String(s).replace(/[&<>"']/g, c => ({
@@ -1432,7 +1238,7 @@ window.showProgressDetail      = showProgressDetail;
 window.hideProgressDetail      = hideProgressDetail;
 window.loadUserStats           = loadUserStats;
 window.loadUserActivity        = loadUserActivity;
-window.renderActivityHeatmap   = renderActivityHeatmap;
+window.renderWeekStrip         = renderWeekStrip;
 
 // ─── LESSONS VIEW FILTERS & SEARCH ────────────────────────────────────────────
 let lessonsSearchTerm = '';
