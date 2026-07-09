@@ -4,11 +4,12 @@
  * Painel que explica como o aluno conquista o próximo nível CEFR.
  *
  * Gates com DADO REAL (contam hoje):
- *   • Vocabulário   → stats.vocab_mastered_total   (WordProfile.mastered)
- *   • Frases        → stats.phrases_mastered_total (PhraseError.status="dominada")
+ *   • Vocabulário         → stats.vocab_mastered_total   (WordProfile.mastered + LessonScopeItem)
+ *   • Frases              → stats.phrases_mastered_total (LessonScopeItem.status="dominada")
+ *   • Conteúdo pedagógico → stats.scope4p.lessons_completed / block_total (aulas 4 pontas)
  *
  * Gates EM CONSTRUÇÃO (grupo separado, sem número):
- *   • Shadowing · As 4 pontas · Descritores can-do
+ *   • Shadowing
  *
  * Autocontido: injeta seu próprio markup e CSS, liga o clique no card #sideCefr.
  * Lê de window._lastUserStats (populado por lessons-controller.js).
@@ -33,58 +34,67 @@
         C2: { vocab: 8000, phrases: 800 }
     };
 
+    // A escada começa em A0 ("Início"): o aluno recém-chegado ainda NÃO validou
+    // o A1. Ser A1 é a primeira conquista certificável — exige cumprir o quadro
+    // de requisitos do A1 (incl. as ~500 palavras da régua Cambridge). Enquanto
+    // não valida, o aluno está no A0, rumo ao A1.
+    // O pill mostra o código; o A0 aparece como "Início" (LADDER_LABEL).
     var LADDER = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-    // Rótulo visível no pill da escada. "A0" não é nomenclatura oficial do CEFR
-    // (a escala começa em A1) — chamamos de "Ponto de partida" para não soar
-    // como um nível fraco, só o estágio antes de haver progresso mensurável.
+    // "A0" não é nomenclatura oficial do CEFR (a escala começa em A1) — no pill
+    // mostramos "Início" para comunicar ponto de partida, não um nível fraco.
     var LADDER_LABEL = { A0: 'Início' };
 
     // O que cada instituição considera válido para o nível — resumo simples.
     // Fonte é sempre citada; a régua numérica do GRILO é nossa, não delas.
     var LEVEL_INFO = {
         A0: {
-            title: 'Ponto de partida',
-            desc: 'Ainda não há um nível reconhecido — é aqui que todo aluno começa.',
+            title: 'Início',
+            desc: 'Você está a caminho do A1 — seu primeiro nível certificado. Cumpra o quadro de requisitos do A1 para validá-lo.',
             source: null
         },
         A1: {
             title: 'Iniciante',
             desc: '"Consigo me apresentar e fazer perguntas pessoais simples com frases básicas do dia a dia."',
-            source: 'CEFR (Council of Europe) · ≈ 500 palavras essenciais, segundo o English Profile (Cambridge)'
+            source: 'CEFR (Council of Europe)',
+            vocab: '≈ 500 palavras essenciais'
         },
         A2: {
             title: 'Básico',
             desc: '"Consigo descrever minha rotina, necessidades imediatas e fazer trocas simples e diretas."',
-            source: 'CEFR (Council of Europe) · ≈ 1.000–1.500 palavras, segundo o English Profile (Cambridge)'
+            source: 'CEFR (Council of Europe)',
+            vocab: '≈ 1.000–1.500 palavras'
         },
         B1: {
             title: 'Intermediário',
             desc: '"Consigo lidar com situações de viagem, dar opiniões e narrar experiências."',
-            source: 'CEFR (Council of Europe) · ≈ 2.500 palavras, segundo o English Profile (Cambridge)'
+            source: 'CEFR (Council of Europe)',
+            vocab: '≈ 2.500 palavras'
         },
         B2: {
             title: 'Intermediário superior',
             desc: '"Consigo argumentar, interagir com fluência e entender textos complexos."',
-            source: 'CEFR (Council of Europe) · ≈ 4.000 palavras, segundo o English Profile (Cambridge)'
+            source: 'CEFR (Council of Europe)',
+            vocab: '≈ 4.000 palavras'
         },
         C1: {
             title: 'Avançado',
             desc: '"Consigo me expressar com flexibilidade, espontaneidade e precisão em contextos exigentes."',
-            source: 'CEFR (Council of Europe) · ≈ 6.000 palavras, segundo o English Profile (Cambridge)'
+            source: 'CEFR (Council of Europe)',
+            vocab: '≈ 6.000 palavras'
         },
         C2: {
             title: 'Proficiente',
             desc: '"Consigo entender e me expressar com domínio quase nativo, em qualquer contexto."',
-            source: 'CEFR (Council of Europe) · ≈ 8.000+ palavras, segundo o English Profile (Cambridge)'
+            source: 'CEFR (Council of Europe)',
+            vocab: '≈ 8.000+ palavras'
         }
     };
     var LEVEL_DISCLAIMER = 'O GRILO usa isso como guia — não como verdade absoluta. As metas são nossa própria régua, inspirada nessas fontes.';
 
-    // Gates ainda em construção. "As 4 pontas" saiu daqui — agora tem dado real
-    // (aulas do sistema lessons-4p → stats.scope4p), renderizado como gate ativo.
+    // Gates ainda em construção. "Conteúdo pedagógico" saiu daqui — agora tem
+    // dado real (aulas do sistema lessons-4p → stats.scope4p), renderizado como gate ativo.
     var GATES_WIP = [
-        { icon: '🎙️', title: 'Sessões de shadowing', sub: 'Treino de fala guiado do nível' },
-        { icon: '✅', title: 'Consigo fazer (can-do)', sub: 'Descritores do CEFR marcados por evidência' }
+        { icon: '🎙️', title: 'Sessões de shadowing', sub: 'Treino de fala guiado do nível' }
     ];
 
     // Circunferência do anel de progresso (r = 24)
@@ -106,14 +116,17 @@
         return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    // % geral do próximo nível = média dos gates com dado real.
+    // % geral rumo ao PRÓXIMO nível = média dos gates com dado real.
+    // Meta é a do próximo nível (next): são os requisitos que faltam para
+    // conquistá-lo. Ex.: aluno em A0 é medido contra a régua do A1 — que é o
+    // mesmo gate do certificado A1. O anel e as barras usam a mesma régua.
     // Retorna null quando o payload não tem os campos (backend antigo) —
     // nesse caso o caller mantém o valor heurístico.
     function computeOverall(stats) {
         if (!stats) return null;
         if (stats.vocab_mastered_total == null && stats.phrases_mastered_total == null) return null;
-        var next = ((stats.cefr || {}).next) || 'A2';
-        var target = LEVEL_TARGETS[next] || LEVEL_TARGETS.A2;
+        var next = ((stats.cefr || {}).next) || 'A1';
+        var target = LEVEL_TARGETS[next] || LEVEL_TARGETS.A1;
         var vp = pct(stats.vocab_mastered_total || 0, target.vocab);
         var pp = pct(stats.phrases_mastered_total || 0, target.phrases);
         return Math.round((vp + pp) / 2);
@@ -177,7 +190,12 @@
         '.cefr-pop-lvl{display:flex;align-items:center;gap:7px;font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8FE3A0;margin:0 0 9px;white-space:nowrap;}' +
         '.cefr-pop-lvl .dot{width:6px;height:6px;border-radius:50%;background:#8FE3A0;flex:none;}' +
         '.cefr-pop-desc{display:block;font-size:.83rem;line-height:1.55;color:#F1F7F2;font-weight:500;font-style:italic;white-space:normal;word-wrap:break-word;}' +
-        '.cefr-pop-src{display:block;margin:11px 0 0;padding-top:11px;border-top:1px solid rgba(255,255,255,.15);font-size:.71rem;line-height:1.5;color:#A9CFB0;white-space:normal;}' +
+        /* Blocos de fonte — uma instituição por bloco, separados por linha fina */
+        '.cefr-pop-block{display:block;margin:11px 0 0;padding-top:11px;border-top:1px solid rgba(255,255,255,.15);}' +
+        '.cefr-pop-inst{display:block;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8FE3A0;white-space:normal;}' +
+        '.cefr-pop-inst em{font-style:normal;font-weight:600;color:rgba(143,227,160,.6);letter-spacing:.02em;}' +
+        '.cefr-pop-crit{display:block;margin:4px 0 5px;font-size:.66rem;font-weight:600;color:rgba(255,255,255,.5);white-space:normal;}' +
+        '.cefr-pop-vocab{display:block;font-size:.9rem;font-weight:700;color:#F1F7F2;font-variant-numeric:tabular-nums;white-space:normal;}' +
         '.cefr-pop-note{display:flex;align-items:flex-start;gap:7px;margin:9px 0 0;font-size:.68rem;line-height:1.5;color:rgba(255,255,255,.62);white-space:normal;}' +
         '.cefr-pop-note .ic{flex:none;width:14px;height:14px;margin-top:1px;border-radius:50%;background:rgba(255,255,255,.14);color:rgba(255,255,255,.75);font-size:.6rem;font-weight:800;font-style:normal;display:flex;align-items:center;justify-content:center;line-height:1;}' +
         /* Extremidades da escada: o popover não pode sair da tela */ +
@@ -189,9 +207,12 @@
         '.cefr-ladder .cefr-step:nth-last-child(-n+2):hover .cefr-pop,.cefr-ladder .cefr-step:nth-last-child(-n+2):focus-visible .cefr-pop{transform:translateX(0) translateY(0);}' +
         '@media (max-width:480px){.cefr-pop{width:224px;padding:14px 15px 12px;}.cefr-pop-desc{font-size:.79rem;}}' +
 
-        /* Fechar */
-        '.cefr-close{position:absolute;top:14px;right:14px;appearance:none;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:.95rem;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .15s ease;}' +
-        '.cefr-close:hover{background:rgba(255,255,255,.28);}' +
+        /* Fechar — z-index acima da escada/popover (z 25/30) para nunca ter o
+         * clique interceptado; alvo de 40px (recomendação de toque) e o glyph
+         * centralizado num ::before menor, para a área clicável ser o botão todo. */
+        '.cefr-close{position:absolute;top:12px;right:12px;appearance:none;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:1.05rem;line-height:1;cursor:pointer;display:grid;place-items:center;transition:background .15s ease,transform .15s ease;z-index:40;padding:0;}' +
+        '.cefr-close:hover{background:rgba(255,255,255,.30);transform:scale(1.06);}' +
+        '.cefr-close:active{transform:scale(.94);}' +
         '.cefr-close:focus-visible{outline:2px solid #fff;outline-offset:2px;}' +
 
         /* ── Corpo ── */
@@ -304,9 +325,15 @@
         document.body.appendChild(overlay);
 
         // Fechar: botão, clique fora, ESC
-        overlay.querySelector('#cefrModalClose').addEventListener('click', closeModal);
+        overlay.querySelector('#cefrModalClose').addEventListener('click', function (e) {
+            e.stopPropagation();
+            closeModal();
+        });
+        // Clique fora: fecha se o clique não caiu dentro do painel (.cefr-shell).
+        // Mais tolerante que "e.target === overlay" — cobre qualquer ponto do
+        // backdrop, mesmo que o event.target seja um filho decorativo do overlay.
         overlay.addEventListener('click', function (e) {
-            if (e.target === overlay) closeModal();
+            if (!e.target.closest('.cefr-shell')) closeModal();
         });
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape' && !overlay.hidden) closeModal();
@@ -319,14 +346,30 @@
     function levelPopHtml(lvl, popId) {
         var info = LEVEL_INFO[lvl];
         if (!info) return '';
-        var shownLvl = LADDER_LABEL[lvl] || lvl;
-        var lvlHeading = LADDER_LABEL[lvl] ? shownLvl : (shownLvl + ' · ' + info.title);
+        // A0 usa o rótulo "Início" (LADDER_LABEL) e não leva "· título"; os
+        // demais mostram "código · nome" (ex.: "A1 · Iniciante").
+        var lvlHeading = LADDER_LABEL[lvl] ? LADDER_LABEL[lvl] : (lvl + ' · ' + info.title);
         var html = '<span class="cefr-pop" role="tooltip" id="' + popId + '">' +
-            '<span class="cefr-pop-lvl"><span class="dot" aria-hidden="true"></span>' + lvlHeading + '</span>' +
-            '<span class="cefr-pop-desc">' + info.desc + '</span>';
+            '<span class="cefr-pop-lvl"><span class="dot" aria-hidden="true"></span>' + lvlHeading + '</span>';
         if (info.source) {
-            html += '<span class="cefr-pop-src">Segundo ' + info.source + '.</span>' +
+            // Dois blocos de fonte, cada instituição com o que ela define:
+            //  · CEFR (Council of Europe) → descritor de competência ("consigo...")
+            //  · English Profile (Cambridge) → estimativa de vocabulário
+            html +=
+                '<span class="cefr-pop-block">' +
+                  '<span class="cefr-pop-inst">CEFR <em>· Council of Europe</em></span>' +
+                  '<span class="cefr-pop-crit">O que você consegue fazer</span>' +
+                  '<span class="cefr-pop-desc">' + info.desc + '</span>' +
+                '</span>' +
+                '<span class="cefr-pop-block">' +
+                  '<span class="cefr-pop-inst">English Profile <em>· Cambridge</em></span>' +
+                  '<span class="cefr-pop-crit">Vocabulário estimado</span>' +
+                  '<span class="cefr-pop-vocab">' + info.vocab + '</span>' +
+                '</span>' +
                 '<span class="cefr-pop-note"><span class="ic" aria-hidden="true">i</span><span>' + LEVEL_DISCLAIMER + '</span></span>';
+        } else {
+            // A0 — sem fonte institucional; só a orientação de "como validar o A1".
+            html += '<span class="cefr-pop-desc">' + info.desc + '</span>';
         }
         html += '</span>';
         return html;
@@ -389,9 +432,12 @@
 
     function render(stats) {
         var cefr = (stats && stats.cefr) || {};
-        var current = cefr.current || 'A1';
-        var next = cefr.next || 'A2';
-        var target = LEVEL_TARGETS[next] || LEVEL_TARGETS.A2;
+        var current = cefr.current || 'A0';
+        var next = cefr.next || 'A1';
+        // Meta exibida é a do PRÓXIMO nível — são os requisitos que o aluno
+        // precisa cumprir para conquistá-lo. Ex.: um aluno em A0 vê as metas do
+        // A1 (o A0 nem tem targets próprios). Ver nota em computeOverall().
+        var target = LEVEL_TARGETS[next] || LEVEL_TARGETS.A1;
 
         var vocabCur = (stats && stats.vocab_mastered_total) || 0;
         var phrasesCur = (stats && stats.phrases_mastered_total) || 0;
@@ -407,12 +453,12 @@
         var ringVal = document.getElementById('cefrRingVal');
         if (ringVal) ringVal.textContent = overall + '%';
         var ring = document.getElementById('cefrModalRing');
-        if (ring) ring.setAttribute('aria-label', 'Progresso geral: ' + overall + '% do ' + next);
+        if (ring) ring.setAttribute('aria-label', 'Progresso geral rumo ao ' + next + ': ' + overall + '%');
 
         // Corpo
         var body = document.getElementById('cefrModalBody');
         if (!body) return;
-        var html = '<p class="cefr-intro" style="--i:0">Sem pontos vazios: cada requisito conta o que você <b>viu, ouviu, escreveu e falou</b> de verdade.</p>';
+        var html = '<p class="cefr-intro" style="--i:0">Cada palavra que você <b>viu, ouviu, escreveu e falou</b> conta. Literalmente — cumpra os requisitos abaixo para conquistar o <b>' + next + '</b>.</p>';
         html += realRow(1, {
             icon: '📖', title: 'Vocabulário essencial',
             sub: 'Palavras dominadas', cur: vocabCur, target: target.vocab
@@ -422,17 +468,18 @@
             sub: 'Frases dominadas nas aulas', cur: phrasesCur, target: target.phrases
         });
 
-        // Gate "As 4 pontas" — dado real do sistema de aulas lessons-4p.
-        // Conta aulas concluídas do bloco (gate estrutural A1→A2).
-        var sc = (stats && stats.scope4p) || null;
+        // Gate "Conteúdo pedagógico" — dado real do sistema de aulas lessons-4p.
+        // Conta aulas concluídas do bloco (gate estrutural A1→A2). É um requisito
+        // fixo do nível, então SEMPRE aparece; se o payload ainda não trouxe
+        // scope4p, cai para 0 / total-padrão do bloco (hoje 20 aulas no A1).
+        var sc = (stats && stats.scope4p) || {};
+        var lessonsTotal = sc.block_total || 20;
         var rowIdx = 3;
-        if (sc && sc.block_total) {
-            html += realRow(rowIdx++, {
-                icon: '🔄', title: 'As 4 pontas',
-                sub: 'Aulas concluídas (ver · ouvir · escrever · falar)',
-                cur: sc.lessons_completed || 0, target: sc.block_total
-            });
-        }
+        html += realRow(rowIdx++, {
+            icon: '📘', title: 'Conteúdo pedagógico',
+            sub: 'Aulas completadas neste nível',
+            cur: sc.lessons_completed || 0, target: lessonsTotal
+        });
 
         html += '<div class="cefr-wip-label" style="--i:' + rowIdx + '">Próximos requisitos</div>';
         GATES_WIP.forEach(function (g, i) {

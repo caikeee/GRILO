@@ -237,10 +237,30 @@ async def get_user_stats(
             for r in vocab_mastered_rows
         ]
 
-        # CEFR progression (1=A1 .. 6=C2)
-        cefr_labels = {1: "A1", 2: "A2", 3: "B1", 4: "B2", 5: "C1", 6: "C2"}
-        cefr_current = cefr_labels.get(level, "A1")
-        cefr_next = cefr_labels.get(min(level + 1, 6), "C2")
+        # CEFR progression — modelo A0 → A1 → … por VALIDAÇÃO (ver [[cefr-level-system]]).
+        #
+        # O nível NÃO vem de user.level (XP de gamificação). Regras do modelo:
+        #   • Todo aluno começa em A0 ("Início") — ainda NÃO validou o A1.
+        #   • A1 é a primeira conquista CERTIFICÁVEL: só é atingido quando o aluno
+        #     cumpre o QUADRO DE REQUISITOS do A1 (o mesmo gate do certificado).
+        #   • Os requisitos incluem a régua de vocabulário do A1 (≈ 500 palavras,
+        #     ancorada no Cambridge English Profile), além do bloco de aulas.
+        #
+        # Requisitos do A1 (gate único, usado tanto pelo rótulo quanto pelo cert):
+        A1_REQ_VOCAB = 500        # palavras dominadas (régua Cambridge p/ A1)
+        A1_REQ_PHRASES = 50       # frases dominadas
+        A1_REQ_LESSONS = scope4p_block_total  # 20 aulas do bloco A1
+        a1_validated = (
+            vocab_mastered_total >= A1_REQ_VOCAB
+            and phrases_mastered_total >= A1_REQ_PHRASES
+            and scope4p_lessons_completed >= A1_REQ_LESSONS
+        )
+        # Índice na escada: 0=A0, 1=A1, … (só A0→A1 tem gate real hoje; A2+ pendente
+        # até esses blocos e seus requisitos existirem).
+        cefr_ladder = ["A0", "A1", "A2", "B1", "B2", "C1", "C2"]
+        effective_idx = 1 if a1_validated else 0
+        cefr_current = cefr_ladder[effective_idx]
+        cefr_next = cefr_ladder[min(effective_idx + 1, len(cefr_ladder) - 1)]
         # Rough progression heuristic: blend of accuracy + voice quality + aulas 4p concluídas
         progression_signal = 0.0
         if avg_voice_quality:
@@ -363,6 +383,14 @@ async def get_user_stats(
                 "current": cefr_current,
                 "next": cefr_next,
                 "progress_percent": cefr_progress_percent,
+                # Status de VALIDAÇÃO do A1 — mesma régua do certificado.
+                # A UI usa para distinguir "em curso" de "validado/certificável".
+                "a1_validated": a1_validated,
+                "a1_requirements": {
+                    "vocab": {"current": vocab_mastered_total, "target": A1_REQ_VOCAB},
+                    "phrases": {"current": phrases_mastered_total, "target": A1_REQ_PHRASES},
+                    "lessons": {"current": scope4p_lessons_completed, "target": A1_REQ_LESSONS},
+                },
             },
             # Gate "As 4 pontas" do painel CEFR (sistema lessons-4p)
             "scope4p": {

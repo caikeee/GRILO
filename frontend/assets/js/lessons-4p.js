@@ -1035,8 +1035,21 @@
     });
   }
 
+  // Reenvia ao backend aulas concluídas que ficaram só no localStorage —
+  // ex.: completadas deslogado, offline, ou antes de /api/scope4p existir.
+  // Sem isso, uma falha de sync deixa a aula "presa" (renderRecap só dispara
+  // o sync ao completar pela 1ª vez), e o contador da home nunca reflete.
+  function resyncPendingLessons() {
+    if (!getAuthToken()) return; // deslogado: nada a reenviar agora
+    (window.Grilo4P.LESSONS || []).forEach(lesson => {
+      const lp = lessonProg(lesson.slug);
+      if (lp.completedAt && !lp.syncedAt) syncLessonToBackend(lesson);
+    });
+  }
+
   function init() {
     renderGrid();
+    resyncPendingLessons();
   }
 
   if (document.readyState === 'loading') {
