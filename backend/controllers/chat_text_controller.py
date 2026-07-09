@@ -194,7 +194,6 @@ async def get_session_summary(
     """
     from backend.db_models import Conversation
     from datetime import timedelta
-    from backend.lessons_v2 import find_lessons_for_error_type
 
     logger.info("[SESSION-SUMMARY] user_id=%s session_start=%s", user_id, request.session_start)
 
@@ -320,23 +319,6 @@ async def get_session_summary(
         else:
             improvement_positive = True
 
-        # ---- Related lessons for top errors ----
-        related_lessons = []
-        seen_lesson_ids: set[int] = set()
-        for error_type, count in top_errors:
-            lessons = find_lessons_for_error_type(error_type, max_results=1)
-            for lesson in lessons:
-                lid = lesson.get("id")
-                if lid and lid not in seen_lesson_ids:
-                    seen_lesson_ids.add(lid)
-                    related_lessons.append({
-                        "lesson_id": lid,
-                        "title": lesson.get("title", ""),
-                        "error_type": error_type,
-                        "error_label": _ERROR_TYPE_LABELS.get(error_type, error_type),
-                        "error_count": count,
-                    })
-
         logger.info(
             "[SESSION-SUMMARY] user_id=%s msgs=%s accuracy=%s vocab=%s errors=%s",
             user_id, messages_sent, session_accuracy, len(vocabulary), len(error_counts),
@@ -362,7 +344,7 @@ async def get_session_summary(
             "historical_accuracy": historical_accuracy,
             "improvement": improvement,
             "improvement_positive": improvement_positive,
-            "related_lessons": related_lessons,
+            "related_lessons": [],
             "vocabulary": vocabulary[:10],
             "vocab_count": len(vocabulary),
         }

@@ -3,17 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Módulo A1 — Lições · GRILO</title>
+  <title>Bloco A1 — Aulas · GRILO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="assets/css/sage-color-system.css?v=20260520">
   <link rel="stylesheet" href="assets/css/sage-overrides.css?v=20260520">
-  <link rel="stylesheet" href="assets/css/lessons.css?v=20260533">
   <link rel="stylesheet" href="assets/css/sage-premium-polish.css?v=20260520">
-  <link rel="stylesheet" href="assets/css/modal-ux-enhancement.css?v=20260532">
-  <link rel="stylesheet" href="assets/css/lesson-editorial-v5.css?v=1779500000">
+  <link rel="stylesheet" href="assets/css/lessons-4p.css?v=1779800000">
 </head>
 <body class="app-lessons">
   <main class="lessons-shell">
@@ -21,231 +19,48 @@
     <!-- ── Topbar ─────────────────────────────────────────── -->
     <header class="lessons-topbar">
       <a href="home.html" class="lessons-back">Painel</a>
-      <div class="lessons-brand">GRILO</div>
-      <div class="lessons-module-pill">Trilha A1</div>
+      <div class="lessons-title">
+        <span class="lessons-title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg>
+        </span>
+        <span class="lessons-title-copy">
+          <em>Grilo · Bloco A1</em>
+          <strong>Suas aulas</strong>
+        </span>
+      </div>
+      <div class="lessons-module-pill" id="lessonsTopbarProgress">20 aulas · A1</div>
     </header>
 
-    <section class="lessons-cosmos is-revealed" id="lessonsCosmos">
-
-      <!-- ── Hero Banner ───────────────────────────────────── -->
-      <header class="lp-banner" id="lessonsBanner">
-        <div class="lp-banner-copy">
-          <p class="lp-banner-kicker">Módulo A1 · base de uso real</p>
-          <h1 class="lp-banner-title">Inglês que você <em>usa</em> de verdade.</h1>
-          <p class="lp-banner-sub">8 aulas para destravar os fundamentos e gerar repertório real — com estrutura clara e progressão pensada.</p>
-          <div class="lp-banner-stats">
-            <span class="lp-stat-pill"><span class="lp-stat-pill-dot"></span>8 aulas disponíveis</span>
-            <span class="lp-stat-pill"><span class="lp-stat-pill-dot"></span>Nível A1</span>
-            <span class="lp-stat-pill"><span class="lp-stat-pill-dot"></span>Uso imediato</span>
+    <!-- ── Sistema 4 pontas — bloco A1 ───────────────────────── -->
+    <section id="lessons4pStage" class="g4p-stage-shell">
+      <header class="g4p-hero">
+        <div class="g4p-hero-main">
+          <span class="g4p-hero-kicker">Bloco A1 · Sistema 4 pontas</span>
+          <h1 class="g4p-hero-title">Cada palavra passa por <em>ver</em>, <em>ouvir</em>, <em>escrever</em> e <em>falar</em>.</h1>
+          <p class="g4p-hero-sub">20 aulas em 4 grupos, na ordem em que a vida real pede. O que você escrever certo entra no seu vocabulário — o que também ouvir e falar, você domina.</p>
+          <div class="g4p-hero-route" aria-hidden="true">
+            <span>👁 ver</span><span>👂 ouvir</span><span>✍️ escrever</span><span>🎙 falar</span>
           </div>
         </div>
-
-        <div class="lp-banner-panel" aria-label="Progresso da trilha">
-          <div>
-            <p class="lp-banner-panel-kicker">Sua trilha</p>
-            <h2 class="lp-banner-panel-title">Fundamentos que sustentam conversas reais.</h2>
-            <p class="lp-banner-panel-sub">Pronomes, perguntas, negativas, passado, futuro e muito mais — tudo com contexto e prática aplicada.</p>
+        <div class="g4p-hero-panel" aria-label="Progresso do bloco A1">
+          <div class="g4p-ring">
+            <svg viewBox="0 0 96 96" aria-hidden="true">
+              <circle class="g4p-ring-track" cx="48" cy="48" r="40"/>
+              <circle class="g4p-ring-fill" id="g4pRingFill" cx="48" cy="48" r="40"/>
+            </svg>
+            <div class="g4p-ring-text"><b id="g4pRingNum">0</b><span id="g4pRingTotal">de 20</span></div>
           </div>
-          <div id="heroProgress" class="lp-hero-progress">
-            <span class="lp-hero-progress-track">
-              <span id="heroProgressFill" class="lp-hero-progress-fill"></span>
-            </span>
-            <span id="heroProgressLabel" class="lp-hero-progress-label"></span>
-          </div>
+          <p class="g4p-hero-panel-label">aulas concluídas</p>
+          <p class="g4p-hero-panel-hint">Complete as 20 e o A1 é seu.</p>
         </div>
       </header>
-
-      <!-- ── Cards Grid ────────────────────────────────────── -->
-      <section class="lp-card-stage" aria-live="polite">
-        <div id="lessonsCardsContainer" class="lp-card-cloud"></div>
-      </section>
-
+      <div id="g4pGrid" aria-live="polite"></div>
     </section>
   </main>
 
-  <!-- ── Lesson Modal ───────────────────────────────────────── -->
-  <section id="lessonContent" class="lp-modal" role="dialog" aria-modal="true" hidden>
-    <div class="lp-modal-shell">
-      <div class="lp-modal-topbar">
-        <div id="lessonModalCrumb" class="lp-modal-crumb">
-          <span>Módulo A1</span>
-          <span class="lp-modal-crumb-sep" aria-hidden="true"><svg viewBox="0 0 12 12" width="10" height="10" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          <span class="lp-modal-crumb-lesson" id="lessonModalCrumbLesson">Aula</span>
-        </div>
-        <div class="lp-modal-actions">
-          <!-- Controle de áudio (TTS) -->
-          <div class="lp-audio-control" id="lessonAudioControl">
-            <button id="lessonAudioToggle" class="lp-audio-toggle" type="button" aria-label="Configurar áudio" aria-expanded="false">
-              <span class="lp-audio-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg></span>
-            </button>
-            <div class="lp-audio-panel" id="lessonAudioPanel" hidden>
-              <div class="lp-audio-panel-row">
-                <label class="lp-audio-label" for="ttsVolumeSlider">Volume</label>
-                <input id="ttsVolumeSlider" class="lp-audio-slider" type="range" min="0" max="100" step="5" value="100" aria-label="Volume do áudio">
-                <span class="lp-audio-val" id="ttsVolumeVal">100%</span>
-              </div>
-              <div class="lp-audio-panel-row">
-                <label class="lp-audio-label" for="ttsRateSlider">Velocidade</label>
-                <input id="ttsRateSlider" class="lp-audio-slider" type="range" min="60" max="130" step="5" value="92" aria-label="Velocidade da fala">
-                <span class="lp-audio-val" id="ttsRateVal">0.92x</span>
-              </div>
-              <button id="ttsTestBtn" class="lp-audio-test-btn" type="button"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Testar áudio</button>
-              <p class="lp-audio-tip">Se ainda estiver baixo, aumente o volume do sistema operacional.</p>
-            </div>
-          </div>
-
-          <button id="lessonPhraseVoiceBtn" class="lp-modal-phrase-voice-btn" type="button" aria-label="Treinar 5 frases por voz">
-            🎙 Treinar 5 frases
-          </button>
-          <button id="lessonModalClose" class="lp-modal-close" type="button" aria-label="Fechar aula">
-            Fechar
-          </button>
-        </div>
-      </div>
-
-      <div class="lp-modal-body">
-        <aside id="lessonModalAside" class="lp-modal-aside"></aside>
-        <div id="lessonModalMain" class="lp-modal-main"></div>
-      </div>
-    </div>
-  </section>
-
   <script src="assets/js/voice-recognition-utils.js?v=1779500000" defer></script>
-  <script src="assets/js/lessons-enhanced.js?v=1779500000" defer></script>
-  <script src="assets/js/phrase-voice-trainer.js?v=1779500000" defer></script>
-  <script src="assets/js/lesson-editorial-renderer.js?v=1779500000" defer></script>
-  <script src="assets/js/modal-interactions.js?v=1779500000" defer></script>
-
-  <!-- ── Fechar modal (botão Fechar) ───────────────────────── -->
-  <script>
-    document.addEventListener('click', function(e) {
-      if (e.target && e.target.id === 'lessonModalClose') {
-        if (typeof window.closeLessonModal === 'function') {
-          window.closeLessonModal();
-        } else {
-          var modal = document.getElementById('lessonContent');
-          if (modal) {
-            modal.classList.add('is-closing');
-            modal.classList.remove('active');
-            setTimeout(function() { modal.setAttribute('hidden', ''); modal.classList.remove('is-closing'); }, 250);
-            document.body.style.overflow = '';
-          }
-        }
-      }
-    });
-  </script>
-
-  <!-- ── Controle de áudio (TTS volume/velocidade) ──────────── -->
-  <script>
-    (function() {
-      function $(id) { return document.getElementById(id); }
-
-      function initAudioPanel() {
-        var toggle = $('lessonAudioToggle');
-        var panel = $('lessonAudioPanel');
-        var volSlider = $('ttsVolumeSlider');
-        var rateSlider = $('ttsRateSlider');
-        var volVal = $('ttsVolumeVal');
-        var rateVal = $('ttsRateVal');
-        var testBtn = $('ttsTestBtn');
-        if (!toggle || !panel || !window._griloTTS) return;
-
-        // Inicializa com valores salvos
-        var curVol = Math.round(window._griloTTS.getVolume() * 100);
-        var curRate = Math.round(window._griloTTS.getRate() * 100);
-        volSlider.value = curVol;
-        rateSlider.value = curRate;
-        volVal.textContent = curVol + '%';
-        rateVal.textContent = (curRate / 100).toFixed(2) + 'x';
-
-        // Toggle do painel
-        toggle.addEventListener('click', function(e) {
-          e.stopPropagation();
-          var isOpen = !panel.hasAttribute('hidden');
-          if (isOpen) {
-            panel.setAttribute('hidden', '');
-            toggle.setAttribute('aria-expanded', 'false');
-          } else {
-            panel.removeAttribute('hidden');
-            toggle.setAttribute('aria-expanded', 'true');
-          }
-        });
-
-        // Fechar ao clicar fora
-        document.addEventListener('click', function(e) {
-          if (panel.hasAttribute('hidden')) return;
-          if (e.target.closest('#lessonAudioControl')) return;
-          panel.setAttribute('hidden', '');
-          toggle.setAttribute('aria-expanded', 'false');
-        });
-
-        // Volume
-        volSlider.addEventListener('input', function() {
-          var v = parseInt(volSlider.value, 10) / 100;
-          window._griloTTS.setVolume(v);
-          volVal.textContent = volSlider.value + '%';
-        });
-
-        // Velocidade
-        rateSlider.addEventListener('input', function() {
-          var r = parseInt(rateSlider.value, 10) / 100;
-          window._griloTTS.setRate(r);
-          rateVal.textContent = r.toFixed(2) + 'x';
-        });
-
-        // Testar áudio
-        if (testBtn) {
-          testBtn.addEventListener('click', function() {
-            window._griloTTS.testSpeak();
-          });
-        }
-      }
-
-      // Aguarda window._griloTTS estar disponível
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-          setTimeout(initAudioPanel, 200);
-        });
-      } else {
-        setTimeout(initAudioPanel, 200);
-      }
-    })();
-  </script>
-
-  <!-- Grilo Mini-Chat FAB -->
-  <button id="griloFab" class="lp-grilo-fab" aria-label="Perguntar ao Grilo" onclick="window._griloToggleChat && window._griloToggleChat()" hidden>
-    <svg class="lp-grilo-fab__icon" viewBox="0 0 32 32" aria-hidden="true">
-      <g fill="none">
-        <path fill="#86d72f" d="M7 10.85v1.685A4 4 0 0 1 9 12c1.8 0 3.984.663 4.733 2.53h1.818L15.5 14l4.742-2l2.448-2.75c.28-.31.75-.34 1.06-.06c.184.163.27.4.25.634V12l1 2.5l-.246.615a5.5 5.5 0 0 1 2.756 3.215c.26.83-.36 1.67-1.23 1.67H24v4.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75V20h-4.48l-1.17 1.96A2.068 2.068 0 0 1 13.215 20H11.11v4.25a.749.749 0 1 1-1.5 0V20H9q-.255 0-.5-.03v1.49c0 .63-.25 1.22-.69 1.67L6.14 24.8c-.15.14-.34.21-.53.21s-.38-.07-.53-.22a.754.754 0 0 1 0-1.06l1.67-1.67a.84.84 0 0 0 .25-.6v-1.995a4 4 0 0 1-1-6.11V10.85C6 9.28 7.28 8 8.85 8H19.5c.28 0 .5.22.5.5s-.22.5-.5.5H8.85C7.83 9 7 9.83 7 10.85"/>
-        <path fill="#c3ef3c" d="M5.96 12c.57 0 1.04.47 1.04 1.05v5.9C7 19.53 6.53 20 5.96 20C3.77 20 2 18.21 2 16s1.77-4 3.96-4m3.17 0h11.112l-4.45 5h-2.918a4 4 0 0 0-3.744-4.998zm13.37 5h-2.692l2.692-4.513zm1.5-5v5h.28c2.27 0 4.37-1.19 5.54-3.14c.49-.82-.1-1.86-1.05-1.86z"/>
-        <path fill="#212121" d="M4.5 15c-.28 0-.5.22-.5.5v1c0 .28.22.5.5.5s.5-.22.5-.5v-1c0-.28-.22-.5-.5-.5"/>
-      </g>
-    </svg>
-  </button>
-
-  <!-- Grilo Mini-Chat Panel -->
-  <div id="griloChatPanel" class="lp-grilo-chat" hidden>
-    <div class="lp-grilo-chat__header">
-      <span class="lp-grilo-chat__title">
-        <svg class="lp-grilo-chat__title-icon" viewBox="0 0 32 32" aria-hidden="true">
-          <g fill="none">
-            <path fill="#86d72f" d="M7 10.85v1.685A4 4 0 0 1 9 12c1.8 0 3.984.663 4.733 2.53h1.818L15.5 14l4.742-2l2.448-2.75c.28-.31.75-.34 1.06-.06c.184.163.27.4.25.634V12l1 2.5l-.246.615a5.5 5.5 0 0 1 2.756 3.215c.26.83-.36 1.67-1.23 1.67H24v4.25c0 .41-.34.75-.75.75s-.75-.34-.75-.75V20h-4.48l-1.17 1.96A2.068 2.068 0 0 1 13.215 20H11.11v4.25a.749.749 0 1 1-1.5 0V20H9q-.255 0-.5-.03v1.49c0 .63-.25 1.22-.69 1.67L6.14 24.8c-.15.14-.34.21-.53.21s-.38-.07-.53-.22a.754.754 0 0 1 0-1.06l1.67-1.67a.84.84 0 0 0 .25-.6v-1.995a4 4 0 0 1-1-6.11V10.85C6 9.28 7.28 8 8.85 8H19.5c.28 0 .5.22.5.5s-.22.5-.5.5H8.85C7.83 9 7 9.83 7 10.85"/>
-            <path fill="#c3ef3c" d="M5.96 12c.57 0 1.04.47 1.04 1.05v5.9C7 19.53 6.53 20 5.96 20C3.77 20 2 18.21 2 16s1.77-4 3.96-4m3.17 0h11.112l-4.45 5h-2.918a4 4 0 0 0-3.744-4.998zm13.37 5h-2.692l2.692-4.513zm1.5-5v5h.28c2.27 0 4.37-1.19 5.54-3.14c.49-.82-.1-1.86-1.05-1.86z"/>
-            <path fill="#212121" d="M4.5 15c-.28 0-.5.22-.5.5v1c0 .28.22.5.5.5s.5-.22.5-.5v-1c0-.28-.22-.5-.5-.5"/>
-          </g>
-        </svg>
-        Assistente Grilo
-      </span>
-      <button class="lp-grilo-chat__close" aria-label="Fechar chat" onclick="window._griloToggleChat && window._griloToggleChat()">✕</button>
-    </div>
-    <div class="lp-grilo-chat__messages" id="griloChatMessages"></div>
-    <div class="lp-grilo-chat__input-area">
-      <textarea id="griloChatInput" class="lp-grilo-chat__input" placeholder="Pergunte sobre esta aula..." rows="2"></textarea>
-      <button class="lp-grilo-chat__send" id="griloChatSend" onclick="window._griloSendMessage && window._griloSendMessage()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
-    </div>
-  </div>
+  <script src="assets/js/lessons-4p-data.js?v=1779800000" defer></script>
+  <script src="assets/js/lessons-4p.js?v=1779800000" defer></script>
 
 </body>
 </html>

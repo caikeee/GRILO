@@ -296,3 +296,59 @@ class WordProfile(Base):
     first_seen_at = Column(DateTime, default=datetime.utcnow)
     last_seen_at = Column(DateTime, default=datetime.utcnow)
     mastered = Column(Boolean, default=False)  # True quando accuracy >= 0.85 com >= 5 usos
+
+
+class LessonScopeItem(Base):
+    """Item do escopo (palavra ou frase) de uma aula do sistema "4 pontas".
+
+    Tabela DEDICADA ao novo sistema de lições (frontend/assets/js/lessons-4p-*).
+    Fica separada de WordProfile/PhraseError de propósito: aqueles são
+    alimentados pelo chat de voz com regra própria (accuracy>=0.85). Aqui a
+    "escada" é por ponta explícita — escreveu / ouviu-e-entendeu / falou:
+
+        written_ok            → "aprendida" (entra no vocabulário da home)
+        written + heard + spoken → "dominada"
+
+    Um registro por (user, lesson_slug, item). Upsert a cada conclusão de aula.
+    """
+    __tablename__ = "lesson_scope_items"
+    __table_args__ = (
+        UniqueConstraint("user_id", "lesson_slug", "item_en", name="unique_user_scope_item"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lesson_slug = Column(String(60), nullable=False, index=True)   # ex: "4p-cumprimentos"
+    lesson_group = Column(String(4), nullable=True)                # A | B | C | D
+    item_type = Column(String(10), nullable=False)                 # "word" | "phrase"
+    item_en = Column(Text, nullable=False)                         # forma canônica em inglês
+    item_pt = Column(Text, nullable=True)
+
+    written_ok = Column(Boolean, default=False)                    # ponta ESCREVER
+    heard_ok = Column(Boolean, default=False)                      # ponta OUVIR (compreensão)
+    spoken_ok = Column(Boolean, default=False)                     # ponta FALAR
+
+    status = Column(String(12), default="nova")                    # nova | aprendida | dominada
+    first_learned_at = Column(DateTime, nullable=True)             # 1ª vez que virou "aprendida"
+    dominated_at = Column(DateTime, nullable=True)                 # 1ª vez que virou "dominada"
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class LessonScopeCompletion(Base):
+    """Marca quando o aluno CONCLUIU uma aula 4 pontas (chegou ao recap).
+
+    O gate A1→A2 é "completar as N aulas do bloco" — conclusão = chegar ao
+    recap, independente de quantos itens ficaram dominados. Um registro por
+    (user, lesson_slug); upsert idempotente."""
+    __tablename__ = "lesson_scope_completions"
+    __table_args__ = (
+        UniqueConstraint("user_id", "lesson_slug", name="unique_user_scope_completion"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lesson_slug = Column(String(60), nullable=False, index=True)
+    lesson_group = Column(String(4), nullable=True)
+    completed_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GRILO — Home</title>
 
+    <!-- Tema: aplica antes de pintar a tela p/ evitar flash. Padrão inicial = preferência do SO. -->
+    <script>
+      (function () {
+        try {
+          var k = 'grilo-theme', s = localStorage.getItem(k);
+          var t = (s === 'dark' || s === 'light')
+            ? s
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -25,6 +40,7 @@
     </script>
 
     <link rel="stylesheet" href="assets/css/home.css?v=1">
+    <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
 </head>
 <body>
 
@@ -394,361 +410,6 @@
                     </div>
                 </div>
 
-                <!-- Lessons Tab - Pedagogical learning structure + Quiz -->
-                <div class="tab-content" id="lessonsTab">
-                    <div class="lessons-container">
-
-                        <!-- ========== QUIZ SELECTOR (default view) ========== -->
-                        <div id="quizSelector">
-                            <!-- PREMIUM HEADER -->
-                            <div class="quiz-selector-header">
-                                <div class="quiz-header-content">
-                                    <h1 class="quiz-main-title">Aprenda Inglês</h1>
-                                    <p class="quiz-main-subtitle">Escolha seu caminho: aulas estruturadas ou testes rápidos para consolidar conhecimento.</p>
-                                </div>
-                                <div class="quiz-header-decorator">
-                                    <div class="decorator-orb" style="background: rgba(37,99,235,0.1);"></div>
-                                    <div class="decorator-orb" style="background: rgba(34,197,94,0.1);"></div>
-                                </div>
-                            </div>
-
-                            <!-- MODES GRID (with highlights) -->
-                            <div class="quiz-modes-container">
-                                <!-- AULAS - Featured -->
-                                <div class="quiz-mode-card quiz-mode-featured" onclick="showLessonsView()">
-                                    <div class="quiz-card-top">
-                                        <div class="quiz-mode-icon-large">📖</div>
-                                        <span class="quiz-mode-label">Modo Estruturado</span>
-                                    </div>
-                                    <h3>Aulas Completas</h3>
-                                    <p>Aprenda com aulas estruturadas, contexto cultural, dicas de ouro e exercícios guiados.</p>
-                                    <div class="quiz-card-meta">
-                                        <span class="quiz-meta-item">50 aulas</span>
-                                        <span class="quiz-meta-item">⏱️ Seu ritmo</span>
-                                    </div>
-                                    <button class="btn-quiz-featured">Começar aula →</button>
-                                </div>
-
-                                <!-- QUIZ RÁPIDO - Featured -->
-                                <div class="quiz-mode-card quiz-mode-featured" onclick="startQuiz('random', 10)">
-                                    <div class="quiz-card-top">
-                                        <div class="quiz-mode-icon-large">⚡</div>
-                                        <span class="quiz-mode-label">Modo Rápido</span>
-                                    </div>
-                                    <h3>Quiz Rápido</h3>
-                                    <p>10 perguntas aleatórias para treinar reflexos, vocabulário e gramática instantaneamente.</p>
-                                    <div class="quiz-card-meta">
-                                        <span class="quiz-meta-item">10 perguntas</span>
-                                        <span class="quiz-meta-item">⏱️ ~5 min</span>
-                                    </div>
-                                    <button class="btn-quiz-featured">Começar quiz →</button>
-                                </div>
-
-                                <!-- CATEGORIA -->
-                                <div class="quiz-mode-card" onclick="showCategoryPicker()">
-                                    <div class="quiz-card-top">
-                                        <div class="quiz-mode-icon-regular">📚</div>
-                                    </div>
-                                    <h3>Por Categoria</h3>
-                                    <p>Vocabulário, Gramática, Compreensão ou Listening</p>
-                                    <div class="quiz-card-meta">
-                                        <span class="quiz-meta-item">4 categorias</span>
-                                    </div>
-                                    <button class="btn-quiz-regular">Escolher →</button>
-                                </div>
-
-                                <!-- DESAFIO COMPLETO -->
-                                <div class="quiz-mode-card" onclick="startQuiz('all', 100)">
-                                    <div class="quiz-card-top">
-                                        <div class="quiz-mode-icon-regular">🏆</div>
-                                    </div>
-                                    <h3>Desafio Completo</h3>
-                                    <p>100 perguntas — teste completo do seu nível</p>
-                                    <div class="quiz-card-meta">
-                                        <span class="quiz-meta-item">100 perguntas</span>
-                                        <span class="quiz-meta-item">⏱️ ~20 min</span>
-                                    </div>
-                                    <button class="btn-quiz-regular">Começar →</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ========== CATEGORY PICKER ========== -->
-                        <div id="categoryPicker" style="display:none;">
-                            <button class="quiz-back-btn" onclick="showQuizSelector()">← Voltar</button>
-                            <h3 style="color:var(--text-primary); margin-bottom:var(--spacing-lg); font-size:var(--font-size-xl);">Escolha uma Categoria</h3>
-                            <div class="quiz-mode-grid">
-                                <div class="quiz-mode-card" onclick="startQuiz('category', 10, 'Vocabulary')">
-                                    <div class="quiz-mode-icon">🔤</div>
-                                    <h3>Vocabulário</h3>
-                                    <p>Palavras, expressões e significados</p>
-                                    <span class="quiz-cat-badge">69 perguntas</span>
-                                </div>
-                                <div class="quiz-mode-card" onclick="startQuiz('category', 10, 'Grammar')">
-                                    <div class="quiz-mode-icon">📝</div>
-                                    <h3>Gramática</h3>
-                                    <p>Estruturas, tempos verbais e regras</p>
-                                    <span class="quiz-cat-badge">26 perguntas</span>
-                                </div>
-                                <div class="quiz-mode-card" onclick="startQuiz('category', 10, 'Comprehension')">
-                                    <div class="quiz-mode-icon">🧠</div>
-                                    <h3>Compreensão</h3>
-                                    <p>Interpretação de textos e contextos</p>
-                                    <span class="quiz-cat-badge">4 perguntas</span>
-                                </div>
-                                <div class="quiz-mode-card" onclick="startQuiz('category', 10, 'Listening')">
-                                    <div class="quiz-mode-icon">👂</div>
-                                    <h3>Listening</h3>
-                                    <p>Compreensão auditiva</p>
-                                    <span class="quiz-cat-badge">1 pergunta</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ========== ACTIVE QUIZ VIEW ========== -->
-                        <div id="quizActive" style="display:none;">
-                            <div class="quiz-header">
-                                <button class="quiz-back-btn" onclick="cancelQuiz()">← Sair</button>
-                                <div class="quiz-progress-info">
-                                    <span id="quizProgressText">Pergunta 1 de 10</span>
-                                    <span id="quizScoreText">Acertos: 0</span>
-                                </div>
-                            </div>
-
-                            <div class="quiz-progress-bar">
-                                <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div>
-                            </div>
-
-                            <div class="quiz-question-card">
-                                <div class="quiz-question-meta">
-                                    <span class="quiz-q-category" id="quizQCategory">Vocabulário</span>
-                                    <span class="quiz-q-difficulty" id="quizQDifficulty">⭐</span>
-                                </div>
-                                <h3 id="quizQuestionText" class="quiz-question-text">Carregando...</h3>
-                            </div>
-
-                            <div class="quiz-options-list" id="quizOptionsList"></div>
-
-                            <div class="quiz-actions">
-                                <button class="btn-auth quiz-submit-btn" id="quizSubmitBtn" onclick="submitQuizAnswer()" disabled>Confirmar Resposta</button>
-                            </div>
-
-                            <!-- Feedback inline -->
-                            <div id="quizFeedback" class="quiz-feedback" style="display:none;">
-                                <div class="quiz-feedback-icon" id="quizFeedbackIcon"></div>
-                                <p class="quiz-feedback-text" id="quizFeedbackText"></p>
-                                <p class="quiz-feedback-explanation" id="quizFeedbackExplanation"></p>
-                                <button class="btn-auth" id="quizNextBtn" onclick="nextQuizQuestion()">Próxima →</button>
-                            </div>
-                        </div>
-
-                        <!-- ========== QUIZ RESULTS ========== -->
-                        <div id="quizResults" style="display:none;">
-                            <div class="quiz-results-card">
-                                <div class="quiz-results-icon" id="quizResultsIcon">🏆</div>
-                                <h2 id="quizResultsTitle">Quiz Finalizado!</h2>
-
-                                <div class="quiz-score-ring">
-                                    <svg viewBox="0 0 120 120" class="quiz-score-svg">
-                                        <circle cx="60" cy="60" r="52" class="quiz-score-bg"></circle>
-                                        <circle cx="60" cy="60" r="52" class="quiz-score-fill" id="quizScoreCircle"></circle>
-                                    </svg>
-                                    <div class="quiz-score-value" id="quizScoreValue">0%</div>
-                                </div>
-
-                                <div class="quiz-stats-row">
-                                    <div class="quiz-stat">
-                                        <span class="quiz-stat-val" id="quizStatCorrect">0</span>
-                                        <span class="quiz-stat-label">Corretas</span>
-                                    </div>
-                                    <div class="quiz-stat">
-                                        <span class="quiz-stat-val" id="quizStatWrong">0</span>
-                                        <span class="quiz-stat-label">Erradas</span>
-                                    </div>
-                                    <div class="quiz-stat">
-                                        <span class="quiz-stat-val" id="quizStatXP">0</span>
-                                        <span class="quiz-stat-label">XP Ganho</span>
-                                    </div>
-                                </div>
-
-                                <div class="quiz-results-actions">
-                                    <button class="btn-auth" onclick="showQuizSelector()">Voltar ao Menu</button>
-                                    <button class="btn-auth quiz-retry-btn" onclick="retryQuiz()">Tentar de novo</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ========== LESSONS VIEW (Categories Grid) ========== -->
-                        <div id="lessonsView" style="display:none;">
-                            <!-- TOP BAR with Back & Progress -->
-                            <div class="lessons-top-bar">
-                                <button class="quiz-back-btn" onclick="showQuizSelector()">← Menu</button>
-                                <div style="flex: 1; text-align: center;">
-                                    <h1 style="margin: 0; font-size: 1.8rem; color: var(--text-primary); font-weight: 700;">Aulas</h1>
-                                </div>
-                                <div style="width: 100px;"></div>
-                            </div>
-
-                            <!-- PROGRESS SECTION -->
-                            <div class="lessons-progress-section">
-                                <div class="lessons-progress-header">
-                                    <span class="lessons-progress-label">Seu Progresso</span>
-                                    <span class="lessons-progress-count" id="lessonsProgressCount">0/50 aulas</span>
-                                </div>
-                                <div class="lessons-progress-bar-track">
-                                    <div class="lessons-progress-bar-fill" id="lessonsProgressBarFill" style="width: 0%;"></div>
-                                </div>
-                            </div>
-
-                            <!-- SEARCH & FILTERS -->
-                            <div class="lessons-controls">
-                                <div class="lessons-search-box">
-                                    <input type="text" id="lessonsSearchInput" placeholder="🔍 Buscar aula por nome..." class="lessons-search-input" oninput="filterLessonsBySearch(this.value)">
-                                </div>
-                                <div class="lessons-filter-buttons">
-                                    <button class="lessons-filter-btn active" data-filter="all" onclick="filterLessonsByStatus('all')">Todas</button>
-                                    <button class="lessons-filter-btn" data-filter="new" onclick="filterLessonsByStatus('new')">🆕 Novas</button>
-                                    <button class="lessons-filter-btn" data-filter="progress" onclick="filterLessonsByStatus('progress')">⏳ Em Progresso</button>
-                                    <button class="lessons-filter-btn" data-filter="completed" onclick="filterLessonsByStatus('completed')">✓ Completas</button>
-                                </div>
-                            </div>
-
-                            <!-- CATEGORIES TABS (Redesigned) -->
-                            <div class="lessons-categories-tabs-new" id="lessonsCategoriesTabs">
-                                <button class="lessons-cat-tab-new active" data-category="All" onclick="filterLessonsByCategory('All')">
-                                    <span class="cat-tab-emoji">📚</span>
-                                    <span>Todas</span>
-                                </button>
-                            </div>
-
-                            <!-- LESSONS GRID (Redesigned) -->
-                            <div class="lessons-grid-new" id="lessonsGrid">
-                                <!-- Ciclo básico: lista estática inicial -->
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">📖</div>
-                                    <h4>Pronomes Pessoais</h4>
-                                    <p>Introdução aos pronomes sujeitos e objetos.</p>
-                                </div>
-
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">❓</div>
-                                    <h4>Perguntas</h4>
-                                    <p>Formação de perguntas: WH- e auxiliares.</p>
-                                </div>
-
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">🚫</div>
-                                    <h4>Forma Negativa</h4>
-                                    <p>Usos de don't / doesn't e estruturas negativas.</p>
-                                </div>
-
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">⏳</div>
-                                    <h4>Passado</h4>
-                                    <p>Past simple: verbos regulares e irregulares.</p>
-                                </div>
-
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">🔮</div>
-                                    <h4>Futuro</h4>
-                                    <p>Will / going to e expressões de futuro.</p>
-                                </div>
-
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">🔁</div>
-                                    <h4>Gerúndio</h4>
-                                    <p>Uso do -ing: atividades em progresso e gerúndios.</p>
-                                </div>
-
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">📍</div>
-                                    <h4>Preposições</h4>
-                                    <p>Preposições de lugar, tempo e movimento.</p>
-                                </div>
-
-                                <div class="lesson-card" onclick="window.location.href='lessons.html'">
-                                    <div class="lesson-card-icon">🔤</div>
-                                    <h4>Verbos</h4>
-                                    <p>Verbos básicos, conjugação e uso por nível.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ========== LESSON DETAIL VIEW ========== -->
-                        <div id="lessonDetailView" style="display:none;">
-                            <button class="quiz-back-btn" onclick="backToLessonsView()">← Voltar a Aulas</button>
-
-                            <!-- Lesson hero section -->
-                            <div class="lesson-hero" id="lessonHero">
-                                <div class="lesson-number" id="lessonNumber">1</div>
-                                <h2 id="lessonTitleHero">Carregando aula...</h2>
-                                <p id="lessonObjective">Objetivo da aula</p>
-                                <div id="lessonCategoriesBadge" class="lesson-categories-badge"></div>
-                                <button class="btn-phrase-voice" id="btnPhraseVoice" type="button" onclick="openPhraseVoiceFromCurrentLesson()" style="margin-top:14px;display:none;">
-                                    🎙 Prove que aprendeu — Exercício de voz
-                                </button>
-                            </div>
-
-                            <!-- Lesson Tabs Navigation -->
-                            <div class="lesson-tabs-bar">
-                                <button class="lesson-tab-btn active" data-tab="context" onclick="switchLessonTab('context')">📖 Contexto</button>
-                                <button class="lesson-tab-btn" data-tab="grammar" onclick="switchLessonTab('grammar')">📐 Gramática</button>
-                                <button class="lesson-tab-btn" data-tab="examples" onclick="switchLessonTab('examples')">📚 Exemplos</button>
-                                <button class="lesson-tab-btn" data-tab="exercises" onclick="switchLessonTab('exercises')">✏️ Exercícios</button>
-                            </div>
-
-                            <!-- Lesson Tabs Content Container -->
-                            <div class="lesson-tabs-container">
-                                <!-- Tab 1: Context -->
-                                <div class="lesson-tab-content active" id="tabContext"></div>
-
-                                <!-- Tab 2: Grammar -->
-                                <div class="lesson-tab-content" id="tabGrammar"></div>
-
-                                <!-- Tab 3: Examples -->
-                                <div class="lesson-tab-content" id="tabExamples"></div>
-
-                                <!-- Tab 4: Exercises (Inline) -->
-                                <div class="lesson-tab-content" id="tabExercises"></div>
-                            </div>
-
-                            <!-- Exercises carousel (moved inside tab) -->
-                            <div class="lesson-exercises" id="lessonExercises" style="display:none;">
-                                <div class="exercise-carousel-header">
-                                    <h3>Exercícios Práticos</h3>
-                                    <div class="exercise-progress-indicator" id="exerciseProgressIndicator">Questão 1 de 1</div>
-                                </div>
-                                <div class="exercise-progress-bar-track">
-                                    <div class="exercise-progress-bar-fill" id="exerciseProgressBarFill"></div>
-                                </div>
-                                <!-- current exercise card -->
-                                <div id="exerciseCarouselCard"></div>
-                                <!-- feedback (shown after confirming) -->
-                                <div id="exerciseFeedback" class="exercise-feedback-box" style="display:none;"></div>
-                                <!-- action buttons -->
-                                <div class="exercise-action-row" id="exerciseActionRow">
-                                    <button class="btn-confirm-exercise" id="btnConfirmExercise" onclick="confirmExerciseAnswer()">Confirmar</button>
-                                    <button class="btn-next-exercise" id="btnNextExercise" onclick="advanceExercise()" style="display:none;">Próxima Questão →</button>
-                                </div>
-                                <!-- final summary (shown after last exercise) -->
-                                <div id="exerciseSummaryScreen" class="exercise-summary-screen" style="display:none;"></div>
-                            </div>
-
-                            <!-- Navigation buttons (only back — next lesson is inside summary) -->
-                            <div class="lesson-nav-buttons">
-                                <button class="btn-auth" onclick="backToLessonsView()">← Voltar às Aulas</button>
-                            </div>
-
-                            <!-- Feedback -->
-                            <div id="lessonFeedback" class="lesson-feedback" style="display:none;">
-                                <div class="feedback-card" id="feedbackCard"></div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
-
                 <!-- Admin Tab (hidden by default, shown if is_admin=true) -->
                 <div class="tab-content" id="adminTab" style="display:none;">
                     <div class="admin-section">
@@ -794,6 +455,8 @@
     <!-- Scripts -->
     <script src="assets/js/utils.js"></script>
     <script src="controllers/lessons/lessons-controller.js?v=9"></script>
+    <!-- Painel "Seu progresso" clicável → modal de requisitos do próximo nível CEFR -->
+    <script src="controllers/home/cefr-modal.js?v=4"></script>
     <script src="controllers/chat/chat-text-controller.js?v=21"></script>
     <script src="controllers/dashboard/admin-controller.js?v=2"></script>
 
@@ -940,9 +603,17 @@
 
 <!-- Include beta modal controller -->
 <script src="./assets/js/voice-recognition-utils.js?v=1"></script>
-<script src="./assets/js/phrase-voice-trainer.js?v=4"></script>
 <script src="./assets/js/difficulties-session.js?v=1"></script>
 <script src="./assets/js/beta-modal-controller.js"></script>
+
+<!-- Interruptor de tema flutuante — lua que enche/mingua -->
+<button class="theme-toggle theme-toggle--float" id="themeToggle" type="button"
+        aria-label="Alternar tema claro e escuro" aria-pressed="false" title="Alternar tema">
+    <span class="tt-orb" aria-hidden="true">
+        <span class="tt-shade"></span>
+    </span>
+</button>
+<script src="assets/js/theme-toggle.js?v=2"></script>
 
 </body>
 </html>
