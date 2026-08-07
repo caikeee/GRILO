@@ -23,7 +23,7 @@ def update_password(db_url, username, new_password):
         cursor.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;")
 
         query = sql.SQL("""
-            UPDATE "user"
+            UPDATE users
             SET password_hash = crypt(%s, gen_salt('bf', 12))
             WHERE username = %s;
         """)
