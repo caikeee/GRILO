@@ -88,14 +88,26 @@ async function loadAdminUsers() {
                 stats.appendChild(badge);
             }
 
+            const actions = document.createElement('div');
+            actions.className = 'admin-user-actions';
+
             const btn = document.createElement('button');
             btn.className = 'btn-admin-small';
             btn.textContent = 'Reset Senha';
             btn.addEventListener('click', () => selectUserForReset(u.username));
+            actions.appendChild(btn);
+
+            if (!u.is_admin) {
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-admin-small btn-admin-danger';
+                delBtn.textContent = 'Excluir';
+                delBtn.addEventListener('click', () => adminDeleteUser(u.username));
+                actions.appendChild(delBtn);
+            }
 
             item.appendChild(info);
             item.appendChild(stats);
-            item.appendChild(btn);
+            item.appendChild(actions);
             list.appendChild(item);
         });
 
@@ -158,6 +170,40 @@ async function adminResetPassword() {
 
     } catch (err) {
         console.error('❌ Error resetting password:', err);
+        showAdminMessage(`❌ Erro: ${err.message}`, 'error');
+    }
+}
+
+// Delete a user (admin only) — requires typing the username to confirm
+async function adminDeleteUser(username) {
+    const confirmation = window.prompt(
+        `Isso vai excluir permanentemente o usuário "${username}" e todos os dados dele (progresso, conversas, XP). Essa ação não pode ser desfeita.\n\nDigite o nome de usuário "${username}" para confirmar:`
+    );
+
+    if (confirmation === null) return;
+    if (confirmation.trim() !== username) {
+        showAdminMessage('Nome digitado não confere. Exclusão cancelada.', 'error');
+        return;
+    }
+
+    const token = localStorage.getItem('grilo_token');
+
+    try {
+        const res = await fetch(`/api/admin/user/${encodeURIComponent(username)}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.detail || 'Falha ao excluir usuário');
+        }
+
+        showAdminMessage(`Usuário "${username}" excluído`, 'success');
+        loadAdminUsers();
+
+    } catch (err) {
+        console.error('❌ Error deleting user:', err);
         showAdminMessage(`❌ Erro: ${err.message}`, 'error');
     }
 }

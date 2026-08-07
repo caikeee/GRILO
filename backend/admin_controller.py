@@ -7,7 +7,12 @@ Only "caike" has admin access
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from backend.database import get_db
-from backend.db_models import User
+from backend.db_models import (
+    User, Conversation, UserProgress, UserBadge, LessonProgress, PhraseError,
+    VoicePhrase, UserActivity, AnalyticsEvent, LessonQuizError,
+    DifficultySessionLog, ShadowModeAnalytic, WordOccurrence, WordProfile,
+    LessonScopeItem, LessonScopeCompletion, ShadowLabResult, ShadowLabPhrase,
+)
 from backend.auth import hash_password, get_current_user_id
 from backend.schemas import PasswordResetRequest, UserAdminResponse
 from typing import List
@@ -87,6 +92,55 @@ async def reset_user_password(
         "success": True,
         "message": f"Password reset for user '{req.username}'",
         "username": req.username
+    }
+
+
+@router.delete("/api/admin/user/{username}", tags=["admin"])
+async def delete_user(
+    username: str,
+    current_user: User = Depends(verify_admin),
+    db: Session = Depends(get_db)
+):
+    """Permanently delete a user and all related data (admin only)"""
+    user = db.query(User).filter(User.username == username).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User '{username}' not found"
+        )
+
+    if user.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete your own account"
+        )
+
+    if user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete another admin account"
+        )
+
+    user_id = user.id
+
+    # Tables referencing users.id without an ORM cascade must be cleared explicitly
+    for model in (
+        LessonProgress, PhraseError, VoicePhrase, UserActivity, AnalyticsEvent,
+        LessonQuizError, DifficultySessionLog, ShadowModeAnalytic, WordOccurrence,
+        WordProfile, LessonScopeItem, LessonScopeCompletion, ShadowLabResult,
+        ShadowLabPhrase,
+    ):
+        db.query(model).filter(model.user_id == user_id).delete(synchronize_session=False)
+
+    # Conversation, UserProgress, UserBadge cascade via ORM relationship on User
+    db.delete(user)
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"User '{username}' deleted",
+        "username": username
     }
 
 

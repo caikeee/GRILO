@@ -497,6 +497,12 @@ body {
     color: #b45309;
 }
 
+.admin-user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .btn-admin-small,
 .btn-admin {
     border: none;
@@ -511,6 +517,7 @@ body {
 .btn-admin-small {
     height: 40px;
     padding: 0 14px;
+    white-space: nowrap;
 }
 
 .btn-admin {
@@ -522,6 +529,14 @@ body {
 .btn-admin:hover {
     transform: translateY(-1px);
     box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+.btn-admin-danger {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+}
+
+.btn-admin-danger:hover {
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.3);
 }
 
 .admin-form-group {
