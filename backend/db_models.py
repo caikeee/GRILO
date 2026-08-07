@@ -352,3 +352,52 @@ class LessonScopeCompletion(Base):
     lesson_group = Column(String(4), nullable=True)
     completed_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class ShadowLabResult(Base):
+    """Um registro por sessão RANQUEADA de shadowing (não upsert — histórico).
+
+    A trilha é linear e client-side (localStorage decide unlock); este
+    registro é só a prova de sessão que credita XP e alimenta WordProfile
+    (ver shadowing_controller.py). Sessões CASUAL nunca chegam aqui."""
+    __tablename__ = "shadow_lab_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    track_slug = Column(String(60), nullable=False, index=True)
+    score = Column(Integer, nullable=False)
+    words_correct = Column(Integer, default=0)
+    words_total = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class ShadowLabPhrase(Base):
+    """Domínio por FRASE dentro de uma faixa de shadowing (não por palavra).
+
+    Uma frase aprovada (dentro do limiar de conclusão da faixa, não 100%
+    perfeita — o reconhecimento ainda está em ajuste) numa sessão Ranqueada
+    já vira "dominada" (PHRASE_SESSIONS_TO_MASTER=1 em shadowing_controller.py
+    — cada faixa tem um único texto fixo hoje, então repetir a mesma sessão
+    não é prova de domínio mais forte). Latch: uma vez dominada, não reverte.
+    correct_sessions fica registrado para o dia em que houver variação real
+    de texto por faixa e a régua puder subir de novo.
+
+    Separada de LessonScopeItem de propósito — não é uma aula do bloco A1/A2,
+    é uma faixa própria do Laboratório de Shadowing (textos corridos, não o
+    escopo 8+5/10+6 das aulas). "dominada" aqui soma em phrases_mastered_total
+    junto com scope4p_phrases_dominated, ver lessons_controller.py."""
+    __tablename__ = "shadow_lab_phrases"
+    __table_args__ = (
+        UniqueConstraint("user_id", "track_slug", "sentence_index", name="unique_user_shadow_phrase"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    track_slug = Column(String(60), nullable=False, index=True)
+    sentence_index = Column(Integer, nullable=False)     # posição da frase dentro de track.sentences
+    sentence_en = Column(Text, nullable=False)
+    correct_sessions = Column(Integer, default=0)        # sessões distintas com a frase 100% certa
+    dominated = Column(Boolean, default=False)            # latch — não reverte
+    last_correct_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

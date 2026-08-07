@@ -39,7 +39,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="assets/css/home.css?v=1">
+    <link rel="stylesheet" href="assets/css/home.css?v=4">
     <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
 </head>
 <body>
@@ -49,7 +49,7 @@
       <div id="griloOnboardingModal" style="background:#fff;border-radius:20px;padding:36px 32px 28px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(58,94,71,0.18);border:1px solid #D9E7DC;font-family:'Space Grotesk',sans-serif;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
           <span style="font-size:1.3rem;">🦗</span>
-          <span style="font-family:'Manrope',sans-serif;font-weight:800;font-size:1rem;color:#3A5E47;letter-spacing:.04em;">GRILO</span>
+          <span class="ob-brand" style="font-family:'Manrope',sans-serif;font-weight:800;font-size:1rem;color:#3A5E47;letter-spacing:.04em;">GRILO</span>
         </div>
         <!-- step bar -->
         <div id="obStepBar" style="display:flex;gap:6px;margin-bottom:24px;">
@@ -136,10 +136,17 @@
 
         <!-- Top Bar -->
         <header class="topbar">
-            <span class="topbar-logo">◆ GRILO</span>
+            <div class="topbar-brand">
+                <span class="topbar-brand-icon" aria-hidden="true">◆</span>
+                <span class="topbar-brand-copy">
+                    <em>Grilo · Inglês</em>
+                    <strong>Seu painel</strong>
+                </span>
+            </div>
             <nav class="topbar-nav" aria-label="Navegação principal">
                 <button class="nav-btn active" data-tab="painel" onclick="switchTab('painel')">Painel</button>
                 <a class="nav-btn" href="lessons.html">Aulas</a>
+                <a class="nav-btn" href="shadowing.html">Shadowing</a>
                 <a class="nav-btn" href="voice.html">Chat de Voz</a>
                 <button class="nav-btn" id="adminNavBtn" data-tab="admin" onclick="switchTab('admin')" style="display:none;">Admin</button>
             </nav>
@@ -226,8 +233,9 @@
                           </section>
 
                           <section class="side-card" id="sideVocab">
+                              <div class="side-card-label">Seu vocabulário</div>
                               <div class="side-vocab-num" id="sideVocabNum">--</div>
-                              <div class="side-vocab-label">palavras dominadas</div>
+                              <div class="side-vocab-label">palavras usadas</div>
                               <span class="side-vocab-delta" id="sideVocabDelta" hidden></span>
                           </section>
 
@@ -469,7 +477,7 @@
     <script src="controllers/dashboard/sidebar-nav-sync.js?v=2"></script>
 
     <!-- ===== ONBOARDING + STREAK + XP TOAST LOGIC ===== -->
-    <script src="controllers/dashboard/onboarding-streak.js?v=1"></script>
+    <script src="controllers/dashboard/onboarding-streak.js?v=2"></script>
 
     <!-- Voice setup modal moved to voice.html -->
     <div class="voice-setup-modal" id="voiceSetupModal" style="display:none!important;">
@@ -569,44 +577,8 @@
         </div>
     </div>
 
-<!-- ========== BETA WELCOME MODAL ========== -->
-<div id="betaWelcomeModal" class="beta-welcome-modal">
-  <div id="betaModalBackdrop" class="beta-modal-backdrop"></div>
-  <div class="beta-modal-content">
-    <button id="betaModalCloseBtn" class="beta-modal-close" aria-label="Fechar modal">
-      ✕
-    </button>
-
-    <div class="beta-modal-inner">
-                        <span class="beta-modal-kicker">VERSAO BETA</span>
-      <h2 class="beta-modal-heading">
-                                Bem-vindo ao ecossistema GRILO
-      </h2>
-
-      <p class="beta-modal-body">
-                                O GRILO está em versão BETA e evolui em contato direto com quem usa a plataforma todos os dias.
-      </p>
-
-      <p class="beta-modal-body">
-                                Aqui você encontra conteúdo denso, aulas estruturadas e uma experiência pensada para aprofundar seu aprendizado com mais contexto e consistência.
-      </p>
-
-      <p class="beta-modal-body beta-modal-highlight">
-                                Estamos em melhoria contínua junto à comunidade. Se encontrar problemas, dúvidas ou pontos confusos, reporte sem hesitar — cada relato contribui diretamente para fortalecer todo o ecossistema GRILO.
-      </p>
-
-            <div class="beta-modal-actions">
-                                <button id="betaModalPrimaryBtn" class="beta-modal-primary" type="button">Entrar</button>
-            </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Include beta modal controller -->
 <script src="./assets/js/voice-recognition-utils.js?v=1"></script>
 <script src="./assets/js/difficulties-session.js?v=1"></script>
-<script src="./assets/js/beta-modal-controller.js"></script>
 
 <!-- Interruptor de tema flutuante — lua que enche/mingua -->
 <button class="theme-toggle theme-toggle--float" id="themeToggle" type="button"

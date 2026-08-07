@@ -18,6 +18,8 @@ from backend.db_models import (
     Conversation,
     LessonScopeItem,
     LessonScopeCompletion,
+    ShadowLabPhrase,
+    ShadowLabResult,
     ShadowModeAnalytic,
     User,
     UserActivity,
@@ -210,12 +212,35 @@ async def get_user_stats(
         # Bloco A1 = 20 aulas (gate de promoção A1→A2)
         scope4p_block_total = 20
 
+        # Laboratório de Shadowing — frases inteiras dominadas (>=2 sessões
+        # Ranqueadas distintas 100% certas). Soma com scope4p, mesmo campo.
+        shadow_phrases_dominated = (
+            db.query(func.count(ShadowLabPhrase.id))
+            .filter(ShadowLabPhrase.user_id == uid, ShadowLabPhrase.dominated.is_(True))
+            .scalar()
+        ) or 0
+        # Sessões Ranqueadas de shadowing — 1 registro por sessão (ShadowLabResult).
+        # Gate "Meu Progresso": 10 sessões concluídas.
+        shadowing_sessions_completed = (
+            db.query(func.count(ShadowLabResult.id))
+            .filter(ShadowLabResult.user_id == uid)
+            .scalar()
+        ) or 0
+
         # Soma nos gates que a home já mostra
         vocab_mastered_total += scope4p_words_learned
-        phrases_mastered_total += scope4p_phrases_dominated
+        phrases_mastered_total += scope4p_phrases_dominated + shadow_phrases_dominated
         vocab_total_seen = (
             db.query(func.count(WordProfile.id))
             .filter(WordProfile.user_id == uid)
+            .scalar()
+        ) or 0
+        vocab_total_seen_week = (
+            db.query(func.count(WordProfile.id))
+            .filter(
+                WordProfile.user_id == uid,
+                WordProfile.first_seen_at >= seven_days_ago,
+            )
             .scalar()
         ) or 0
 
@@ -378,7 +403,9 @@ async def get_user_stats(
             "phrases_mastered_total": phrases_mastered_total,
             "vocab_mastered_week": vocab_mastered_week,
             "vocab_total_seen": vocab_total_seen,
+            "vocab_total_seen_week": vocab_total_seen_week,
             "vocab_mastered_list": vocab_mastered_list,
+            "shadowing_sessions_completed": shadowing_sessions_completed,
             "cefr": {
                 "current": cefr_current,
                 "next": cefr_next,

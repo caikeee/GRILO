@@ -108,7 +108,11 @@ html, body {
 
 body {
     font-family: var(--font-family);
-    background: var(--bg-primary);
+    /* Mesmo clima da lessons: gradiente sálvia suave sob a topbar de vidro */
+    background:
+        radial-gradient(ellipse 80% 50% at 90% -10%, rgba(74, 124, 94, 0.09), transparent),
+        radial-gradient(ellipse 60% 40% at 10% 110%, rgba(122, 174, 138, 0.07), transparent),
+        linear-gradient(175deg, #f8fbf9 0%, #f0f5f1 50%, #eaf1ec 100%);
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
@@ -138,39 +142,88 @@ body {
     overflow: hidden;
 }
 
-/* ========== TOPBAR ========== */
+/* ========== TOPBAR — cápsula flutuante de vidro (padrão lessons) ========== */
 .topbar {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--spacing-lg);
-    height: 70px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-light);
-    box-shadow: var(--shadow-xs);
+    gap: 16px;
+    align-self: center;
+    width: min(1220px, calc(100% - 36px));
+    margin: 14px 0 6px;
+    padding: 10px 14px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 1px 2px rgba(31, 59, 45, 0.04),
+        0 16px 40px -18px rgba(31, 59, 45, 0.18);
+    backdrop-filter: blur(16px) saturate(1.25);
+    -webkit-backdrop-filter: blur(16px) saturate(1.25);
     flex-shrink: 0;
     z-index: 10;
-    gap: var(--spacing-md);
 }
 
-.topbar-logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.5px;
-    display: flex;
+/* sage-elegance troca a sombra em .topbar:hover — manter o vidro estável */
+.topbar:hover {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 1px 2px rgba(31, 59, 45, 0.04),
+        0 16px 40px -18px rgba(31, 59, 45, 0.18);
+}
+
+/* Lockup de marca: tile verde + kicker + título (espelha .lessons-title) */
+.topbar-brand {
+    justify-self: start;
+    display: inline-flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: 11px;
+}
+
+.topbar-brand-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: #fff;
+    background: linear-gradient(145deg, #4A7C5E, #3A5E47);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        0 4px 12px rgba(74, 124, 94, 0.35);
+}
+
+.topbar-brand-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.topbar-brand-copy em {
+    font-style: normal;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--text-light);
+}
+
+.topbar-brand-copy strong {
+    font-family: 'Space Grotesk', 'Manrope', sans-serif;
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    color: var(--text-primary);
 }
 
 .topbar-user {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
-    margin-left: auto;
+    justify-self: end;
+    gap: var(--spacing-sm);
 }
 
 .user-badge {
@@ -186,14 +239,14 @@ body {
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     font-weight: 700;
     color: #fff;
     flex-shrink: 0;
@@ -234,43 +287,61 @@ body {
     transform: translateY(0);
 }
 
-/* ── Topbar nav (rampa) ── */
+/* ── Topbar nav (pílula-spotlight por item, só no hover) ── */
 .topbar-nav {
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin-left: 24px;
-    margin-right: auto;
+    justify-self: center;
+    gap: 2px;
 }
 .topbar-nav .nav-btn {
     appearance: none;
     border: none;
     background: transparent;
     cursor: pointer;
+    position: relative;
     display: inline-flex;
     align-items: center;
     font-family: 'Manrope', sans-serif;
     font-weight: 600;
     font-size: 0.875rem;
     line-height: 1;
-    color: #6A7B71;
-    text-decoration: none;
+    /* !important: âncoras (.nav-btn em <a>) herdariam a{color:…!important}
+       do sage-color-system — botões e links precisam da mesma cor. */
+    color: #6A7B71 !important;
+    text-decoration: none !important;
     padding: 8px 14px;
     border-radius: 99px;
-    transition: background 0.18s, color 0.18s;
+    transition: color 0.22s ease;
+}
+/* A pílula que expande do centro sob o item onde está o mouse.
+   Sem hover em nenhum item, nenhuma pílula aparece. */
+.topbar-nav .nav-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: rgba(74, 124, 94, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(74, 124, 94, 0.14);
+    opacity: 0;
+    transform: scaleX(0.72);
+    transition:
+        transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.24s ease;
 }
 .topbar-nav .nav-btn:hover {
-    background: #F1F6F2;
-    color: #3A5E47;
+    color: #3A5E47 !important;
 }
-.topbar-nav .nav-btn.active {
-    background: #EAF2EB;
-    color: #24463A;
-    font-weight: 700;
+.topbar-nav .nav-btn:hover::after {
+    opacity: 1;
+    transform: scaleX(1);
 }
 @media (max-width: 600px) {
-    .topbar-nav { margin-left: 10px; }
     .topbar-nav .nav-btn { padding: 6px 10px; font-size: 0.8125rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .topbar-nav .nav-btn::after { transition: opacity 0.2s ease; }
 }
 
 /* ========== MAIN PANEL ========== */
@@ -279,7 +350,9 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--bg-primary);
+    /* Transparente: o gradiente sálvia do body atravessa a página inteira,
+       e a topbar de vidro flutua sobre ele — mesmo clima da lessons. */
+    background: transparent;
 }
 
 .tab-content {
@@ -3364,19 +3437,22 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     align-items: center;
     gap: 9px;
     background: #fff;
-    color: #2A4635;
+    /* !important: é <a> — vence a{color}/a:hover{underline} do sage-color-system. */
+    color: #2A4635 !important;
     font-family: 'Manrope', sans-serif;
     font-weight: 800;
     font-size: 0.9375rem;
     border-radius: 99px;
     padding: 12px 24px;
-    text-decoration: none;
+    text-decoration: none !important;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
     transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 .pl2-hero-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    color: #2A4635 !important;
+    text-decoration: none !important;
 }
 .pl2-hero-btn-play {
     width: 0;
@@ -4087,14 +4163,22 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     }
     
     .topbar {
-        padding: 0 var(--spacing-md);
-        height: 60px;
+        width: calc(100% - 20px);
+        margin: 10px 0 4px;
+        padding: 8px 10px;
+        gap: 10px;
     }
-    
-    .topbar-logo {
-        font-size: 1.2rem;
+
+    .topbar-brand-copy em {
+        display: none;
     }
-    
+
+    .topbar-brand-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+    }
+
     .user-name-text {
         display: none;
     }
@@ -4133,10 +4217,14 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     }
     
     .topbar {
-        padding: 0 var(--spacing-md);
-        height: 56px;
+        grid-template-columns: auto 1fr auto;
+        padding: 6px 8px;
     }
-    
+
+    .topbar-brand-copy {
+        display: none;
+    }
+
     .user-badge {
         padding: var(--spacing-xs) var(--spacing-sm);
     }
@@ -6207,210 +6295,443 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     color: var(--accent-primary);
 }
 
-/* ========== BETA WELCOME MODAL ========== */
-.beta-welcome-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 5000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding: 16px;
-}
-
-body.beta-modal-open {
-    overflow: hidden;
-}
-
-body.beta-modal-open .topbar,
-body.beta-modal-open .main-content,
-body.beta-modal-open .main-content.active {
-    filter: blur(10px) saturate(0.9);
-    transform: scale(0.988);
-    transition: filter 0.32s ease, transform 0.32s ease;
-}
-
-.beta-welcome-modal.active {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-}
-
-.beta-modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at top right, rgba(122, 158, 132, 0.14), transparent 32%),
-        linear-gradient(180deg, rgba(10, 22, 16, 0.22), rgba(10, 22, 16, 0.34));
-    backdrop-filter: blur(12px) saturate(1.05);
-    -webkit-backdrop-filter: blur(12px) saturate(1.05);
-}
-
-.beta-modal-content {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 560px;
-    overflow: hidden;
-    padding: 36px;
-    border: 1px solid rgba(255, 255, 255, 0.38);
-    border-radius: 28px;
-    background:
-        radial-gradient(circle at top right, rgba(200, 155, 106, 0.12), transparent 30%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(245, 249, 246, 0.66));
-    box-shadow:
-        0 28px 72px rgba(15, 23, 18, 0.2),
-        0 14px 36px rgba(90, 126, 102, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.56);
-    backdrop-filter: blur(20px) saturate(1.08);
-    -webkit-backdrop-filter: blur(20px) saturate(1.08);
-    opacity: 0;
-    transform: translateY(16px) scale(0.97);
-    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease;
-}
-
-.beta-modal-content::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(122, 158, 132, 0.4), rgba(255, 255, 255, 0.12));
-    pointer-events: none;
-}
-
-.beta-welcome-modal.active .beta-modal-content {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-
-.beta-modal-close {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(122, 158, 132, 0.2);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.72);
-    color: var(--text-secondary);
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 1;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.beta-modal-close:hover {
-    background: rgba(122, 158, 132, 0.1);
-    color: var(--text-primary);
-    border-color: rgba(122, 158, 132, 0.35);
-    transform: scale(1.08);
-}
-
-.beta-modal-close:active {
-    transform: scale(0.95);
-}
-
-.beta-modal-inner {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.beta-modal-kicker {
-    display: inline-flex;
-    align-self: flex-start;
-    padding: 6px 12px;
-    border: 1px solid rgba(122, 158, 132, 0.2);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.5);
-    color: #3A5E47;
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.beta-modal-heading {
-    margin: 0;
-    font-size: clamp(1.8rem, 3vw, 2.25rem);
-    font-weight: 800;
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #3A5E47 0%, #5A7E66 50%, #7A9E84 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.beta-modal-body {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1.72;
-}
-
-.beta-modal-highlight {
-    padding: 18px;
-    border: 1px solid rgba(122, 158, 132, 0.16);
-    border-left: 4px solid rgba(90, 126, 102, 0.35);
-    border-radius: 16px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.48) 0%, rgba(197, 217, 196, 0.22) 100%);
-    color: var(--text-primary);
-}
-
-.beta-modal-actions {
-    display: flex;
-    justify-content: flex-start;
-    margin-top: 8px;
-}
-
-.beta-modal-primary {
-    min-height: 48px;
-    padding: 12px 22px;
-    border: none;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #7A9E84 0%, #5A7E66 100%);
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 12px 24px rgba(90, 126, 102, 0.22);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.beta-modal-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 16px 28px rgba(90, 126, 102, 0.3);
-}
-
-@media (max-width: 480px) {
-    .beta-modal-content {
-        max-width: 100%;
-        padding: 28px 20px 22px;
-        border-radius: 16px;
-    }
-
-    .beta-modal-heading {
-        font-size: 1.5rem;
-    }
-
-    .beta-modal-body {
-        font-size: 0.95rem;
-    }
-}
-
 @media (max-width: 768px) {
     .live-error-panel.has-errors { right: 8px; width: 240px; }
     .voice-setup-layout {
         grid-template-columns: 1fr;
     }
+}
+
+/* ============================================================
+   ONBOARDING — estados controlados por classe (o JS não pinta
+   mais inline, senão o tema escuro não consegue re-estilizar).
+   !important: o estado base desses elementos vive em style="" no HTML.
+   ============================================================ */
+.ob-opt.is-selected,
+.ob-opt2.is-selected {
+    border-color: #3A5E47 !important;
+    background: #E6F0E8 !important;
+}
+#obStepBar span.is-done {
+    background: #3A5E47 !important;
+}
+
+/* ============================================================
+   DARK MODE — HOME
+   Os tokens globais escuros vivem em sage-color-system.css
+   (:root[data-theme="dark"]). Este bloco cobre o que a home
+   pinta com hex fixo de light mode: painel, topbar, semana,
+   cards laterais e os modais alcançáveis a partir da home.
+   ============================================================ */
+
+:root[data-theme="dark"] {
+    /* Tokens do :root da home sem contraparte escura no sage */
+    --bg-accent: #121E19;
+    --glass-bg: rgba(22, 34, 28, 0.72);
+    --glass-bg-strong: rgba(24, 38, 31, 0.92);
+    --glass-border: rgba(181, 205, 176, 0.12);
+    --divider: rgba(181, 205, 176, 0.10);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.28), 0 6px 24px rgba(0, 0, 0, 0.32);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.34), 0 20px 48px rgba(0, 0, 0, 0.40);
+    --glow-primary: 0 0 60px rgba(122, 158, 132, 0.12);
+
+    /* Aliases locais do painel escuro (uma fonte só para os hex) */
+    --dk-card-bg: #16241E;         /* superfície elevada sobre #0F1B17 */
+    --dk-card-border: #263A30;
+    --dk-track: rgba(232, 241, 237, 0.10);   /* trilho de barras de progresso */
+    --dk-sage-bright: #8FBF9A;     /* sálvia legível sobre fundo escuro */
+    --dk-sage-soft: rgba(143, 191, 154, 0.14);
+    --dk-amber: #D9B36C;           /* âmbar/ouro legível sobre fundo escuro */
+    --dk-amber-soft: rgba(217, 179, 108, 0.13);
+    --dk-kicker: #7D9186;          /* micro-rótulos uppercase */
+}
+
+/* ── Topbar ── */
+:root[data-theme="dark"] body {
+    background:
+        radial-gradient(ellipse 80% 50% at 90% -10%, rgba(143, 191, 154, 0.07), transparent),
+        radial-gradient(ellipse 60% 40% at 10% 110%, rgba(143, 191, 154, 0.05), transparent),
+        linear-gradient(175deg, #13211A 0%, #101C16 55%, #0E1913 100%);
+}
+:root[data-theme="dark"] .topbar,
+:root[data-theme="dark"] .topbar:hover {
+    background: rgba(22, 34, 28, 0.72);
+    border-color: rgba(181, 205, 176, 0.14);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 1px 2px rgba(0, 0, 0, 0.35),
+        0 16px 40px -18px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="dark"] .topbar-brand-copy em {
+    color: var(--dk-kicker);
+}
+:root[data-theme="dark"] .topbar-brand-copy strong {
+    color: #E8F1ED;
+}
+:root[data-theme="dark"] .topbar-brand-icon {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 4px 12px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="dark"] .topbar-nav .nav-btn {
+    color: #9BA9A0 !important;
+}
+:root[data-theme="dark"] .topbar-nav .nav-btn::after {
+    background: rgba(143, 191, 154, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(143, 191, 154, 0.22);
+}
+:root[data-theme="dark"] .topbar-nav .nav-btn:hover {
+    color: #C9DCCD !important;
+}
+:root[data-theme="dark"] .btn-logout {
+    background: rgba(239, 99, 90, 0.10);
+    border-color: rgba(239, 99, 90, 0.28);
+    color: #E08A82;
+}
+:root[data-theme="dark"] .btn-logout:hover {
+    background: rgba(239, 99, 90, 0.18);
+    border-color: rgba(239, 99, 90, 0.40);
+}
+/* Pill de streak (estilizada inline no HTML) */
+:root[data-theme="dark"] #streakTopbar {
+    background: rgba(224, 154, 80, 0.14) !important;
+    border-color: rgba(224, 154, 80, 0.32) !important;
+    color: #E8B87A !important;
+}
+
+/* ── Saudação ── */
+:root[data-theme="dark"] .pl2-hero-kicker { color: var(--dk-kicker); }
+:root[data-theme="dark"] .pl2-hero-greet { color: var(--text-primary); }
+:root[data-theme="dark"] .pl2-hero-greet span.pl2-italic { color: var(--dk-sage-bright); }
+:root[data-theme="dark"] .pl2-hero-sub { color: var(--text-tertiary); }
+
+/* ── Herói "continue de onde parou" ──
+   O gradiente verde já é escuro; no tema escuro ele se dilui no fundo.
+   Um anel interno + sombra preta devolvem a separação sem mexer no layout. */
+:root[data-theme="dark"] .pl2-hero {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 0 0 1px rgba(181, 205, 176, 0.12),
+        0 18px 40px -18px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Linha de pendência ── */
+:root[data-theme="dark"] .pend-row {
+    background: var(--dk-card-bg);
+    border-color: var(--dk-card-border);
+}
+:root[data-theme="dark"] .pend-row:hover:not(:disabled) {
+    border-color: #35503F;
+    box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.60);
+}
+:root[data-theme="dark"] .pend-ico {
+    background: var(--dk-amber-soft);
+    color: var(--dk-amber);
+}
+:root[data-theme="dark"] .pend-txt b { color: var(--text-primary); }
+:root[data-theme="dark"] .pend-txt small { color: var(--text-tertiary); }
+:root[data-theme="dark"] .pend-chev { color: var(--text-light); }
+:root[data-theme="dark"] .pend-row-locked,
+:root[data-theme="dark"] .pend-row-locked:disabled {
+    background: rgba(217, 179, 108, 0.07);
+    border-color: rgba(217, 179, 108, 0.22);
+}
+:root[data-theme="dark"] .pend-row-locked .pend-ico {
+    background: var(--dk-amber-soft);
+    color: var(--dk-amber);
+}
+
+/* ── Sua semana ── */
+:root[data-theme="dark"] .week-strip-head { color: var(--dk-kicker); }
+:root[data-theme="dark"] .week-strip-count { color: var(--text-tertiary); }
+:root[data-theme="dark"] .week-day {
+    background: #1D2C25;
+    color: #7D9186;
+}
+:root[data-theme="dark"] .week-day.done {
+    background: #7A9E84;
+    color: #0F1B17;
+}
+:root[data-theme="dark"] .week-day.today {
+    background: transparent;
+    border-color: var(--dk-sage-bright);
+    color: #A5C9AF;
+}
+
+/* ── Lateral "Seu progresso" ── */
+:root[data-theme="dark"] .side-label { color: var(--dk-kicker); }
+:root[data-theme="dark"] .side-card {
+    /* !important: sage-color-system pinta toda <section> com --bg-primary
+       !important; o card precisa de um degrau de elevação acima do fundo. */
+    background: var(--dk-card-bg) !important;
+    border-color: var(--dk-card-border);
+}
+/* Affordance de clique (hover injetado por cefr-modal.js / vocab-modal.js) */
+:root[data-theme="dark"] #sideCefr:hover,
+:root[data-theme="dark"] #sideVocab:hover {
+    border-color: #35503F;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="dark"] #sideCefr:hover::after,
+:root[data-theme="dark"] #sideVocab:hover::after {
+    color: var(--dk-sage-bright);
+}
+
+/* Pronúncia · insight da semana */
+:root[data-theme="dark"] .side-phoneme-glyph {
+    background: var(--dk-amber-soft);
+    color: var(--dk-amber);
+}
+:root[data-theme="dark"] .side-card-label { color: var(--dk-amber); }
+:root[data-theme="dark"] .side-phoneme-txt p { color: var(--text-tertiary); }
+:root[data-theme="dark"] .side-phoneme-txt p b { color: var(--text-primary); }
+
+/* CEFR */
+:root[data-theme="dark"] .side-cefr-track { color: var(--text-primary); }
+:root[data-theme="dark"] .side-cefr-arrow { color: var(--text-light); }
+:root[data-theme="dark"] .side-cefr-bar { background: var(--dk-track); }
+:root[data-theme="dark"] .side-cefr-fill {
+    /* No escuro o preenchimento clareia rumo à ponta (o trilho já é escuro) */
+    background: linear-gradient(90deg, #7A9E84, #A5C9AF);
+}
+:root[data-theme="dark"] .side-cefr-pct { color: var(--text-tertiary); }
+
+/* Vocabulário */
+:root[data-theme="dark"] .side-vocab-num { color: var(--text-primary); }
+:root[data-theme="dark"] .side-vocab-label { color: var(--text-tertiary); }
+:root[data-theme="dark"] .side-vocab-delta {
+    background: var(--dk-sage-soft);
+    color: #A5C9AF;
+}
+
+/* Próxima medalha */
+:root[data-theme="dark"] .side-badge-medal { background: var(--dk-amber-soft); }
+:root[data-theme="dark"] .side-badge-name { color: var(--text-primary); }
+:root[data-theme="dark"] .side-badge-desc { color: var(--text-tertiary); }
+:root[data-theme="dark"] .side-badge-track { background: var(--dk-track); }
+:root[data-theme="dark"] .side-badge-fill { background: var(--dk-amber); }
+:root[data-theme="dark"] .side-badge-label { color: var(--text-tertiary); }
+
+/* ── Onboarding (base estilizada inline no HTML → precisa de !important) ── */
+:root[data-theme="dark"] #griloOnboardingBackdrop {
+    background: rgba(6, 12, 9, 0.60) !important;
+}
+:root[data-theme="dark"] #griloOnboardingModal {
+    background: var(--dk-card-bg) !important;
+    border-color: var(--dk-card-border) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55) !important;
+}
+:root[data-theme="dark"] #griloOnboardingModal .ob-brand { color: var(--dk-sage-bright) !important; }
+:root[data-theme="dark"] #griloOnboardingModal p { color: var(--text-tertiary) !important; }
+:root[data-theme="dark"] .ob-opt,
+:root[data-theme="dark"] .ob-opt2 {
+    background: #1B2A23 !important;
+    border-color: #2C4237 !important;
+}
+:root[data-theme="dark"] .ob-opt span,
+:root[data-theme="dark"] .ob-opt2 span { color: var(--text-secondary) !important; }
+:root[data-theme="dark"] .ob-opt.is-selected,
+:root[data-theme="dark"] .ob-opt2.is-selected {
+    border-color: var(--dk-sage-bright) !important;
+    background: var(--dk-sage-soft) !important;
+}
+:root[data-theme="dark"] #obStepBar span { background: rgba(232, 241, 237, 0.14) !important; }
+:root[data-theme="dark"] #obStepBar span:first-child,
+:root[data-theme="dark"] #obStepBar span.is-done { background: #7A9E84 !important; }
+
+/* ── Modal · Sessão de Dificuldades ── */
+:root[data-theme="dark"] .dif-modal { background: rgba(5, 10, 8, 0.80); }
+:root[data-theme="dark"] .dif-modal-shell {
+    background: var(--bg-secondary);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.60);
+}
+:root[data-theme="dark"] .dif-modal-head,
+:root[data-theme="dark"] .dif-modal-progress { border-bottom-color: rgba(232, 241, 237, 0.08); }
+:root[data-theme="dark"] .dif-modal-title { color: var(--text-primary); }
+:root[data-theme="dark"] .dif-modal-close { color: var(--text-tertiary); }
+:root[data-theme="dark"] .dif-modal-close:hover { color: var(--text-primary); }
+:root[data-theme="dark"] .dif-modal-progress { color: var(--text-tertiary); }
+:root[data-theme="dark"] .dif-modal-progress-bar { background: var(--dk-track); }
+:root[data-theme="dark"] .dif-modal-progress-text { color: var(--text-primary); }
+:root[data-theme="dark"] .dif-modal-progress-week {
+    color: #7FC08F;
+    background: rgba(86, 158, 116, 0.16);
+}
+:root[data-theme="dark"] .dif-item-source {
+    background: rgba(232, 241, 237, 0.08);
+    color: var(--text-tertiary);
+}
+:root[data-theme="dark"] .dif-item-source--voice { background: rgba(196, 74, 44, 0.16); color: #E08A6C; }
+:root[data-theme="dark"] .dif-item-source--quiz { background: rgba(96, 140, 200, 0.16); color: #8FB4E8; }
+:root[data-theme="dark"] .dif-item-source--shadow { background: rgba(86, 158, 116, 0.18); color: #7FC08F; }
+:root[data-theme="dark"] .dif-item-prompt { color: var(--text-primary); }
+:root[data-theme="dark"] .dif-item-pt { color: var(--text-tertiary); }
+:root[data-theme="dark"] .dif-btn {
+    background: #1B2A23;
+    border-color: rgba(232, 241, 237, 0.14);
+    color: var(--text-primary);
+}
+:root[data-theme="dark"] .dif-btn:hover {
+    background: #22332B;
+    border-color: rgba(232, 241, 237, 0.24);
+}
+:root[data-theme="dark"] .dif-btn.is-correct {
+    background: rgba(86, 158, 116, 0.20);
+    border-color: #56965a;
+    color: #8FC79A;
+}
+:root[data-theme="dark"] .dif-btn.is-wrong {
+    background: rgba(196, 74, 44, 0.16);
+    border-color: #c44a2c;
+    color: #E08A6C;
+}
+/* Variantes precisam ser re-declaradas: a regra dark genérica de .dif-btn
+   tem especificidade maior que .dif-btn--primary/--ghost do tema claro. */
+:root[data-theme="dark"] .dif-btn--primary {
+    background: #c44a2c;
+    border-color: #c44a2c;
+    color: #fff;
+}
+:root[data-theme="dark"] .dif-btn--primary:hover {
+    background: #a83b22;
+    border-color: #a83b22;
+}
+:root[data-theme="dark"] .dif-btn--ghost { background: transparent; }
+:root[data-theme="dark"] .dif-voice-status { color: var(--text-tertiary); }
+:root[data-theme="dark"] .dif-voice-transcript {
+    background: rgba(232, 241, 237, 0.07);
+    color: var(--text-primary);
+}
+:root[data-theme="dark"] .dif-feedback-card {
+    background: rgba(196, 74, 44, 0.10);
+    border-color: rgba(196, 74, 44, 0.35);
+}
+:root[data-theme="dark"] .dif-feedback-title { color: #E08A6C; }
+:root[data-theme="dark"] .dif-feedback-label { color: var(--text-light); }
+:root[data-theme="dark"] .dif-feedback-value { color: var(--text-primary); }
+:root[data-theme="dark"] .dif-feedback-hint { color: var(--text-tertiary); }
+:root[data-theme="dark"] .dif-celebration-title { color: var(--text-primary); }
+:root[data-theme="dark"] .dif-celebration-week-title { color: var(--dk-amber); }
+:root[data-theme="dark"] .dif-celebration-text { color: var(--text-tertiary); }
+:root[data-theme="dark"] .dif-celebration-stat-value { color: var(--text-primary); }
+:root[data-theme="dark"] .dif-celebration-stat-label { color: var(--text-light); }
+
+/* ── Modal CEFR (CSS light injetado por cefr-modal.js — especificidade
+   :root[data-theme] vence o seletor de classe simples do <style> injetado).
+   O header verde-profundo do modal já funciona no escuro; só o corpo muda. ── */
+:root[data-theme="dark"] .cefr-shell {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+:root[data-theme="dark"] .cefr-body { background: var(--bg-secondary); }
+:root[data-theme="dark"] .cefr-intro { color: var(--text-tertiary); }
+:root[data-theme="dark"] .cefr-intro b { color: var(--dk-sage-bright); }
+:root[data-theme="dark"] .cefr-req { border-bottom-color: rgba(232, 241, 237, 0.08); }
+:root[data-theme="dark"] .cefr-req-ico { background: rgba(232, 241, 237, 0.08); }
+:root[data-theme="dark"] .cefr-req.done .cefr-req-ico { background: rgba(143, 191, 154, 0.16); }
+:root[data-theme="dark"] .cefr-req.going .cefr-req-ico { background: rgba(143, 191, 154, 0.10); }
+:root[data-theme="dark"] .cefr-req-t { color: var(--text-primary); }
+:root[data-theme="dark"] .cefr-req-s { color: var(--text-tertiary); }
+:root[data-theme="dark"] .cefr-req-num .cur { color: var(--text-primary); }
+:root[data-theme="dark"] .cefr-req.done .cefr-req-num .cur { color: var(--dk-sage-bright); }
+:root[data-theme="dark"] .cefr-req-num .tgt { color: var(--text-light); }
+:root[data-theme="dark"] .cefr-bar { background: var(--dk-track); }
+:root[data-theme="dark"] .cefr-bar > i { background: linear-gradient(90deg, #7A9E84, #A5C9AF); }
+:root[data-theme="dark"] .cefr-wip-label { color: var(--dk-amber); }
+:root[data-theme="dark"] .cefr-wip-label::after { background: rgba(217, 179, 108, 0.20); }
+:root[data-theme="dark"] .cefr-req.wip .cefr-req-ico { background: rgba(232, 241, 237, 0.06); }
+:root[data-theme="dark"] .cefr-req.wip .cefr-req-t { color: var(--text-tertiary); }
+:root[data-theme="dark"] .cefr-req.wip .cefr-req-s { color: var(--text-light); }
+:root[data-theme="dark"] .cefr-chip-wip {
+    color: var(--dk-amber);
+    border-color: rgba(217, 179, 108, 0.40);
+    background: rgba(217, 179, 108, 0.08);
+}
+:root[data-theme="dark"] .cefr-bar.ghost {
+    background: repeating-linear-gradient(45deg, rgba(217, 179, 108, 0.16) 0 7px, rgba(217, 179, 108, 0.05) 7px 14px);
+}
+:root[data-theme="dark"] .cefr-foot {
+    border-top-color: rgba(232, 241, 237, 0.08);
+    background: var(--bg-primary);
+    color: var(--text-tertiary);
+}
+:root[data-theme="dark"] .cefr-foot b { color: var(--dk-sage-bright); }
+
+/* ── Modal de vocabulário (CSS light injetado por vocab-modal.js).
+   A busca mantém fundo branco — convenção do app p/ inputs no escuro. ── */
+:root[data-theme="dark"] .vocab-shell {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+:root[data-theme="dark"] .vocab-tools {
+    background: var(--bg-primary);
+    border-bottom-color: rgba(232, 241, 237, 0.08);
+}
+:root[data-theme="dark"] .vocab-tab {
+    background: #1B2A23;
+    border-color: #2C4237;
+    color: #A5C9AF;
+}
+:root[data-theme="dark"] .vocab-tab:hover {
+    border-color: #7A9E84;
+    color: #C9DCCD;
+}
+:root[data-theme="dark"] .vocab-tab.active {
+    background: #2E5240;
+    border-color: #2E5240;
+    color: var(--text-primary);
+}
+:root[data-theme="dark"] .vocab-body { background: var(--bg-secondary); }
+:root[data-theme="dark"] .vocab-row:nth-child(even) { background: rgba(232, 241, 237, 0.04); }
+:root[data-theme="dark"] .vocab-rank { color: #5E6E64; }
+:root[data-theme="dark"] .vocab-word { color: var(--text-primary); }
+:root[data-theme="dark"] .vocab-badge.is-dominada { background: rgba(143, 191, 154, 0.16); color: #8FC79A; }
+:root[data-theme="dark"] .vocab-badge.is-progresso { background: rgba(217, 179, 108, 0.14); color: var(--dk-amber); }
+:root[data-theme="dark"] .vocab-meta { color: var(--text-tertiary); }
+:root[data-theme="dark"] .vocab-meta .dot { background: #3A4A40; }
+:root[data-theme="dark"] .vocab-err { color: var(--dk-amber); }
+:root[data-theme="dark"] .vocab-acc.high { color: #8FC79A; }
+:root[data-theme="dark"] .vocab-acc.mid { color: var(--dk-amber); }
+:root[data-theme="dark"] .vocab-acc.low { color: #E08A6C; }
+:root[data-theme="dark"] .vocab-accbar { background: var(--dk-track); }
+:root[data-theme="dark"] .vocab-accbar > i.high { background: linear-gradient(90deg, #7A9E84, #8FC79A); }
+:root[data-theme="dark"] .vocab-accbar > i.mid { background: linear-gradient(90deg, #B08A3C, #E0C583); }
+:root[data-theme="dark"] .vocab-accbar > i.low { background: linear-gradient(90deg, #B4552F, #E0A183); }
+:root[data-theme="dark"] .vocab-uses { color: var(--text-light); }
+:root[data-theme="dark"] .vocab-state { color: var(--text-tertiary); }
+:root[data-theme="dark"] .vocab-state-t { color: var(--dk-sage-bright); }
+:root[data-theme="dark"] .vocab-spinner {
+    border-color: rgba(232, 241, 237, 0.14);
+    border-top-color: var(--dk-sage-bright);
+}
+:root[data-theme="dark"] .vocab-foot {
+    border-top-color: rgba(232, 241, 237, 0.08);
+    background: var(--bg-primary);
+    color: var(--text-tertiary);
+}
+:root[data-theme="dark"] .vocab-foot b { color: var(--dk-sage-bright); }
+
+/* ── Admin (visível só para admins, mas não pode quebrar no escuro) ── */
+:root[data-theme="dark"] .admin-section {
+    background: var(--bg-primary);
+}
+:root[data-theme="dark"] .admin-users-section,
+:root[data-theme="dark"] .admin-reset-section {
+    background: var(--dk-card-bg);
+    border-color: var(--dk-card-border);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme="dark"] .admin-user-item {
+    background: var(--bg-tertiary);
+    border-color: var(--dk-card-border);
+}
+:root[data-theme="dark"] .admin-stat {
+    background: rgba(232, 241, 237, 0.08);
+    color: var(--text-secondary);
+}
+:root[data-theme="dark"] .admin-badge {
+    background: rgba(217, 179, 108, 0.14);
+    color: var(--dk-amber);
 }
 

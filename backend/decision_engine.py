@@ -60,10 +60,15 @@ def classify_voice_request(request: ChatRequest) -> str:
     if voice_mode in ("shadow", "dictation"):
         return FULL_LLM
 
-    # =========== HEURÍSTICA 4: STT baixa confiança ===========
-    stt_confidence = getattr(request, "stt_confidence", None) or 1.0
-    if stt_confidence < 0.72:
-        return LIGHT_LLM
+    # =========== HEURÍSTICA 4: STT baixa confiança → modelo MELHOR ===========
+    # Filosofia "assume e flui": quando o STT esteve incerto, mandamos para o
+    # FULL_LLM (70B) — é onde a IA tem mais chance de acertar a intenção provável
+    # e responder com naturalidade, em vez de um palpite genérico do 8B.
+    # (0.0 = "sem sinal de confiança"; não tratamos como incerteza aqui.)
+    _stt_raw = getattr(request, "stt_confidence", None)
+    stt_confidence = float(_stt_raw) if _stt_raw is not None else 0.0
+    if 0.0 < stt_confidence < 0.72:
+        return FULL_LLM
 
     # =========== HEURÍSTICA 5: Level-aware word count thresholds ===========
     # Adjust thresholds based on proficiency level to avoid mismatch

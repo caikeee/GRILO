@@ -200,7 +200,7 @@ function renderProgressDetail(stats) {
 function _renderSidebar(stats) {
     _renderPhonemeCard(stats.top_phoneme);
     _renderCefrCard(stats.cefr);
-    _renderVocabCard(stats.vocab_mastered_total, stats.vocab_mastered_week);
+    _renderVocabCard(stats.vocab_total_seen, stats.vocab_total_seen_week);
     _renderBadgeCard(stats.next_badge, stats.badges_earned_count);
 }
 

@@ -7,9 +7,7 @@
  *   • Vocabulário         → stats.vocab_mastered_total   (WordProfile.mastered + LessonScopeItem)
  *   • Frases              → stats.phrases_mastered_total (LessonScopeItem.status="dominada")
  *   • Conteúdo pedagógico → stats.scope4p.lessons_completed / block_total (aulas 4 pontas)
- *
- * Gates EM CONSTRUÇÃO (grupo separado, sem número):
- *   • Shadowing
+ *   • Shadowing           → stats.shadowing_sessions_completed / 10 (ShadowLabResult, 1 por sessão Ranqueada)
  *
  * Autocontido: injeta seu próprio markup e CSS, liga o clique no card #sideCefr.
  * Lê de window._lastUserStats (populado por lessons-controller.js).
@@ -91,11 +89,13 @@
     };
     var LEVEL_DISCLAIMER = 'O GRILO usa isso como guia — não como verdade absoluta. As metas são nossa própria régua, inspirada nessas fontes.';
 
-    // Gates ainda em construção. "Conteúdo pedagógico" saiu daqui — agora tem
-    // dado real (aulas do sistema lessons-4p → stats.scope4p), renderizado como gate ativo.
-    var GATES_WIP = [
-        { icon: '🎙️', title: 'Sessões de shadowing', sub: 'Treino de fala guiado do nível' }
-    ];
+    // Gates ainda em construção — hoje nenhum. "Conteúdo pedagógico" e
+    // "Shadowing" saíram daqui: ambos têm dado real (scope4p e
+    // ShadowLabResult, respectivamente) e são renderizados como gates ativos.
+    var GATES_WIP = [];
+
+    // Sessões Ranqueadas de shadowing necessárias p/ completar o gate.
+    var SHADOWING_SESSIONS_TARGET = 10;
 
     // Circunferência do anel de progresso (r = 24)
     var RING_C = 2 * Math.PI * 24;
@@ -481,10 +481,21 @@
             cur: sc.lessons_completed || 0, target: lessonsTotal
         });
 
-        html += '<div class="cefr-wip-label" style="--i:' + rowIdx + '">Próximos requisitos</div>';
-        GATES_WIP.forEach(function (g, i) {
-            html += wipRow(rowIdx + 1 + i, g);
+        // Gate "Shadowing" — dado real do Laboratório (ShadowLabResult, 1
+        // registro por sessão Ranqueada concluída).
+        html += realRow(rowIdx++, {
+            icon: '🎙️', title: 'Sessões de shadowing',
+            sub: 'Treino de fala guiado do nível',
+            cur: (stats && stats.shadowing_sessions_completed) || 0,
+            target: SHADOWING_SESSIONS_TARGET
         });
+
+        if (GATES_WIP.length) {
+            html += '<div class="cefr-wip-label" style="--i:' + rowIdx + '">Próximos requisitos</div>';
+            GATES_WIP.forEach(function (g, i) {
+                html += wipRow(rowIdx + 1 + i, g);
+            });
+        }
         body.innerHTML = html;
 
         // Animações de preenchimento (barras + anel) após o primeiro frame

@@ -28,6 +28,7 @@ from backend.controllers.difficulties_session_controller import router as diffic
 from backend.controllers.analytics_controller import router as analytics_router
 from backend.controllers.pmf_controller import router as pmf_router
 from backend.controllers.scope_4p_controller import router as scope_4p_router
+from backend.controllers.shadowing_controller import router as shadowing_router
 from backend.admin_controller import router as admin_router
 
 from backend.database import Base, engine
@@ -480,6 +481,7 @@ app.include_router(difficulties_session_router)
 app.include_router(analytics_router)
 app.include_router(pmf_router)
 app.include_router(scope_4p_router)
+app.include_router(shadowing_router)
 app.include_router(admin_router)
 
 # Static files should be mounted last to avoid intercepting API routes.

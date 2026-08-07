@@ -99,6 +99,7 @@ body.app-lessons::before {
 }
 
 .lessons-back {
+  position: relative;
   justify-self: start;
   display: inline-flex;
   align-items: center;
@@ -112,8 +113,8 @@ body.app-lessons::before {
   font-weight: 700;
   letter-spacing: -0.01em;
   background: transparent;
-  border: 1px solid transparent;
-  transition: all var(--lp-dur-base, 0.25s) var(--lp-ease, ease);
+  border: none;
+  transition: color var(--lp-dur-base, 0.25s) var(--lp-ease, ease);
 }
 
 .lessons-back::before {
@@ -122,14 +123,28 @@ body.app-lessons::before {
   line-height: 1;
   transition: transform var(--lp-dur-fast, 0.15s) var(--lp-ease, ease);
 }
+/* pílula-spotlight que expande do centro no hover (mesmo espírito da home) */
+.lessons-back::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgba(74, 124, 94, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(74, 124, 94, 0.14);
+  opacity: 0;
+  transform: scaleX(0.72);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease;
+}
 
 .lessons-back:hover {
   color: var(--lp-green-dark, #3a5e47) !important;
-  background: rgba(74, 124, 94, 0.08);
-  border-color: rgba(74, 124, 94, 0.14);
 }
 
 .lessons-back:hover::before { transform: translateX(-3px); }
+.lessons-back:hover::after { opacity: 1; transform: scaleX(1); }
 
 /* Lockup central: ícone de livro + kicker + "Suas aulas" */
 .lessons-title {
@@ -365,6 +380,183 @@ body.app-lessons::before {
   gap: 44px;
 }
 
+/* Bloco de nível (A1, A2…): agrupa os grupos daquele nível sob um
+   divisor editorial. Cada bloco espaça seus grupos internamente. */
+.g4p-block {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Quando recolhido, o corpo já ocupa 0 — o gap do flex some junto para
+   não deixar um vão fantasma entre um bloco recolhido e o próximo. */
+.g4p-block.is-collapsed {
+  gap: 0;
+}
+
+.g4p-block-head {
+  /* botão de toggle — reset dos estilos nativos */
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--lp-border-strong, #c3d5c8);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 8px 6px 20px;
+  border-radius: 14px 14px 0 0;
+  transition: background 0.18s ease, padding 0.25s ease;
+}
+
+.g4p-block-head:hover {
+  background: rgba(74, 124, 94, 0.06);
+}
+
+.g4p-block[data-level="A2"] .g4p-block-head:hover {
+  background: rgba(74, 61, 99, 0.06);
+}
+
+.g4p-block-head:focus-visible {
+  outline: 2px solid var(--lp-green, #4a7c5e);
+  outline-offset: 2px;
+}
+
+.g4p-block[data-level="A2"] .g4p-block-head:focus-visible {
+  outline-color: #6d5a8a;
+}
+
+/* Chevron indicador de expandido/recolhido */
+.g4p-block-chevron {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--lp-green, #4a7c5e);
+  background: rgba(74, 124, 94, 0.1);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.18s ease;
+}
+
+.g4p-block[data-level="A2"] .g4p-block-chevron {
+  color: #6d5a8a;
+  background: rgba(109, 90, 138, 0.1);
+}
+
+.g4p-block-head:hover .g4p-block-chevron {
+  background: rgba(74, 124, 94, 0.18);
+}
+
+.g4p-block[data-level="A2"] .g4p-block-head:hover .g4p-block-chevron {
+  background: rgba(109, 90, 138, 0.18);
+}
+
+.g4p-block.is-collapsed .g4p-block-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Corpo colapsável: grid-rows 1fr→0fr anima altura sem medir conteúdo */
+.g4p-block-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.g4p-block-body-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-height: 0;               /* permite o inner encolher a 0 */
+  overflow: hidden;
+  transition: opacity 0.28s ease, visibility 0.36s;
+}
+
+.g4p-block.is-collapsed .g4p-block-body {
+  grid-template-rows: 0fr;
+}
+
+.g4p-block.is-collapsed .g4p-block-body-inner {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Recolhido: cabeçalho vira uma barra mais compacta e sem borda pendurada */
+.g4p-block.is-collapsed .g4p-block-head {
+  padding-bottom: 8px;
+  border-bottom-color: transparent;
+}
+
+.g4p-block.is-collapsed .g4p-block-tagline {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g4p-block-body,
+  .g4p-block-body-inner,
+  .g4p-block-chevron,
+  .g4p-block-head {
+    transition: none;
+  }
+}
+
+.g4p-block-badge {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(150deg, var(--lp-green, #4a7c5e), var(--lp-green-dark, #3a5e47));
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 10px 22px -6px rgba(58, 94, 71, 0.5);
+}
+
+/* O bloco A2 ganha identidade própria no divisor (ameixa profunda) */
+.g4p-block[data-level="A2"] .g4p-block-badge {
+  background: linear-gradient(150deg, #6d5a8a, #4a3d63);
+  box-shadow: 0 10px 22px -6px rgba(74, 61, 99, 0.5);
+}
+
+.g4p-block-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--lp-text, #1f3b2d);
+  align-self: end;
+}
+
+.g4p-block-tagline {
+  font-size: 0.98rem;
+  color: var(--lp-muted, #6a7b71);
+  align-self: start;
+  grid-column: 2;
+}
+
+.g4p-block-progress {
+  grid-row: span 2;
+  align-self: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--lp-muted, #6a7b71);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Painel de grupo: vidro discreto sobre o gradiente da página,
    com realce interno no topo e sombra ambiente suave */
 .g4p-group {
@@ -394,6 +586,12 @@ body.app-lessons::before {
 .g4p-group[data-group="B"] { --g4p-accent: #4a7290; --g4p-accent-soft: rgba(74, 114, 144, 0.12); }
 .g4p-group[data-group="C"] { --g4p-accent: #c07a2e; --g4p-accent-soft: rgba(192, 122, 46, 0.12); }
 .g4p-group[data-group="D"] { --g4p-accent: #82628e; --g4p-accent-soft: rgba(130, 98, 142, 0.12); }
+/* Bloco A2 — família cromática própria (índigo → ameixa → petróleo → musgo → carmim suave) */
+.g4p-group[data-group="E"] { --g4p-accent: #5a6bab; --g4p-accent-soft: rgba(90, 107, 171, 0.12); }
+.g4p-group[data-group="F"] { --g4p-accent: #6d5a8a; --g4p-accent-soft: rgba(109, 90, 138, 0.12); }
+.g4p-group[data-group="G"] { --g4p-accent: #2f8a86; --g4p-accent-soft: rgba(47, 138, 134, 0.12); }
+.g4p-group[data-group="H"] { --g4p-accent: #6f8f4a; --g4p-accent-soft: rgba(111, 143, 74, 0.12); }
+.g4p-group[data-group="I"] { --g4p-accent: #b0596b; --g4p-accent-soft: rgba(176, 89, 107, 0.12); }
 
 .g4p-group-head {
   display: grid;
@@ -1325,6 +1523,82 @@ body.app-lessons::before {
 .g4p-option.is-wrong .g4p-option-letter { background: var(--lp-danger, #c0554d); color: #fff; }
 .g4p-option.is-wrong .g4p-option-mark::before { content: '✗'; color: var(--lp-danger, #c0554d); }
 
+/* ─── Contraste (A2) — escolher entre duas estruturas EN×EN ───── */
+.g4p-contrast-opts { gap: 12px; }
+
+.g4p-contrast-opt {
+  font-size: 1.08rem;
+  font-weight: 600;
+  padding: 18px 18px;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Ordenar (A2) — montar a frase com tokens ───────────────── */
+.g4p-order-slot {
+  min-height: 64px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  padding: 14px;
+  border: 2px dashed var(--lp-border-strong, #c3d5c8);
+  border-radius: var(--lp-r-lg, 18px);
+  background: var(--lp-border-light, #edf8f0);
+}
+
+.g4p-order-ph {
+  color: var(--lp-text-light, #a8b5aa);
+  font-size: 0.95rem;
+  align-self: center;
+}
+
+.g4p-order-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.g4p-token {
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 10px 15px;
+  border: 1.5px solid var(--lp-border-strong, #c3d5c8);
+  border-radius: 12px;
+  background: var(--lp-surface, #fff);
+  color: var(--lp-text, #1f3b2d);
+  cursor: pointer;
+  transition: transform 0.12s var(--lp-ease, ease), border-color 0.12s, background 0.12s, opacity 0.12s;
+}
+
+.g4p-token:hover:not(.is-used):not(:disabled) {
+  border-color: var(--lp-green, #4a7c5e);
+  transform: translateY(-2px);
+}
+
+.g4p-token.is-used {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.g4p-token--placed { background: var(--lp-surface, #fff); }
+.g4p-token--placed:hover { border-color: var(--lp-danger, #c0554d); }
+
+.g4p-order-slot .g4p-token--placed.is-correct {
+  border-color: var(--lp-green, #4a7c5e);
+  background: rgba(74, 124, 94, 0.12);
+  animation: g4pPop 0.4s var(--lp-ease, ease);
+}
+
+.g4p-order-slot .g4p-token--placed.is-wrong {
+  border-color: var(--lp-danger, #c0554d);
+  background: rgba(192, 85, 77, 0.08);
+  animation: g4pShake 0.4s ease;
+}
+
+.g4p-order-foot { gap: 10px; }
+
 /* ─── Ponte (bridge) ─────────────────────────────────────────── */
 .g4p-bridge {
   text-align: center;
@@ -1636,6 +1910,12 @@ body.app-lessons::before {
   .g4p-rail-link { margin-bottom: 0; width: 12px; }
   .g4p-group-head { grid-template-columns: 1fr; }
   .g4p-group-count { justify-self: start; }
+
+  .g4p-block-head { grid-template-columns: auto 1fr auto; gap: 6px 14px; }
+  .g4p-block-badge { width: 46px; height: 46px; font-size: 1.05rem; }
+  .g4p-block-title { font-size: 1.25rem; }
+  .g4p-block-progress { grid-row: auto; grid-column: 2; justify-self: start; }
+  .g4p-block-chevron { grid-row: span 2; grid-column: 3; width: 32px; height: 32px; }
 }
 
 @media (max-width: 640px) {

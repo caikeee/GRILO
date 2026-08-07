@@ -1,0 +1,1034 @@
+/* ============================================================
+ *  Shadowing Lab — ESTILOS
+ *  ============================================================
+ *  "O Laboratório": trilha linear de shadowing simultâneo real.
+ *  Modo Casual (sem fone, livre) x Ranqueada (com fone, feedback
+ *  ao vivo, avança a trilha). Suporta dark/light igual à home,
+ *  via os tokens --sage-, --bg- e --text- de sage-color-system.css.
+ *
+ *  Design tokens --sh-* definidos abaixo — derivam dos tokens
+ *  globais (mesmo padrão de lessons-4p.css com --lp-*), mas
+ *  reagem a :root[data-theme="dark"] porque referenciam var()
+ *  globais em vez de valores fixos.
+ * ============================================================ */
+
+:root {
+  --sh-bg: var(--bg-secondary, #f7faf9);
+  --sh-surface: var(--bg-primary, #fff);
+  --sh-card-bg: var(--bg-primary, #fff);
+  --sh-border: rgba(122, 158, 132, 0.22);
+  --sh-border-light: rgba(122, 158, 132, 0.12);
+  --sh-border-strong: rgba(122, 158, 132, 0.38);
+  --sh-text: var(--text-primary, #1f3b2d);
+  --sh-text-light: var(--text-light, #a8b5aa);
+  --sh-muted: var(--text-tertiary, #6a7b71);
+
+  --sh-accent: var(--sage-primary, #7a9e84);
+  --sh-accent-dark: var(--sage-dark, #3a5e47);
+  --sh-accent-mid: var(--sage-medium, #5a7e66);
+
+  --sh-good: #4a7c5e;
+  --sh-good-bg: rgba(74, 124, 94, 0.14);
+  --sh-bad: #c0554d;
+  --sh-bad-bg: rgba(192, 85, 77, 0.14);
+  --sh-warn: #d9832e;
+  --sh-warn-bg: rgba(217, 131, 46, 0.14);
+
+  --sh-gold: #e0a52c;
+  --sh-gold-light: #f7ce5b;
+  --sh-gold-dark: #a8781a;
+  --sh-gold-bg: rgba(224, 165, 44, 0.14);
+
+  --sh-ranked: #6d5a8a;
+  --sh-ranked-dark: #4a3d63;
+  --sh-ranked-bg: rgba(109, 90, 138, 0.12);
+  --sh-casual: #4a7c9e;
+  --sh-casual-dark: #2f5a78;
+  --sh-casual-bg: rgba(74, 124, 158, 0.12);
+
+  --sh-shadow-sm: 0 2px 8px rgba(31, 59, 45, 0.06);
+  --sh-shadow-md: 0 4px 16px rgba(31, 59, 45, 0.10);
+  --sh-shadow-lg: 0 16px 40px -12px rgba(31, 59, 45, 0.22);
+  --sh-shadow-xl: 0 24px 64px -20px rgba(31, 59, 45, 0.34);
+
+  --sh-r-md: 14px;
+  --sh-r-lg: 20px;
+  --sh-r-xl: 26px;
+  --sh-r-pill: 999px;
+
+  --sh-dur-fast: 0.15s;
+  --sh-dur-base: 0.25s;
+  --sh-ease: ease;
+}
+
+:root[data-theme="dark"] {
+  --sh-border: rgba(122, 158, 132, 0.22);
+  --sh-border-light: rgba(122, 158, 132, 0.14);
+  --sh-border-strong: rgba(122, 158, 132, 0.34);
+  --sh-good-bg: rgba(90, 158, 118, 0.20);
+  --sh-bad-bg: rgba(212, 108, 100, 0.20);
+  --sh-warn-bg: rgba(224, 150, 76, 0.18);
+  --sh-ranked-bg: rgba(140, 118, 176, 0.22);
+  --sh-casual-bg: rgba(96, 150, 188, 0.20);
+  --sh-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.22);
+  --sh-shadow-md: 0 4px 18px rgba(0, 0, 0, 0.30);
+  --sh-shadow-lg: 0 16px 44px -12px rgba(0, 0, 0, 0.46);
+  --sh-shadow-xl: 0 26px 70px -20px rgba(0, 0, 0, 0.58);
+}
+
+/* ─── Página & shell ─────────────────────────────────────────── */
+body.app-shadowing {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  color: var(--sh-text);
+  background: var(--sh-bg);
+  transition: background var(--sh-dur-base) var(--sh-ease), color var(--sh-dur-base) var(--sh-ease);
+}
+
+:root[data-theme="light"] body.app-shadowing {
+  background:
+    radial-gradient(ellipse 80% 50% at 90% -10%, rgba(74, 124, 94, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 10% 110%, rgba(122, 174, 138, 0.06), transparent),
+    linear-gradient(175deg, #f8fbf9 0%, #f2f6f3 50%, #eef4f0 100%);
+}
+
+:root[data-theme="dark"] body.app-shadowing {
+  background:
+    radial-gradient(ellipse 80% 50% at 90% -10%, rgba(90, 158, 118, 0.10), transparent),
+    radial-gradient(ellipse 60% 40% at 10% 110%, rgba(74, 124, 94, 0.08), transparent),
+    linear-gradient(175deg, #0f1b17 0%, #121e19 50%, #141f1a 100%);
+}
+
+.shadow-shell {
+  position: relative;
+  z-index: 1;
+  width: min(1100px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 0 0 96px;
+}
+
+/* ─── Topbar ──────────────────────────────────────────────────── */
+.shadow-topbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 14px;
+  z-index: 40;
+  margin: 18px 0 10px;
+  padding: 10px 14px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--sh-surface) 72%, transparent);
+  border: 1px solid var(--sh-border-light);
+  box-shadow: var(--sh-shadow-sm);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+}
+
+.shadow-back {
+  position: relative;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px 9px 12px;
+  border-radius: var(--sh-r-pill);
+  color: var(--sh-muted) !important;
+  text-decoration: none !important;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: transparent;
+  border: none;
+  transition: color var(--sh-dur-base) var(--sh-ease);
+}
+/* pílula-spotlight que expande do centro no hover (mesmo espírito da home) */
+.shadow-back::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgba(74, 124, 94, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(74, 124, 94, 0.14);
+  opacity: 0;
+  transform: scaleX(0.72);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease;
+}
+
+.shadow-back::before {
+  content: '←';
+  font-size: 0.95rem;
+}
+
+.shadow-back:hover {
+  color: var(--sh-accent-dark) !important;
+}
+.shadow-back:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.shadow-title {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.shadow-title-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  background: linear-gradient(145deg, var(--sh-accent), var(--sh-accent-dark));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 12px rgba(74, 124, 94, 0.35);
+}
+
+.shadow-title-copy { display: flex; flex-direction: column; gap: 1px; }
+.shadow-title-copy em {
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--sh-muted);
+}
+.shadow-title-copy strong { font-size: 0.95rem; font-weight: 800; color: var(--sh-text); }
+
+.shadow-streak-pill {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--sh-r-pill);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--sh-warn);
+  background: var(--sh-warn-bg);
+  border: 1px solid transparent;
+}
+
+/* ─── Hero / hub ──────────────────────────────────────────────── */
+.shadow-hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+  margin: 22px 0 32px;
+  padding: 34px;
+  border-radius: var(--sh-r-xl);
+  background: linear-gradient(155deg, var(--sh-accent-dark), var(--sh-accent-mid) 70%);
+  color: #fff;
+  box-shadow: var(--sh-shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.shadow-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 100% 0%, rgba(255, 255, 255, 0.14), transparent),
+    radial-gradient(ellipse 40% 50% at 0% 100%, rgba(255, 255, 255, 0.08), transparent);
+  pointer-events: none;
+}
+
+.shadow-hero-kicker {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.82;
+  margin-bottom: 10px;
+}
+
+.shadow-hero-title {
+  font-family: 'Space Grotesk', 'Manrope', sans-serif;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 10px;
+  color: #fff !important;
+}
+
+.shadow-hero-explainer {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  opacity: 0.88;
+  margin: 0 0 10px;
+  max-width: 46ch;
+  color: #fff;
+}
+
+.shadow-hero-how {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  margin: 2px 0 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #fff;
+  opacity: 0.88;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.shadow-hero-how:hover { opacity: 1; }
+.shadow-hero-how-ico {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.shadow-hero-sub {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  opacity: 0.9;
+  margin: 0;
+  max-width: 46ch;
+  color: #fff;
+}
+
+.shadow-hero-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px;
+  border-radius: var(--sh-r-lg);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.shadow-ring { position: relative; width: 96px; height: 96px; }
+.shadow-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.shadow-ring-track { fill: none; stroke: rgba(255, 255, 255, 0.22); stroke-width: 8; }
+.shadow-ring-fill {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 251;
+  stroke-dashoffset: 251;
+  transition: stroke-dashoffset 0.6s ease;
+}
+.shadow-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.shadow-ring-text b { font-size: 1.3rem; font-weight: 800; line-height: 1; }
+.shadow-ring-text span { font-size: 0.62rem; opacity: 0.8; margin-top: 2px; }
+
+.shadow-hero-panel-label { font-size: 0.78rem; font-weight: 700; margin: 4px 0 0; }
+.shadow-hero-panel-hint { font-size: 0.7rem; opacity: 0.78; margin: 0; text-align: center; }
+
+/* ─── Daily track callout ────────────────────────────────────── */
+.shadow-daily {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 26px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-ranked-bg);
+  border: 1px solid var(--sh-good);
+  box-shadow:
+    0 8px 18px -8px color-mix(in srgb, var(--sh-good) 40%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--sh-good) 45%, transparent);
+  animation: shadowDailyPulse 2.6s ease-in-out infinite;
+  transition: transform var(--sh-dur-base) var(--sh-ease), box-shadow var(--sh-dur-base) var(--sh-ease);
+}
+.shadow-daily:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 22px -8px color-mix(in srgb, var(--sh-good) 50%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--sh-good) 55%, transparent);
+}
+
+@keyframes shadowDailyPulse {
+  0%, 100% {
+    box-shadow:
+      0 8px 18px -8px color-mix(in srgb, var(--sh-good) 40%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--sh-good) 45%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 8px 22px -6px color-mix(in srgb, var(--sh-good) 55%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--sh-good) 65%, transparent);
+  }
+}
+
+.shadow-daily-ico { font-size: 1.5rem; }
+.shadow-daily-body { flex: 1; min-width: 0; }
+.shadow-daily-body b { display: block; font-size: 0.92rem; font-weight: 800; color: var(--sh-text); }
+.shadow-daily-body span { font-size: 0.78rem; color: var(--sh-muted); }
+
+/* ─── Trilha (lista linear de faixas) ────────────────────────── */
+.shadow-track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.shadow-track-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-card-bg);
+  border: 1px solid var(--sh-border-light);
+  box-shadow: var(--sh-shadow-sm);
+  transition: transform var(--sh-dur-base) var(--sh-ease), box-shadow var(--sh-dur-base) var(--sh-ease), border-color var(--sh-dur-base) var(--sh-ease);
+}
+
+.shadow-track-card[data-state="available"] { cursor: pointer; }
+.shadow-track-card[data-state="available"]:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-shadow-md);
+  border-color: var(--sh-border);
+}
+
+.shadow-track-card[data-state="locked"] { opacity: 0.52; cursor: not-allowed; }
+.shadow-track-card[data-state="done"] {
+  border-color: var(--sh-gold);
+  transform: translateY(-3px);
+  box-shadow:
+    0 10px 20px -8px color-mix(in srgb, var(--sh-gold) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--sh-gold) 55%, transparent);
+}
+.shadow-track-card[data-state="done"]:hover {
+  border-color: var(--sh-gold-light);
+  transform: translateY(-5px);
+  box-shadow:
+    0 16px 28px -8px color-mix(in srgb, var(--sh-gold) 55%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--sh-gold-light) 65%, transparent);
+}
+
+.shadow-track-num {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  background: var(--sh-good-bg);
+  color: var(--sh-accent-dark);
+}
+.shadow-track-card[data-state="locked"] .shadow-track-num {
+  background: var(--sh-border-light);
+  color: var(--sh-muted);
+}
+.shadow-track-card[data-state="done"] .shadow-track-num {
+  background: var(--sh-good-bg);
+  color: var(--sh-good);
+  border: 2px solid var(--sh-gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sh-gold) 25%, transparent);
+}
+
+.shadow-track-info { min-width: 0; }
+.shadow-track-title { font-size: 1rem; font-weight: 800; color: var(--sh-text); margin: 0 0 3px; }
+.shadow-track-meta { font-size: 0.76rem; color: var(--sh-muted); display: flex; gap: 8px; align-items: center; }
+
+.shadow-track-badge {
+  padding: 3px 9px;
+  border-radius: var(--sh-r-pill);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.shadow-track-badge.is-ranked { background: var(--sh-ranked-bg); color: var(--sh-ranked-dark); }
+.shadow-track-badge.is-next { background: var(--sh-good); color: #fff; }
+
+.shadow-track-score { text-align: right; font-size: 0.8rem; font-weight: 800; color: var(--sh-muted); }
+.shadow-track-score b { display: block; font-size: 1.1rem; color: var(--sh-accent-dark); }
+.shadow-track-lock-ico { font-size: 1.1rem; color: var(--sh-muted); }
+
+/* ============================================================
+ *  PLAYER — tela cheia de sessão
+ * ============================================================ */
+.shadow-player {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: color-mix(in srgb, var(--sh-bg) 96%, black 4%);
+}
+
+.shadow-player[hidden] {
+  display: none;
+}
+
+:root[data-theme="dark"] .shadow-player {
+  background: color-mix(in srgb, var(--sh-bg) 92%, black 8%);
+}
+
+:root[data-theme="dark"] .shadow-back::after {
+  background: rgba(143, 191, 154, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(143, 191, 154, 0.22);
+}
+
+.shadow-player-card {
+  width: 100%;
+  max-width: 760px;
+  max-height: min(880px, calc(100vh - 40px));
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--sh-r-xl);
+  background: var(--sh-card-bg);
+  border: 1px solid var(--sh-border-light);
+  box-shadow: var(--sh-shadow-xl);
+  overflow: hidden;
+}
+
+.shadow-player-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--sh-border-light);
+}
+
+.shadow-player-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--sh-r-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+.shadow-player-mode.is-casual { background: var(--sh-casual-bg); color: var(--sh-casual-dark); }
+.shadow-player-mode.is-ranked { background: var(--sh-ranked-bg); color: var(--sh-ranked-dark); }
+
+.shadow-player-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--sh-border-light);
+  color: var(--sh-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.shadow-player-close:hover { background: var(--sh-bad-bg); color: var(--sh-bad); }
+
+.shadow-player-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 26px 30px 30px;
+}
+
+/* ─── Modo select (dentro do player, tela 1) ─────────────────── */
+.shadow-modeselect-title { font-size: 1.2rem; font-weight: 800; margin: 0 0 6px; }
+.shadow-modeselect-sub { font-size: 0.86rem; color: var(--sh-muted); margin: 0 0 22px; }
+
+.shadow-modeselect-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.shadow-mode-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border-radius: var(--sh-r-lg);
+  border: 2px solid var(--sh-border-light);
+  background: var(--sh-surface);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--sh-dur-base) var(--sh-ease);
+}
+
+.shadow-mode-card:hover { border-color: var(--sh-border-strong); transform: translateY(-2px); }
+.shadow-mode-card.is-casual:hover { border-color: var(--sh-casual); }
+.shadow-mode-card.is-ranked:hover { border-color: var(--sh-ranked); }
+
+.shadow-mode-ico { font-size: 1.6rem; }
+.shadow-mode-name { font-size: 1rem; font-weight: 800; color: var(--sh-text); }
+.shadow-mode-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.shadow-mode-list li { font-size: 0.78rem; color: var(--sh-muted); display: flex; gap: 6px; align-items: flex-start; }
+.shadow-mode-list li::before { content: '•'; opacity: 0.5; }
+
+.shadow-mode-btn {
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: var(--sh-r-md);
+  border: none;
+  font-weight: 800;
+  font-size: 0.84rem;
+  cursor: pointer;
+  color: #fff;
+}
+.shadow-mode-card.is-casual .shadow-mode-btn { background: linear-gradient(145deg, var(--sh-casual), var(--sh-casual-dark)); }
+.shadow-mode-card.is-ranked .shadow-mode-btn { background: linear-gradient(145deg, var(--sh-ranked), var(--sh-ranked-dark)); }
+
+/* ─── Calibração ──────────────────────────────────────────────── */
+.shadow-calib { text-align: center; padding: 10px 0; }
+.shadow-calib-ico { font-size: 2.4rem; margin-bottom: 12px; }
+.shadow-calib-title { font-size: 1.1rem; font-weight: 800; margin: 0 0 8px; }
+.shadow-calib-sub { font-size: 0.85rem; color: var(--sh-muted); margin: 0 0 22px; max-width: 42ch; margin-inline: auto; }
+
+.shadow-calib-meter {
+  height: 10px;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-border-light);
+  overflow: hidden;
+  margin: 0 auto 18px;
+  max-width: 320px;
+}
+.shadow-calib-meter-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--sh-accent), var(--sh-accent-dark));
+  transition: width 0.1s linear;
+}
+
+.shadow-calib-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--sh-r-pill);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.shadow-calib-status.is-checking { background: var(--sh-border-light); color: var(--sh-muted); }
+.shadow-calib-status.is-good { background: var(--sh-good-bg); color: var(--sh-good); }
+.shadow-calib-status.is-bad { background: var(--sh-bad-bg); color: var(--sh-bad); }
+
+.shadow-calib-fallback {
+  margin-top: 18px;
+  font-size: 0.78rem;
+  color: var(--sh-muted);
+}
+.shadow-calib-fallback button {
+  background: none;
+  border: none;
+  color: var(--sh-accent-dark);
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+}
+
+/* ─── Preview (primeira audição) ─────────────────────────────── */
+.shadow-preview-title { font-size: 1.1rem; font-weight: 800; margin: 0 0 4px; }
+.shadow-preview-sub { font-size: 0.82rem; color: var(--sh-muted); margin: 0 0 18px; }
+
+.shadow-preview-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 6px;
+  line-height: 2.1;
+  font-size: 1.02rem;
+  padding: 18px 20px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+  margin-bottom: 18px;
+}
+
+.shadow-sent {
+  padding: 2px 8px;
+  border-radius: 8px;
+  transition: background var(--sh-dur-fast) var(--sh-ease), color var(--sh-dur-fast) var(--sh-ease);
+  color: var(--sh-text);
+}
+.shadow-sent.is-active { background: var(--sh-good-bg); color: var(--sh-accent-dark); font-weight: 700; }
+.shadow-sent.is-played { opacity: 0.55; }
+
+.shadow-preview-controls, .shadow-live-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* hierarquia: "Ouvir a faixa" é o CTA principal; "já conheço" é o atalho
+ * discreto pra quem quer pular — nunca dois botões do mesmo peso visual */
+.shadow-preview-controls {
+  flex-direction: column;
+  gap: 10px;
+}
+.shadow-preview-controls .shadow-ghost-btn {
+  border: none;
+  background: none;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.shadow-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 26px;
+  border-radius: var(--sh-r-pill);
+  border: none;
+  background: linear-gradient(145deg, var(--sh-accent), var(--sh-accent-dark));
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(74, 124, 94, 0.3);
+}
+.shadow-play-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(74, 124, 94, 0.36); }
+.shadow-play-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.shadow-ghost-btn {
+  padding: 11px 20px;
+  border-radius: var(--sh-r-pill);
+  border: 1px solid var(--sh-border);
+  background: transparent;
+  color: var(--sh-muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.shadow-ghost-btn:hover { border-color: var(--sh-border-strong); color: var(--sh-text); }
+
+/* ─── Sessão AO VIVO (shadowing simultâneo) ──────────────────── */
+.shadow-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sh-bad);
+  margin-bottom: 14px;
+}
+.shadow-live-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--sh-bad);
+  animation: shPulse 1.1s ease-in-out infinite;
+}
+@keyframes shPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.shadow-progressbar {
+  height: 6px;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-border-light);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.shadow-progressbar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--sh-accent), var(--sh-accent-dark));
+  transition: width 0.15s linear;
+}
+
+.shadow-live-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 6px;
+  line-height: 2.3;
+  font-size: 1.08rem;
+  padding: 20px 22px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+  margin-bottom: 18px;
+  min-height: 140px;
+}
+
+.shadow-word {
+  padding: 1px 3px;
+  border-radius: 5px;
+  transition: background var(--sh-dur-fast) var(--sh-ease), color var(--sh-dur-fast) var(--sh-ease);
+}
+.shadow-word.is-pending { color: var(--sh-text-light); }
+.shadow-word.is-current { background: var(--sh-warn-bg); color: var(--sh-warn); font-weight: 700; }
+.shadow-word.is-good { background: var(--sh-good-bg); color: var(--sh-good); font-weight: 700; }
+.shadow-word.is-bad { background: var(--sh-bad-bg); color: var(--sh-bad); font-weight: 700; text-decoration: line-through; text-decoration-thickness: 1.5px; }
+
+.shadow-waveforms {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.shadow-wave-row { display: flex; align-items: center; gap: 10px; }
+.shadow-wave-label { font-size: 0.72rem; font-weight: 800; color: var(--sh-muted); width: 60px; flex-shrink: 0; }
+.shadow-wave-canvas {
+  flex: 1;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+}
+
+/* ─── Resultado ───────────────────────────────────────────────── */
+.shadow-result-head { text-align: center; margin-bottom: 22px; }
+.shadow-result-score {
+  width: 120px; height: 120px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--sh-good-bg);
+  border: 4px solid var(--sh-good);
+}
+.shadow-result-score.is-low { background: var(--sh-bad-bg); border-color: var(--sh-bad); }
+.shadow-result-score b { font-size: 2rem; font-weight: 800; color: var(--sh-text); }
+
+.shadow-result-record {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--sh-warn);
+}
+
+.shadow-result-training-note {
+  margin: 14px auto 0;
+  max-width: 44ch;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--sh-muted);
+  background: var(--sh-casual-bg);
+  border-radius: var(--sh-r-md);
+  padding: 12px 16px;
+}
+
+.shadow-recap-title { font-size: 0.85rem; font-weight: 800; color: var(--sh-muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 20px 0 10px; }
+
+.shadow-recap-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 6px;
+  line-height: 2.3;
+  font-size: 1rem;
+  padding: 18px 20px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+  margin-bottom: 16px;
+}
+
+.shadow-loot {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.shadow-loot-item {
+  text-align: center;
+  padding: 12px 8px;
+  border-radius: var(--sh-r-md);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+}
+.shadow-loot-item b { display: block; font-size: 1rem; font-weight: 800; color: var(--sh-accent-dark); }
+.shadow-loot-item span { font-size: 0.68rem; color: var(--sh-muted); }
+
+.shadow-result-actions { display: flex; gap: 12px; justify-content: center; margin-top: 8px; }
+.shadow-result-actions .shadow-play-btn { flex: 1; max-width: 260px; justify-content: center; }
+.shadow-result-actions .shadow-ghost-btn { flex: 1; max-width: 200px; text-align: center; }
+
+/* ─── Modal "Como funciona o Laboratório" ────────────────────────
+ * Hero fica curto/emocional; todo o conteúdo educativo (mecanismo do
+ * exercício, história dos intérpretes, Casual x Ranqueada, trilha
+ * progressiva) mora aqui — só quem clica "Como funciona" lê tudo isso. */
+.shadow-how-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(20, 31, 26, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: shadowHowFade 0.2s ease;
+}
+.shadow-how-modal[hidden] { display: none; }
+@keyframes shadowHowFade { from { opacity: 0; } to { opacity: 1; } }
+
+.shadow-how-card {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 34px 32px 28px;
+  border-radius: var(--sh-r-xl);
+  background: var(--sh-card-bg);
+  border: 1px solid var(--sh-border-light);
+  box-shadow: var(--sh-shadow-xl);
+  animation: shadowHowPop 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes shadowHowPop {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+.shadow-how-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--sh-border);
+  background: var(--sh-surface);
+  color: var(--sh-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.shadow-how-close:hover { color: var(--sh-text); border-color: var(--sh-border-strong); }
+
+.shadow-how-kicker {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-accent-dark);
+  margin-bottom: 8px;
+}
+
+.shadow-how-title {
+  font-family: 'Space Grotesk', 'Manrope', sans-serif;
+  font-size: 1.32rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--sh-text);
+  margin: 0 0 22px;
+  padding-right: 28px;
+}
+
+/* Lede — a ação, em destaque suave logo abaixo do título */
+.shadow-how-lede {
+  font-size: 0.94rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--sh-text);
+  margin: 0 0 18px;
+}
+
+/* Payoff — o card mais forte do modal: conexão com o nível/vocabulário */
+.shadow-how-payoff {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  margin: 0 0 18px;
+  border-radius: var(--sh-r-lg);
+  background: linear-gradient(150deg, var(--sh-good-bg), transparent 130%);
+  border: 1px solid var(--sh-border);
+}
+.shadow-how-payoff-ico {
+  flex-shrink: 0;
+  font-size: 1.3rem;
+  line-height: 1.3;
+}
+.shadow-how-payoff strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--sh-accent-dark);
+  margin-bottom: 4px;
+}
+.shadow-how-payoff p {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--sh-text);
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Corpo — ganho pessoal + autoridade */
+.shadow-how-body {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--sh-text);
+  opacity: 0.85;
+  margin: 0 0 20px;
+}
+
+/* Modos — dois mini-cards escaneáveis lado a lado */
+.shadow-how-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 0 26px;
+}
+.shadow-how-mode {
+  padding: 14px;
+  border-radius: var(--sh-r-md);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+}
+.shadow-how-mode-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--sh-r-pill);
+  margin-bottom: 8px;
+}
+.shadow-how-mode-tag.is-casual { color: var(--sh-casual-dark); background: var(--sh-casual-bg); }
+.shadow-how-mode-tag.is-ranked { color: var(--sh-ranked-dark); background: var(--sh-ranked-bg); }
+.shadow-how-mode p {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--sh-text);
+  opacity: 0.85;
+  margin: 0;
+}
+
+.shadow-how-cta { width: 100%; justify-content: center; }
+
+/* ─── Responsivo ──────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .shadow-hero { grid-template-columns: 1fr; padding: 24px; }
+  .shadow-modeselect-grid { grid-template-columns: 1fr; }
+  .shadow-track-card { grid-template-columns: auto 1fr; }
+  .shadow-track-score { grid-column: 1 / -1; text-align: left; }
+  .shadow-loot { grid-template-columns: 1fr; }
+  .shadow-result-actions { flex-direction: column; }
+  .shadow-how-card { padding: 28px 22px 22px; }
+  .shadow-how-modes { grid-template-columns: 1fr; }
+}

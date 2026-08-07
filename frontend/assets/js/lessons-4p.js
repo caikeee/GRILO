@@ -78,6 +78,15 @@
     } catch (e) { /* sem TTS, segue sem áudio */ }
   }
 
+  function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   function shuffleWithCorrect(options, correctIdx) {
     const idxs = options.map((_, i) => i);
     for (let i = idxs.length - 1; i > 0; i--) {
@@ -507,6 +516,14 @@
   function renderCheck(stage, step) {
     const sec = S.lesson.sections[step.si];
     const cp = sec.checkpoint[step.ci];
+    // Novos tipos do A2 (produção). ver/ouvir seguem no caminho clássico.
+    if (cp.kind === 'contraste') return renderCheckContrast(stage, cp);
+    if (cp.kind === 'ordenar')   return renderCheckOrder(stage, cp);
+    return renderCheckChoice(stage, cp);
+  }
+
+  // 👁/👂 ver e ouvir — múltipla escolha (idêntico ao A1)
+  function renderCheckChoice(stage, cp) {
     const isOuvir = cp.kind === 'ouvir';
     const mix = shuffleWithCorrect(cp.options, cp.correct);
 
@@ -558,6 +575,145 @@
         $('g4pNext').focus();
       });
     });
+    $('g4pNext').addEventListener('click', next);
+  }
+
+  // ⚖️ Contraste — escolher entre duas estruturas EN×EN (a/b).
+  // Conta como reconhecimento (ponta "ouvir"/ver) para o item.
+  function renderCheckContrast(stage, cp) {
+    // Embaralha qual opção aparece em cima, preservando qual é a correta.
+    const pair = [{ key: 'a', text: cp.a }, { key: 'b', text: cp.b }];
+    if (Math.random() < 0.5) pair.reverse();
+
+    stage.innerHTML = `
+      <div class="g4p-screen g4p-check g4p-contrast">
+        <span class="g4p-step-kicker">⚖️ Qual soa certo — as duas parecem quase iguais</span>
+        <h3 class="g4p-check-prompt">${escapeHtml(cp.prompt)}</h3>
+        <div class="g4p-options g4p-contrast-opts">
+          ${pair.map(p => `
+            <button class="g4p-option g4p-contrast-opt" type="button" data-key="${p.key}">
+              <span class="g4p-option-text">${escapeHtml(p.text)}</span>
+              <span class="g4p-option-mark" aria-hidden="true"></span>
+            </button>`).join('')}
+        </div>
+        <div class="g4p-feedback" id="g4pFeedback" hidden></div>
+        <div class="g4p-screen-foot g4p-screen-foot--end">
+          <button class="g4p-btn g4p-btn-primary" id="g4pNext" type="button" hidden>Continuar</button>
+        </div>
+      </div>`;
+
+    let answered = false;
+    stage.querySelectorAll('.g4p-contrast-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (answered) return;
+        answered = true;
+        const chosen = btn.dataset.key;
+        const ok = chosen === cp.correct;
+        const fb = $('g4pFeedback');
+        stage.querySelectorAll('.g4p-contrast-opt').forEach(b => {
+          b.disabled = true;
+          if (b.dataset.key === cp.correct) b.classList.add('is-correct');
+          else if (b.dataset.key === chosen && !ok) b.classList.add('is-wrong');
+        });
+        if (ok) {
+          if (cp.item) markSkill(S.lesson.slug, cp.item, 'heard');
+          setFeedback(fb, 'good', 'Isso!', escapeHtml(cp.why || ''));
+        } else {
+          const right = cp.correct === 'a' ? cp.a : cp.b;
+          setFeedback(fb, 'bad', 'A outra estava certa.',
+            `<b>${escapeHtml(right)}</b>${cp.why ? ' — ' + escapeHtml(cp.why) : ''}`);
+        }
+        $('g4pNext').hidden = false;
+        $('g4pNext').focus();
+      });
+    });
+    $('g4pNext').addEventListener('click', next);
+  }
+
+  // 🧩 Ordenar — montar a frase a partir de tokens embaralhados.
+  // Conta como produção (ponta "escrever") para o item.
+  function renderCheckOrder(stage, cp) {
+    const bank = shuffleArray(cp.tokens.map((t, i) => ({ t, i })));
+
+    stage.innerHTML = `
+      <div class="g4p-screen g4p-check g4p-order">
+        <span class="g4p-step-kicker">🧩 Monte a frase — toque nas palavras na ordem certa</span>
+        <h3 class="g4p-check-prompt">${escapeHtml(cp.prompt)}</h3>
+        <div class="g4p-order-slot" id="g4pOrderSlot" aria-label="Frase montada"></div>
+        <div class="g4p-order-bank" id="g4pOrderBank">
+          ${bank.map(b => `<button class="g4p-token" type="button" data-tid="${b.i}">${escapeHtml(b.t)}</button>`).join('')}
+        </div>
+        <div class="g4p-feedback" id="g4pFeedback" hidden></div>
+        <div class="g4p-screen-foot g4p-order-foot">
+          <button class="g4p-btn g4p-btn-ghost" id="g4pOrderClear" type="button">Limpar</button>
+          <button class="g4p-btn g4p-btn-primary" id="g4pOrderCheck" type="button" disabled>Conferir</button>
+          <button class="g4p-btn g4p-btn-primary" id="g4pNext" type="button" hidden>Continuar</button>
+        </div>
+      </div>`;
+
+    const slot = $('g4pOrderSlot');
+    const bankEl = $('g4pOrderBank');
+    const checkBtn = $('g4pOrderCheck');
+    const built = []; // ordem escolhida: [{ tid, t }]
+    let answered = false;
+
+    function syncCheckBtn() {
+      checkBtn.disabled = built.length !== cp.tokens.length || answered;
+    }
+    function renderSlot() {
+      slot.innerHTML = built.map(b =>
+        `<button class="g4p-token g4p-token--placed" type="button" data-tid="${b.tid}">${escapeHtml(b.t)}</button>`).join('')
+        || '<span class="g4p-order-ph">toque nas palavras abaixo…</span>';
+      slot.querySelectorAll('.g4p-token--placed').forEach(tk => {
+        tk.addEventListener('click', () => {
+          if (answered) return;
+          const tid = +tk.dataset.tid;
+          const pos = built.findIndex(b => b.tid === tid);
+          if (pos >= 0) built.splice(pos, 1);
+          const src = bankEl.querySelector(`[data-tid="${tid}"]`);
+          if (src) src.classList.remove('is-used');
+          renderSlot(); syncCheckBtn();
+        });
+      });
+    }
+
+    bankEl.querySelectorAll('.g4p-token').forEach(tk => {
+      tk.addEventListener('click', () => {
+        if (answered || tk.classList.contains('is-used')) return;
+        tk.classList.add('is-used');
+        built.push({ tid: +tk.dataset.tid, t: tk.textContent });
+        renderSlot(); syncCheckBtn();
+      });
+    });
+
+    $('g4pOrderClear').addEventListener('click', () => {
+      if (answered) return;
+      built.length = 0;
+      bankEl.querySelectorAll('.g4p-token').forEach(t => t.classList.remove('is-used'));
+      renderSlot(); syncCheckBtn();
+    });
+
+    checkBtn.addEventListener('click', () => {
+      if (answered || built.length !== cp.tokens.length) return;
+      answered = true;
+      const got = built.map(b => b.t).join(' ');
+      const ok = norm(got.replace(/\s+/g, '')) === norm(cp.correct.replace(/\s+/g, ''))
+        || tokenize(got).join(' ') === tokenize(cp.correct).join(' ');
+      const fb = $('g4pFeedback');
+      slot.querySelectorAll('.g4p-token--placed').forEach(t => t.classList.add(ok ? 'is-correct' : 'is-wrong'));
+      checkBtn.hidden = true;
+      $('g4pOrderClear').hidden = true;
+      if (ok) {
+        if (cp.item) markSkill(S.lesson.slug, cp.item, 'written');
+        setFeedback(fb, 'good', 'Frase certa!', 'Produção registrada — isso é o que vira palavra dominada.');
+      } else {
+        setFeedback(fb, 'bad', 'Quase — a ordem certa é:', `<b>${escapeHtml(cp.correct)}</b>`);
+      }
+      $('g4pNext').hidden = false;
+      $('g4pNext').focus();
+    });
+
+    renderSlot();
     $('g4pNext').addEventListener('click', next);
   }
 
@@ -961,77 +1117,175 @@
       </article>`;
   }
 
+  // Metadados dos blocos de nível CEFR. Um grupo pertence ao bloco pelo seu
+  // campo `level` ('A2', …); sem `level` = A1 (bloco original). A ordem aqui é
+  // a ordem de exibição na grade.
+  const LEVEL_BLOCKS = [
+    { level: 'A1', label: 'Bloco A1 · Fundamentos',
+      tagline: 'O inglês do dia a dia — de cumprimentar a contar o que você fez.' },
+    { level: 'A2', label: 'Bloco A2 · Conectando ideias',
+      tagline: 'Narrar, planejar, comparar e opinar — o inglês que já flui.' },
+  ];
+
+  function levelOfGroup(g) { return g.level || 'A1'; }
+
+  // ─── Colapso dos blocos de nível (A1/A2) ─────────────────────
+  // Estado persistido: { [level]: true }  → true = colapsado.
+  // Sem entrada = usa o padrão inteligente (bloco do gate aberto,
+  // blocos já 100% concluídos recolhem).
+  const COLLAPSE_KEY = 'grilo4p_blocks_collapsed_v1';
+
+  function loadCollapsed() {
+    try {
+      const raw = localStorage.getItem(COLLAPSE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  function saveCollapsed(map) {
+    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(map)); } catch (e) {}
+  }
+
   function renderGrid() {
     const grid = $('g4pGrid');
     if (!grid) return;
     const lessons = window.Grilo4P.LESSONS || [];
     const groups = window.Grilo4P.GROUPS || [];
 
-    // Progresso do bloco (gate A1→A2 = 20 aulas) — anel do hero
-    const totalPlanned = groups.reduce((n, g) => {
-      const built = lessons.filter(l => l.group === g.id).length;
-      return n + Math.max(built, (g.planned || []).length);
-    }, 0);
-    const completed = lessons.filter(l => lessonProg(l.slug).completedAt).length;
+    const builtIn = g => lessons.filter(l => l.group === g.id);
+    const doneIn = arr => arr.filter(l => lessonProg(l.slug).completedAt).length;
+
+    // Hero (anel + pill): reflete o GATE VIGENTE, não a soma de todos os blocos.
+    // O gate vigente é o primeiro bloco ainda não 100% concluído (A1 até fechar,
+    // depois A2…). Assim "X de 20" continua verdadeiro para quem está no A1.
+    let heroBlock = LEVEL_BLOCKS[0];
+    for (const blk of LEVEL_BLOCKS) {
+      const blkLessons = groups.filter(g => levelOfGroup(g) === blk.level).flatMap(builtIn);
+      heroBlock = blk;
+      if (blkLessons.length && doneIn(blkLessons) < blkLessons.length) break;
+    }
+    const heroLessons = groups.filter(g => levelOfGroup(g) === heroBlock.level).flatMap(builtIn);
+    const heroTotal = heroLessons.length;
+    const heroDone = doneIn(heroLessons);
     const ringFill = $('g4pRingFill');
     if (ringFill) {
       const CIRC = 2 * Math.PI * 40; // r=40 do SVG
       ringFill.style.strokeDasharray = String(CIRC);
-      ringFill.style.strokeDashoffset = String(CIRC * (1 - (totalPlanned ? completed / totalPlanned : 0)));
+      ringFill.style.strokeDashoffset = String(CIRC * (1 - (heroTotal ? heroDone / heroTotal : 0)));
     }
     const ringNum = $('g4pRingNum');
-    if (ringNum) ringNum.textContent = completed;
+    if (ringNum) ringNum.textContent = heroDone;
     const ringTotal = $('g4pRingTotal');
-    if (ringTotal) ringTotal.textContent = `de ${totalPlanned}`;
+    if (ringTotal) ringTotal.textContent = `de ${heroTotal}`;
     const topbarPill = $('lessonsTopbarProgress');
-    if (topbarPill) topbarPill.textContent = `${completed} de ${totalPlanned} concluídas`;
+    if (topbarPill) topbarPill.textContent = `${heroBlock.level} · ${heroDone} de ${heroTotal} concluídas`;
 
-    // Numeração corrida das 20 aulas + próxima aula sugerida
-    let counter = 1;
+    // "Comece aqui": a 1ª aula não concluída do produto inteiro (atravessa blocos).
     let nextAssigned = false;
 
-    grid.innerHTML = groups.map(g => {
-      const ls = lessons.filter(l => l.group === g.id);
-      const doneInGroup = ls.filter(l => lessonProg(l.slug).completedAt).length;
-      const countLabel = ls.length
-        ? `${doneInGroup}/${ls.length} concluídas`
-        : `${(g.planned || []).length} aulas · em construção`;
+    // Estado de colapso: usa a preferência salva do usuário quando existir;
+    // senão cai no padrão inteligente — recolhe blocos 100% concluídos e
+    // mantém aberto o bloco do gate vigente (aquele em progresso).
+    const savedCollapsed = loadCollapsed();
 
-      let inner;
-      if (ls.length) {
-        inner = `<div class="g4p-group-cards">${ls.map(L => {
-          const num = counter++;
-          const done = !!lessonProg(L.slug).completedAt;
-          let isNext = false;
-          if (!done && !nextAssigned) { isNext = true; nextAssigned = true; }
-          return cardHtml(L, num, isNext);
-        }).join('')}</div>`;
-      } else {
-        inner = `<div class="g4p-group-soon">
-          ${(g.planned || []).map(t =>
-            `<span class="g4p-soon-item"><i>${String(counter++).padStart(2, '0')}</i>${escapeHtml(t)}<em aria-hidden="true">🔒</em></span>`
-          ).join('')}
-        </div>`;
-      }
+    const blocksHtml = LEVEL_BLOCKS.map(blk => {
+      const blkGroups = groups.filter(g => levelOfGroup(g) === blk.level);
+      if (!blkGroups.length) return '';
 
+      const blkLessons = blkGroups.flatMap(builtIn);
+      const blkDone = doneIn(blkLessons);
+      const blkTotal = blkLessons.length;
+
+      const isComplete = blkTotal > 0 && blkDone === blkTotal;
+      const collapsed = savedCollapsed && (blk.level in savedCollapsed)
+        ? !!savedCollapsed[blk.level]
+        : (isComplete && blk.level !== heroBlock.level);
+
+      // Numeração REINICIA a cada bloco (A2 começa em "Aula 01").
+      let counter = 1;
+
+      const groupsHtml = blkGroups.map(g => {
+        const ls = builtIn(g);
+        const doneInGroup = doneIn(ls);
+        const countLabel = ls.length
+          ? `${doneInGroup}/${ls.length} concluídas`
+          : `${(g.planned || []).length} aulas · em construção`;
+
+        let inner;
+        if (ls.length) {
+          inner = `<div class="g4p-group-cards">${ls.map(L => {
+            const num = counter++;
+            const done = !!lessonProg(L.slug).completedAt;
+            let isNext = false;
+            if (!done && !nextAssigned) { isNext = true; nextAssigned = true; }
+            return cardHtml(L, num, isNext);
+          }).join('')}</div>`;
+        } else {
+          inner = `<div class="g4p-group-soon">
+            ${(g.planned || []).map(t =>
+              `<span class="g4p-soon-item"><i>${String(counter++).padStart(2, '0')}</i>${escapeHtml(t)}<em aria-hidden="true">🔒</em></span>`
+            ).join('')}
+          </div>`;
+        }
+
+        return `
+          <section class="g4p-group ${ls.length ? '' : 'is-soon'}" data-group="${escapeHtml(g.id)}">
+            <header class="g4p-group-head">
+              <div class="g4p-group-id" aria-hidden="true">${escapeHtml(g.id)}</div>
+              <div class="g4p-group-copy">
+                <h2 class="g4p-group-title">${escapeHtml(g.label)}</h2>
+                <p class="g4p-group-desc">${escapeHtml(g.desc)}</p>
+              </div>
+              <span class="g4p-group-count">${countLabel}</span>
+            </header>
+            ${inner}
+          </section>`;
+      }).join('');
+
+      const bodyId = `g4pBlockBody-${escapeHtml(blk.level)}`;
       return `
-        <section class="g4p-group ${ls.length ? '' : 'is-soon'}" data-group="${escapeHtml(g.id)}">
-          <header class="g4p-group-head">
-            <div class="g4p-group-id" aria-hidden="true">${escapeHtml(g.id)}</div>
-            <div class="g4p-group-copy">
-              <h2 class="g4p-group-title">${escapeHtml(g.label)}</h2>
-              <p class="g4p-group-desc">${escapeHtml(g.desc)}</p>
+        <div class="g4p-block ${collapsed ? 'is-collapsed' : ''} ${isComplete ? 'is-complete' : ''}" data-level="${escapeHtml(blk.level)}">
+          <button class="g4p-block-head" type="button" data-block-toggle="${escapeHtml(blk.level)}"
+                  aria-expanded="${collapsed ? 'false' : 'true'}" aria-controls="${bodyId}">
+            <span class="g4p-block-badge">${escapeHtml(blk.level)}</span>
+            <div class="g4p-block-copy">
+              <h2 class="g4p-block-title">${escapeHtml(blk.label)}</h2>
+              <p class="g4p-block-tagline">${escapeHtml(blk.tagline)}</p>
             </div>
-            <span class="g4p-group-count">${countLabel}</span>
-          </header>
-          ${inner}
-        </section>`;
+            <span class="g4p-block-progress">${blkDone}/${blkTotal} concluídas</span>
+            <span class="g4p-block-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div class="g4p-block-body" id="${bodyId}">
+            <div class="g4p-block-body-inner">
+              ${groupsHtml}
+            </div>
+          </div>
+        </div>`;
     }).join('');
+
+    grid.innerHTML = blocksHtml;
 
     grid.querySelectorAll('.g4p-card').forEach(card => {
       const open = () => openLesson(card.dataset.slug);
       card.addEventListener('click', open);
       card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    });
+
+    // ── Colapsar / expandir blocos de nível ──
+    grid.querySelectorAll('[data-block-toggle]').forEach(head => {
+      head.addEventListener('click', () => {
+        const block = head.closest('.g4p-block');
+        if (!block) return;
+        const level = head.dataset.blockToggle;
+        const willCollapse = !block.classList.contains('is-collapsed');
+        block.classList.toggle('is-collapsed', willCollapse);
+        head.setAttribute('aria-expanded', willCollapse ? 'false' : 'true');
+        const map = loadCollapsed() || {};
+        map[level] = willCollapse;
+        saveCollapsed(map);
+      });
     });
   }
 

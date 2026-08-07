@@ -160,6 +160,7 @@ let _currentTTSAudio = null;
  * Cancel any ongoing TTS audio (ElevenLabs or Web Speech)
  */
 function cancelCurrentSpeech() {
+    _speakResponseSeq++; // invalida qualquer pipeline de chunks em andamento
     if (_currentTTSAudio) {
         _currentTTSAudio.pause();
         _currentTTSAudio.src = "";
@@ -223,10 +224,45 @@ function _handleVoiceUnauthorized(source = "voice") {
  * Falls back to browser Web Speech API if the server returns {fallback: true}
  * or the request fails (offline, no API key, quota exceeded).
  */
+// Guarda de cancelamento do pipeline de fala: cada chamada/cancelamento
+// invalida os loops de chunks anteriores.
+let _speakResponseSeq = 0;
+
+/**
+ * Divide o texto para o pipeline de TTS: textos curtos vão inteiros; longos
+ * tocam a 1ª frase enquanto o resto é gerado em paralelo (menor tempo até
+ * a primeira palavra falada).
+ */
+function _splitTextForTts(text) {
+    if (text.length <= 120) return [text.slice(0, 500)];
+    const m = text.match(/^([\s\S]{15,180}?[.!?])\s+(\S[\s\S]*)$/);
+    if (!m) return [text.slice(0, 500)];
+    return [m[1], m[2].slice(0, 400)];
+}
+
+/** Busca um chunk de áudio no backend. Retorna {b64, contentType}, '__401__' ou null. */
+async function _fetchTtsAudio(chunk, lang, authToken) {
+    const resp = await fetch(`${API_BASE_URL}/api/tts`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ text: chunk, lang, speed: ttsSpeed }),
+        signal: AbortSignal.timeout(10000),
+    });
+    if (resp.status === 401) return "__401__";
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (data.fallback || !data.audio_base64) return null;
+    return { b64: data.audio_base64, contentType: data.content_type || "audio/mpeg" };
+}
+
 async function speakResponse(text, language = "pt-BR") {
     console.log("🔊 [SPEAK] Speaking text:", text.substring(0, 50) + "...", "Language:", language);
-    
+
     cancelCurrentSpeech();
+    const seq = ++_speakResponseSeq;
 
     // Clean text from markdown
     const cleanText = text
@@ -245,44 +281,44 @@ async function speakResponse(text, language = "pt-BR") {
     // Try ElevenLabs via backend
     const authToken = window.authToken || localStorage.getItem("grilo_token");
     // API_BASE_URL is defined globally in utils.js
-    
+
+    let spokenChunks = 0;
+    const chunks = _splitTextForTts(cleanText);
+
     if (authToken) {
         try {
-            console.log("📡 [SPEAK] Attempting ElevenLabs TTS...");
-            const resp = await fetch(`${API_BASE_URL}/api/tts`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${authToken}`,
-                },
-                body: JSON.stringify({ text: cleanText.slice(0, 500), lang, speed: ttsSpeed }),
-                signal: AbortSignal.timeout(10000),
-            });
-            console.log("✅ [SPEAK] ElevenLabs response status:", resp.status);
-
-            if (resp.status === 401) {
-                _handleVoiceUnauthorized("tts");
-                return;
-            }
-            
-            if (resp.ok) {
-                const data = await resp.json();
-                if (!data.fallback && data.audio_base64) {
-                    console.log("🎵 [SPEAK] Got audio from ElevenLabs, playing...");
-                    // Play ElevenLabs audio
-                    await _playBase64Audio(data.audio_base64, data.content_type || "audio/mpeg", language);
-                    console.log("✅ [SPEAK] ElevenLabs audio finished playing");
+            console.log(`📡 [SPEAK] ElevenLabs pipeline: ${chunks.length} chunk(s)`);
+            let nextFetch = _fetchTtsAudio(chunks[0], lang, authToken);
+            for (let i = 0; i < chunks.length; i++) {
+                const audioData = await nextFetch;
+                if (seq !== _speakResponseSeq) return; // fala cancelada/substituída
+                if (audioData === "__401__") {
+                    _handleVoiceUnauthorized("tts");
                     return;
                 }
+                if (!audioData) throw new Error("tts-fallback");
+                // Pré-busca o próximo pedaço enquanto o atual toca
+                if (i + 1 < chunks.length) {
+                    nextFetch = _fetchTtsAudio(chunks[i + 1], lang, authToken)
+                        .catch(() => null);
+                }
+                await _playBase64Audio(audioData.b64, audioData.contentType, language);
+                if (seq !== _speakResponseSeq) return;
+                spokenChunks = i + 1;
             }
+            console.log("✅ [SPEAK] ElevenLabs pipeline finished");
+            return;
         } catch (err) {
             console.warn("[SPEAK] ElevenLabs attempt failed, falling back to Web Speech:", err.message);
         }
     }
 
-    // Fallback: browser Web Speech API
+    if (seq !== _speakResponseSeq) return;
+
+    // Fallback: browser Web Speech API — fala só o que ainda não foi falado
+    const remainingText = chunks.slice(spokenChunks).join(" ").trim() || cleanText;
     console.log("📢 [SPEAK] Using Web Speech API fallback");
-    await _speakWithWebSpeech(cleanText, language);
+    await _speakWithWebSpeech(remainingText, language);
     console.log("✅ [SPEAK] Web Speech finished");
 }
 
@@ -293,7 +329,6 @@ function _playBase64Audio(b64, contentType, language) {
     return new Promise((resolve) => {
         isAISpeaking = true;
         updateVoiceModalStatus("speaking");
-        startPulsingAnimation();
 
         const audioData = `data:${contentType};base64,${b64}`;
         const audio = new Audio(audioData);
@@ -304,20 +339,20 @@ function _playBase64Audio(b64, contentType, language) {
         audio.onended = () => {
             isAISpeaking = false;
             _currentTTSAudio = null;
-            stopPulsingAnimation();
+            _onAISpeechEnd();
             resolve();
         };
         audio.onerror = (e) => {
             console.error("[TTS] Audio playback error:", e);
             isAISpeaking = false;
             _currentTTSAudio = null;
-            stopPulsingAnimation();
+            _onAISpeechEnd();
             resolve();
         };
         audio.play().catch((e) => {
             console.warn("[TTS] Audio.play() blocked:", e.message);
             isAISpeaking = false;
-            stopPulsingAnimation();
+            _onAISpeechEnd();
             resolve();
         });
     });
@@ -350,7 +385,6 @@ function _speakWithWebSpeech(cleanText, language) {
             console.log("🔊 Web Speech AI Speaking...");
             isAISpeaking = true;
             updateVoiceModalStatus("speaking");
-            startPulsingAnimation();
 
             keepAliveInterval = setInterval(() => {
                 if (window.speechSynthesis.speaking) {
@@ -364,14 +398,14 @@ function _speakWithWebSpeech(cleanText, language) {
         utterance.onend = () => {
             clearInterval(keepAliveInterval);
             isAISpeaking = false;
-            stopPulsingAnimation();
+            _onAISpeechEnd();
             resolve();
         };
         utterance.onerror = (event) => {
             clearInterval(keepAliveInterval);
             console.error("❌ Web Speech synthesis error:", event.error);
             isAISpeaking = false;
-            stopPulsingAnimation();
+            _onAISpeechEnd();
             resolve();
         };
         window.speechSynthesis.speak(utterance);
@@ -492,8 +526,28 @@ function normalizeVoiceInputLanguage(text) {
     return detected.language || 'en';
 }
 
-function _getVoiceUnderstandingLabel(status) {
-    return VOICE_UNDERSTANDING_LABELS[String(status || 'clear').toLowerCase()] || VOICE_UNDERSTANDING_LABELS.clear;
+// ==================== TROCA DE CONTEÚDO COM CROSS-FADE ====================
+// Substitui o innerHTML seco do #aiResponseText (que trocava sem transição em
+// ~7 lugares) por um fade-out → troca → fade-in. Uma única fonte para todas as
+// reescritas do palco: fase "entendi", card de resposta, estados de status.
+let _stageSwapTimer = null;
+function _swapStageContent(html) {
+    const container = document.getElementById("aiResponseText");
+    if (!container) return;
+    if (_stageSwapTimer) { clearTimeout(_stageSwapTimer); _stageSwapTimer = null; }
+
+    const reduceMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) { container.innerHTML = html; return; }
+
+    container.classList.add("stage-swapping");
+    _stageSwapTimer = setTimeout(() => {
+        container.innerHTML = html;
+        // força reflow para o fade-in reiniciar de forma confiável
+        void container.offsetWidth;
+        container.classList.remove("stage-swapping");
+        _stageSwapTimer = null;
+    }, 160);
 }
 
 function renderVoiceResponseCard({
@@ -502,10 +556,7 @@ function renderVoiceResponseCard({
     englishText = "",
     portugueseText = "",
     turnHint = "",
-    correctionPhrase = "",
-    understandingStatus = "clear",
-    understandingNote = "",
-    understandingLabel = "",
+    bridgeWords = null,
 }) {
     const container = document.getElementById("aiResponseText");
     if (!container) return;
@@ -525,30 +576,39 @@ function renderVoiceResponseCard({
         `
         : "";
 
-    const understandingBlock = understandingStatus && understandingStatus !== 'clear'
+    // Ponte code-switching: as palavras que o aluno "pulou" pro português,
+    // devolvidas em inglês como legenda viva — toque para ouvir a pronúncia
+    const bridgeBlock = Array.isArray(bridgeWords) && bridgeWords.length
         ? `
-            <div class="voice-translation-card">
-                <span class="voice-card-eyebrow">${_escapeHtml(understandingLabel || _getVoiceUnderstandingLabel(understandingStatus))}</span>
-                <p class="voice-translation-text">${_escapeHtml(understandingNote || '')}</p>
+            <div class="voice-bridge-card">
+                <span class="voice-card-eyebrow">Ponte · você buscou em português</span>
+                <div class="voice-bridge-items">
+                    ${bridgeWords.map((w) => `
+                        <button type="button" class="voice-bridge-item"
+                            data-en="${_escapeHtml(w.en)}"
+                            onclick="griloPlayBridgeWord(this.dataset.en)"
+                            title="Tocar pronúncia de ${_escapeHtml(w.en)}">
+                            <s class="voice-bridge-pt">${_escapeHtml(w.pt)}</s>
+                            <span class="voice-bridge-arrow">→</span>
+                            <span class="voice-bridge-en">${_escapeHtml(w.en)}</span>
+                            <span class="voice-bridge-speaker" aria-hidden="true">🔊</span>
+                        </button>
+                    `).join('')}
+                </div>
             </div>
         `
         : "";
+
+    // Filosofia "assume e flui": o heardBlock ("Você falou X") já É a confirmação
+    // positiva do que a máquina entendeu. Não há mais understandingBlock negativo
+    // ("Precisa repetir") nem correctionBlock ao vivo — a correção é modelada na
+    // fala da IA e registrada só para o resumo/recap.
 
     const translationBlock = portugueseText
         ? `
             <div class="voice-translation-card">
                 <span class="voice-card-eyebrow">Apoio em português</span>
                 <p class="voice-translation-text">${_escapeHtml(portugueseText)}</p>
-            </div>
-        `
-        : "";
-
-    const correctionBlock = correctionPhrase
-        ? `
-            <div class="voice-correction-card">
-                <div class="voice-correction-label">Say it out loud 🎤</div>
-                <div class="voice-correction-phrase">${_escapeHtml(correctionPhrase)}</div>
-                <div class="voice-correction-hint">Listen carefully, then repeat when you're ready.</div>
             </div>
         `
         : "";
@@ -562,53 +622,30 @@ function renderVoiceResponseCard({
         `
         : "";
 
-    container.innerHTML = `
+    _swapStageContent(`
         ${heardBlock}
-        ${understandingBlock}
+        ${bridgeBlock}
         <div class="voice-response-card-main">
             <span class="voice-card-eyebrow">English first</span>
             <p class="voice-response-main-text">${_escapeHtml(englishText)}</p>
         </div>
         ${translationBlock}
-        ${correctionBlock}
         ${turnBlock}
-    `;
+    `);
 }
 
-// ==================== CORRECTION DETECTION ====================
-
-/**
- * Detect if the AI corrected a phrase and extract the correct form.
- * Returns the corrected phrase string or null if no correction found.
- */
-function extractCorrectedPhrase(text) {
-    if (!text) return null;
-
-    const patterns = [
-        /you should say\s+"([^"]+)"/i,
-        /you should say\s+'([^']+)'/i,
-        /try saying\s+"([^"]+)"/i,
-        /try saying\s+'([^']+)'/i,
-        /the correct (?:phrase|word|form|way) (?:is|would be)\s+"([^"]+)"/i,
-        /the correct (?:phrase|word|form|way) (?:is|would be)\s+'([^']+)'/i,
-        /i think you mean[t]?\s+"([^"]+)"/i,
-        /i think you mean[t]?\s+'([^']+)'/i,
-        /you meant\s+"([^"]+)"/i,
-        /you meant\s+'([^']+)'/i,
-        /it should be\s+"([^"]+)"/i,
-        /it should be\s+'([^']+)'/i,
-        /say\s+"([^"]{4,60})"\s+instead/i,
-        /say\s+'([^']{4,60})'\s+instead/i,
-    ];
-
-    for (const pattern of patterns) {
-        const match = text.match(pattern);
-        if (match && match[1] && match[1].trim().length > 2) {
-            return match[1].trim();
-        }
+// Toca a pronúncia de uma palavra da Ponte (interrompe a fala atual — intenção do usuário)
+window.griloPlayBridgeWord = function (word) {
+    const clean = String(word || '').trim();
+    if (!clean) return;
+    try {
+        speakResponse(clean, 'en-US');
+    } catch (e) {
+        console.warn('[BRIDGE] Falha ao tocar pronúncia:', e.message);
     }
-    return null;
-}
+};
+
+// ==================== CORRECTION FORMATTING (text log) ====================
 
 /**
  * Format an AI voice chat message to highlight incorrect phrases (red) and
@@ -693,10 +730,10 @@ const VOICE_ERROR_TYPE_LABELS = {
     unknown: "Gramática geral",
 };
 
+// Filosofia "assume e flui": nenhum label negativo. A máquina projeta confiança.
 const VOICE_UNDERSTANDING_LABELS = {
-    mixed: "Frase mista PT + EN",
-    partial: "Entendimento parcial",
-    unclear: "Precisa repetir",
+    mixed: "Entendi e segui",
+    assumed: "Entendi e segui",
     clear: "Entendido",
 };
 
@@ -1687,7 +1724,7 @@ async function _sendVoiceTextTurnFromHelp(userMessage, options = {}) {
     if (isAISpeaking) {
         cancelCurrentSpeech();
         isAISpeaking = false;
-        stopPulsingAnimation();
+        _onAISpeechEnd();
     }
 
     if (voiceModalRecognizer && isListening) {
@@ -1697,7 +1734,7 @@ async function _sendVoiceTextTurnFromHelp(userMessage, options = {}) {
 
     updateVoiceModalStatus("processing");
     if (aiResponseText) {
-        aiResponseText.innerHTML = `<p class="voice-user-heard-label">Resposta selecionada:</p><p class="voice-user-heard-text voice-user-heard-text-ok">"${_escapeHtml(userMessage)}"</p>`;
+        _swapStageContent(`<p class="voice-user-heard-label">Resposta selecionada:</p><p class="voice-user-heard-text voice-user-heard-text-ok">"${_escapeHtml(userMessage)}"</p>`);
     }
 
     if (typeof addMessageToChat === "function") {
@@ -1718,7 +1755,7 @@ async function _sendVoiceTextTurnFromHelp(userMessage, options = {}) {
             language: "en",
             history: conversationHistoryVoice,
             stt_confidence: 1.0,
-            level: window.userVoiceLevel || "b1",
+            level: window.userVoiceLevel || "a1",
             voice_mode: voiceMode,
             conversation_topic: voiceTopic,
             bilingual_mode: voiceMode === 'free' ? true : bilingualMode,
@@ -1765,17 +1802,12 @@ async function _sendVoiceTextTurnFromHelp(userMessage, options = {}) {
             });
         }
 
-        const correctedPhrase = extractCorrectedPhrase(aiResponse);
         if (aiResponseText) {
             renderVoiceResponseCard({
                 heardText: userMessage,
                 heardLanguage,
                 englishText: aiResponse,
                 portugueseText: _lastTranslationPt,
-                correctionPhrase: correctedPhrase,
-                understandingStatus: understanding?.status || 'clear',
-                understandingNote: understanding?.note_pt || '',
-                understandingLabel: _getVoiceUnderstandingLabel(understanding?.status),
             });
         }
 
@@ -2163,7 +2195,7 @@ async function startAIKickoffTurn() {
     console.log("🤖 [KICKOFF] API URL:", API_BASE_URL);
 
     if (aiResponseText) {
-        aiResponseText.innerHTML = "<p>Vou iniciar a conversa para te guiar no primeiro passo.</p>";
+        _swapStageContent("<p>Vou iniciar a conversa para te guiar no primeiro passo.</p>");
     }
     updateVoiceModalStatus("processing");
 
@@ -2189,7 +2221,7 @@ async function startAIKickoffTurn() {
                 language: "en",
                 history: conversationHistoryVoice,
                 stt_confidence: 1.0,
-                level: window.userVoiceLevel || "b1",
+                level: window.userVoiceLevel || "a1",
                 voice_mode: voiceMode,
                 conversation_topic: voiceTopic,
                 bilingual_mode: voiceMode === 'free' ? true : bilingualMode,
@@ -2323,7 +2355,7 @@ window.startVoiceChatWithSetup = async function(opts = {}) {
             const introText = voiceMode === "guided"
                 ? (introByTopic[voiceTopic] || "Você está em uma situação prática de conversa.")
                 : "Modo livre ativado. Comece com qualquer frase e eu continuo.";
-            aiResponseText.innerHTML = `<p>${_escapeHtml(introText)}</p><p class="voice-subhint-line">A IA fala em inglês e você responde do jeito mais natural possível.</p>`;
+            _swapStageContent(`<p>${_escapeHtml(introText)}</p><p class="voice-subhint-line">A IA fala em inglês e você responde do jeito mais natural possível.</p>`);
         }
         console.log("✅ [VOICE-SETUP] Subtitle and intro text set");
 
@@ -2547,6 +2579,28 @@ function stopVoiceChat(options = {}) {
     }
 }
 
+// Palavras que sinalizam frase inacabada — o usuário provavelmente vai continuar
+const _INCOMPLETE_TRAILING_WORDS = new Set([
+    'and', 'but', 'or', 'so', 'because', 'the', 'a', 'an', 'to', 'of', 'in', 'on', 'at',
+    'my', 'your', 'his', 'her', 'our', 'their', 'is', 'are', 'was', 'were', 'very', 'really',
+    'i', 'it', 'that', 'this', 'with', 'for',
+    'e', 'mas', 'ou', 'porque', 'o', 'os', 'um', 'uma', 'de', 'do', 'da', 'em', 'no', 'na',
+    'meu', 'minha', 'seu', 'sua', 'que', 'com', 'para', 'pra', 'muito',
+]);
+
+// Grace window adaptativa: resposta curta commita rápido; frase que soa
+// inacabada ganha mais tempo; o resto usa um meio-termo (era 1300ms fixo).
+function _endOfSpeechGraceMs(transcript) {
+    const words = String(transcript || '').trim().split(/\s+/).filter(Boolean);
+    const lastWord = (words[words.length - 1] || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z']/g, '');
+    if (_INCOMPLETE_TRAILING_WORDS.has(lastWord)) return 2000;
+    if (words.length <= 3) return 700;
+    return 1100;
+}
+
 function queueVoiceTurnCommit(transcript, confidence) {
     const text = String(transcript || '').trim();
     if (!text) return;
@@ -2556,7 +2610,9 @@ function queueVoiceTurnCommit(transcript, confidence) {
     pendingVoiceMessage = pendingVoiceMessage
         ? `${pendingVoiceMessage} ${text}`
         : text;
-    _pendingVoiceConfidence = Math.min(_pendingVoiceConfidence, confidence || 1.0);
+    // confidence 0 = "sem sinal" e deve propagar (não virar 1.0)
+    const chunkConfidence = typeof confidence === 'number' ? confidence : 1.0;
+    _pendingVoiceConfidence = Math.min(_pendingVoiceConfidence, chunkConfidence);
 
     if (_voiceTurnCommitTimer) {
         clearTimeout(_voiceTurnCommitTimer);
@@ -2571,7 +2627,7 @@ function queueVoiceTurnCommit(transcript, confidence) {
 
         if (!committedMessage || !voiceChatActive) return;
         void processCommittedVoiceTurn(committedMessage, committedConfidence);
-    }, END_OF_SPEECH_GRACE_MS);
+    }, _endOfSpeechGraceMs(pendingVoiceMessage));
 }
 
 async function processCommittedVoiceTurn(initialMessage, minConfidence) {
@@ -2586,12 +2642,12 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
         return;
     }
 
-    // If AI is speaking, interrupt it
+    // If AI is speaking, interrupt it (para Web Speech E o pipeline ElevenLabs)
     if (isAISpeaking) {
         console.log('🎤 User spoke while AI speaking - interrupting AI');
-        speechSynthesis.cancel();
+        cancelCurrentSpeech();
         isAISpeaking = false;
-        stopPulsingAnimation();
+        _onAISpeechEnd();
     }
 
     // Immediately stop the recognizer
@@ -2603,20 +2659,19 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
         console.log('Stop recognizer error:', e.message);
     }
 
-    // Update status — show what was heard so user can confirm recognition
+    // Update status — mostra o que a máquina entendeu, sempre de forma POSITIVA.
+    // Filosofia "assume e flui": nada de âmbar/vermelho de "baixa confiança"; a
+    // máquina projeta que entendeu. A cor de confiança e o "(baixa confianca)"
+    // foram removidos de propósito.
     updateVoiceModalStatus('processing');
     let userMessage = initialMessage; // may be upgraded by Whisper below
     const aiResponseText = document.getElementById('aiResponseText');
     let userInputLanguage = normalizeVoiceInputLanguage(userMessage);
-    if (aiResponseText) {
-        const confidenceClass = minConfidence >= 0.75
-            ? 'voice-user-heard-text-ok'
-            : minConfidence >= 0.5
-                ? 'voice-user-heard-text-mid'
-                : 'voice-user-heard-text-low';
-        const confidenceNote = minConfidence < 0.5 ? ' <em class="voice-user-heard-note">(baixa confianca)</em>' : '';
-        aiResponseText.innerHTML = `<p class="voice-user-heard-label">Voce disse:${confidenceNote}</p><p class="voice-user-heard-text ${confidenceClass}">"${userMessage}"</p>`;
-    }
+    const hasConfidenceSignal = minConfidence > 0;
+    const _renderHeard = (txt) => _swapStageContent(
+        `<p class="voice-user-heard-label">Entendi:</p><p class="voice-user-heard-text voice-user-heard-text-ok">"${_escapeHtml(txt)}"</p>`
+    );
+    if (aiResponseText) _renderHeard(userMessage);
 
     // Validate auth token
     const authToken = window.authToken || localStorage.getItem('grilo_token');
@@ -2628,16 +2683,20 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
     }
 
     try {
-        // Attempt Whisper upgrade (awaits the recording that was stopped above)
-        const recording = await recordingPromise;
-        const whisperResult = await _transcribeWithWhisper(recording, userMessage, authToken);
-        if (whisperResult && whisperResult !== userMessage) {
-            userMessage = whisperResult;
-            userInputLanguage = normalizeVoiceInputLanguage(userMessage);
-            // Update the displayed "you said" text with Whisper's transcript
-            if (aiResponseText) {
-                aiResponseText.innerHTML = `<p class="voice-user-heard-label">Voce disse:</p><p class="voice-user-heard-text voice-user-heard-text-ok">"${userMessage}"</p>`;
+        // Whisper só quando o STT do navegador não deu segurança suficiente —
+        // com confiança alta, o upgrade não paga os ~0.5-1.5s que custa no turno.
+        const needsWhisperUpgrade = !hasConfidenceSignal || minConfidence < 0.75;
+        if (needsWhisperUpgrade) {
+            const recording = await recordingPromise;
+            const whisperResult = await _transcribeWithWhisper(recording, userMessage, authToken);
+            if (whisperResult && whisperResult !== userMessage) {
+                userMessage = whisperResult;
+                userInputLanguage = normalizeVoiceInputLanguage(userMessage);
+                if (aiResponseText) _renderHeard(userMessage);
             }
+        } else {
+            // Confiança alta: descarta a gravação sem bloquear o turno
+            Promise.resolve(recordingPromise).catch(() => {});
         }
 
         if (voiceMode === 'free' && userInputLanguage === 'en') {
@@ -2676,7 +2735,7 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
                 language: userInputLanguage,
                 history: conversationHistoryVoice,
                 stt_confidence: Math.round(minConfidence * 100) / 100,
-                level: window.userVoiceLevel || 'b1',
+                level: window.userVoiceLevel || 'a1',
                 voice_mode: voiceMode,
                 conversation_topic: voiceTopic,
                 bilingual_mode: voiceMode === 'free' ? true : bilingualMode,
@@ -2709,15 +2768,11 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
             const detectedInput = data.detected_input || null;
             const heardLanguage = understanding?.input_language || detectedInput?.language || userInputLanguage;
 
-            // Drop correction card — structured data from backend (no client-side regex)
+            // Filosofia "assume e flui": a correção NÃO aparece ao vivo (nada de
+            // frase riscada durante a conversa). A IA já modelou a forma certa na
+            // fala; aqui só guardamos a correção estruturada para o resumo/recap
+            // via _recordVoiceTurnAnalytics abaixo.
             const turnCorrection = data.correction && data.correction.correct ? data.correction : null;
-            if (turnCorrection) {
-                dropLiveError(turnCorrection.wrong, turnCorrection.correct, turnCorrection.tip, {
-                    errorType: turnCorrection.error_type,
-                    language: heardLanguage,
-                    turnIndex: _voiceSessionAnalytics.turns.length + 1,
-                });
-            }
 
             const recognitionLatency = apiStartTime - messageStartTime;
             console.log(`✅ Full AI Response (${aiResponse.length} chars)`);
@@ -2725,18 +2780,13 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
 
             // Show AI response modal overlay
             if (aiResponseText) {
-                // Check if the AI corrected a phrase — show visual correction card if so
-                const correctedPhrase = extractCorrectedPhrase(aiResponse);
                 renderVoiceResponseCard({
                     heardText: userMessage,
                     heardLanguage,
                     englishText: aiResponse,
                     portugueseText: _lastTranslationPt,
                     turnHint: 'Escute a resposta. Quando eu terminar, a palavra volta para você.',
-                    correctionPhrase: correctedPhrase,
-                    understandingStatus: understanding?.status || 'clear',
-                    understandingNote: understanding?.note_pt || '',
-                    understandingLabel: _getVoiceUnderstandingLabel(understanding?.status),
+                    bridgeWords: Array.isArray(data.bridge_words) ? data.bridge_words : null,
                 });
                 console.log('📱 AI Response Modal shown');
             }
@@ -2878,10 +2928,8 @@ function initializeVoiceModalRecognizer() {
     voiceModalRecognizer.onnomatch = () => {
         console.warn("⚠️ No match found for speech input");
         if (!voiceChatActive) return;
-        const aiResponseText = document.getElementById("aiResponseText");
-        if (aiResponseText) {
-            aiResponseText.innerHTML = `<p class="voice-status-note voice-status-note-soft">Nao entendi bem. Repita com mais calma.</p>`;
-        }
+        // Tom leve, sem "repita" acusatório — a máquina só volta a ouvir.
+        _swapStageContent(`<p class="voice-status-note voice-status-note-soft">Estou te ouvindo — pode continuar.</p>`);
         setTimeout(() => { if (voiceChatActive) startVoiceListening(); }, 1500);
     };
 
@@ -2926,7 +2974,7 @@ function initializeVoiceModalRecognizer() {
             const aiResponseText = document.getElementById("aiResponseText");
             const aiResponseOverlay = document.getElementById("aiResponseOverlay");
             if (aiResponseText) {
-                aiResponseText.innerHTML = `<p class="voice-status-note voice-status-note-error">${errorMsg}</p>`;
+                _swapStageContent(`<p class="voice-status-note voice-status-note-error">${_escapeHtml(errorMsg)}</p>`);
             }
         }
 
@@ -2951,6 +2999,7 @@ function initializeVoiceModalRecognizer() {
         let interimTranscript = "";
         let finalTranscript = "";
         let minConfidence = 1.0; // Track lowest confidence across final results
+        let sawConfidenceSignal = false; // vários browsers reportam confidence 0 (sem sinal)
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const isFinal = event.results[i].isFinal;
@@ -2970,6 +3019,7 @@ function initializeVoiceModalRecognizer() {
                 console.log(`  Result[${i}]: "${bestTranscript}" (isFinal: true, best conf: ${bestConfidence.toFixed(2)}, alternatives: ${event.results[i].length})`);
                 if (bestConfidence > 0) {
                     minConfidence = Math.min(minConfidence, bestConfidence);
+                    sawConfidenceSignal = true;
                 }
                 // Atualiza indicador visual de confidence (nova melhoria)
                 try { _updateVoiceConfidenceIndicator(bestConfidence); } catch (e) {}
@@ -3024,7 +3074,9 @@ function initializeVoiceModalRecognizer() {
             }
             
             console.log('✅ Final transcript detected, waiting grace window:', trimmedMessage);
-            queueVoiceTurnCommit(trimmedMessage, minConfidence);
+            // 0 = "sem sinal de confiança" — o backend cai para checagens lexicais
+            // em vez de tratar como confiança máxima (bug antigo)
+            queueVoiceTurnCommit(trimmedMessage, sawConfidenceSignal ? minConfidence : 0);
         }
     };
 
@@ -3080,6 +3132,16 @@ function startVoiceListening() {
     }
 }
 
+// updateVoiceModalStatus é a ÚNICA fonte de verdade do estado visual do orbe.
+// Mapeia o status semântico → classe ink-* no #chatVoiceTab. O orbe (listening/
+// thinking/speaking) e o dot são 100% CSS. Não há mais rAF nem MutationObserver.
+function _setOrbState(inkClass) {
+    const stage = document.getElementById("chatVoiceTab");
+    if (!stage) return;
+    stage.classList.remove("ink-listening", "ink-thinking", "ink-speaking");
+    if (inkClass) stage.classList.add(inkClass);
+}
+
 function updateVoiceModalStatus(status) {
     const statusEl = document.getElementById("voiceDimensionStatus");
     if (!statusEl) return;
@@ -3088,7 +3150,7 @@ function updateVoiceModalStatus(status) {
     const voiceStartBtn = document.getElementById("voiceStartBtn");
     const aiResponseText = document.getElementById("aiResponseText");
     const subtitle = document.getElementById("voiceDimensionSubtitle");
-    
+
     // Remove all previous status classes
     statusEl.classList.remove("listening", "speaking", "processing", "waiting", "error");
     if (voiceStartBtn) {
@@ -3105,6 +3167,7 @@ function updateVoiceModalStatus(status) {
                 ? 'Modo livre com Ponte ligada: pode responder em portugues ou ingles.'
                 : 'Responda em ingles com uma frase curta. Se travar, toque em Ajuda.';
             if (voiceStartBtn) voiceStartBtn.classList.add("active", "listening");
+            _setOrbState("ink-listening");
             break;
         case "speaking":
             statusEl.classList.add("speaking");
@@ -3112,100 +3175,51 @@ function updateVoiceModalStatus(status) {
             // aiResponseText already contains the actual response — don't overwrite it
             if (subtitle) subtitle.textContent = "Ouça com atenção e acompanhe para acelerar sua evolução.";
             if (voiceStartBtn) voiceStartBtn.classList.add("active", "speaking");
+            _setOrbState("ink-speaking");
             break;
         case "processing":
             statusEl.classList.add("processing");
-            statusText.innerHTML = '<span class="voice-indicator animate-pulse"></span>Processando...';
-            if (subtitle) subtitle.textContent = "Conferindo o que você disse e preparando a resposta.";
+            statusText.innerHTML = '<span class="voice-indicator animate-pulse"></span>Pensando...';
+            if (subtitle) subtitle.textContent = "Entendi você. Preparando a resposta.";
             if (voiceStartBtn) voiceStartBtn.classList.add("active");
+            _setOrbState("ink-thinking");
             break;
         case "waiting":
             statusEl.classList.add("waiting");
             statusText.innerHTML = '<span class="voice-indicator"></span>Preparando audio';
-            if (aiResponseText) aiResponseText.innerHTML = "<p>Calibrando o ambiente de voz.</p>";
+            _swapStageContent("<p>Calibrando o ambiente de voz.</p>");
             if (voiceStartBtn) voiceStartBtn.classList.add("active");
+            _setOrbState("ink-thinking");
             break;
         case "error":
             statusEl.classList.add("error");
-            statusText.innerHTML = '<span class="voice-indicator speaking"></span>Falha temporaria';
-            if (aiResponseText) aiResponseText.innerHTML = "<p>Conexao instavel neste ciclo.</p>";
-            if (subtitle) subtitle.textContent = "Aguarde um instante e tente novamente.";
+            statusText.innerHTML = '<span class="voice-indicator speaking"></span>Um instante';
+            _swapStageContent("<p>A conexão oscilou — já tento de novo.</p>");
+            if (subtitle) subtitle.textContent = "Sem estresse, continue quando quiser.";
             if (voiceStartBtn) voiceStartBtn.classList.remove("active");
+            _setOrbState(null);
             break;
         case "stopped":
             statusText.innerHTML = '<span class="voice-indicator"></span>Sessão finalizada';
-            if (aiResponseText) aiResponseText.innerHTML = "<p>Sessão encerrada. Revise seu recap e comece novamente quando quiser.</p>";
+            _swapStageContent("<p>Sessão encerrada. Revise seu recap e comece novamente quando quiser.</p>");
             if (subtitle) subtitle.textContent = "Fluxo concluído com sucesso.";
             if (voiceStartBtn) voiceStartBtn.classList.remove("active");
+            _setOrbState(null);
             break;
         default:
             statusText.innerHTML = '<span class="voice-indicator"></span>Pronto';
-            if (aiResponseText) aiResponseText.innerHTML = "<p>Modo de voz em espera. Inicie quando quiser.</p>";
+            _swapStageContent("<p>Modo de voz em espera. Inicie quando quiser.</p>");
             if (subtitle) subtitle.textContent = "Foco total na fala: voz, feedback e progresso.";
             if (voiceStartBtn) voiceStartBtn.classList.remove("active");
+            _setOrbState(null);
     }
 }
 
-// ==================== PULSING ANIMATION ====================
-
-let pulsingAnimationId = null;
-const PULSE_MIN = 0.3;
-const PULSE_MAX = 1;
-
-function startPulsingAnimation() {
-    const modal = document.getElementById("voiceDimensionOrb");
-    if (!modal) return;
-    
-    // Create smooth blue gradient animation that pulses
-    let pulseScale = PULSE_MIN;
-    let direction = 1; // 1 = increase, -1 = decrease
-    const step = 0.02;
-    
-    function pulse() {
-        pulseScale += direction * step;
-        
-        if (pulseScale >= PULSE_MAX) {
-            pulseScale = PULSE_MAX;
-            direction = -1;
-        } else if (pulseScale <= PULSE_MIN) {
-            pulseScale = PULSE_MIN;
-            direction = 1;
-        }
-        
-        const glowSize = 46 + pulseScale * 38;
-        const glowOpacity = 0.26 + pulseScale * 0.28;
-        const depthShadow = 56 + pulseScale * 20;
-
-        modal.style.boxShadow = `
-            inset -6px -8px 16px rgba(5, 10, 26, 0.4),
-            inset 5px 6px 14px rgba(255, 255, 255, 0.24),
-            0 0 ${glowSize}px rgba(170, 194, 255, ${glowOpacity}),
-            0 24px ${depthShadow}px rgba(4, 11, 28, 0.56)
-        `;
-        modal.style.filter = `saturate(${1 + pulseScale * 0.25})`;
-        
-        if (voiceChatActive) {
-            pulsingAnimationId = requestAnimationFrame(pulse);
-        }
-    }
-    
-    pulsingAnimationId = requestAnimationFrame(pulse);
-}
-
-function stopPulsingAnimation() {
-    if (pulsingAnimationId) {
-        cancelAnimationFrame(pulsingAnimationId);
-        pulsingAnimationId = null;
-    }
-    
-    // Reset dynamic visual overrides
-    const modal = document.getElementById("voiceDimensionOrb");
-    if (modal) {
-        modal.style.boxShadow = "";
-        modal.style.filter = "";
-    }
-    
-    // Clear AI response when stopping
+// ==================== FIM DA FALA DA IA (limpeza de estado) ====================
+// Substitui o antigo par start/stopPulsingAnimation (rAF que pintava o orbe com
+// azul hardcoded e competia com o CSS .ink-speaking). O pulsar do orbe agora é
+// 100% CSS via a classe ink-speaking; aqui só limpamos o buffer de eco.
+function _onAISpeechEnd() {
     currentAIResponse = "";
 }
 
@@ -3758,7 +3772,8 @@ const LEVEL_MAP = { 1: "a1", 2: "a2", 3: "b1", 4: "b2", 5: "c1", 6: "c2" };
 // Called by chat-text-controller.js after it loads the user profile
 window.setUserVoiceLevel = function(levelInt) {
     window.userLevel = levelInt;
-    window.userVoiceLevel = LEVEL_MAP[levelInt] || "b1";
+    // Fallback a1: público do GRILO é iniciante (A0→A1) — b1 falava difícil demais
+    window.userVoiceLevel = LEVEL_MAP[levelInt] || "a1";
     // Auto-enable bilingual for A1/A2 users
     if (levelInt <= 2) bilingualMode = true;
 };

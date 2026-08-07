@@ -221,6 +221,7 @@
             _query = this.value.trim().toLowerCase();
             renderBody();
         });
+        search.addEventListener('click', function (e) { e.stopPropagation(); });
 
         return overlay;
     }
@@ -265,7 +266,8 @@
                 t.label + '<span class="cnt">' + counts[t.key] + '</span></button>';
         }).join('');
         el.querySelectorAll('.vocab-tab').forEach(function (btn) {
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
                 _filter = this.getAttribute('data-filter');
                 renderTabs();
                 renderBody();

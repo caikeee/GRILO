@@ -11,26 +11,27 @@
             if (bd) { bd.style.display = 'none'; }
         }
 
+        // Seleção via classe (não inline) para o estado respeitar o tema claro/escuro.
         window.obSelectWhy = function(btn) {
             document.querySelectorAll('.ob-opt').forEach(function(b) {
-                b.style.borderColor = '#D9E7DC'; b.style.background = '#F7FAF9';
+                b.classList.remove('is-selected');
             });
-            btn.style.borderColor = '#3A5E47'; btn.style.background = '#e6f0e8';
+            btn.classList.add('is-selected');
             _obWhy = btn.getAttribute('data-val');
         };
 
         window.obSelectInterest = function(btn) {
             document.querySelectorAll('.ob-opt2').forEach(function(b) {
-                b.style.borderColor = '#D9E7DC'; b.style.background = '#F7FAF9';
+                b.classList.remove('is-selected');
             });
-            btn.style.borderColor = '#3A5E47'; btn.style.background = '#e6f0e8';
+            btn.classList.add('is-selected');
             _obInterest = btn.getAttribute('data-val');
         };
 
         window.obNextStep = function() {
             document.getElementById('obStep1').style.display = 'none';
             document.getElementById('obStep2').style.display = 'block';
-            document.getElementById('obStep2Bar').style.background = '#3A5E47';
+            document.getElementById('obStep2Bar').classList.add('is-done');
         };
 
         window.obSkip = function() { obSave('', ''); };

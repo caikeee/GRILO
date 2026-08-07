@@ -9,14 +9,14 @@ from collections import defaultdict
 from typing import List, Dict, Optional, Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user_id
 from backend.admin_controller import verify_admin
-from backend.database import get_db
+from backend.database import get_db, SessionLocal
 from backend.db_models import UserProgress, VoicePhrase, ShadowModeAnalytic
 from backend.utils import mark_activity, award_xp, track_metric_event
 from backend.schemas import ChatRequest, ShadowModeData
@@ -310,11 +310,23 @@ class _TTSRequest(BaseModel):
         return v
 
 
+def _track_voice_metric_bg(user_id: int, details: dict):
+    """Telemetria fora do caminho da resposta — sessão própria (a da request já fechou)."""
+    db = SessionLocal()
+    try:
+        track_metric_event(db, user_id, "voice", "voice_message_sent", details=details)
+    except Exception as exc:
+        logger.warning("[VOICE-CHAT] metric bg falhou: %s", str(exc))
+    finally:
+        db.close()
+
+
 @router.post("/api/voice-chat")
 @_limiter.limit("30/minute")
 async def voice_chat(
     request: Request,
     body: ChatRequest,
+    background_tasks: BackgroundTasks,
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
@@ -336,12 +348,10 @@ async def voice_chat(
         xp_result = award_xp(db, int(user_id), 8, source="voice")
         mark_activity(db, int(user_id), "voice")
         had_correction = bool(result.get("correction"))
-        track_metric_event(
-            db,
+        background_tasks.add_task(
+            _track_voice_metric_bg,
             int(user_id),
-            "voice",
-            "voice_message_sent",
-            details={
+            {
                 "voice_mode": getattr(body, "voice_mode", "free") or "free",
                 "conversation_topic": getattr(body, "conversation_topic", None),
                 "had_correction": had_correction,
@@ -359,6 +369,7 @@ async def voice_chat(
             "response": result.get("reply", ""),
             "translation_pt": result.get("translation_pt"),
             "correction": result.get("correction"),
+            "bridge_words": result.get("bridge_words"),
             "understanding": result.get("understanding"),
             "detected_input": result.get("detected_input"),
             "voice_mode": getattr(body, "voice_mode", "free") or "free",
