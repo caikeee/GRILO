@@ -297,9 +297,12 @@ function renderWritingWelcomeMessage() {
 function updateDashboard() {
     if (!currentUser) return;
     
-    document.getElementById("usernameDisplay").textContent = currentUser.username;
-    document.getElementById("xpDisplay").textContent = currentUser.xp;
-    document.getElementById("levelDisplay").textContent = currentUser.level;
+    const usernameDisplay = document.getElementById("usernameDisplay");
+    if (usernameDisplay) usernameDisplay.textContent = currentUser.username;
+    const xpDisplay = document.getElementById("xpDisplay");
+    if (xpDisplay) xpDisplay.textContent = currentUser.xp;
+    const levelDisplay = document.getElementById("levelDisplay");
+    if (levelDisplay) levelDisplay.textContent = currentUser.level;
 
     // Propagate level to voice chat system
     if (typeof window.setUserVoiceLevel === "function") {

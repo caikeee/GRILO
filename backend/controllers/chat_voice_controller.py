@@ -9,21 +9,20 @@ from collections import defaultdict
 from typing import List, Dict, Optional, Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user_id
 from backend.admin_controller import verify_admin
-from backend.database import get_db
+from backend.database import get_db, SessionLocal
 from backend.db_models import UserProgress, VoicePhrase, ShadowModeAnalytic
 from backend.utils import mark_activity, award_xp, track_metric_event
 from backend.schemas import ChatRequest, ShadowModeData
 from backend.services import chat_concise_voice, generate_voice_recap
 from backend.voice_metrics import voice_metrics
 from backend.voice_cache import voice_cache
-from backend.fallback import GraciousFallback, ErrorScenario
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -311,11 +310,23 @@ class _TTSRequest(BaseModel):
         return v
 
 
+def _track_voice_metric_bg(user_id: int, details: dict):
+    """Telemetria fora do caminho da resposta — sessão própria (a da request já fechou)."""
+    db = SessionLocal()
+    try:
+        track_metric_event(db, user_id, "voice", "voice_message_sent", details=details)
+    except Exception as exc:
+        logger.warning("[VOICE-CHAT] metric bg falhou: %s", str(exc))
+    finally:
+        db.close()
+
+
 @router.post("/api/voice-chat")
 @_limiter.limit("30/minute")
 async def voice_chat(
     request: Request,
     body: ChatRequest,
+    background_tasks: BackgroundTasks,
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
@@ -337,12 +348,10 @@ async def voice_chat(
         xp_result = award_xp(db, int(user_id), 8, source="voice")
         mark_activity(db, int(user_id), "voice")
         had_correction = bool(result.get("correction"))
-        track_metric_event(
-            db,
+        background_tasks.add_task(
+            _track_voice_metric_bg,
             int(user_id),
-            "voice",
-            "voice_message_sent",
-            details={
+            {
                 "voice_mode": getattr(body, "voice_mode", "free") or "free",
                 "conversation_topic": getattr(body, "conversation_topic", None),
                 "had_correction": had_correction,
@@ -360,6 +369,7 @@ async def voice_chat(
             "response": result.get("reply", ""),
             "translation_pt": result.get("translation_pt"),
             "correction": result.get("correction"),
+            "bridge_words": result.get("bridge_words"),
             "understanding": result.get("understanding"),
             "detected_input": result.get("detected_input"),
             "voice_mode": getattr(body, "voice_mode", "free") or "free",
@@ -455,6 +465,60 @@ async def get_voice_history(
     up = db.query(UserProgress).filter(UserProgress.user_id == uid).first()
     sessions = list(up.voice_sessions or []) if up else []
     return {"sessions": sessions[-10:]}
+
+
+@router.get("/api/voice/vocabulary")
+async def get_voice_vocabulary(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """
+    Retorna TODAS as palavras que o usuário praticou no chat de voz
+    (dominadas + em progresso), para o review de vocabulário da home.
+
+    Cada palavra traz usos, acertos, acurácia de pronúncia e o tipo de tropeço
+    mais recente — insumo para ranking e reforço. Ordenado por uso (desc).
+    """
+    from backend.db_models import WordProfile
+
+    uid = int(user_id)
+    rows = (
+        db.query(WordProfile)
+        .filter(WordProfile.user_id == uid)
+        .order_by(
+            WordProfile.total_uses.desc(),
+            WordProfile.last_seen_at.desc().nullslast(),
+        )
+        .all()
+    )
+
+    words = []
+    mastered_count = 0
+    for r in rows:
+        total = int(r.total_uses or 0)
+        correct = int(r.correct_uses or 0)
+        accuracy = round((correct / total) * 100) if total else 0
+        if r.mastered:
+            mastered_count += 1
+        error_type = _normalize_voice_error_type(r.last_error_type) if r.last_error_type else None
+        words.append({
+            "word": r.word,
+            "uses": total,
+            "correct_uses": correct,
+            "accuracy": accuracy,
+            "mastered": bool(r.mastered),
+            "status": "dominada" if r.mastered else "em_progresso",
+            "last_error_type": error_type,
+            "last_error_label": _VOICE_ERROR_TYPE_LABELS.get(error_type) if error_type else None,
+            "first_seen": r.first_seen_at.isoformat() if r.first_seen_at else None,
+            "last_seen": r.last_seen_at.isoformat() if r.last_seen_at else None,
+        })
+
+    return {
+        "words": words,
+        "total_seen": len(words),
+        "total_mastered": mastered_count,
+    }
 
 
 @router.get("/api/voice/metrics")
@@ -872,10 +936,13 @@ async def voice_recap(
                 db.add(prof)
 
             acc = prof.correct_uses / prof.total_uses if prof.total_uses else 1.0
-            now_mastered = acc >= 0.85 and prof.total_uses >= 5
-            if now_mastered and not was_mastered_before:
+            reached_mastery = acc >= 0.85 and prof.total_uses >= 5
+            # "mastered" é latch: uma vez atingido, não reverte se a acurácia cair
+            # depois. A queda de acurácia segue registrada em correct_uses/total_uses
+            # (uso futuro: montar frases de reforço), mas não tira a palavra do vocab.
+            if reached_mastery and not was_mastered_before:
                 mastered_this_session += 1
-            prof.mastered = now_mastered
+            prof.mastered = was_mastered_before or reached_mastery
 
         # Patch vocabulary_snapshot with real DB-backed counts
         vocab_snap = result.get("vocabulary_snapshot", {})

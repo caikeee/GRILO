@@ -15,9 +15,9 @@ import langdetect
 import logging
 
 # Import new optimization modules
-from backend.decision_engine import voice_router, VoiceRequestClassification
+from backend.decision_engine import classify_voice_request, get_model_for_classification, NO_LLM, LIGHT_LLM, FULL_LLM
 from backend.voice_cache import voice_cache
-from backend.fallback import GraciousFallback, ErrorScenario
+from backend.fallback import get_fallback_response, log_fallback_usage, RATE_LIMIT, TIMEOUT, API_ERROR
 
 logger = logging.getLogger(__name__)
 
@@ -341,6 +341,25 @@ def _extract_voice_focus_fragment(text: str, limit: int = 4) -> str:
     return " ".join(relevant_words[:limit]).strip()
 
 
+# Alucinações clássicas de STT sobre silêncio/ruído (Whisper foi treinado em
+# vídeos legendados — inventa créditos de YouTube quando não há fala real).
+# Frases curtas legítimas como "thank you" sozinho NÃO entram aqui.
+_STT_HALLUCINATION_PHRASES = {
+    "thanks for watching",
+    "thank you for watching",
+    "thank you so much for watching",
+    "please subscribe",
+    "subscribe to my channel",
+    "dont forget to subscribe",
+    "see you in the next video",
+    "legendas pela comunidade amara org",
+    "legendado pela comunidade amara org",
+    "obrigado por assistir",
+    "nao deixe de se inscrever",
+    "ate o proximo video",
+}
+
+
 def _analyze_voice_understanding(text: str, detected_input: dict, stt_confidence: float) -> dict:
     sample = (text or "").strip()
     normalized_sample = _normalize_for_language_detection(sample)
@@ -349,43 +368,57 @@ def _analyze_voice_understanding(text: str, detected_input: dict, stt_confidence
     language = detected_input.get("language") or "unknown"
     primary_language = detected_input.get("primary_language")
     confidence = float(stt_confidence or 0.0)
+    # Vários browsers reportam confidence 0 (sem sinal). Nesses casos a decisão
+    # cai para os checks lexicais abaixo em vez de confiar num número que não existe.
+    has_confidence_signal = confidence > 0.0
     normalized_phrase = " ".join(words).strip()
     trailing_word = words[-1] if words else ""
     focus_fragment = _extract_voice_focus_fragment(sample)
 
+    # ================== FILOSOFIA "ASSUME E FLUI" ==================
+    # A máquina projeta confiança: assume o melhor palpite como verdade e segue
+    # a conversa. Só ruído GENUÍNO (vazio, alucinação de STT, token repetido)
+    # interrompe o fluxo — e mesmo aí com um empurrãozinho leve, nunca acusatório.
+    # Palpites incertos (baixa confiança, fragmento, frase inacabada) NÃO pedem
+    # repetição: seguem para o LLM, que se auto-corrige no turno seguinte.
+    # ==============================================================
+
+    # --- Ruído real: os únicos casos que ainda interrompem (tom leve) ---
     if not sample:
         return {
-            "status": "unclear",
+            "status": "noise",
             "reason": "empty_input",
             "clarification_needed": True,
             "input_language": "unknown",
             "primary_language": None,
             "understood_fragment": "",
-            "note_pt": "Nao entendi nada da frase. Repita em uma frase curta.",
+            "note_pt": "Não ouvi nada dessa vez — pode falar quando quiser.",
         }
 
-    if confidence < 0.74:
+    if normalized_phrase in _STT_HALLUCINATION_PHRASES:
         return {
-            "status": "unclear",
-            "reason": "low_confidence",
+            "status": "noise",
+            "reason": "stt_hallucination",
             "clarification_needed": True,
             "input_language": language,
             "primary_language": primary_language,
-            "understood_fragment": focus_fragment,
-            "note_pt": "Nao entendi com seguranca. Repita em uma frase curta.",
+            "understood_fragment": "",
+            "note_pt": "O microfone captou só um ruído — fala de novo quando estiver pronto.",
         }
 
-    if language == "unknown" and confidence < 0.9:
+    # Gibberish: a mesma palavra repetida varias vezes ("uh uh uh uh")
+    if word_count >= 4 and len(set(words)) == 1:
         return {
-            "status": "unclear",
-            "reason": "unknown_language",
+            "status": "noise",
+            "reason": "repeated_token",
             "clarification_needed": True,
             "input_language": language,
             "primary_language": primary_language,
-            "understood_fragment": focus_fragment,
-            "note_pt": "A frase ficou ambigua. Repita em uma frase curta.",
+            "understood_fragment": "",
+            "note_pt": "Fiquei na dúvida do que veio — pode mandar a ideia inteira.",
         }
 
+    # --- Palavras curtas completas: seguem limpas ---
     if normalized_phrase in _VOICE_SHORT_COMPLETE_UTTERANCES:
         return {
             "status": "clear",
@@ -397,28 +430,7 @@ def _analyze_voice_understanding(text: str, detected_input: dict, stt_confidence
             "note_pt": "",
         }
 
-    if word_count <= 1 and normalized_phrase not in _VOICE_SHORT_COMPLETE_UTTERANCES:
-        return {
-            "status": "partial",
-            "reason": "short_fragment",
-            "clarification_needed": True,
-            "input_language": language,
-            "primary_language": primary_language,
-            "understood_fragment": focus_fragment,
-            "note_pt": "Entendi so um pedaco. Repita a ideia inteira em uma frase curta.",
-        }
-
-    if trailing_word in _VOICE_INCOMPLETE_TRAILING_WORDS:
-        return {
-            "status": "partial",
-            "reason": "unfinished_phrase",
-            "clarification_needed": True,
-            "input_language": language,
-            "primary_language": primary_language,
-            "understood_fragment": focus_fragment,
-            "note_pt": "A frase pareceu incompleta. Repita a ideia inteira em uma frase curta.",
-        }
-
+    # --- Frase mista PT+EN: assumida e seguida (o modelo original de "assume") ---
     if language == "mixed":
         return {
             "status": "mixed",
@@ -427,7 +439,54 @@ def _analyze_voice_understanding(text: str, detected_input: dict, stt_confidence
             "input_language": language,
             "primary_language": primary_language,
             "understood_fragment": focus_fragment,
-            "note_pt": "Frase mista PT + EN detectada. Entendi a ideia e segui em ingles.",
+            "note_pt": "",
+        }
+
+    # --- Palpites incertos: ASSUMIDOS, não rejeitados. Seguem para o LLM. ---
+    # status "assumed" sinaliza ao prompt que ancore no fragmento provável, e ao
+    # frontend que (se quiser) mostre um "segui com: X" discreto — nunca "repita".
+    if has_confidence_signal and confidence < 0.55:
+        return {
+            "status": "assumed",
+            "reason": "low_confidence",
+            "clarification_needed": False,
+            "input_language": language,
+            "primary_language": primary_language,
+            "understood_fragment": focus_fragment,
+            "note_pt": "",
+        }
+
+    if language == "unknown" and (not has_confidence_signal or confidence < 0.9):
+        return {
+            "status": "assumed",
+            "reason": "unknown_language",
+            "clarification_needed": False,
+            "input_language": language,
+            "primary_language": primary_language,
+            "understood_fragment": focus_fragment,
+            "note_pt": "",
+        }
+
+    if word_count <= 1:
+        return {
+            "status": "assumed",
+            "reason": "short_fragment",
+            "clarification_needed": False,
+            "input_language": language,
+            "primary_language": primary_language,
+            "understood_fragment": focus_fragment,
+            "note_pt": "",
+        }
+
+    if trailing_word in _VOICE_INCOMPLETE_TRAILING_WORDS:
+        return {
+            "status": "assumed",
+            "reason": "unfinished_phrase",
+            "clarification_needed": False,
+            "input_language": language,
+            "primary_language": primary_language,
+            "understood_fragment": focus_fragment,
+            "note_pt": "",
         }
 
     return {
@@ -442,15 +501,10 @@ def _analyze_voice_understanding(text: str, detected_input: dict, stt_confidence
 
 
 async def _build_voice_clarification_result(understanding: dict, bilingual_mode: bool) -> dict:
-    fragment = (understanding.get("understood_fragment") or "").strip()
-    status = understanding.get("status")
-
-    if status == "partial" and fragment:
-        reply = f'I caught "{fragment}". Say the full idea in one short sentence.'
-    elif status == "partial":
-        reply = "I only caught part of that. Say the full idea in one short sentence."
-    else:
-        reply = "I did not catch that clearly. Say it again in one short sentence."
+    # Chega aqui apenas para ruído GENUÍNO (vazio / alucinação de STT / token
+    # repetido). Nunca por palpite incerto — esses seguem para o LLM. O tom é
+    # de convite leve, nunca "você errou, repita".
+    reply = "Sorry, I didn't quite hear you — go ahead whenever you're ready."
 
     translation_pt = None
     if bilingual_mode:
@@ -517,18 +571,15 @@ MINIMAL_SYSTEM_PROMPT = """You are a friendly English tutor for beginners.
 Your job:
 1. Respond in English only.
 2. Keep it short: 1-2 sentences max (40-80 words).
-3. [IMPLICIT-ECHO] UNDERSTAND what they said but NEVER repeat their exact words literally.
-   - If they say "Pizza", don't say "Pizza is delicious!"
-   - Instead, acknowledge the IDEA: "Oh, you enjoy food!" or "That's great!"
-   - Show understanding through context, not word repetition.
+3. Engage with WHAT they actually said — react to the real content, not a vague acknowledgement.
+   - Don't parrot their exact phrasing back word-for-word, but DO show you understood the specific thing.
+   - If they say "Pizza", a real reaction ("Nice, homemade or a favorite spot?") beats a vague "Oh, food!".
 4. Continue naturally about THAT topic they mentioned.
 5. Ask one simple follow-up question about what they said.
 6. Be warm and encouraging.
-7. Correct errors naturally by modeling the right form.
+7. Correct errors naturally by modeling the right form, never by pointing them out.
 8. If they give a very short answer (1-2 words), treat it as VALID and expand by adding context.
-   - Example: User: "Pizza" → You: "Oh, you enjoy it! Do you cook at home?"
-   - NOT: "Pizza! Do you like pizza?"
-Respond conversationally, as if chatting with a friend. Let your response feel natural, not like you're repeating them."""
+Respond conversationally, as if chatting with a friend."""
 
 # Inject level context dynamically (20-30 tokens instead of 200)
 _LEVEL_CONTEXT_INJECTION = {
@@ -822,15 +873,19 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             level = "b1"
         voice_mode = (getattr(request, "voice_mode", None) or "free").lower().strip()
         bilingual_mode = bool(getattr(request, "bilingual_mode", False))
-        stt_confidence = getattr(request, "stt_confidence", None) or 1.0
+        # 0.0 = "sem sinal de confiança" (vários browsers não reportam confidence);
+        # o gate de entendimento cai para checagens lexicais nesse caso.
+        # O antigo `or 1.0` convertia 0 em confiança máxima — lixo passava como fala clara.
+        _stt_conf_raw = getattr(request, "stt_confidence", None)
+        stt_confidence = float(_stt_conf_raw) if _stt_conf_raw is not None else 0.0
         is_opening_turn = (request.message or "").strip() == "__voice_session_start__"
         
         # ======== DECISION ENGINE: Classificar requisição ========
-        classification = voice_router.classify(request)
-        logger.info(f"[CLASSIFICATION] {classification.value} | text: {request.message[:40]}...")
-        
+        classification = classify_voice_request(request)
+        logger.info(f"[CLASSIFICATION] {classification} | text: {request.message[:40]}...")
+
         # ======== ROTA 1: NO_LLM (Resposta local - 0 API tokens) ========
-        if classification == VoiceRequestClassification.NO_LLM:
+        if classification == NO_LLM:
             normalized = request.message.strip().lower()
             if normalized in _NO_LLM_RESPONSES:
                 reply = _NO_LLM_RESPONSES[normalized]
@@ -851,19 +906,9 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
                     "detected_input": {"language": "en"},
                 }
         
-        # ======== ROTA 2: CACHE HIT (0 API tokens) ========
-        cache_key = voice_cache.compute_key(
-            request.message or "",
-            level,
-            voice_mode
-        )
-        
-        cached_response = await voice_cache.get(cache_key)  # Now async with latency
-        if cached_response and not bilingual_mode and not is_opening_turn:
-            logger.info(f"[CACHE-HIT] Usando resposta em cache | key: {cache_key[:40]}...")
-            return cached_response
-        
         # ======== Análise comum para LIGHT_LLM e FULL_LLM ========
+        # Roda ANTES do cache: um transcript ruim que por acaso bater numa key
+        # cacheada não pode pular o gate de clarificação.
         detected_input = detect_language_from_text(request.message or "")
         request_language = _normalize_language_code(getattr(request, "language", "") or "")
         detected_input_language = detected_input.get("language") or "unknown"
@@ -872,25 +917,53 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         if user_input_language not in {"pt", "en", "mixed"}:
             user_input_language = request_language if request_language in {"pt", "en"} else "unknown"
         understanding = _analyze_voice_understanding(request.message or "", detected_input, stt_confidence)
-        
+
         if not is_opening_turn and understanding.get("clarification_needed"):
             logger.info(f"[CLARIFICATION] Needed | reason: {understanding.get('reason')}")
             return await _build_voice_clarification_result(understanding, bilingual_mode)
 
-        
-        if not is_opening_turn and understanding.get("clarification_needed"):
-            logger.info(f"[CLARIFICATION] Needed | reason: {understanding.get('reason')}")
-            return await _build_voice_clarification_result(understanding, bilingual_mode)
-        
+        # ======== ROTA 2: CACHE HIT (0 API tokens) ========
+        cache_key = voice_cache.compute_key(
+            request.message or "",
+            level,
+            voice_mode
+        )
+
+        cached_response = await voice_cache.get(cache_key)  # Now async with latency
+        if cached_response and not is_opening_turn:
+            result = dict(cached_response)
+            if bilingual_mode and not result.get("translation_pt"):
+                # Hit sem tradução armazenada: traduz on-demand (1 chamada leve,
+                # muito mais barata que o LLM completo) e devolve ao cache.
+                try:
+                    result["translation_pt"] = await translate_with_direction(result.get("reply", ""), "en", "pt")
+                    cached_with_translation = dict(cached_response)
+                    cached_with_translation["translation_pt"] = result["translation_pt"]
+                    voice_cache.set(cache_key, cached_with_translation)
+                except Exception as e:
+                    logger.warning(f"[TRANSLATION-ERROR] cache-hit: {str(e)}")
+                    result["translation_pt"] = None
+            elif not bilingual_mode:
+                result["translation_pt"] = None
+            # understanding/detected_input devem refletir o turno ATUAL, não o cacheado
+            result["understanding"] = understanding
+            result["detected_input"] = {
+                "language": detected_input_language,
+                "primary_language": primary_input_language,
+                "confidence": detected_input.get("confidence"),
+            }
+            logger.info(f"[CACHE-HIT] Usando resposta em cache | key: {cache_key[:40]}...")
+            return result
+
         # ======== ROTA 3 & 4: LLM CALLS (LIGHT ou FULL) ========
         # Force FULL_LLM for opening turn to enable personalized kickoff
         if is_opening_turn:
-            classification = VoiceRequestClassification.FULL_LLM
+            classification = FULL_LLM
             logger.info(f"[CLASSIFICATION-OVERRIDE] Opening turn forced to FULL_LLM for personalized kickoff")
-        
+
         # Selecionar modelo baseado em classificação
-        model_name = voice_router.get_model_for_classification(classification, groq_tokens_remaining=100000)
-        logger.info(f"[MODEL-SELECTION] {model_name} | classification: {classification.value}")
+        model_name = get_model_for_classification(classification, groq_tokens_remaining=100000)
+        logger.info(f"[MODEL-SELECTION] {model_name} | classification: {classification}")
         
         # ======== BUILD CONTEXT: Sistema Prompt + Histórico ========
         input_bridge_mode = bool(getattr(request, "input_bridge_mode", False))
@@ -900,7 +973,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         # Estratégia de histórico diferente por classificação
         messages = []
         
-        if classification == VoiceRequestClassification.LIGHT_LLM:
+        if classification == LIGHT_LLM:
             # LIGHT_LLM: Último turno de histórico para contexto mínimo (mantém naturalidade)
             system_msg = MINIMAL_SYSTEM_PROMPT
             
@@ -914,14 +987,14 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             if level in _LEVEL_CONTEXT_INJECTION:
                 system_msg += "\n" + _LEVEL_CONTEXT_INJECTION[level]
             
-            # Adicionar último turno do histórico para manter continuidade (3-5 turnos = ~30-50 tokens)
+            # Mini-histórico: 4 turnos (era 2) para respostas menos genéricas no 8B
             if request.history and len(request.history) > 0:
-                last_turns = request.history[-2:] if len(request.history) > 1 else request.history[-1:]
+                last_turns = request.history[-4:]
                 for item in last_turns:
                     messages.append({"role": item.get("role", "user"), "content": item.get("content", "")})
-                logger.info(f"[LIGHT-LLM] Com mini-histórico ({len(last_turns)} turno(s)) | tokens: ~80-130")
+                logger.info(f"[LIGHT-LLM] Com mini-histórico ({len(last_turns)} turno(s))")
             else:
-                logger.info(f"[LIGHT-LLM] Sem histórico disponível | tokens: ~50-100")
+                logger.info(f"[LIGHT-LLM] Sem histórico disponível")
         else:
             # FULL_LLM: Histórico limitado (últimas 10 turns)
             if request.history:
@@ -961,10 +1034,60 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
                 system_msg += "\n\n[BRIDGE MODE] Entenda a intenção, mas responda em English natural."
             except Exception as e:
                 logger.warning(f"[BRIDGE-TRANSLATE-ERROR] {str(e)}")
+
+        # Ponte code-switching: frase majoritariamente EN com palavras PT no meio
+        # ("I prefer the frango") → a IA identifica e ensina SÓ as palavras que
+        # o aluno pulou para o português. Zero chamadas extras de API.
+        wants_bridge_words = (
+            input_bridge_mode
+            and not is_opening_turn
+            and detected_input_language == "mixed"
+        )
+        if wants_bridge_words:
+            system_msg += (
+                "\n\n[MIXED-INPUT] The student said a mostly-English sentence but slipped 1-3 Portuguese "
+                "words into it. Understand the full intent and keep the conversation flowing naturally in "
+                "English, using the English equivalents of those words in your reply. Then append at the "
+                "very END of your reply, on its own, the exact marker: "
+                '[BRIDGE: [{"pt": "<portuguese word used>", "en": "<english equivalent>"}]] '
+                "with one object per Portuguese word (max 3). Never mention the marker or the correction "
+                "in the reply text itself."
+            )
         
+        # Palpite assumido (baixa confiança / fragmento): ancora a resposta no
+        # provável, sem pedir repetição. A IA segue como se tivesse entendido.
+        if not is_opening_turn and understanding.get("status") == "assumed":
+            assumed_fragment = (understanding.get("understood_fragment") or "").strip()
+            if assumed_fragment:
+                system_msg += (
+                    f"\n\n[UNCERTAIN-INPUT] The transcription may be imperfect; it sounded like "
+                    f'"{assumed_fragment}". Assume that is what the student meant, respond naturally, '
+                    "and never ask them to repeat. If it turns out wrong, the next turn will clarify itself."
+                )
+            else:
+                system_msg += (
+                    "\n\n[UNCERTAIN-INPUT] The transcription may be imperfect. Respond to the most likely "
+                    "intent naturally and never ask the student to repeat themselves."
+                )
+
+        # ======== CORREÇÃO POR MODELAGEM (professor nativo) ========
+        # A IA usa a forma correta naturalmente na fala (sem apontar o erro) e
+        # registra a correção no marcador [CORRECTION] SÓ para o resumo/analytics.
+        # O parser já existe; o frontend não renderiza card ao vivo.
+        if not is_opening_turn and voice_mode in ("free", "guided"):
+            system_msg += (
+                "\n\n[IMPLICIT-CORRECTION] If the student made a clear grammar or word-choice mistake, "
+                "model the correct form naturally in your spoken reply WITHOUT pointing out the error or "
+                "sounding like a teacher. Then, only if there was a real mistake, append at the very END "
+                "the exact marker: "
+                '[CORRECTION: {"wrong": "<what they said>", "correct": "<natural fix>", '
+                '"tip": "<one short PT tip>", "error_type": "<verb_tense|word_choice|preposition|article|subject_verb_agreement|gerund_after_verb|spelling>"}] '
+                "Never mention this marker or the correction in the reply text itself. No mistake → no marker."
+            )
+
         if is_opening_turn:
             user_payload = "Start the voice lesson now."
-        
+
         # ======== SHORT INPUT DETECTION + EXPANSION ========
         is_short_input = should_expand_short_input(user_payload)
         if is_short_input and not is_opening_turn:
@@ -984,31 +1107,54 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         messages.insert(0, {"role": "system", "content": system_msg})
         messages.append({"role": "user", "content": user_payload})
         
-        # Max tokens by level e mode
+        # Max tokens by level e mode (~+30% vs. valores antigos p/ reduzir
+        # truncamento; +margem para o marcador [CORRECTION] que agora é emitido)
         max_tokens_map = {
-            "a1": 70, "a2": 90, "b1": 120, "b2": 150, "c1": 170, "c2": 190
+            "a1": 90, "a2": 110, "b1": 150, "b2": 180, "c1": 200, "c2": 220
         }
-        max_tokens = max_tokens_map.get(level, 120)
+        max_tokens = max_tokens_map.get(level, 150)
         if voice_mode in ("shadow", "dictation"):
-            max_tokens = min(max_tokens, 90)
+            max_tokens = min(max_tokens, 110)
         if is_opening_turn:
-            max_tokens = min(max_tokens, 60 if is_beginner else 90)
+            max_tokens = min(max_tokens, 80 if is_beginner else 110)
         
-        logger.info(f"[API-CALL] model={model_name} | messages={len(messages)} | max_tokens={max_tokens}")
-        
+        # Temperature por modo: conversa livre/guiada mais viva (0.7);
+        # shadow/dictation precisam de precisão e previsibilidade (0.3).
+        voice_temperature = 0.3 if voice_mode in ("shadow", "dictation") else 0.7
+
+        logger.info(f"[API-CALL] model={model_name} | messages={len(messages)} | max_tokens={max_tokens} | temp={voice_temperature}")
+
         # ======== CALL GROQ com RETRY LOGIC ========
         reply = await _call_groq_with_retry(
             messages=messages,
             model=model_name,
             max_tokens=max_tokens,
-            temperature=0.5,
+            temperature=voice_temperature,
             max_retries=2
         )
 
         
+        # ======== EXTRAIR BRIDGE WORDS (antes da CORRECTION, que trunca o reply) ========
+        import json as _json_corr
+        bridge_words: list | None = None
+        bridge_match = re.search(r'\[BRIDGE:\s*(\[.*?\])\]', reply, re.DOTALL)
+        if bridge_match:
+            try:
+                parsed_bridge = _json_corr.loads(bridge_match.group(1))
+                if isinstance(parsed_bridge, list):
+                    bridge_words = [
+                        {"pt": str(item.get("pt", "")).strip(), "en": str(item.get("en", "")).strip()}
+                        for item in parsed_bridge
+                        if isinstance(item, dict) and str(item.get("pt", "")).strip() and str(item.get("en", "")).strip()
+                    ][:3] or None
+            except Exception:
+                bridge_words = None
+            reply = (reply[:bridge_match.start()] + reply[bridge_match.end():]).strip()
+            if bridge_words:
+                logger.info(f"[BRIDGE] {len(bridge_words)} palavra(s) PT→EN extraída(s)")
+
         # ======== EXTRAIR CORREÇÃO E PROCESSAR ========
         correction: dict | None = None
-        import json as _json_corr
         corr_match = re.search(r'\[CORRECTION:\s*(\{.*?\})\]', reply, re.DOTALL)
         if corr_match:
             try:
@@ -1034,6 +1180,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             "reply": reply,
             "translation_pt": translation_pt,
             "correction": correction,
+            "bridge_words": bridge_words,
             "understanding": understanding,
             "detected_input": {
                 "language": detected_input_language,
@@ -1045,7 +1192,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         # ======== VALIDAÇÃO FINAL: Nunca retornar resposta vazia ========
         if not result.get("reply") or not result.get("reply").strip():
             logger.error("[CRITICAL] Result reply is empty! Falling back...")
-            fallback = GraciousFallback.get_fallback_response(voice_mode, ErrorScenario.API_ERROR, level)
+            fallback = get_fallback_response(voice_mode, API_ERROR, level)
             return {
                 "reply": fallback.get("response", "I couldn't generate a response. Try again?"),
                 "translation_pt": None,
@@ -1056,8 +1203,9 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
                 "error_scenario": "empty_response",
             }
         
-        # Cachear apenas se apropriado
-        if not bilingual_mode and correction is None and not is_opening_turn:
+        # Cachear apenas se apropriado (correções são específicas do turno; a
+        # tradução pode ir junto — hits sem bilingual a descartam na leitura)
+        if correction is None and not is_opening_turn:
             voice_cache.set(cache_key, result)
             logger.info(f"[CACHE-SET] Armazenado: {cache_key[:40]}...")
         
@@ -1066,8 +1214,8 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
 
     except asyncio.TimeoutError:
         logger.error("[TIMEOUT] Groq API timeout")
-        fallback = GraciousFallback.get_fallback_response(voice_mode, ErrorScenario.TIMEOUT, level)
-        GraciousFallback.log_fallback_usage(0, voice_mode, ErrorScenario.TIMEOUT, level)
+        fallback = get_fallback_response(voice_mode, TIMEOUT, level)
+        log_fallback_usage(0, voice_mode, TIMEOUT, level)
         # Convert fallback format to standard result format
         return {
             "reply": fallback.get("response", ""),
@@ -1085,14 +1233,14 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         
         # Detectar tipo de erro para fallback apropriado
         if "429" in error_msg or "rate" in error_msg.lower():
-            scenario = ErrorScenario.RATE_LIMIT
+            scenario = RATE_LIMIT
         elif "timeout" in error_msg.lower():
-            scenario = ErrorScenario.TIMEOUT
+            scenario = TIMEOUT
         else:
-            scenario = ErrorScenario.API_ERROR
-        
-        fallback = GraciousFallback.get_fallback_response(voice_mode, scenario, level)
-        GraciousFallback.log_fallback_usage(0, voice_mode, scenario, level)
+            scenario = API_ERROR
+
+        fallback = get_fallback_response(voice_mode, scenario, level)
+        log_fallback_usage(0, voice_mode, scenario, level)
         # Convert fallback format to standard result format
         return {
             "reply": fallback.get("response", ""),

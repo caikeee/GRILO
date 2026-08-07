@@ -1,6 +1,6 @@
 /* ============================================================
  *  Voice Recognition Utils — núcleo compartilhado entre:
- *    • phrase-voice-trainer.js  (exercício de voz das aulas)
+ *    • lessons-4p.js            (exercício de voz das aulas 4 pontas)
  *    • chat-voice-controller.js (chat de voz da home)
  *
  *  Responsabilidades:

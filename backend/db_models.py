@@ -131,6 +131,10 @@ class LessonProgress(Base):
     dominated_phrases_count = Column(Integer, default=0)      # 0..100 — contador de frases dominadas
     dominated_at = Column(DateTime, nullable=True)            # timestamp quando atingiu 100/100
 
+    # ── Retomar exato (hero da home: "você parou no exercício X de Y") ──
+    last_exercise_index = Column(Integer, nullable=True)      # posição linear (1-based) do último exercício respondido
+    total_exercises = Column(Integer, nullable=True)          # total de exercícios do fluxo quando registrado
+
 
 class LessonPhraseBank(Base):
     """Banco de frases por aula — alimenta o exercício de voz.
@@ -292,3 +296,108 @@ class WordProfile(Base):
     first_seen_at = Column(DateTime, default=datetime.utcnow)
     last_seen_at = Column(DateTime, default=datetime.utcnow)
     mastered = Column(Boolean, default=False)  # True quando accuracy >= 0.85 com >= 5 usos
+
+
+class LessonScopeItem(Base):
+    """Item do escopo (palavra ou frase) de uma aula do sistema "4 pontas".
+
+    Tabela DEDICADA ao novo sistema de lições (frontend/assets/js/lessons-4p-*).
+    Fica separada de WordProfile/PhraseError de propósito: aqueles são
+    alimentados pelo chat de voz com regra própria (accuracy>=0.85). Aqui a
+    "escada" é por ponta explícita — escreveu / ouviu-e-entendeu / falou:
+
+        written_ok            → "aprendida" (entra no vocabulário da home)
+        written + heard + spoken → "dominada"
+
+    Um registro por (user, lesson_slug, item). Upsert a cada conclusão de aula.
+    """
+    __tablename__ = "lesson_scope_items"
+    __table_args__ = (
+        UniqueConstraint("user_id", "lesson_slug", "item_en", name="unique_user_scope_item"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lesson_slug = Column(String(60), nullable=False, index=True)   # ex: "4p-cumprimentos"
+    lesson_group = Column(String(4), nullable=True)                # A | B | C | D
+    item_type = Column(String(10), nullable=False)                 # "word" | "phrase"
+    item_en = Column(Text, nullable=False)                         # forma canônica em inglês
+    item_pt = Column(Text, nullable=True)
+
+    written_ok = Column(Boolean, default=False)                    # ponta ESCREVER
+    heard_ok = Column(Boolean, default=False)                      # ponta OUVIR (compreensão)
+    spoken_ok = Column(Boolean, default=False)                     # ponta FALAR
+
+    status = Column(String(12), default="nova")                    # nova | aprendida | dominada
+    first_learned_at = Column(DateTime, nullable=True)             # 1ª vez que virou "aprendida"
+    dominated_at = Column(DateTime, nullable=True)                 # 1ª vez que virou "dominada"
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class LessonScopeCompletion(Base):
+    """Marca quando o aluno CONCLUIU uma aula 4 pontas (chegou ao recap).
+
+    O gate A1→A2 é "completar as N aulas do bloco" — conclusão = chegar ao
+    recap, independente de quantos itens ficaram dominados. Um registro por
+    (user, lesson_slug); upsert idempotente."""
+    __tablename__ = "lesson_scope_completions"
+    __table_args__ = (
+        UniqueConstraint("user_id", "lesson_slug", name="unique_user_scope_completion"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    lesson_slug = Column(String(60), nullable=False, index=True)
+    lesson_group = Column(String(4), nullable=True)
+    completed_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class ShadowLabResult(Base):
+    """Um registro por sessão RANQUEADA de shadowing (não upsert — histórico).
+
+    A trilha é linear e client-side (localStorage decide unlock); este
+    registro é só a prova de sessão que credita XP e alimenta WordProfile
+    (ver shadowing_controller.py). Sessões CASUAL nunca chegam aqui."""
+    __tablename__ = "shadow_lab_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    track_slug = Column(String(60), nullable=False, index=True)
+    score = Column(Integer, nullable=False)
+    words_correct = Column(Integer, default=0)
+    words_total = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class ShadowLabPhrase(Base):
+    """Domínio por FRASE dentro de uma faixa de shadowing (não por palavra).
+
+    Uma frase aprovada (dentro do limiar de conclusão da faixa, não 100%
+    perfeita — o reconhecimento ainda está em ajuste) numa sessão Ranqueada
+    já vira "dominada" (PHRASE_SESSIONS_TO_MASTER=1 em shadowing_controller.py
+    — cada faixa tem um único texto fixo hoje, então repetir a mesma sessão
+    não é prova de domínio mais forte). Latch: uma vez dominada, não reverte.
+    correct_sessions fica registrado para o dia em que houver variação real
+    de texto por faixa e a régua puder subir de novo.
+
+    Separada de LessonScopeItem de propósito — não é uma aula do bloco A1/A2,
+    é uma faixa própria do Laboratório de Shadowing (textos corridos, não o
+    escopo 8+5/10+6 das aulas). "dominada" aqui soma em phrases_mastered_total
+    junto com scope4p_phrases_dominated, ver lessons_controller.py."""
+    __tablename__ = "shadow_lab_phrases"
+    __table_args__ = (
+        UniqueConstraint("user_id", "track_slug", "sentence_index", name="unique_user_shadow_phrase"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    track_slug = Column(String(60), nullable=False, index=True)
+    sentence_index = Column(Integer, nullable=False)     # posição da frase dentro de track.sentences
+    sentence_en = Column(Text, nullable=False)
+    correct_sessions = Column(Integer, default=0)        # sessões distintas com a frase 100% certa
+    dominated = Column(Boolean, default=False)            # latch — não reverte
+    last_correct_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
