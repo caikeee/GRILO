@@ -295,38 +295,62 @@ hr,
 }
 
 /* ====================================================================
-   DARK MODE - Automático via preferência do SO
+   DARK MODE - Controlado pelo interruptor (atributo data-theme no <html>).
+   A preferência do SO serve apenas de padrão inicial: um script no <head>
+   define data-theme antes da página pintar (ver index.html / theme-toggle.js).
 ==================================================================== */
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        /* Backgrounds Dark */
-        --bg-primary: #0F1B17;
-        --bg-secondary: #141F1A;
-        --bg-tertiary: #1A2622;
-        --bg-light: #1F2E28;
+:root[data-theme="dark"] {
+    /* Backgrounds Dark */
+    --bg-primary: #0F1B17;
+    --bg-secondary: #141F1A;
+    --bg-tertiary: #1A2622;
+    --bg-light: #1F2E28;
 
-        /* Texts Dark */
-        --text-primary: #E8F1ED;
-        --text-secondary: #D4E1DA;
-        --text-tertiary: #9BA9A0;
-        --text-light: #6B7B72;
+    /* Texts Dark */
+    --text-primary: #E8F1ED;
+    --text-secondary: #D4E1DA;
+    --text-tertiary: #9BA9A0;
+    --text-light: #6B7B72;
 
-        /* Borders Dark */
-        --border-color: #2A3D35;
-        --border-light: #1F3028;
+    /* Borders Dark */
+    --border-color: #2A3D35;
+    --border-light: #1F3028;
 
-        /* Shadows Dark */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-        --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
-        --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.6);
-    }
+    /* Shadows Dark */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
 
-    body {
-        background: linear-gradient(135deg, #0F1B17 0%, #141F1A 40%, #1A2622 100%) !important;
-        color: var(--text-primary) !important;
-    }
+:root[data-theme="dark"] body {
+    background: linear-gradient(135deg, #0F1B17 0%, #141F1A 40%, #1A2622 100%) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Os inputs mantêm o fundo branco no dark mode (background: white !important acima),
+   então o texto precisa ficar escuro para não sumir no fundo claro da caixinha. */
+:root[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] .input,
+:root[data-theme="dark"] .form-input,
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] .auth-field input,
+:root[data-theme="dark"] .form-input-v2 {
+    color: #1F3B2D !important;
+}
+
+:root[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"])::placeholder,
+:root[data-theme="dark"] textarea::placeholder,
+:root[data-theme="dark"] select::placeholder,
+:root[data-theme="dark"] .input::placeholder,
+:root[data-theme="dark"] .form-input::placeholder,
+:root[data-theme="dark"] .form-control::placeholder,
+:root[data-theme="dark"] .auth-field input::placeholder,
+:root[data-theme="dark"] .form-input-v2::placeholder {
+    color: #6B7B72 !important;
 }
 
 /* ====================================================================

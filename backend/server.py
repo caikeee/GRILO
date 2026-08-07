@@ -27,6 +27,8 @@ from backend.controllers.phrases_controller import router as phrases_router
 from backend.controllers.difficulties_session_controller import router as difficulties_session_router
 from backend.controllers.analytics_controller import router as analytics_router
 from backend.controllers.pmf_controller import router as pmf_router
+from backend.controllers.scope_4p_controller import router as scope_4p_router
+from backend.controllers.shadowing_controller import router as shadowing_router
 from backend.admin_controller import router as admin_router
 
 from backend.database import Base, engine
@@ -222,35 +224,25 @@ def _run_migrations():
                     "ALTER TABLE lesson_progress ADD COLUMN dominated_at TIMESTAMP",
                     engine,
                 )
+            # Retomar exato — posição do último exercício (hero da home)
+            if "last_exercise_index" not in cols_lp:
+                _run_migration_step(
+                    "added last_exercise_index to lesson_progress",
+                    "ALTER TABLE lesson_progress ADD COLUMN last_exercise_index INTEGER",
+                    engine,
+                )
+            if "total_exercises" not in cols_lp:
+                _run_migration_step(
+                    "added total_exercises to lesson_progress",
+                    "ALTER TABLE lesson_progress ADD COLUMN total_exercises INTEGER",
+                    engine,
+                )
 
     except Exception as exc:
         logger.warning("Migration check failed (non-fatal): %s", exc)
 
 
 _run_migrations()
-
-
-def _seed_phrase_bank_if_needed():
-    """Popula LessonPhraseBank com 5 frases iniciais por aula (idempotente)."""
-    try:
-        from backend.database import SessionLocal
-        from backend.phrase_bank_seed import seed_phrase_bank
-        db = SessionLocal()
-        try:
-            result = seed_phrase_bank(db)
-            if result["inserted_lessons"]:
-                logger.info(
-                    "Seed phrase bank: %s aulas, %s frases",
-                    len(result["inserted_lessons"]),
-                    result["total_phrases"],
-                )
-        finally:
-            db.close()
-    except Exception as exc:
-        logger.warning("Seed phrase bank skipped: %s", exc)
-
-
-_seed_phrase_bank_if_needed()
 
 
 def _promote_caike_to_admin():
@@ -488,6 +480,8 @@ app.include_router(phrases_router)
 app.include_router(difficulties_session_router)
 app.include_router(analytics_router)
 app.include_router(pmf_router)
+app.include_router(scope_4p_router)
+app.include_router(shadowing_router)
 app.include_router(admin_router)
 
 # Static files should be mounted last to avoid intercepting API routes.

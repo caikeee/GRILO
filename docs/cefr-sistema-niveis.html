@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GRILO · Sistema de Níveis CEFR</title>
+<style>
+  :root {
+    --paper: #f7f5f0;
+    --paper-2: #fffefb;
+    --ink: #20241f;
+    --ink-soft: #555c50;
+    --ink-faint: #868c7e;
+    --line: #e3e0d6;
+    --line-strong: #cfccbf;
+    --advance: #4a7c52;   /* verde: cumprido */
+    --advance-bg: #e7efe6;
+    --progress: #c98a3c;  /* âmbar: em progresso */
+    --progress-bg: #f6ecda;
+    --missing: #b8462a;   /* terracota: falta */
+    --missing-bg: #f6e3dc;
+    --accent: #4a7c52;
+    --shadow: 0 1px 2px rgba(30,36,28,.06), 0 8px 30px rgba(30,36,28,.07);
+    --radius: 14px;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #191b17;
+      --paper-2: #21241f;
+      --ink: #ecebe2;
+      --ink-soft: #b3b6a8;
+      --ink-faint: #83887a;
+      --line: #33362e;
+      --line-strong: #454940;
+      --advance: #7bb583;
+      --advance-bg: #23301f;
+      --progress: #e0a856;
+      --progress-bg: #322818;
+      --missing: #e08869;
+      --missing-bg: #33201a;
+      --accent: #7bb583;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f5f0; --paper-2: #fffefb; --ink: #20241f; --ink-soft: #555c50;
+    --ink-faint: #868c7e; --line: #e3e0d6; --line-strong: #cfccbf;
+    --advance: #4a7c52; --advance-bg: #e7efe6; --progress: #c98a3c; --progress-bg: #f6ecda;
+    --missing: #b8462a; --missing-bg: #f6e3dc; --accent: #4a7c52;
+    --shadow: 0 1px 2px rgba(30,36,28,.06), 0 8px 30px rgba(30,36,28,.07);
+  }
+  :root[data-theme="dark"] {
+    --paper: #191b17; --paper-2: #21241f; --ink: #ecebe2; --ink-soft: #b3b6a8;
+    --ink-faint: #83887a; --line: #33362e; --line-strong: #454940;
+    --advance: #7bb583; --advance-bg: #23301f; --progress: #e0a856; --progress-bg: #322818;
+    --missing: #e08869; --missing-bg: #33201a; --accent: #7bb583;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 120px; }
+
+  /* ---- Masthead ---- */
+  header.mast {
+    max-width: 860px; margin: 0 auto; padding: 64px 24px 40px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 0 0 18px;
+  }
+  h1.title {
+    font-family: var(--serif); font-weight: 700;
+    font-size: clamp(2.1rem, 5.5vw, 3.3rem); line-height: 1.05;
+    margin: 0 0 16px; letter-spacing: -.01em; text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.12rem; color: var(--ink-soft); max-width: 60ch; margin: 0;
+    text-wrap: pretty;
+  }
+  .mast-meta {
+    display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 26px;
+    font-family: var(--mono); font-size: .74rem; color: var(--ink-faint);
+    letter-spacing: .04em;
+  }
+  .mast-meta b { color: var(--ink-soft); font-weight: 600; }
+
+  /* ---- Section scaffolding ---- */
+  section { margin-top: 68px; }
+  .kicker {
+    display: flex; align-items: baseline; gap: 14px; margin: 0 0 8px;
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .kicker .num { color: var(--ink-faint); }
+  h2 {
+    font-family: var(--serif); font-weight: 700;
+    font-size: clamp(1.5rem, 3.6vw, 2rem); line-height: 1.12;
+    margin: 0 0 14px; letter-spacing: -.01em; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--sans); font-weight: 700; font-size: 1.06rem;
+    margin: 30px 0 8px; letter-spacing: -.005em;
+  }
+  p { margin: 0 0 16px; max-width: 68ch; }
+  p.lead { font-size: 1.06rem; color: var(--ink-soft); }
+  strong { font-weight: 650; }
+  a { color: var(--accent); }
+
+  /* ---- Callouts ---- */
+  .note {
+    border-left: 3px solid var(--accent);
+    background: var(--paper-2);
+    padding: 16px 20px; border-radius: 0 10px 10px 0;
+    margin: 22px 0; box-shadow: var(--shadow);
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .note .tag {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 6px;
+  }
+  .note.warn { border-left-color: var(--missing); }
+  .note.warn .tag { color: var(--missing); }
+
+  /* ---- The decision strip ---- */
+  .decisions {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 26px 0;
+  }
+  @media (max-width: 620px) { .decisions { grid-template-columns: 1fr; } }
+  .dcard {
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
+  }
+  .dcard .lbl {
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px;
+  }
+  .dcard .val { font-weight: 700; font-size: 1.02rem; margin-bottom: 6px; }
+  .dcard .why { font-size: .86rem; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ---- Level ladder ---- */
+  .ladder { display: flex; flex-direction: column; gap: 2px; margin: 26px 0 8px; }
+  .rung {
+    display: grid; grid-template-columns: 62px 1fr auto; align-items: center; gap: 16px;
+    padding: 15px 20px; background: var(--paper-2);
+    border: 1px solid var(--line); border-radius: 10px;
+  }
+  .rung .badge {
+    font-family: var(--serif); font-weight: 700; font-size: 1.35rem;
+    width: 52px; height: 40px; display: grid; place-items: center;
+    border-radius: 8px; background: var(--advance-bg); color: var(--advance);
+  }
+  .rung.future .badge { background: var(--line); color: var(--ink-faint); }
+  .rung .desc { font-size: .93rem; color: var(--ink-soft); }
+  .rung .desc b { color: var(--ink); font-weight: 650; }
+  .rung .vocab {
+    font-family: var(--mono); font-size: .82rem; color: var(--ink-faint);
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 560px) {
+    .rung { grid-template-columns: 48px 1fr; }
+    .rung .vocab { grid-column: 2; }
+  }
+
+  /* ---- Gate cards ---- */
+  .gates { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  @media (max-width: 620px) { .gates { grid-template-columns: 1fr; } }
+  .gate {
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+  }
+  .gate::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--accent);
+  }
+  .gate .gicon { font-size: 1.5rem; line-height: 1; margin-bottom: 12px; }
+  .gate h4 {
+    margin: 0 0 4px; font-size: 1.05rem; font-weight: 700;
+    font-family: var(--sans);
+  }
+  .gate .gsrc {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .06em;
+    color: var(--ink-faint); margin-bottom: 12px; text-transform: uppercase;
+  }
+  .gate p { font-size: .9rem; color: var(--ink-soft); margin: 0 0 10px; max-width: none; }
+  .gate .have {
+    font-size: .8rem; font-family: var(--mono); padding: 4px 10px; border-radius: 999px;
+    display: inline-block; letter-spacing: .02em;
+  }
+  .have.yes { background: var(--advance-bg); color: var(--advance); }
+  .have.partial { background: var(--progress-bg); color: var(--progress); }
+  .have.no { background: var(--missing-bg); color: var(--missing); }
+
+  /* ---- Four-prong ---- */
+  .prongs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+  @media (max-width: 560px) { .prongs { grid-template-columns: 1fr 1fr; } }
+  .prong {
+    text-align: center; padding: 20px 12px; border-radius: 12px;
+    background: var(--paper-2); border: 1px solid var(--line); box-shadow: var(--shadow);
+  }
+  .prong .pico { font-size: 1.8rem; line-height: 1; margin-bottom: 10px; display: block; }
+  .prong .pname { font-weight: 700; font-size: .98rem; margin-bottom: 4px; }
+  .prong .pskill {
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+
+  /* ---- Tables ---- */
+  .twrap { overflow-x: auto; margin: 22px 0; border: 1px solid var(--line); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; min-width: 560px; }
+  thead th {
+    text-align: left; padding: 13px 16px; background: var(--paper-2);
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint);
+    border-bottom: 2px solid var(--line-strong); font-weight: 600;
+  }
+  tbody td { padding: 13px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  td .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .chip {
+    font-family: var(--mono); font-size: .72rem; padding: 2px 9px; border-radius: 999px;
+    white-space: nowrap; letter-spacing: .02em; display: inline-block;
+  }
+  .chip.yes { background: var(--advance-bg); color: var(--advance); }
+  .chip.partial { background: var(--progress-bg); color: var(--progress); }
+  .chip.no { background: var(--missing-bg); color: var(--missing); }
+
+  /* ---- Example user card (mock modal) ---- */
+  .mock {
+    background: var(--paper-2); border: 1px solid var(--line-strong);
+    border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; margin: 26px 0;
+  }
+  .mock-head {
+    padding: 20px 24px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .mock-head .lvl {
+    font-family: var(--serif); font-weight: 700; font-size: 1.5rem; letter-spacing: -.01em;
+  }
+  .mock-head .lvl .arrow { color: var(--ink-faint); margin: 0 8px; font-weight: 400; }
+  .mock-head .pct {
+    font-family: var(--mono); font-size: .78rem; color: var(--advance);
+    background: var(--advance-bg); padding: 5px 12px; border-radius: 999px;
+  }
+  .mock-body { padding: 8px 24px 24px; }
+  .req {
+    display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: center;
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+  }
+  .req:last-child { border-bottom: none; }
+  .req .mk { font-size: 1.15rem; line-height: 1; }
+  .req .rt { font-weight: 600; font-size: .96rem; }
+  .req .rs { font-size: .82rem; color: var(--ink-soft); margin-top: 2px; }
+  .req .rbar {
+    width: 130px; height: 7px; border-radius: 999px; background: var(--line);
+    overflow: hidden; position: relative;
+  }
+  .req .rbar > i { position: absolute; inset: 0 auto 0 0; border-radius: 999px; }
+  .req .rnum {
+    font-family: var(--mono); font-size: .78rem; color: var(--ink-soft);
+    font-variant-numeric: tabular-nums; text-align: right; margin-top: 5px;
+  }
+  @media (max-width: 520px) {
+    .req { grid-template-columns: 26px 1fr; }
+    .req .rmeter { grid-column: 2; display: flex; align-items: center; gap: 10px; }
+    .req .rnum { margin-top: 0; }
+  }
+
+  /* ---- Phases ---- */
+  .phases { display: flex; flex-direction: column; gap: 14px; margin: 24px 0; }
+  .phase {
+    display: grid; grid-template-columns: 46px 1fr; gap: 18px;
+    background: var(--paper-2); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow);
+  }
+  .phase .pn {
+    font-family: var(--serif); font-weight: 700; font-size: 1.4rem; color: var(--accent);
+    line-height: 1;
+  }
+  .phase h4 { margin: 0 0 6px; font-size: 1.04rem; font-weight: 700; }
+  .phase p { margin: 0; font-size: .9rem; color: var(--ink-soft); max-width: none; }
+  .phase .ships {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-faint); margin-top: 10px;
+  }
+
+  /* ---- Risk list ---- */
+  .risks { display: flex; flex-direction: column; gap: 12px; margin: 22px 0; }
+  .risk {
+    border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px;
+    background: var(--paper-2); box-shadow: var(--shadow);
+  }
+  .risk .rh { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .risk .rh .sig { font-size: 1rem; }
+  .risk .rh b { font-size: .98rem; }
+  .risk p { margin: 0; font-size: .88rem; color: var(--ink-soft); max-width: none; }
+  .risk .fix { color: var(--advance); font-weight: 600; }
+
+  /* ---- Pull quote / marketing ---- */
+  .pull {
+    font-family: var(--serif); font-size: clamp(1.3rem, 3.2vw, 1.7rem); line-height: 1.35;
+    color: var(--ink); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+    padding: 28px 0; margin: 30px 0; text-wrap: balance;
+  }
+  .pull span { color: var(--accent); }
+
+  /* ---- Sources ---- */
+  .sources { margin-top: 12px; }
+  .sources li { font-size: .86rem; color: var(--ink-soft); margin-bottom: 10px; }
+  .sources b { color: var(--ink); }
+
+  footer {
+    max-width: 860px; margin: 90px auto 0; padding: 30px 24px 0;
+    border-top: 1px solid var(--line); font-family: var(--mono);
+    font-size: .74rem; color: var(--ink-faint); letter-spacing: .03em;
+  }
+  hr.soft { border: none; border-top: 1px solid var(--line); margin: 40px 0; }
+</style>
+</head>
+<body>
+<header class="mast">
+  <p class="eyebrow">GRILO · Documento de produto · Rascunho de arquitetura</p>
+  <h1 class="title">Como o aluno conquista um nível</h1>
+  <p class="standfirst">Um sistema de progressão em que subir de nível significa uma coisa verificável: o aluno viu, ouviu, escreveu e falou o conteúdo do nível — e provou isso. Não é XP. É evidência.</p>
+  <div class="mast-meta">
+    <span><b>Base:</b> CEFR · Cambridge English Profile</span>
+    <span><b>Escala:</b> A0 → A1 → A2 → B1 → B2 → C1 → C2</span>
+    <span><b>Status:</b> conceito para revisão</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <p class="lead">Este documento fixa <strong>o que é preciso para conquistar um nível</strong> antes de desenharmos qualquer aula. A ordem importa: primeiro o requisito, depois a aula que o alimenta — nunca o contrário.</p>
+
+    <div class="decisions">
+      <div class="dcard">
+        <div class="lbl">Ponto de partida</div>
+        <div class="val">Conquista pura</div>
+        <div class="why">Todo aluno começa em <b>A0</b> e <i>ganha</i> o A1. O nível é uma conquista, não um rótulo herdado.</div>
+      </div>
+      <div class="dcard">
+        <div class="lbl">Domínio de item</div>
+        <div class="val">4 pontas + qualidade</div>
+        <div class="why">Uma palavra ou frase só é "dominada" quando foi vista, ouvida, escrita e falada corretamente — em dias diferentes.</div>
+      </div>
+      <div class="dcard">
+        <div class="lbl">Regra do nível</div>
+        <div class="val">4 portões em série</div>
+        <div class="why">Vocabulário, frases, shadowing e can-do. <b>Todos</b> precisam fechar. Não dá para compensar fala fraca com vocabulário forte.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="soft" />
+
+  <section>
+    <div class="kicker"><span class="num">01</span><span>A pergunta de fundo</span></div>
+    <h2>"A pessoa já chega A1, ou estuda para chegar no A1?"</h2>
+    <p>Essa era a decisão que travava tudo. O CEFR oficial é uma <strong>régua descritiva</strong> — feito para dizer onde alguém <i>está</i>, não uma escada de medalhas. Um iniciante absoluto, tecnicamente, já é "A1 em construção".</p>
+    <p>Mas produtos que retêm alunos tratam nível como <strong>conquista</strong>: uma meta clara, uma vitória. Escolhemos isso. O aluno começa em <strong>A0</strong> e conquista o A1. Internamente medimos com rigor de CEFR; para o aluno, a comunicação é de progresso e vitória.</p>
+    <div class="note">
+      <span class="tag">Por que funciona</span>
+      <p>Ele vê progresso desde a primeira palavra ("A1 · 3% concluído") e sente uma conquista real ao fechar o nível. Honesto na medição, motivador na comunicação.</p>
+    </div>
+
+    <div class="ladder">
+      <div class="rung"><span class="badge">A0</span><span class="desc"><b>Ponto de partida.</b> Ainda não usa a língua de forma independente. Todo aluno começa aqui.</span><span class="vocab">meta: —</span></div>
+      <div class="rung"><span class="badge">A1</span><span class="desc"><b>Iniciante.</b> Se apresenta, faz e responde perguntas pessoais simples, frases básicas do dia a dia.</span><span class="vocab">≈ 500 palavras</span></div>
+      <div class="rung future"><span class="badge">A2</span><span class="desc"><b>Básico.</b> Descreve rotina, necessidades imediatas, trocas simples e diretas.</span><span class="vocab">≈ 1.000–1.500</span></div>
+      <div class="rung future"><span class="badge">B1</span><span class="desc"><b>Intermediário.</b> Lida com situações de viagem, dá opiniões, narra experiências.</span><span class="vocab">≈ 2.500</span></div>
+      <div class="rung future"><span class="badge">B2</span><span class="desc"><b>Intermediário superior.</b> Argumenta, interage com fluência, entende textos complexos.</span><span class="vocab">≈ 4.000</span></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--ink-faint);margin-top:6px;">Faixas de vocabulário são estimativas correlatas (Cambridge / English Profile), comunicadas como <b>aproximação</b>, nunca como número mágico. Os descritores "can-do" vêm do CEFR Companion Volume.</p>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">02</span><span>A unidade base</span></div>
+    <h2>O que significa "dominar" uma palavra ou frase</h2>
+    <p class="lead">A tentação é dizer "usou 10 vezes = aprendeu". Mas repetir "the" dez vezes não é domínio. Domínio é <strong>produção correta, por múltiplos canais, ao longo do tempo.</strong></p>
+
+    <p>Por isso o domínio de cada item passa pelas <strong>quatro pontas</strong> — que não são quatro contadores da mesma coisa, e sim as quatro habilidades do CEFR sendo exercitadas sobre o mesmo item:</p>
+
+    <div class="prongs">
+      <div class="prong"><span class="pico">👁️</span><div class="pname">Vê</div><div class="pskill">Leitura · reception</div></div>
+      <div class="prong"><span class="pico">👂</span><div class="pname">Ouve</div><div class="pskill">Escuta · reception</div></div>
+      <div class="prong"><span class="pico">✍️</span><div class="pname">Escreve</div><div class="pskill">Escrita · production</div></div>
+      <div class="prong"><span class="pico">🗣️</span><div class="pname">Fala</div><div class="pskill">Fala · production</div></div>
+    </div>
+
+    <p>A regra de domínio, então, tem três exigências combinadas:</p>
+    <div class="twrap">
+      <table>
+        <thead><tr><th>Exigência</th><th>Por quê</th><th>De onde tiramos hoje</th></tr></thead>
+        <tbody>
+          <tr><td><b>Uso correto</b>, não só uso<br><span class="num" style="color:var(--ink-faint)">accuracy ≥ 85%</span></td><td>Repetição errada não é aprendizado. Já é o critério do nosso perfil de palavra.</td><td><span class="chip yes">temos</span> <code>WordProfile</code></td></tr>
+          <tr><td><b>As quatro pontas</b><br><span class="num" style="color:var(--ink-faint)">vê · ouve · escreve · fala</span></td><td>Garante produção, não só reconhecimento. É o diferencial do método.</td><td><span class="chip partial">parcial</span> voz e escrita existem; falta amarrar as 4 por item</td></tr>
+          <tr><td><b>Espaçamento</b><br><span class="num" style="color:var(--ink-faint)">≥ 2 dias distintos</span></td><td>Memória de longo prazo. Impede "dominar" tudo numa sessão de decoreba.</td><td><span class="chip partial">parcial</span> temos timestamps; falta a regra</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note warn">
+      <span class="tag">Cuidado que evita bagunça</span>
+      <p>Se ver, ouvir, escrever e falar contarem como "+1 uso" cada, o aluno domina uma palavra numa sessão só e o rigor evapora. As quatro pontas são <b>requisitos de qualidade diferentes</b> — o item precisa ter sido <b>produzido</b> (escrito ou falado) certo, não apenas reconhecido.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">03</span><span>A regra do nível</span></div>
+    <h2>Quatro portões que precisam fechar juntos</h2>
+    <p>Um nível não é uma soma de pontos — é uma <strong>conjunção</strong>. Só se conquista o nível quando os quatro portões abaixo estão todos verdes. Isso torna impossível "avançar sendo mudo" ou avançar só decorando listas.</p>
+
+    <div class="gates">
+      <div class="gate">
+        <div class="gicon">📖</div>
+        <h4>Vocabulário do nível</h4>
+        <div class="gsrc">meta correlata: Cambridge / English Profile</div>
+        <p>Dominar a faixa de palavras essenciais do nível (ex.: ≈ 500 no A1), cada uma pelas 4 pontas.</p>
+        <span class="have partial">temos o sensor · falta a meta por nível</span>
+      </div>
+      <div class="gate">
+        <div class="gicon">💬</div>
+        <h4>Frases e estruturas</h4>
+        <div class="gsrc">fonte: conteúdo das aulas do nível</div>
+        <p>Dominar o conjunto de frases-alvo que carregam as estruturas gramaticais do nível.</p>
+        <span class="have partial">temos <code>PhraseError</code> · falta rotular por nível</span>
+      </div>
+      <div class="gate">
+        <div class="gicon">🎙️</div>
+        <h4>Shadowing (fala real)</h4>
+        <div class="gsrc">meta a calibrar com uso real</div>
+        <p>Completar N sessões de shadowing do nível — prova de produção oral sustentada, não pontual.</p>
+        <span class="have partial">temos <code>ShadowModeAnalytic</code> · falta a meta</span>
+      </div>
+      <div class="gate">
+        <div class="gicon">✅</div>
+        <h4>Descritores "can-do"</h4>
+        <div class="gsrc">fonte: CEFR Companion Volume</div>
+        <p>Marcar os "consigo fazer" do nível (ex.: "me apresento") — cada um confirmado por evidência das aulas.</p>
+        <span class="have no">a construir · conteúdo pedagógico novo</span>
+      </div>
+    </div>
+
+    <p style="font-size:.88rem;color:var(--ink-soft)">Legenda de estado: <span class="chip yes">temos</span> já existe no banco &nbsp; <span class="chip partial">parcial</span> o sinal existe, falta a régua &nbsp; <span class="chip no">a construir</span> não existe ainda.</p>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">04</span><span>Do lado do aluno</span></div>
+    <h2>O painel que ele abre na home</h2>
+    <p>Simples e transparente: o nível que quer alcançar, o que já cumpriu, o que falta. Nada de fórmula obscura. Este é o modal que abre ao clicar no card "Seu progresso" — um exemplo com dados de um aluno a caminho do A1.</p>
+
+    <div class="mock" role="img" aria-label="Exemplo do painel de progresso do aluno">
+      <div class="mock-head">
+        <div class="lvl">A0 <span class="arrow">→</span> A1</div>
+        <div class="pct">58% do A1</div>
+      </div>
+      <div class="mock-body">
+        <div class="req">
+          <span class="mk" style="color:var(--advance)">✓</span>
+          <div><div class="rt">Vocabulário essencial</div><div class="rs">Palavras dominadas pelas 4 pontas</div></div>
+          <div class="rmeter"><div class="rbar"><i style="width:100%;background:var(--advance)"></i></div><div class="rnum">500 / 500</div></div>
+        </div>
+        <div class="req">
+          <span class="mk" style="color:var(--progress)">◐</span>
+          <div><div class="rt">Frases e estruturas</div><div class="rs">Frases-alvo do A1 dominadas</div></div>
+          <div class="rmeter"><div class="rbar"><i style="width:62%;background:var(--progress)"></i></div><div class="rnum">31 / 50</div></div>
+        </div>
+        <div class="req">
+          <span class="mk" style="color:var(--progress)">◐</span>
+          <div><div class="rt">Sessões de shadowing</div><div class="rs">Treino de fala do nível</div></div>
+          <div class="rmeter"><div class="rbar"><i style="width:40%;background:var(--progress)"></i></div><div class="rnum">4 / 10</div></div>
+        </div>
+        <div class="req">
+          <span class="mk" style="color:var(--missing)">☐</span>
+          <div><div class="rt">Consigo fazer (can-do)</div><div class="rs">"Me apresento", "peço informação básica"…</div></div>
+          <div class="rmeter"><div class="rbar"><i style="width:50%;background:var(--missing)"></i></div><div class="rnum">3 / 6</div></div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:.82rem;color:var(--ink-faint);margin-top:2px;">Os números são ilustrativos — as metas reais serão calibradas com uso real e ancoradas nas fontes citadas.</p>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">05</span><span>O que já temos · o que falta</span></div>
+    <h2>Inventário honesto do sistema atual</h2>
+    <p>Boa notícia: os <strong>sensores já existem</strong>. O que falta é a camada de significado — rotular por nível e definir as metas.</p>
+    <div class="twrap">
+      <table>
+        <thead><tr><th>Peça</th><th>Onde vive</th><th>Estado</th><th>O que falta</th></tr></thead>
+        <tbody>
+          <tr><td>Palavra dominada</td><td class="num">WordProfile</td><td><span class="chip yes">temos</span></td><td>rótulo de nível CEFR na palavra</td></tr>
+          <tr><td>Frase dominada</td><td class="num">PhraseError</td><td><span class="chip yes">temos</span></td><td>rótulo de nível na frase</td></tr>
+          <tr><td>Pronúncia / shadowing</td><td class="num">ShadowModeAnalytic</td><td><span class="chip yes">temos</span></td><td>meta de N sessões por nível</td></tr>
+          <tr><td>Gramática / escrita</td><td class="num">Conversation</td><td><span class="chip yes">temos</span></td><td>usar como gate de qualidade</td></tr>
+          <tr><td>As 4 pontas por item</td><td class="num">—</td><td><span class="chip partial">parcial</span></td><td>marcar vê/ouve/escreve/fala por palavra e frase</td></tr>
+          <tr><td>Descritores can-do</td><td class="num">—</td><td><span class="chip no">a criar</span></td><td>tabela de descritores + evidência</td></tr>
+          <tr><td>Motor de promoção</td><td class="num">User.level (XP)</td><td><span class="chip no">trocar</span></td><td>promover pelos 4 portões, não por XP</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn">
+      <span class="tag">A troca de fundo</span>
+      <p>Hoje o nível sobe <b>só por XP</b> (uma tabela de pontos sem relação com CEFR). O "A1 → A2" na home atual é XP renomeado. O XP continua existindo para gamificação — mas <b>deixa de definir o nível CEFR.</b></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">06</span><span>Riscos</span></div>
+    <h2>O que pode bagunçar — e como blindamos</h2>
+    <div class="risks">
+      <div class="risk">
+        <div class="rh"><span class="sig">⚠️</span><b>Números-alvo inventados matam a credibilidade</b></div>
+        <p>Se dizemos "A1 = 500 palavras" e um professor discorda, perdemos autoridade. <span class="fix">Blindagem:</span> ancorar em Cambridge / English Profile e comunicar sempre como faixa aproximada, com a fonte à vista.</p>
+      </div>
+      <div class="risk">
+        <div class="rh"><span class="sig">⚠️</span><b>Grind: requisito grande demais afasta o aluno</b></div>
+        <p>500 palavras × 10 usos = 5.000 ações só de vocabulário. Ninguém termina. <span class="fix">Blindagem:</span> calibrar as metas para serem alcançáveis em semanas; medir tempo-até-A1 real e ajustar.</p>
+      </div>
+      <div class="risk">
+        <div class="rh"><span class="sig">⚠️</span><b>Inflar a contagem somando as 4 pontas</b></div>
+        <p>Se cada ponta vira "+1 uso", domina-se numa sessão. <span class="fix">Blindagem:</span> as pontas são requisitos distintos; exigir produção (falar/escrever) correta, não só reconhecer.</p>
+      </div>
+      <div class="risk">
+        <div class="rh"><span class="sig">⚠️</span><b>Desenhar a aula antes do requisito</b></div>
+        <p>Inverte a lógica pedagógica. <span class="fix">Blindagem:</span> requisito de nível primeiro; a aula é desenhada para alimentar exatamente aquelas contagens — vê, ouve, escreve, fala.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">07</span><span>Como vendemos isso</span></div>
+    <h2>O ângulo de marca</h2>
+    <p>Este sistema não é só pedagogia — é a história do produto. Três frases que saem direto da arquitetura:</p>
+    <div class="pull">"Outros apps te fazem <span>clicar</span>. No GRILO, cada palavra você <span>vê, ouve, escreve e fala</span> — as quatro habilidades que definem falar um idioma de verdade."</div>
+    <ul class="sources" style="list-style:none;padding:0">
+      <li><b>Transparência radical.</b> "Saiba exatamente o que falta para o seu próximo nível." Ninguém no mercado mostra o critério com clareza — nós expomos.</li>
+      <li><b>Autoridade emprestada.</b> "Baseado no CEFR do Council of Europe e no English Profile de Cambridge." Método com sobrenome.</li>
+      <li><b>Progresso desde o dia 1.</b> A cada palavra dominada, a barra do A1 se move. Retenção nasce da sensação de avanço constante.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="num">08</span><span>Roteiro sugerido</span></div>
+    <h2>Como construímos sem bagunçar</h2>
+    <p>Em fases, cada uma entregando valor sozinha. Nada bloqueia a home enquanto o subsistema amadurece.</p>
+    <div class="phases">
+      <div class="phase"><div class="pn">1</div><div>
+        <h4>Painel informativo na home</h4>
+        <p>O modal "o que falta para o próximo nível" lendo os dados reais que já temos. Comunica o método, cita as fontes, mostra os quatro portões.</p>
+        <div class="ships">entrega: valor ao aluno + narrativa de marca, zero mudança de dados</div>
+      </div></div>
+      <div class="phase"><div class="pn">2</div><div>
+        <h4>Rótulo de nível em vocabulário e frases</h4>
+        <p>Marcar cada palavra/frase com seu nível (a partir do nível embutido no conteúdo da aula). O gate de vocabulário passa a ser real.</p>
+        <div class="ships">entrega: contagem "X de Y palavras do A1" verdadeira</div>
+      </div></div>
+      <div class="phase"><div class="pn">3</div><div>
+        <h4>As 4 pontas por item + espaçamento</h4>
+        <p>Registrar vê/ouve/escreve/fala por palavra e frase, com a regra de dias distintos. O domínio vira rigoroso.</p>
+        <div class="ships">entrega: definição de domínio à prova de decoreba</div>
+      </div></div>
+      <div class="phase"><div class="pn">4</div><div>
+        <h4>Descritores can-do + motor de promoção</h4>
+        <p>Criar a tabela de "consigo fazer" e trocar a promoção: o nível passa a subir pelos quatro portões, não por XP.</p>
+        <div class="ships">entrega: nível CEFR de verdade, ponta a ponta</div>
+      </div></div>
+    </div>
+  </section>
+
+  <hr class="soft" />
+
+  <section style="margin-top:40px">
+    <h3>Fontes que ancoram o método</h3>
+    <ul class="sources">
+      <li><b>CEFR — Common European Framework of Reference (Council of Europe).</b> Define os níveis por descritores "can-do". É a régua qualitativa; não fornece números.</li>
+      <li><b>CEFR Companion Volume (2020).</b> Descritores atualizados — fonte dos "consigo fazer" que viram o quarto portão.</li>
+      <li><b>Cambridge English Profile / English Vocabulary Profile.</b> Correlata mais respeitada para faixas de vocabulário por nível. Usada como <i>aproximação citável</i>, não regra rígida.</li>
+    </ul>
+    <p style="font-size:.84rem;color:var(--ink-faint)">Toda meta numérica neste documento é uma <b>proxy correlata</b> dessas fontes, não uma regra publicada pelo CEFR. Comunicamos sempre como aproximação.</p>
+  </section>
+
+</div>
+
+<footer>
+  GRILO · Sistema de níveis CEFR · rascunho de arquitetura de produto · para revisão interna e alinhamento com vendas/marketing
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    function apply(t) { if (t === 'dark' || t === 'light') root.setAttribute('data-theme', t); }
+    try {
+      var qs = new URLSearchParams(location.search).get('theme');
+      apply(qs);
+      window.addEventListener('message', function (e) {
+        if (e.data && typeof e.data === 'object' && e.data.theme) apply(e.data.theme);
+      });
+    } catch (err) {}
+  })();
+</script>
+</body>
+</html>

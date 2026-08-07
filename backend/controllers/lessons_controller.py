@@ -1,9 +1,14 @@
+"""User stats & activity controller.
+
+A Trilha A1 clássica (grid de 27 aulas, exercícios de múltipla escolha, quiz)
+foi removida em favor do sistema "4 pontas" (ver backend/controllers/scope_4p_controller.py).
+Este arquivo mantém só os endpoints genéricos que alimentam o painel da home
+e não são exclusivos de nenhum sistema de lições.
+"""
 from datetime import datetime
-import hashlib
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from backend.auth import get_current_user_id
@@ -11,10 +16,10 @@ from backend.database import get_db
 from backend.db_models import (
     Badge,
     Conversation,
-    LessonPhraseBank,
-    LessonProgress,
-    LessonQuizError,
-    PhraseError,
+    LessonScopeItem,
+    LessonScopeCompletion,
+    ShadowLabPhrase,
+    ShadowLabResult,
     ShadowModeAnalytic,
     User,
     UserActivity,
@@ -22,490 +27,9 @@ from backend.db_models import (
     UserProgress,
     WordProfile,
 )
-from backend.utils import mark_activity, award_xp, track_metric_event
-from backend.lessons import LESSON_REGISTRY, SLUG_TO_ID, get_lesson_by_id as get_lesson_from_registry
 
 router = APIRouter(tags=["lessons"])
 logger = logging.getLogger(__name__)
-
-# Slug lookup for all 27 lessons (used to resolve analytics slug label)
-_STANDALONE_LESSON_SLUGS = {
-    lesson_id: slug for lesson_id, (slug, _) in LESSON_REGISTRY.items()
-}
-
-
-def _exercise_option_to_text(option):
-    if isinstance(option, str):
-        return option
-    if isinstance(option, dict):
-        label = option.get("label")
-        if label is not None:
-            return str(label)
-        english_word = option.get("english_word")
-        portuguese_word = option.get("portuguese_word")
-        if english_word is not None and portuguese_word is not None:
-            return f"{english_word} = {portuguese_word}"
-        return str(option)
-    return str(option)
-
-
-def _question_hash(question_text: str) -> str:
-    return hashlib.sha256(question_text.encode()).hexdigest()[:16]
-
-
-def _upsert_quiz_error(
-    db: Session,
-    user_id: int,
-    lesson_id: int,
-    exercise: dict,
-    correct_answer_text: str,
-    wrong_answer_text: str,
-    is_correct: bool,
-):
-    """Cria ou atualiza um registro de erro de questão MC para o painel de Dificuldades."""
-    q_text = exercise.get("q") or exercise.get("question") or ""
-    q_hash = _question_hash(q_text)
-
-    existing = (
-        db.query(LessonQuizError)
-        .filter(
-            LessonQuizError.user_id == user_id,
-            LessonQuizError.lesson_id == lesson_id,
-            LessonQuizError.question_hash == q_hash,
-        )
-        .first()
-    )
-
-    if existing:
-        existing.attempts += 1
-        existing.last_attempted_at = datetime.utcnow()
-        existing.updated_at = datetime.utcnow()
-        if not is_correct:
-            existing.wrong_count += 1
-            wrongs = list(existing.wrong_answers or [])
-            if wrong_answer_text not in wrongs:
-                wrongs.append(wrong_answer_text)
-            existing.wrong_answers = wrongs[-10:]  # mantém até 10 erros distintos
-    else:
-        db.add(LessonQuizError(
-            user_id=user_id,
-            lesson_id=lesson_id,
-            question_hash=q_hash,
-            question_text=q_text,
-            correct_answer=correct_answer_text,
-            wrong_answers=[wrong_answer_text] if not is_correct else [],
-            wrong_count=0 if is_correct else 1,
-            attempts=1,
-        ))
-    db.commit()
-
-
-def _resolve_correct_index(exercise):
-    options = exercise.get("options") or []
-    if not isinstance(options, list):
-        options = []
-
-    correct_index = exercise.get("correct")
-    if isinstance(correct_index, int) and 0 <= correct_index < len(options):
-        return correct_index
-
-    answer = str(exercise.get("answer", "")).strip().lower()
-    if answer:
-        for idx, opt in enumerate(options):
-            if _exercise_option_to_text(opt).strip().lower() == answer:
-                return idx
-
-    return 0 if options else -1
-
-
-def _get_exercise_at_index(lesson_data: dict, exercise_index: int) -> dict | None:
-    """Resolve um exercício pelo índice linear usado pelo frontend.
-
-    Mapeamento de índices (definido no frontend lessons-enhanced.js):
-      0..N-1   → section_exercises (EXERCISE_MC via _griloAnswer)
-      100+     → anchor_blanks (sem 'correct' — ignorados)
-      200+exIndex → scaffolded_exercises (checkScaffoldedAnswer)
-      300+qIdx → final_test (checkFinalTest)
-    """
-    scaffolded = lesson_data.get("scaffolded_exercises") or []
-    final_test = lesson_data.get("final_test") or []
-
-    if exercise_index >= 300:
-        idx = exercise_index - 300
-        if 0 <= idx < len(final_test):
-            ex = final_test[idx]
-            if isinstance(ex, dict):
-                return ex
-
-    elif exercise_index >= 200:
-        idx = exercise_index - 200
-        if 0 <= idx < len(scaffolded):
-            ex = scaffolded[idx]
-            if isinstance(ex, dict):
-                return ex
-
-    elif exercise_index >= 100:
-        # anchor_blank — sem campo 'correct', não registramos
-        return None
-
-    # else: índice 0-99 → section exercises (EXERCISE_MC) vivem só no frontend
-    # backend não tem esses dados; o caller usa body.question_text como fallback
-
-    return None
-
-
-class _ExerciseSubmitBody(BaseModel):
-    exercise_index: int
-    selected_index: int
-    is_correct: bool | None = None
-    source: str | None = None
-    time_spent_ms: int | None = None      # ms desde que o exercício apareceu até submit
-    hint_used: bool | None = None         # usuário clicou em dica antes de responder
-    # campos opcionais para exercícios de seção (EXERCISE_MC — dados só no frontend)
-    question_text: str | None = None
-    correct_answer: str | None = None
-    wrong_answer: str | None = None
-
-
-class _SaveProgressBody(BaseModel):
-    correct_answers: int
-    total_questions: int
-    time_spent_ms: int | None = None      # ms totais na aula (lesson_abandoned se não salvar)
-
-
-class _LessonsPageViewBody(BaseModel):
-    source: str | None = None
-
-
-class _LessonAbandonBody(BaseModel):
-    lesson_id: int
-    exercise_index_reached: int | None = None   # última questão que viu
-    time_spent_ms: int | None = None
-
-
-def _get_standalone_lesson_slug(lesson_id: int) -> str | None:
-    return _STANDALONE_LESSON_SLUGS.get(int(lesson_id))
-
-
-@router.post("/api/lessons/page-view")
-async def track_lessons_page_view(
-    body: _LessonsPageViewBody | None = None,
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Persist each lessons page access so the dashboard reflects page visits."""
-    try:
-        uid = int(user_id)
-        mark_activity(db, uid, "lesson")
-        track_metric_event(
-            db,
-            uid,
-            "lesson",
-            "lessons_page_view",
-            details={"source": (body.source if body and body.source else "lessons_page")},
-        )
-        return {"success": True}
-    except Exception as exc:
-        logger.error("[LESSONS-PAGE] Error tracking page view: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error tracking lessons page view")
-
-
-@router.get("/api/lessons/all")
-async def get_all_lessons_v2(
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Get all A1 lessons from the registry."""
-    try:
-        lessons = [
-            {"id": lid, "slug": slug}
-            for lid, (slug, _) in LESSON_REGISTRY.items()
-        ]
-        logger.info("[LESSONS] Retrieved %s lessons for user %s", len(lessons), user_id)
-        return {"success": True, "total": len(lessons), "lessons": lessons}
-    except Exception as exc:
-        logger.error("[LESSONS] Error loading lessons: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error loading lessons")
-
-
-@router.get("/api/lessons/categories")
-async def get_lesson_categories(
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Get lesson module groupings."""
-    try:
-        from collections import defaultdict
-        by_module = defaultdict(list)
-        for lid, (slug, lesson_data) in LESSON_REGISTRY.items():
-            m = lesson_data.get("module", 1)
-            by_module[m].append({"id": lid, "slug": slug, "title": lesson_data.get("title", slug)})
-        categories = [{"module": m, "lessons": items} for m, items in sorted(by_module.items())]
-        return {
-            "success": True,
-            "total_categories": len(categories),
-            "total_lessons": len(LESSON_REGISTRY),
-            "categories": categories,
-        }
-    except Exception as exc:
-        logger.error("[LESSONS] Error loading categories: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error loading categories")
-
-
-@router.get("/api/lessons/progress")
-async def get_lesson_progress(
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Return lesson progress records for the authenticated user."""
-    try:
-        records = db.query(LessonProgress).filter(LessonProgress.user_id == int(user_id)).all()
-        progress_map = {
-            record.lesson_id: {
-                "lesson_id": record.lesson_id,
-                "correct_answers": record.correct_answers,
-                "total_questions": record.total_questions,
-                "attempts": record.attempts,
-                "completed_at": record.completed_at.isoformat() if record.completed_at else None,
-            }
-            for record in records
-        }
-        return {"success": True, "progress": progress_map}
-    except Exception as exc:
-        logger.error("[LESSON-PROGRESS] Error fetching progress: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error fetching progress")
-
-
-@router.post("/api/lessons/{lesson_id}/track-access")
-async def track_lesson_access(
-    lesson_id: int,
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Persist every lesson open so dashboard access counters reflect real usage."""
-    try:
-        standalone_slug = _get_standalone_lesson_slug(lesson_id)
-        if not standalone_slug:
-            raise HTTPException(status_code=404, detail="Lesson not found")
-
-        uid = int(user_id)
-        mark_activity(db, uid, "lesson")
-        track_metric_event(
-            db,
-            uid,
-            "lesson",
-            "lesson_access",
-            lesson_id=lesson_id,
-            details={
-                "source": "standalone",
-                "standalone_slug": standalone_slug,
-            },
-        )
-        return {"success": True, "lesson_id": lesson_id}
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.error("[LESSON-ACCESS] Error tracking access: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error tracking lesson access")
-
-
-@router.post("/api/lessons/{lesson_id}/submit-exercise")
-async def submit_lesson_exercise(
-    lesson_id: int,
-    body: _ExerciseSubmitBody,
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Submit answer to a lesson exercise using selected option index."""
-    try:
-        standalone_slug = _get_standalone_lesson_slug(lesson_id)
-        if not standalone_slug:
-            raise HTTPException(status_code=404, detail="Lesson not found")
-
-        # All lessons are standalone — frontend manages exercise display and validation.
-        # Backend receives is_correct from the client (trusted for XP/analytics only).
-        is_correct = body.is_correct
-        xp_earned = 0
-
-        xp_result = {"xp_earned": 0, "new_total": 0, "level_up": False, "new_level": 1}
-
-        # Registra erro no painel Dificuldades a cada resposta (certo ou errado atualiza tentativas)
-        try:
-            lesson_data = get_lesson_from_registry(lesson_id)
-            if lesson_data:
-                exercise = _get_exercise_at_index(lesson_data, body.exercise_index)
-                if exercise:
-                    # scaffolded / final_test — dados completos no registry
-                    options = exercise.get("options") or []
-                    correct_idx = _resolve_correct_index(exercise)
-                    correct_text = _exercise_option_to_text(options[correct_idx]) if 0 <= correct_idx < len(options) else ""
-                    wrong_text = _exercise_option_to_text(options[body.selected_index]) if 0 <= body.selected_index < len(options) else ""
-                    _upsert_quiz_error(db, int(user_id), lesson_id, exercise, correct_text, wrong_text, bool(is_correct))
-                elif body.question_text and body.correct_answer is not None:
-                    # section exercises (EXERCISE_MC) — frontend envia os dados
-                    synthetic = {"q": body.question_text, "options": [], "correct": -1}
-                    _upsert_quiz_error(
-                        db, int(user_id), lesson_id, synthetic,
-                        body.correct_answer,
-                        body.wrong_answer or "",
-                        bool(is_correct),
-                    )
-        except Exception as _quiz_err:
-            logger.warning("[LESSON-EXERCISE] quiz error upsert failed: %s", _quiz_err)
-
-        track_metric_event(
-            db,
-            int(user_id),
-            "lesson",
-            "lesson_exercise_submitted",
-            lesson_id=lesson_id,
-            details={
-                "exercise_index": body.exercise_index,
-                "is_correct": is_correct,
-                "source": body.source or "standalone",
-                "standalone_slug": standalone_slug,
-                "time_spent_ms": body.time_spent_ms,
-                "hint_used": body.hint_used or False,
-            },
-        )
-        if body.hint_used:
-            track_metric_event(
-                db,
-                int(user_id),
-                "lesson",
-                "exercise_hint_used",
-                lesson_id=lesson_id,
-                details={"exercise_index": body.exercise_index, "source": body.source},
-            )
-
-        logger.info(
-            "[LESSON-EXERCISE] User %s - Lesson %s, Ex %s: %s | xp=%s",
-            user_id,
-            lesson_id,
-            body.exercise_index,
-            "✓" if is_correct else "✗",
-            xp_earned,
-        )
-
-        return {
-            "success": True,
-            "correct": is_correct,
-            "xp_earned": xp_result["xp_earned"],
-            "user_total_xp": xp_result["new_total"],
-            "level_up": xp_result["level_up"],
-            "new_level": xp_result["new_level"],
-        }
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.error("[LESSON-EXERCISE] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error submitting exercise")
-
-
-@router.post("/api/lessons/{lesson_id}/save-progress")
-async def save_lesson_progress(
-    lesson_id: int,
-    body: _SaveProgressBody,
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Save (or update) the user's exercise score for a lesson."""
-    try:
-        existing = (
-            db.query(LessonProgress)
-            .filter(LessonProgress.user_id == int(user_id), LessonProgress.lesson_id == lesson_id)
-            .first()
-        )
-
-        if existing:
-            existing.correct_answers = body.correct_answers
-            existing.total_questions = body.total_questions
-            existing.attempts += 1
-            existing.updated_at = datetime.utcnow()
-            # Se ainda não tinha learned_at, marca agora (1ª vez que conclui)
-            if not existing.learned_at:
-                existing.learned_at = datetime.utcnow()
-        else:
-            db.add(
-                LessonProgress(
-                    user_id=int(user_id),
-                    lesson_id=lesson_id,
-                    correct_answers=body.correct_answers,
-                    total_questions=body.total_questions,
-                    learned_at=datetime.utcnow(),
-                )
-            )
-
-        db.commit()
-
-        # Award lesson completion XP only on first completion
-        xp_result = {"xp_earned": 0, "new_total": 0, "level_up": False, "new_level": 1}
-        if not existing:
-            # 50 XP flat for completing the lesson
-            xp_result = award_xp(db, int(user_id), 50, source="lesson_complete")
-
-        mark_activity(db, int(user_id), "lesson")
-        track_metric_event(
-            db,
-            int(user_id),
-            "lesson",
-            "lesson_progress_saved",
-            lesson_id=lesson_id,
-            details={
-                "correct_answers": body.correct_answers,
-                "total_questions": body.total_questions,
-                "is_first_completion": existing is None,
-                "time_spent_ms": body.time_spent_ms,
-            },
-        )
-        logger.info(
-            "[LESSON-PROGRESS] User %s - Lesson %s: %s/%s | xp=%s",
-            user_id,
-            lesson_id,
-            body.correct_answers,
-            body.total_questions,
-            xp_result["xp_earned"],
-        )
-        return {
-            "success": True,
-            "lesson_id": lesson_id,
-            "correct_answers": body.correct_answers,
-            "total_questions": body.total_questions,
-            "xp_earned": xp_result["xp_earned"],
-            "total_xp": xp_result["new_total"],
-            "level_up": xp_result["level_up"],
-            "new_level": xp_result["new_level"],
-        }
-    except HTTPException:
-        raise
-    except Exception as exc:
-        logger.error("[LESSON-PROGRESS] Error saving progress: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error saving progress")
-
-
-@router.post("/api/lessons/abandon")
-async def track_lesson_abandoned(
-    body: _LessonAbandonBody,
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Track when user leaves a lesson mid-way without saving progress."""
-    try:
-        track_metric_event(
-            db,
-            int(user_id),
-            "lesson",
-            "lesson_abandoned",
-            lesson_id=body.lesson_id,
-            details={
-                "exercise_index_reached": body.exercise_index_reached,
-                "time_spent_ms": body.time_spent_ms,
-            },
-        )
-        return {"success": True}
-    except Exception as exc:
-        logger.error("[LESSON-ABANDON] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Error tracking lesson abandon")
 
 
 @router.get("/api/user/stats")
@@ -520,19 +44,6 @@ async def get_user_stats(
         from datetime import date, timedelta
 
         uid = int(user_id)
-
-        # Lesson progress
-        lesson_records = db.query(LessonProgress).filter(LessonProgress.user_id == uid).all()
-        lessons_completed = len(lesson_records)
-        total_lessons = 50
-
-        accuracies = [
-            (r.correct_answers / r.total_questions * 100)
-            for r in lesson_records
-            if r.total_questions and r.total_questions > 0
-        ]
-        avg_lesson_accuracy = round(sum(accuracies) / len(accuracies), 1) if accuracies else 0.0
-        best_lesson_accuracy = round(max(accuracies), 1) if accuracies else None
 
         # User stats
         user = db.query(User).filter(User.id == uid).first()
@@ -660,9 +171,76 @@ async def get_user_stats(
             )
             .scalar()
         ) or 0
+        phrases_mastered_total = 0  # frases dominadas — hoje só o sistema 4 pontas alimenta (abaixo)
+
+        # ── Sistema 4 pontas (lessons-4p) ──────────────────────────────
+        # Palavra "aprendida" (escreveu) conta no vocabulário; frase "dominada"
+        # (4 pontas) conta nas frases — regra de produto (2026-07-08).
+        scope4p_words_learned = (
+            db.query(func.count(LessonScopeItem.id))
+            .filter(
+                LessonScopeItem.user_id == uid,
+                LessonScopeItem.item_type == "word",
+                LessonScopeItem.status.in_(["aprendida", "dominada"]),
+            )
+            .scalar()
+        ) or 0
+        scope4p_words_dominated = (
+            db.query(func.count(LessonScopeItem.id))
+            .filter(
+                LessonScopeItem.user_id == uid,
+                LessonScopeItem.item_type == "word",
+                LessonScopeItem.status == "dominada",
+            )
+            .scalar()
+        ) or 0
+        scope4p_phrases_dominated = (
+            db.query(func.count(LessonScopeItem.id))
+            .filter(
+                LessonScopeItem.user_id == uid,
+                LessonScopeItem.item_type == "phrase",
+                LessonScopeItem.status == "dominada",
+            )
+            .scalar()
+        ) or 0
+        scope4p_items_dominated = scope4p_words_dominated + scope4p_phrases_dominated
+        scope4p_lessons_completed = (
+            db.query(func.count(LessonScopeCompletion.id))
+            .filter(LessonScopeCompletion.user_id == uid)
+            .scalar()
+        ) or 0
+        # Bloco A1 = 20 aulas (gate de promoção A1→A2)
+        scope4p_block_total = 20
+
+        # Laboratório de Shadowing — frases inteiras dominadas (>=2 sessões
+        # Ranqueadas distintas 100% certas). Soma com scope4p, mesmo campo.
+        shadow_phrases_dominated = (
+            db.query(func.count(ShadowLabPhrase.id))
+            .filter(ShadowLabPhrase.user_id == uid, ShadowLabPhrase.dominated.is_(True))
+            .scalar()
+        ) or 0
+        # Sessões Ranqueadas de shadowing — 1 registro por sessão (ShadowLabResult).
+        # Gate "Meu Progresso": 10 sessões concluídas.
+        shadowing_sessions_completed = (
+            db.query(func.count(ShadowLabResult.id))
+            .filter(ShadowLabResult.user_id == uid)
+            .scalar()
+        ) or 0
+
+        # Soma nos gates que a home já mostra
+        vocab_mastered_total += scope4p_words_learned
+        phrases_mastered_total += scope4p_phrases_dominated + shadow_phrases_dominated
         vocab_total_seen = (
             db.query(func.count(WordProfile.id))
             .filter(WordProfile.user_id == uid)
+            .scalar()
+        ) or 0
+        vocab_total_seen_week = (
+            db.query(func.count(WordProfile.id))
+            .filter(
+                WordProfile.user_id == uid,
+                WordProfile.first_seen_at >= seven_days_ago,
+            )
             .scalar()
         ) or 0
 
@@ -684,17 +262,35 @@ async def get_user_stats(
             for r in vocab_mastered_rows
         ]
 
-        # CEFR progression (1=A1 .. 6=C2)
-        cefr_labels = {1: "A1", 2: "A2", 3: "B1", 4: "B2", 5: "C1", 6: "C2"}
-        cefr_current = cefr_labels.get(level, "A1")
-        cefr_next = cefr_labels.get(min(level + 1, 6), "C2")
-        # Rough progression heuristic: blend of accuracy + sessions completed toward next level
+        # CEFR progression — modelo A0 → A1 → … por VALIDAÇÃO (ver [[cefr-level-system]]).
+        #
+        # O nível NÃO vem de user.level (XP de gamificação). Regras do modelo:
+        #   • Todo aluno começa em A0 ("Início") — ainda NÃO validou o A1.
+        #   • A1 é a primeira conquista CERTIFICÁVEL: só é atingido quando o aluno
+        #     cumpre o QUADRO DE REQUISITOS do A1 (o mesmo gate do certificado).
+        #   • Os requisitos incluem a régua de vocabulário do A1 (≈ 500 palavras,
+        #     ancorada no Cambridge English Profile), além do bloco de aulas.
+        #
+        # Requisitos do A1 (gate único, usado tanto pelo rótulo quanto pelo cert):
+        A1_REQ_VOCAB = 500        # palavras dominadas (régua Cambridge p/ A1)
+        A1_REQ_PHRASES = 50       # frases dominadas
+        A1_REQ_LESSONS = scope4p_block_total  # 20 aulas do bloco A1
+        a1_validated = (
+            vocab_mastered_total >= A1_REQ_VOCAB
+            and phrases_mastered_total >= A1_REQ_PHRASES
+            and scope4p_lessons_completed >= A1_REQ_LESSONS
+        )
+        # Índice na escada: 0=A0, 1=A1, … (só A0→A1 tem gate real hoje; A2+ pendente
+        # até esses blocos e seus requisitos existirem).
+        cefr_ladder = ["A0", "A1", "A2", "B1", "B2", "C1", "C2"]
+        effective_idx = 1 if a1_validated else 0
+        cefr_current = cefr_ladder[effective_idx]
+        cefr_next = cefr_ladder[min(effective_idx + 1, len(cefr_ladder) - 1)]
+        # Rough progression heuristic: blend of accuracy + voice quality + aulas 4p concluídas
         progression_signal = 0.0
-        if avg_lesson_accuracy:
-            progression_signal += min(avg_lesson_accuracy, 100) * 0.5  # 0..50
         if avg_voice_quality:
             progression_signal += min(avg_voice_quality, 100) * 0.3    # 0..30
-        progression_signal += min(lessons_completed * 2, 20)            # 0..20
+        progression_signal += min(scope4p_lessons_completed * 2, 20)    # 0..20
         cefr_progress_percent = max(0, min(100, round(progression_signal)))
 
         # Top phoneme issue (from shadow mode analytics)
@@ -722,47 +318,6 @@ async def get_user_stats(
         if phoneme_counter:
             sym, occ = phoneme_counter.most_common(1)[0]
             top_phoneme = {"symbol": sym, "occurrences": occ}
-
-        # Today focus phrases (status=dificil OR last_attempted older than 4 days with attempts>0)
-        focus_cutoff = _dt.utcnow() - timedelta(days=4)
-        focus_rows = (
-            db.query(PhraseError, LessonPhraseBank)
-            .join(LessonPhraseBank, PhraseError.phrase_id == LessonPhraseBank.id)
-            .filter(
-                PhraseError.user_id == uid,
-                PhraseError.attempts > 0,
-                PhraseError.status != "dominada",
-            )
-            .order_by(PhraseError.last_attempted_at.asc())
-            .limit(4)
-            .all()
-        )
-        today_focus = []
-        for err, phrase in focus_rows:
-            days_since = None
-            if err.last_attempted_at:
-                days_since = max(0, (_dt.utcnow() - err.last_attempted_at).days)
-            today_focus.append({
-                "phrase_en": phrase.phrase_en,
-                "phrase_pt": phrase.phrase_pt,
-                "lesson_id": phrase.lesson_id,
-                "status": err.status,
-                "days_since": days_since,
-            })
-
-        # Lesson rings (per-lesson dominated_phrases_count / 100)
-        lesson_rings = []
-        for r in lesson_records:
-            ratio = max(0, min(100, int(r.dominated_phrases_count or 0)))
-            lesson_rings.append({
-                "lesson_id": r.lesson_id,
-                "dominated": ratio,
-                "accuracy": round((r.correct_answers / r.total_questions * 100), 1) if r.total_questions else None,
-                "is_dominated": r.dominated_at is not None,
-            })
-        # Sort: in-progress first (highest progress), then dominated
-        lesson_rings.sort(key=lambda x: (x["is_dominated"], -x["dominated"]))
-        lesson_rings = lesson_rings[:6]
 
         # Next badge — closest unearned badge by xp_threshold
         earned_badge_ids = {
@@ -810,28 +365,14 @@ async def get_user_stats(
         ) or 0
         sessions_delta = curr_week_voice_count - prev_week_voice_count
 
-        # Resume-where-you-stopped (most recently touched lesson with progress < 100)
-        resume = None
-        in_progress_records = sorted(
-            [r for r in lesson_records if (r.dominated_phrases_count or 0) < 100],
-            key=lambda r: r.updated_at or r.completed_at or _dt.min,
-            reverse=True,
-        )
-        if in_progress_records:
-            r = in_progress_records[0]
-            lesson_meta = get_lesson_from_registry(r.lesson_id) or {}
-            resume = {
-                "lesson_id": r.lesson_id,
-                "title": lesson_meta.get("title", f"Aula {r.lesson_id}"),
-                "dominated": int(r.dominated_phrases_count or 0),
-            }
-
         return {
             "success": True,
-            "lessons_completed": lessons_completed,
-            "total_lessons": total_lessons,
-            "avg_lesson_accuracy": avg_lesson_accuracy,
-            "best_lesson_accuracy": best_lesson_accuracy,
+            # Trilha clássica removida — estes campos ficam neutros até o 4 pontas
+            # ganhar um equivalente (ex: retomar aula do bloco A1).
+            "lessons_completed": scope4p_lessons_completed,
+            "total_lessons": scope4p_block_total,
+            "avg_lesson_accuracy": 0.0,
+            "best_lesson_accuracy": None,
             "total_xp": total_xp,
             "level": level,
             "streak": streak,
@@ -859,21 +400,41 @@ async def get_user_stats(
             },
             "voice_quality_sparkline": sparkline_values,
             "vocab_mastered_total": vocab_mastered_total,
+            "phrases_mastered_total": phrases_mastered_total,
             "vocab_mastered_week": vocab_mastered_week,
             "vocab_total_seen": vocab_total_seen,
+            "vocab_total_seen_week": vocab_total_seen_week,
             "vocab_mastered_list": vocab_mastered_list,
+            "shadowing_sessions_completed": shadowing_sessions_completed,
             "cefr": {
                 "current": cefr_current,
                 "next": cefr_next,
                 "progress_percent": cefr_progress_percent,
+                # Status de VALIDAÇÃO do A1 — mesma régua do certificado.
+                # A UI usa para distinguir "em curso" de "validado/certificável".
+                "a1_validated": a1_validated,
+                "a1_requirements": {
+                    "vocab": {"current": vocab_mastered_total, "target": A1_REQ_VOCAB},
+                    "phrases": {"current": phrases_mastered_total, "target": A1_REQ_PHRASES},
+                    "lessons": {"current": scope4p_lessons_completed, "target": A1_REQ_LESSONS},
+                },
+            },
+            # Gate "As 4 pontas" do painel CEFR (sistema lessons-4p)
+            "scope4p": {
+                "lessons_completed": scope4p_lessons_completed,
+                "block_total": scope4p_block_total,
+                "words_learned": scope4p_words_learned,
+                "words_dominated": scope4p_words_dominated,
+                "phrases_dominated": scope4p_phrases_dominated,
+                "items_dominated": scope4p_items_dominated,
             },
             "top_phoneme": top_phoneme,
-            "today_focus_phrases": today_focus,
-            "lesson_rings": lesson_rings,
+            "today_focus_phrases": [],
+            "lesson_rings": [],
             "next_badge": next_badge,
             "badges_earned_count": earned_count,
             "sessions_week_delta": sessions_delta,
-            "resume_lesson": resume,
+            "resume_lesson": None,
         }
     except Exception as exc:
         logger.error("[USER-STATS] Error: %s", str(exc))
@@ -921,13 +482,16 @@ async def get_lesson_calendar(
     user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    """Return per-day lesson completion counts for a given month (default: current month)."""
+    """Return per-day lesson completion counts for a given month (default: current month).
+
+    Fonte: LessonScopeCompletion (sistema 4 pontas). A trilha clássica (LessonProgress)
+    foi removida.
+    """
     try:
-        from datetime import date
         from calendar import monthrange
 
         uid = int(user_id)
-        today = date.today()
+        today = datetime.utcnow().date()
         y = year or today.year
         m = month or today.month
 
@@ -939,19 +503,18 @@ async def get_lesson_calendar(
         end = datetime(y, m, last_day, 23, 59, 59)
 
         rows = (
-            db.query(LessonProgress)
+            db.query(LessonScopeCompletion)
             .filter(
-                LessonProgress.user_id == uid,
-                LessonProgress.learned_at.isnot(None),
-                LessonProgress.learned_at >= start,
-                LessonProgress.learned_at <= end,
+                LessonScopeCompletion.user_id == uid,
+                LessonScopeCompletion.completed_at >= start,
+                LessonScopeCompletion.completed_at <= end,
             )
             .all()
         )
 
         days: dict[str, int] = {}
         for r in rows:
-            ds = r.learned_at.strftime("%Y-%m-%d")
+            ds = r.completed_at.strftime("%Y-%m-%d")
             days[ds] = days.get(ds, 0) + 1
 
         return {
@@ -967,107 +530,3 @@ async def get_lesson_calendar(
     except Exception as exc:
         logger.error("[LESSON-CALENDAR] Error: %s", str(exc))
         raise HTTPException(status_code=500, detail="Error loading lesson calendar")
-
-
-# ==================== QUIZ ENDPOINTS ====================
-
-@router.get("/api/quiz/questions")
-async def get_all_quiz_questions():
-    """Get all quiz questions."""
-    try:
-        questions = get_all_questions()
-        logger.info("[QUIZ] Retrieved %s questions", len(questions))
-        return {"success": True, "total": len(questions), "questions": questions}
-    except Exception as exc:
-        logger.error("[QUIZ] Error retrieving questions: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Quiz unavailable. Please try again.")
-
-
-@router.get("/api/quiz/questions/category/{category}")
-async def get_quiz_by_category(category: str):
-    """Get questions filtered by category."""
-    try:
-        questions = get_questions_by_category(category)
-        logger.info("[QUIZ] Retrieved %s questions for category: %s", len(questions), category)
-        return {
-            "success": True,
-            "category": category,
-            "total": len(questions),
-            "questions": questions,
-        }
-    except ValueError as exc:
-        logger.error("[QUIZ] Invalid category: %s", category)
-        raise HTTPException(status_code=400, detail=str(exc))
-    except Exception as exc:
-        logger.error("[QUIZ] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Quiz unavailable. Please try again.")
-
-
-@router.get("/api/quiz/random")
-async def get_random_quiz(count: int = 10, category: str = None, difficulty: int = None):
-    """Get random questions with optional filters."""
-    try:
-        questions = get_random_questions(count=count, category=category, difficulty=difficulty)
-        logger.info("[QUIZ] Generated random quiz with %s questions", len(questions))
-        return {"success": True, "total": len(questions), "questions": questions}
-    except ValueError as exc:
-        logger.error("[QUIZ] Invalid parameters: %s", str(exc))
-        raise HTTPException(status_code=400, detail=str(exc))
-    except Exception as exc:
-        logger.error("[QUIZ] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Quiz unavailable. Please try again.")
-
-
-@router.post("/api/quiz/submit-answer")
-async def submit_quiz_answer(
-    question_id: int,
-    answer_index: int,
-    user_id: int = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """Submit an answer to a quiz question and award XP."""
-    try:
-        is_correct, result = validate_answer(question_id, answer_index)
-
-        xp_earned = 50 if is_correct else 0
-
-        user = db.query(User).filter(User.id == user_id).first()
-        if user:
-            user.xp += xp_earned
-            db.commit()
-
-        logger.info(
-            "[QUIZ-SUBMIT] User %s - Question %s: %s",
-            user_id,
-            question_id,
-            "✓" if is_correct else "✗",
-        )
-
-        try:
-            # Record user activity and analytics event for quiz submissions
-            mark_activity(db, int(user_id), "quiz")
-            track_metric_event(
-                db,
-                int(user_id),
-                "quiz",
-                "quiz_question_submitted",
-                lesson_id=None,
-                count=1,
-                details={"question_id": question_id, "answer_index": answer_index, "is_correct": is_correct},
-            )
-        except Exception:
-            logger.warning("[QUIZ-TRACK] Could not record analytics for quiz submission")
-
-        return {
-            "success": True,
-            "correct": is_correct,
-            "xp_earned": xp_earned,
-            "user_total_xp": user.xp if user else 0,
-            "result": result,
-        }
-    except ValueError as exc:
-        logger.error("[QUIZ-SUBMIT] Invalid question: %s", str(exc))
-        raise HTTPException(status_code=404, detail=str(exc))
-    except Exception as exc:
-        logger.error("[QUIZ-SUBMIT] Error: %s", str(exc))
-        raise HTTPException(status_code=500, detail="Could not submit answer. Please try again.")

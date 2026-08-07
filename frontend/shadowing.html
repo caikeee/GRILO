@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Laboratório de Shadowing · GRILO</title>
+
+  <!-- Tema: aplica antes de pintar a tela p/ evitar flash. Padrão inicial = preferência do SO. -->
+  <script>
+    (function () {
+      try {
+        var k = 'grilo-theme', s = localStorage.getItem(k);
+        var t = (s === 'dark' || s === 'light')
+          ? s
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/sage-color-system.css">
+  <link rel="stylesheet" href="assets/css/sage-elegance.css">
+  <link rel="stylesheet" href="assets/css/sage-premium-polish.css">
+
+  <!-- Guard: redirect to landing if not logged in -->
+  <script>
+    (function() {
+      var t = localStorage.getItem('grilo_token');
+      if (!t) window.location.replace('/');
+    })();
+  </script>
+
+  <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
+  <link rel="stylesheet" href="assets/css/shadowing.css?v=7">
+</head>
+<body class="app-shadowing">
+  <main class="shadow-shell">
+
+    <!-- ── Topbar ─────────────────────────────────────────── -->
+    <header class="shadow-topbar">
+      <a href="home.html" class="shadow-back">Painel</a>
+      <div class="shadow-title">
+        <span class="shadow-title-icon" aria-hidden="true">🎙</span>
+        <span class="shadow-title-copy">
+          <em>Grilo · Lab</em>
+          <strong>Shadowing</strong>
+        </span>
+      </div>
+      <span class="shadow-streak-pill">🔥 <span id="shadowStreakLabel">treino do dia</span></span>
+    </header>
+
+    <!-- ── Hero / hub ─────────────────────────────────────── -->
+    <header class="shadow-hero">
+      <div class="shadow-hero-main">
+        <span class="shadow-hero-kicker">Laboratório · Shadowing simultâneo</span>
+        <h1 class="shadow-hero-title">Ouça, e seja a <em>sombra</em> do som.</h1>
+        <p class="shadow-hero-explainer">A ideia é simples: você escuta o áudio e imita a fala ao mesmo tempo, colando na voz do nativo como uma sombra. No começo você fica um passo atrás, e tudo bem. A cada sessão essa distância encolhe, até sua voz e o áudio andarem lado a lado.</p>
+        <button type="button" class="shadow-hero-how" id="shadowHowItWorksBtn">
+          <svg class="shadow-hero-how-ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.5"></circle>
+            <line x1="12" y1="10.75" x2="12" y2="16.5"></line>
+            <circle cx="12" cy="7.6" r="0.25" fill="currentColor" stroke="none"></circle>
+          </svg>
+          Como funciona o Laboratório
+        </button>
+        <p class="shadow-hero-sub">Treine à vontade no Casual, ou vá de Ranqueada para medir sua pronúncia de verdade e liberar o próximo texto da trilha.</p>
+      </div>
+      <div class="shadow-hero-panel" aria-label="Progresso da trilha">
+        <div class="shadow-ring">
+          <svg viewBox="0 0 96 96" aria-hidden="true">
+            <circle class="shadow-ring-track" cx="48" cy="48" r="40"/>
+            <circle class="shadow-ring-fill" id="shadowRingFill" cx="48" cy="48" r="40"/>
+          </svg>
+          <div class="shadow-ring-text"><b id="shadowRingNum">0</b><span>faixas</span></div>
+        </div>
+        <p class="shadow-hero-panel-label">ranqueadas</p>
+        <p class="shadow-hero-panel-hint" id="shadowRingHint">de 10 disponíveis</p>
+      </div>
+    </header>
+
+    <!-- ── Treino do dia ──────────────────────────────────── -->
+    <div class="shadow-daily" id="shadowDailyTrack" role="button" tabindex="0" style="cursor:pointer">
+      <span class="shadow-daily-ico">⚡</span>
+      <div class="shadow-daily-body">
+        <b>—</b>
+        <span>seu próximo texto na trilha</span>
+      </div>
+    </div>
+
+    <!-- ── Trilha linear ──────────────────────────────────── -->
+    <div class="shadow-track-list" id="shadowHubBody" aria-live="polite"></div>
+  </main>
+
+  <!-- ── Player em overlay ────────────────────────────────── -->
+  <div class="shadow-player" id="shadowPlayerOverlay" hidden></div>
+
+  <!-- ── Modal "Como funciona o Laboratório" ─────────────────── -->
+  <div class="shadow-how-modal" id="shadowHowModal" hidden>
+    <div class="shadow-how-card" role="dialog" aria-modal="true" aria-labelledby="shadowHowTitle">
+      <button type="button" class="shadow-how-close" id="shadowHowClose" aria-label="Fechar">✕</button>
+      <span class="shadow-how-kicker">Como funciona</span>
+      <h2 class="shadow-how-title" id="shadowHowTitle">Ouça, imite, seja a sombra do som.</h2>
+
+      <!-- O que você faz — a ação, em uma frase -->
+      <p class="shadow-how-lede">Você escuta uma faixa falada por um nativo e imita ao mesmo tempo, copiando o ritmo, a entonação e as pausas até seu som ficar cada vez mais parecido. Não é decorar palavra, é imitar a música da língua.</p>
+
+      <!-- O payoff no sistema — o coração, em destaque -->
+      <div class="shadow-how-payoff">
+        <span class="shadow-how-payoff-ico" aria-hidden="true">📈</span>
+        <div>
+          <strong>Cada acerto conta pro seu nível.</strong>
+          <p>Toda palavra e frase que você fala bem numa sessão Ranqueada entra no seu vocabulário e vira frase dominada — os mesmos contadores que te levam ao próximo nível de inglês. Shadowing não é um exercício à parte: é combustível direto pra sua evolução no GRILO.</p>
+        </div>
+      </div>
+
+      <!-- Ganho pessoal + autoridade, condensados -->
+      <p class="shadow-how-body">Em poucas semanas você sente o ritmo mudar: a fala fica mais solta, o ouvido pega o inglês em velocidade real e a pronúncia se aproxima da nativa. Não é achismo: é a técnica que forma intérpretes simultâneos desde os anos 1950, usada até hoje pela ONU e pela União Europeia.</p>
+
+      <!-- Os dois modos, lado a lado -->
+      <div class="shadow-how-modes">
+        <div class="shadow-how-mode">
+          <span class="shadow-how-mode-tag is-casual">🎮 Casual</span>
+          <p>Sem fone, sem limite. Treino livre pra pegar o ritmo do texto à vontade. Não conta pontos.</p>
+        </div>
+        <div class="shadow-how-mode">
+          <span class="shadow-how-mode-tag is-ranked">🏆 Ranqueada</span>
+          <p>Com fone (ele evita que o som da faixa vaze pro microfone e atrapalhe). Aí sim medimos sua voz em tempo real, você avança a trilha e ganha progresso.</p>
+        </div>
+      </div>
+
+      <button type="button" class="shadow-play-btn shadow-how-cta" id="shadowHowGotIt">Entendi, vamos treinar</button>
+    </div>
+  </div>
+
+  <!-- Interruptor de tema flutuante — igual à home -->
+  <button class="theme-toggle theme-toggle--float" id="themeToggle" type="button"
+          aria-label="Alternar tema claro e escuro" aria-pressed="false" title="Alternar tema">
+      <span class="tt-orb" aria-hidden="true">
+          <span class="tt-shade"></span>
+      </span>
+  </button>
+  <script src="assets/js/theme-toggle.js?v=2"></script>
+
+  <script src="assets/js/voice-recognition-utils.js?v=1779500000" defer></script>
+  <script src="assets/js/shadowing-data.js?v=2" defer></script>
+  <script src="assets/js/shadowing.js?v=8" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+/* ====================================================================
+   THEME TOGGLE — "lua que enche / mingua".
+   Um único disco luminoso. Uma máscara (mesma cor da casca) desliza por
+   cima e esculpe a fase: cheio no claro → crescente no escuro.
+   Flutuante no canto, discreto, para não poluir o layout.
+   Estado refletido por data-theme no <html>.
+==================================================================== */
+
+.theme-toggle {
+    /* paleta CLARO (lua cheia / dourada) */
+    --tt-shell:        rgba(255, 255, 255, 0.86);
+    --tt-shell-border: rgba(26, 42, 34, 0.10);
+    --tt-orb:          #F2C25A;
+    --tt-orb-glow:     rgba(242, 194, 90, 0.55);
+
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 90;
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--tt-shell-border);
+    border-radius: 50%;
+    overflow: hidden;            /* recorta a máscara que esculpe a fase */
+    background: var(--tt-shell);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        background 0.5s ease,
+        border-color 0.5s ease,
+        box-shadow 0.3s ease,
+        transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.45);
+}
+
+.theme-toggle:active {
+    transform: translateY(0) scale(0.94);
+}
+
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--sage-primary, #7A9E84);
+    outline-offset: 3px;
+}
+
+/* o disco luminoso */
+.tt-orb {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--tt-orb);
+    box-shadow: 0 0 12px -1px var(--tt-orb-glow);
+    transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* a máscara que esculpe a fase (mesma cor da casca) */
+.tt-shade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--tt-shell);
+    /* CLARO: máscara totalmente fora do disco → lua cheia */
+    transform: translate(115%, -55%);
+    transition:
+        transform 0.55s cubic-bezier(0.65, 0, 0.35, 1),
+        background 0.5s ease;
+}
+
+/* "pop" elástico de um disparo ao clicar */
+.theme-toggle.is-animating {
+    animation: tt-pop 0.55s ease;
+}
+
+@keyframes tt-pop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(0.9); }
+    65%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+/* ---------- ESCURO: lua minguante (crescente) ---------- */
+:root[data-theme="dark"] .theme-toggle {
+    --tt-shell:        #16271E;
+    --tt-shell-border: rgba(181, 205, 176, 0.18);
+    --tt-orb:          #DCE6F5;
+    --tt-orb-glow:     rgba(200, 215, 245, 0.45);
+    box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="dark"] .tt-shade {
+    /* máscara desliza sobre o disco → crescente */
+    transform: translate(30%, -24%);
+}
+
+/* ---------- Acessibilidade ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle,
+    .tt-orb,
+    .tt-shade {
+        transition: none;
+    }
+    .theme-toggle.is-animating {
+        animation: none;
+    }
+}

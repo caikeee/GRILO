@@ -248,50 +248,6 @@
     font-size: 0.8rem;
 }
 
-/* DAILY WORD PANEL */
-.daily-word-panel {
-    background: white;
-    border: 1px solid var(--border-light);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 2px 8px rgba(122, 158, 132, 0.06);
-    transition: all var(--transition-subtle);
-    margin-bottom: 2rem;
-}
-
-.daily-word-panel:hover {
-    box-shadow: 0 6px 16px rgba(122, 158, 132, 0.10);
-    border-color: var(--sage-light);
-}
-
-.daily-word-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
-}
-
-.daily-word-title-wrap h3 {
-    color: var(--sage-dark);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.daily-word-tag {
-    background: linear-gradient(135deg, rgba(122, 158, 132, 0.08) 0%, rgba(122, 158, 132, 0.04) 100%);
-    border: 1px solid rgba(122, 158, 132, 0.12);
-    color: var(--sage-dark);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-}
-
 /* BUTTONS & INTERACTIONS */
 button, a.btn-primary, a.btn-secondary {
     border-radius: 8px;

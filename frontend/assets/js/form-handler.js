@@ -5,6 +5,16 @@
 'use strict';
 
 // API_BASE_URL is defined globally in utils.js
+// RegistrationValidator is defined in registration-validator.js
+
+// Debounce helper para verificações de disponibilidade
+function debounce(func, delay) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+}
 
 /* ---- Toast notification ---- */
 function showToast(message, type) {
@@ -33,6 +43,7 @@ function showToast(message, type) {
 /* ---- Auth Form Manager ---- */
 const AuthForm = {
   isLogin: true,
+  availabilityChecks: {}, // Cache de checks já feitos
 
   init() {
     this.form      = document.getElementById('authForm');
@@ -44,9 +55,140 @@ const AuthForm = {
 
     if (!this.form) { console.warn('[GRILO] authForm not found'); return; }
 
-    console.log('[GRILO] AuthForm.init() — attaching submit handler');
+    console.log('[GRILO] AuthForm.init() — attaching handlers');
     this.form.addEventListener('submit', (e) => this.handleSubmit(e));
     if (this.toggleBtn) this.toggleBtn.addEventListener('click', () => this.toggleMode());
+
+    // Validação em tempo real
+    if (this.username) {
+      this.username.addEventListener('blur', () => this.validateUsernameField());
+      this.username.addEventListener('input', () => this.validateUsernameField());
+    }
+    if (this.email) {
+      this.email.addEventListener('blur', () => this.validateEmailField());
+      this.email.addEventListener('input', debounce(() => this.validateEmailField(), 300));
+    }
+    if (this.password) {
+      this.password.addEventListener('input', () => this.validatePasswordField());
+      this.password.addEventListener('blur', () => this.validatePasswordField());
+    }
+  },
+
+  /**
+   * Valida campo username com feedback visual
+   */
+  validateUsernameField() {
+    if (this.isLogin) return; // Só validar em registro
+
+    const validation = RegistrationValidator.validateUsername(this.username.value);
+
+    if (validation.errors.length > 0) {
+      this.setFieldError(this.username, validation.errors[0]);
+    } else {
+      this.clearFieldError(this.username);
+      // Mostrar dica de sucesso
+      if (validation.warnings.length > 0) {
+        this.setFieldHint(this.username, validation.warnings[0], 'warning');
+      } else {
+        this.setFieldHint(this.username, '✓ Username válido', 'success');
+      }
+    }
+  },
+
+  /**
+   * Valida campo email com feedback visual
+   */
+  validateEmailField() {
+    if (this.isLogin) return;
+
+    const validation = RegistrationValidator.validateEmail(this.email.value);
+
+    if (validation.errors.length > 0) {
+      this.setFieldError(this.email, validation.errors[0]);
+    } else {
+      this.clearFieldError(this.email);
+      this.setFieldHint(this.email, '✓ Email válido', 'success');
+
+      // Verificar disponibilidade no servidor (debounced)
+      this.checkEmailAvailability(this.email.value);
+    }
+  },
+
+  /**
+   * Valida campo password com feedback visual e barra de força
+   */
+  validatePasswordField() {
+    if (this.isLogin) return;
+
+    const analysis = RegistrationValidator.analyzePassword(this.password.value);
+    const group = this.password.closest('.form-group');
+    if (!group) return;
+
+    // Remover barra antiga
+    const oldBar = group.querySelector('.password-strength-bar');
+    if (oldBar) oldBar.remove();
+    const oldHint = group.querySelector('.password-hint');
+    if (oldHint) oldHint.remove();
+
+    if (analysis.errors.length > 0) {
+      this.setFieldError(this.password, analysis.errors[0]);
+      return;
+    }
+
+    // Campo válido
+    this.clearFieldError(this.password);
+
+    // Criar barra de força
+    const bar = document.createElement('div');
+    bar.className = 'password-strength-bar';
+    const barInner = document.createElement('div');
+    barInner.className = `password-strength-fill strength-${analysis.strength}`;
+    barInner.style.width = `${analysis.score}%`;
+    bar.appendChild(barInner);
+    group.appendChild(bar);
+
+    // Mostrar feedback
+    const hint = document.createElement('div');
+    hint.className = 'password-hint';
+    hint.textContent = `${analysis.feedback[0] || ''} (${analysis.score}/100)`;
+    group.appendChild(hint);
+  },
+
+  /**
+   * Verifica disponibilidade de email no servidor
+   */
+  checkEmailAvailability(email) {
+    if (!email || !RegistrationValidator.validateEmail(email).valid) return;
+
+    // Evitar requisições repetidas
+    const cacheKey = `email_${email}`;
+    if (this.availabilityChecks[cacheKey]) {
+      if (this.availabilityChecks[cacheKey].available) {
+        this.setFieldHint(this.email, '✓ Email disponível', 'success');
+      }
+      return;
+    }
+
+    // Fazer check no servidor
+    fetch(API_BASE_URL + '/api/register/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ field: 'email', value: email })
+    })
+    .then(res => res.json())
+    .then(data => {
+      this.availabilityChecks[cacheKey] = data;
+
+      if (!data.available) {
+        this.setFieldError(this.email, 'Email já cadastrado. Use outro ou faça login.');
+      } else {
+        this.setFieldHint(this.email, '✓ Email disponível', 'success');
+      }
+    })
+    .catch(err => {
+      console.warn('[GRILO] Email check failed:', err);
+      // Não bloquear se falhar o check
+    });
   },
 
   /* ---- Submit: calls /api/login or /api/register ---- */
@@ -111,11 +253,7 @@ const AuthForm = {
         console.log('[GRILO] Token salvo:', token.substring(0, 20) + '...');
         console.log('[GRILO] User salvo:', data.user.username);
         console.log('[GRILO] localStorage keys:', Object.keys(localStorage));
-        
-        // Setar flag para mostrar modal BETA na home
-        sessionStorage.setItem('grilo_login_session_started', 'true');
-        console.log('[GRILO] Flag de login setado para mostrar modal BETA');
-        
+
         showToast('Login realizado com sucesso!', 'success');
         setTimeout(function() {
           console.log('[GRILO] Redirecionando para /home.html');
@@ -171,37 +309,31 @@ const AuthForm = {
     this.clearForm();
   },
 
-  /* ---- Validation ---- */
+  /* ---- Validation (antes de enviar ao servidor) ---- */
   validate() {
-    let ok = true;
+    const validation = RegistrationValidator.validateForm(
+      this.username.value,
+      this.email.value,
+      this.password.value,
+      !this.isLogin // isRegister = !isLogin
+    );
 
-    if (!this.username.value.trim()) {
-      this.setFieldError(this.username, 'Campo obrigatório'); ok = false;
-    } else if (this.username.value.trim().length < 3) {
-      this.setFieldError(this.username, 'Mínimo 3 caracteres'); ok = false;
-    } else {
-      this.clearFieldError(this.username);
+    // Mostrar todos os erros
+    if (!validation.username.valid && validation.username.errors.length > 0) {
+      this.setFieldError(this.username, validation.username.errors[0]);
     }
 
     if (!this.isLogin) {
-      if (!this.email.value.trim()) {
-        this.setFieldError(this.email, 'Campo obrigatório'); ok = false;
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.value)) {
-        this.setFieldError(this.email, 'Email inválido'); ok = false;
-      } else {
-        this.clearFieldError(this.email);
+      if (!validation.email.valid && validation.email.errors.length > 0) {
+        this.setFieldError(this.email, validation.email.errors[0]);
       }
     }
 
-    if (!this.password.value) {
-      this.setFieldError(this.password, 'Campo obrigatório'); ok = false;
-    } else if (this.password.value.length < 8) {
-      this.setFieldError(this.password, 'Mínimo 8 caracteres'); ok = false;
-    } else {
-      this.clearFieldError(this.password);
+    if (!validation.password.isValid && validation.password.errors.length > 0) {
+      this.setFieldError(this.password, validation.password.errors[0]);
     }
 
-    return ok;
+    return validation.valid;
   },
 
   /* ---- UI Helpers ---- */
@@ -229,9 +361,11 @@ const AuthForm = {
     const g = field.closest('.form-group');
     if (!g) return;
     g.classList.add('error');
+    g.classList.remove('success', 'warning');
+
     let err = g.querySelector('.form-error');
     if (!err) { err = document.createElement('div'); err.className = 'form-error'; g.appendChild(err); }
-    err.textContent = msg;
+    err.textContent = '❌ ' + msg;
   },
 
   clearFieldError(field) {
@@ -240,6 +374,31 @@ const AuthForm = {
     g.classList.remove('error');
     const err = g.querySelector('.form-error');
     if (err) err.remove();
+  },
+
+  setFieldHint(field, msg, type = 'info') {
+    // type: 'info', 'success', 'warning'
+    const g = field.closest('.form-group');
+    if (!g) return;
+
+    // Remover dicas antigas
+    let hint = g.querySelector('.form-hint');
+    if (hint) hint.remove();
+
+    // Remover erro se houver
+    this.clearFieldError(field);
+
+    // Criar nova dica
+    hint = document.createElement('div');
+    hint.className = `form-hint form-hint-${type}`;
+
+    const icon = type === 'success' ? '✓' : type === 'warning' ? '⚠️' : 'ℹ️';
+    hint.textContent = `${icon} ${msg}`;
+    g.appendChild(hint);
+
+    // Adicionar classe visual
+    if (type === 'success') g.classList.add('success');
+    if (type === 'warning') g.classList.add('warning');
   },
 
   clearForm() {
