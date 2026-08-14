@@ -55,7 +55,6 @@ const AuthForm = {
 
     if (!this.form) { console.warn('[GRILO] authForm not found'); return; }
 
-    console.log('[GRILO] AuthForm.init() — attaching handlers');
     this.form.addEventListener('submit', (e) => this.handleSubmit(e));
     if (this.toggleBtn) this.toggleBtn.addEventListener('click', () => this.toggleMode());
 
@@ -195,7 +194,6 @@ const AuthForm = {
   async handleSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
-    console.log('[GRILO] handleSubmit fired, isLogin:', this.isLogin);
     this.hideError();
 
     if (!this.validate()) return;
@@ -209,8 +207,6 @@ const AuthForm = {
     this.setLoading(true);
 
     try {
-      console.log('[GRILO] POST ' + endpoint, body);
-
       const res = await fetch(API_BASE_URL + endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -218,7 +214,6 @@ const AuthForm = {
       });
 
       const data = await res.json();
-      console.log('[GRILO] Response:', res.status, data);
 
       if (!res.ok) {
         let msg;
@@ -250,18 +245,13 @@ const AuthForm = {
         localStorage.setItem('grilo_token', token);
         localStorage.setItem('grilo_user', JSON.stringify(data.user));
         localStorage.setItem('grilo_analytics_ping', String(Date.now()));
-        console.log('[GRILO] Token salvo:', token.substring(0, 20) + '...');
-        console.log('[GRILO] User salvo:', data.user.username);
-        console.log('[GRILO] localStorage keys:', Object.keys(localStorage));
 
         showToast('Login realizado com sucesso!', 'success');
         setTimeout(function() {
-          console.log('[GRILO] Redirecionando para /home.html');
           window.location.href = '/home.html';
         }, 800);
       } else {
         /* REGISTER: stay on landing, switch form to login mode */
-        console.log('[GRILO] Conta criada. Alternando para modo login.');
         showToast('Conta criada com sucesso! Agora faça login.', 'success');
         var self = this;
         setTimeout(function() {
@@ -283,6 +273,8 @@ const AuthForm = {
     this.isLogin = !this.isLogin;
     this.hideError();
 
+    const forgotBtn = document.getElementById('forgotPasswordBtn');
+
     if (this.isLogin) {
       document.getElementById('formTitle').textContent    = 'Entrar';
       document.getElementById('formSubtitle').textContent = 'Acesse seu plano.';
@@ -294,6 +286,7 @@ const AuthForm = {
       // Update placeholders for login mode
       this.username.placeholder = 'ex: joão_silva';
       this.password.placeholder = 'Digite sua senha';
+      if (forgotBtn) forgotBtn.style.display = 'inline-block';
     } else {
       document.getElementById('formTitle').textContent    = 'Criar conta';
       document.getElementById('formSubtitle').textContent = 'Crie e comece hoje.';
@@ -305,6 +298,7 @@ const AuthForm = {
       // Update placeholders for signup mode
       this.username.placeholder = 'escolha seu usuário';
       this.password.placeholder = 'crie uma senha segura';
+      if (forgotBtn) forgotBtn.style.display = 'none';
     }
     this.clearForm();
   },

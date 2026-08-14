@@ -610,6 +610,142 @@ body.landing-page .navbar-toggle.active span:nth-child(3) { transform: translate
 
 :root[data-theme="dark"] .v5-auth-toggle-btn { color: var(--v5-sage-soft) !important; }
 
+.v5-forgot-btn {
+    display: inline-block;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-top: 8px;
+    color: var(--v5-soft) !important;
+    font-family: var(--v5-body);
+    font-size: 0.8rem !important;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: rgba(122, 158, 132, 0.3);
+    text-underline-offset: 3px;
+    box-shadow: none !important;
+}
+
+.v5-forgot-btn:hover {
+    color: var(--v5-sage-deep) !important;
+    background: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .v5-forgot-btn:hover { color: var(--v5-sage-soft) !important; }
+
+/* ---- Modal: esqueci minha senha ---- */
+.v5-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 27, 23, 0.55);
+    backdrop-filter: blur(4px);
+    animation: v5ModalFade 0.2s var(--v5-ease);
+}
+
+@keyframes v5ModalFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.v5-modal {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: var(--v5-card);
+    border: 1px solid var(--v5-line);
+    border-radius: var(--v5-r-lg);
+    box-shadow: var(--v5-shadow-lift);
+    padding: 32px 28px 28px;
+    animation: v5ModalRise 0.25s var(--v5-ease);
+}
+
+@keyframes v5ModalRise {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.v5-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none !important;
+    border: none !important;
+    color: var(--v5-soft) !important;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: none !important;
+}
+
+.v5-modal-close:hover {
+    color: var(--v5-ink) !important;
+    background: var(--v5-bg-2) !important;
+    transform: none !important;
+}
+
+.v5-modal-title {
+    font-family: var(--v5-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--v5-ink);
+    margin: 0 0 12px;
+    padding-right: 20px;
+}
+
+.v5-modal-text {
+    font-family: var(--v5-body);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--v5-mute);
+    margin: 0 0 24px;
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+}
+
+.v5-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 20px;
+    background: var(--v5-amber);
+    color: var(--v5-ink) !important;
+    font-family: var(--v5-body);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    border-radius: var(--v5-r-md);
+    transition: transform 0.2s var(--v5-ease), opacity 0.2s ease;
+}
+
+.v5-modal-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.92;
+}
+
+.v5-modal-btn .v5-arrow {
+    display: inline-block;
+    transition: transform 0.25s var(--v5-ease);
+}
+
+.v5-modal-btn:hover .v5-arrow { transform: translateX(3px); }
+
 .v5-auth-secure {
     display: inline-flex;
     align-items: center;
