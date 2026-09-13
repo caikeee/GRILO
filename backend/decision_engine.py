@@ -99,13 +99,13 @@ def get_model_for_classification(
         return "LOCAL"
 
     elif classification == LIGHT_LLM:
-        return "llama-3.1-8b-instant"  # Rápido + barato
+        return "openai/gpt-oss-20b"  # Rápido + barato
 
     elif classification == FULL_LLM:
         if groq_tokens_remaining > 50000:
-            return "llama-3.3-70b-versatile"  # Premium
+            return "openai/gpt-oss-120b"  # Premium
         else:
-            return "llama-3.1-8b-instant"  # Fallback rápido
+            return "openai/gpt-oss-20b"  # Fallback rápido
 
     else:
-        return "llama-3.1-8b-instant"  # Default seguro
+        return "openai/gpt-oss-20b"  # Default seguro

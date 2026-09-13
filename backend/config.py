@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     secret_key: str  # Required - crash if missing
     
     # Models
-    model_name: str = "llama-3.3-70b-versatile"
+    model_name: str = "openai/gpt-oss-120b"
     
     # Server Configuration
     host: str = "127.0.0.1"

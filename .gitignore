@@ -33,6 +33,7 @@ MANIFEST
 # Arquivo de ambiente
 .env
 backend/.env
+backend/.env.example
 .env.local
 .env.*.local
 

@@ -65,7 +65,7 @@ def _fetch_rag_context_sync(query: str, level: str, k: int = 2) -> str:
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-MODEL = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
+MODEL = os.getenv("MODEL_NAME", "openai/gpt-oss-20b")
 
 _PT_DETECTION_HINTS = {
     "oi", "ola", "tudo", "bem", "voce", "voces", "nao", "sim", "isso", "sobre", "comida", "comidas",
@@ -1273,6 +1273,7 @@ async def _call_groq_with_retry(
                         max_tokens=max_tokens,
                         temperature=temperature,
                         top_p=0.9,
+                        reasoning_effort="low",
                         timeout=10
                     )
                 ),
