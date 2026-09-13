@@ -38,6 +38,8 @@
     <link rel="stylesheet" href="assets/css/form-validation-ux.css?v=1">
     <link rel="stylesheet" href="assets/css/landing-v5.css?v=1">
 
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+
     <style>
       .toast { padding:14px 22px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-size:0.92rem; font-weight:500; color:#fff; box-shadow:0 8px 32px rgba(0,0,0,.3); transition:opacity .3s,transform .3s; max-width:380px; }
       .toast--success { background:linear-gradient(135deg,#22c55e,#16a34a); }
@@ -74,36 +76,36 @@
     <section class="v5-hero">
         <div class="v5-hero-inner">
             <div class="v5-hero-copy">
-                <div class="v5-tag v5-reveal">
+                <div class="v5-tag v5-reveal" id="heroTag">
                     <span class="v5-tag-dot" aria-hidden="true"></span>
                     Beta aberta · grátis
                 </div>
 
-                <h1 class="v5-headline v5-reveal" data-delay="1">
-                    Ninguém aprende inglês <em>por você.</em>
+                <h1 class="v5-headline v5-reveal" id="heroHeadline" data-delay="1">
+                    <span class="v5-headline-word">Fale</span> <span class="v5-headline-word">inglês.</span> <em><span class="v5-headline-word">A</span> <span class="v5-headline-word">gente</span> <span class="v5-headline-word">cuida</span> <span class="v5-headline-word">do</span> <span class="v5-headline-word">resto.</span></em>
                 </h1>
 
-                <p class="v5-sub v5-reveal" data-delay="2">
-                    Mas ninguém deveria aprender sozinho. Prática de voz com IA, gente atrás do mesmo objetivo e um mapa honesto do seu nível. Sem medalha, sem ofensiva, sem culpa.
+                <p class="v5-sub v5-reveal" id="heroSub" data-delay="2">
+                    IA que corrige na hora, gente pra praticar quando você quiser, e um mapa honesto do seu nível. Sem vergonha de errar.
                 </p>
 
-                <p class="v5-sub-2 v5-reveal" data-delay="2">
-                    Não substitui seu curso. <strong>Acelera ele.</strong>
+                <p class="v5-sub-2 v5-reveal" id="heroSub2" data-delay="2">
+                    Inglês, <strong>e pronto!</strong>
                 </p>
 
-                <div class="v5-sample v5-reveal" data-delay="3" aria-label="Exemplo de correção em uma sessão de voz">
-                    <div class="v5-sample-row">
+                <div class="v5-sample v5-reveal" id="heroSample" data-delay="3" aria-label="Exemplo de correção de pronúncia em uma sessão de voz">
+                    <div class="v5-sample-row" id="heroSampleYou">
                         <span class="v5-sample-who">você</span>
-                        <span class="v5-sample-text">"I <em>have went</em> to the store yesterday."</span>
+                        <span class="v5-sample-text">"I <em>tink</em> that's right."</span>
                     </div>
-                    <div class="v5-sample-wave" aria-hidden="true">
+                    <div class="v5-sample-wave" id="heroSampleWave" aria-hidden="true">
                         <span></span><span></span><span></span><span></span><span></span><span></span>
                         <span></span><span></span><span></span><span></span><span></span><span></span>
                         <span></span><span></span><span></span><span></span><span></span><span></span>
                     </div>
-                    <div class="v5-sample-row v5-sample-row--ai">
+                    <div class="v5-sample-row v5-sample-row--ai" id="heroSampleAi">
                         <span class="v5-sample-who">grilo</span>
-                        <span class="v5-sample-text">"I <strong>went</strong> to the store yesterday." Past simple não usa "have".</span>
+                        <span class="v5-sample-text">"<strong>Think.</strong>" A língua entre os dentes — não é "t".</span>
                     </div>
                 </div>
             </div>
@@ -387,7 +389,9 @@
             });
 
             // Reveal on scroll — respeita prefers-reduced-motion via CSS
-            var revealEls = document.querySelectorAll('.v5-reveal');
+            // A hero (.v5-reveal dentro de .v5-hero) tem timeline própria via GSAP logo abaixo;
+            // aqui cuidamos só do restante da página.
+            var revealEls = document.querySelectorAll('.v5-reveal:not(.v5-hero .v5-reveal)');
             if ('IntersectionObserver' in window) {
                 var io = new IntersectionObserver(function(entries) {
                     entries.forEach(function(entry) {
@@ -400,6 +404,37 @@
                 revealEls.forEach(function(el) { io.observe(el); });
             } else {
                 revealEls.forEach(function(el) { el.classList.add('is-in'); });
+            }
+
+            // Timeline coreografada da hero — GSAP se disponível. O CSS (.v5-hero
+            // .v5-reveal) já deixa tudo visível por padrão, então se o CDN falhar,
+            // travar ou dar qualquer erro no meio, nada fica invisível: o pior
+            // caso é a hero aparecer sem animação de entrada.
+            var heroReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            if (!heroReduced && typeof gsap !== 'undefined') {
+                try {
+                    var words = document.querySelectorAll('#heroHeadline .v5-headline-word');
+                    var wave = document.querySelectorAll('#heroSampleWave span');
+
+                    // Overlaps como fração da duração do passo anterior (não valores
+                    // fixos) — mantém a proporção de sobreposição consistente mesmo
+                    // se alguma duração mudar depois. ~45-60% de overlap = sensação
+                    // de continuidade; menos que isso começa a parecer uma lista.
+                    var tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+                    tl.from('#heroTag', { opacity: 0, y: 12, duration: 0.45 })
+                      .from(words, { opacity: 0, y: 16, duration: 0.55, stagger: 0.028 }, '-=0.25')
+                      .from('#heroSub', { opacity: 0, y: 12, duration: 0.5 }, '-=0.35')
+                      .from('#heroSub2', { opacity: 0, y: 8, duration: 0.4 }, '-=0.3')
+                      .from('#heroSample', { opacity: 0, y: 16, scale: 0.985, duration: 0.55 }, '-=0.2')
+                      .from('#cta', { opacity: 0, y: 16, duration: 0.55 }, '-=0.4')
+                      .from('#heroSampleYou', { opacity: 0, x: -6, duration: 0.35 }, '-=0.35')
+                      .from(wave, { scaleY: 0.3, opacity: 0, duration: 0.35, stagger: 0.018 }, '-=0.1')
+                      .from('#heroSampleAi', { opacity: 0, y: 8, duration: 0.4, ease: 'back.out(1.4)' }, '-=0.05');
+                } catch (err) {
+                    console.warn('Timeline da hero não pôde rodar:', err);
+                }
             }
         });
     </script>

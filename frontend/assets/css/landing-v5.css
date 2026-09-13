@@ -92,6 +92,16 @@ body.landing-page {
     transform: none;
 }
 
+/* Dentro da hero, quem controla opacity/transform é a timeline GSAP (ver
+   script no fim do body) — o CSS não pode partir de opacity:0 aqui, senão
+   os dois sistemas competem e, se o GSAP falhar/travar no meio, o elemento
+   fica invisível para sempre. */
+.v5-hero .v5-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+}
+
 .v5-reveal[data-delay="1"] { transition-delay: 0.08s; }
 .v5-reveal[data-delay="2"] { transition-delay: 0.16s; }
 .v5-reveal[data-delay="3"] { transition-delay: 0.24s; }
@@ -277,8 +287,10 @@ body.landing-page .navbar-toggle.active span:nth-child(3) { transform: translate
 .v5-hero {
     position: relative;
     background:
-        radial-gradient(70% 55% at 12% 0%, rgba(122, 158, 132, 0.09) 0%, transparent 60%),
-        radial-gradient(55% 50% at 95% 90%, var(--v5-amber-tint) 0%, transparent 55%),
+        radial-gradient(60% 50% at 8% -5%, rgba(122, 158, 132, 0.16) 0%, transparent 62%),
+        radial-gradient(45% 45% at 60% 8%, rgba(122, 158, 132, 0.10) 0%, transparent 60%),
+        radial-gradient(60% 55% at 98% 95%, var(--v5-amber-tint) 0%, transparent 58%),
+        radial-gradient(35% 40% at 80% 30%, rgba(230, 184, 0, 0.06) 0%, transparent 60%),
         linear-gradient(180deg, var(--v5-bg) 0%, var(--v5-bg-2) 100%) !important;
     overflow: hidden;
 }
@@ -338,10 +350,10 @@ body.landing-page .navbar-toggle.active span:nth-child(3) { transform: translate
 
 .v5-headline {
     font-family: var(--v5-display);
-    font-size: clamp(2.5rem, 4.8vw, 3.9rem);
+    font-size: clamp(2.75rem, 5.6vw, 4.6rem);
     font-weight: 800;
-    line-height: 1.04 !important;
-    letter-spacing: -0.035em !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.04em !important;
     color: var(--v5-ink) !important;
     margin: 0 0 24px;
     text-wrap: balance;
@@ -351,7 +363,10 @@ body.landing-page .navbar-toggle.active span:nth-child(3) { transform: translate
     font-style: normal;
     color: var(--v5-sage-deep);
     position: relative;
-    white-space: nowrap;
+}
+
+.v5-headline-word {
+    display: inline-block;
 }
 
 :root[data-theme="dark"] .v5-headline em { color: var(--v5-sage-soft); }
@@ -393,11 +408,13 @@ body.landing-page .navbar-toggle.active span:nth-child(3) { transform: translate
 
 .v5-sample {
     max-width: 480px;
-    border: 1px solid var(--v5-line);
+    border: 1px solid var(--v5-line-strong);
     border-radius: var(--v5-r-lg);
-    background: color-mix(in srgb, var(--v5-card) 72%, transparent);
-    backdrop-filter: blur(6px);
+    background: color-mix(in srgb, var(--v5-card) 78%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 18px 20px 16px;
+    box-shadow: var(--v5-shadow-card);
 }
 
 .v5-sample-row {
@@ -480,7 +497,7 @@ body.landing-page .navbar-toggle.active span:nth-child(3) { transform: translate
     border: 1px solid var(--v5-line-strong);
     border-radius: var(--v5-r-xl);
     padding: 38px 36px 30px;
-    box-shadow: var(--v5-shadow-card);
+    box-shadow: var(--v5-shadow-lift);
 }
 
 .v5-auth::before {
