@@ -640,10 +640,7 @@ _LEVEL_VOICE_RULES: dict = {
         "1. Respond in natural, fluent English. Use varied vocabulary including phrasal verbs, idioms, nuanced expressions.\n"
         "2. 1-3 sentences. Engage intellectually — discuss nuances, opinions, hypotheticals.\n"
         "3. Only correct significant errors; focus on flow and sophistication over accuracy.\n"
-        "4. Push the learner to express complex ideas clearly. Ask open-ended questions.\n"
-        "IDIOM/PHRASAL VERB EXAMPLES:\n"
-        "- Student: 'I'm fed up with studying' → You: 'Fed up? That happens when coursework feels relentless. What subject is draining you most?'\n"
-        "- Student: 'I'll give it a shot' → You: 'Give it a shot—I appreciate that determination. What's your strategy if it doesn't work initially?'"
+        "4. Push the learner to express complex ideas clearly. Ask open-ended questions."
     ),
     "c2": (
         "You are a native-level English conversation partner for a near-fluent learner (C2 level).\n"
@@ -651,10 +648,7 @@ _LEVEL_VOICE_RULES: dict = {
         "1. Speak as you would to a native speaker. No simplification.\n"
         "2. Use full range of vocabulary including formal, informal, literary, and colloquial registers as fits context.\n"
         "3. Engage in sophisticated discourse — debate, storytelling, abstract analysis.\n"
-        "4. Only flag truly rare or stylistic errors; treat the learner as a peer.\n"
-        "SOPHISTICATED EXAMPLES:\n"
-        "- Student: 'The pandemic fundamentally altered our perception of remote work' → You: 'Altered—but did it? Some argue it merely expedited an inevitable shift. How do you assess the permanence of these changes?'\n"
-        "- Student: 'I find linguistic nuances fascinating' → You: 'Absolutely—that\\'s the hallmark of someone moving beyond competence into genuine fluency. What language phenomenon captivates you most lately?'"
+        "4. Only flag truly rare or stylistic errors; treat the learner as a peer."
     ),
 }
 
@@ -731,115 +725,86 @@ def should_expand_short_input(message: str) -> bool:
     return words <= 2
 
 
-def detect_user_intent(message: str) -> str:
-    """
-    Detects user intent type to vary conversational approach.
-    Returns: disagreement, opinion, explanation, question, emotion, correction, agreement, neutral
-    """
-    msg_lower = message.lower().strip()
-    
-    # Disagreement/Negation
-    if any(x in msg_lower for x in ["i don't", "i disagree", "not really", "no i", "i don't like", "i don't think", "i don't agree", "nope", "not at all", "hell no", "i prefer not"]):
-        return "disagreement"
-    
-    # Opinion/Belief
-    if any(x in msg_lower for x in ["i think", "i believe", "i reckon", "in my opinion", "imo", "i feel", "i suppose", "i guess", "maybe", "perhaps", "probably"]):
-        return "opinion"
-    
-    # Explanation/Reasoning
-    if any(x in msg_lower for x in ["because", "since", "so that", "that's why", "the reason", "for that", "due to", "caused by", "as a result"]):
-        return "explanation"
-    
-    # Question
-    if msg_lower.endswith("?") or any(x in msg_lower for x in ["what", "why", "how", "when", "where", "who", "can you", "could you", "would you", "is it", "are you", "do you"]):
-        return "question"
-    
-    # Emotion/Enthusiasm
-    if any(x in msg_lower for x in ["love", "hate", "amazing", "terrible", "awesome", "wonderful", "horrible", "fantastic", "boring", "exciting", "!"]):
-        return "emotion"
-    
-    # Self-Correction
-    if any(x in msg_lower for x in ["i mean", "actually", "wait", "no wait", "sorry", "i meant", "correction", "let me rephrase", "rather"]):
-        return "correction"
-    
-    # Agreement/Confirmation
-    if any(x in msg_lower for x in ["yes", "yeah", "yep", "i agree", "absolutely", "definitely", "totally", "sure", "ok", "okay", "right", "true"]):
-        return "agreement"
-    
-    return "neutral"
-
-
-# ==================== ENRICHED INTENT-BASED PROMPTS BY LEVEL ====================
-
-_INTENT_PROMPTS = {
-    "disagreement": {
-        "a1": "User disagreed or said no. DON'T repeat their words. Show understanding then ask WHY: 'I see your point. Why do you feel that way?' or 'Got it. Tell me more.'",
-        "a2": "User disagreed or corrected. Acknowledge without echoing, then ask: 'I understand. Help me know your thinking.'",
-        "b1": "User disagreed. Show understanding WITHOUT repeating their words, then explore: 'I see that perspective. What led you there?' or 'Tell me why you feel that way?'",
-        "b2": "User disagreed. Validate and dig: 'That's an interesting take—what's driving that thinking?' or 'I hear you. Walk me through your logic.'",
-        "c1": "User disagreed or offered contrast. Engage naturally: 'That frames it differently—what shaped that view?' or 'I hadn't considered that angle. Elaborate.'",
-        "c2": "User disagreed or presented counter-argument. Engage without repeating: 'You're making an interesting distinction—how does that square with...?' or 'That opens a nuance worth exploring.'"
-    },
-    "opinion": {
-        "a1": "User shared what they think. DON'T echo. Instead: 'That's good! Tell me more.' or 'Why do you think that?'",
-        "a2": "User shared an opinion. Ask to expand WITHOUT repeating their words: 'Why do you feel that way?' or 'Tell me more about that.'",
-        "b1": "User shared an opinion. Explore it naturally: 'What leads you to that conclusion?' or 'Have you always felt that way?' (don't repeat their words)",
-        "b2": "User shared opinion. Build on it: 'I see your point—what else factors in?' or 'That's solid. How did you arrive at it?'",
-        "c1": "User shared nuanced opinion. Challenge thoughtfully: 'That's a perspective—what counter-arguments do you wrestle with?' or 'How does that align with...?'",
-        "c2": "User articulated sophisticated view. Engage: 'Compelling argument—though how do you reconcile that with the tension between...?' or 'You're articulating something interesting there.'"
-    },
-    "explanation": {
-        "a1": "User is explaining. DON'T repeat. Ask for more: 'And then?' or 'Tell me what happened next.'",
-        "a2": "User explaining. Follow up WITHOUT echoing: 'I understand—so what came next?' or 'That makes sense. What else?'",
-        "b1": "User explaining something. Dig deeper: 'That clarifies it—what came after?' or 'So the bigger picture is...?' or 'How did that affect you?'",
-        "b2": "User explaining reasoning. Explore further: 'The chain was...what came after that?' or 'That gives context—how does it affect you now?'",
-        "c1": "User explaining causality. Push for analysis: 'Fascinating causal chain—were there unintended consequences?' or 'So your reasoning—but what about downstream?'",
-        "c2": "User articulating complex explanation. Engage analytically: 'So your thesis is...? But doesn't that presuppose...?' or 'Interesting framework—how does it account for...?'"
-    },
-    "question": {
-        "a1": "User asked a question. Answer simply WITHOUT repeating their words, then ask back about it.",
-        "a2": "User asked question. Give short answer, then ask: 'Does that help? Do you have more questions?'",
-        "b1": "User asked question. Answer clearly WITHOUT echoing their phrasing, then ask: 'Does that answer it? What made you curious?'",
-        "b2": "User asked question. Answer thoughtfully, then ask: 'That's a good question—what prompted it?' or 'Why are you asking?'",
-        "c1": "User asked substantive question. Answer thoroughly, then: 'But what's driving your curiosity about this?' or 'That opens an interesting angle—have you considered...?'",
-        "c2": "User posed sophisticated question. Answer with nuance: 'That's nuanced—the answer depends on the lens...' Then: 'But what's your intuition on how we approach it?'"
-    },
-    "emotion": {
-        "a1": "User expressed feelings. DON'T repeat their words. Show understanding: 'That sounds great!' or 'Oh no! Why do you feel that?' or 'Tell me why!'",
-        "a2": "User expressed strong emotion. Validate WITHOUT echoing: 'I hear your passion! What is it about that?' or 'What makes you feel so strongly?'",
-        "b1": "User expressed emotion. Validate and explore: 'I sense real feeling there—what triggers that?' or 'That resonates with you—what draws you?'",
-        "b2": "User expressed emotion. Dig into root: 'Something meaningful there for you—what's the deeper connection?' or 'Where does that come from?'",
-        "c1": "User expressed nuanced emotion. Explore values: 'I'm sensing something deeper—is this tied to your sense of...?' or 'What's at the root of that?'",
-        "c2": "User expressed sophisticated emotion. Engage meaningfully: 'Your sentiment reveals values—does this relate to your worldview on...?' or 'What does that tell us about what matters to you?'"
-    },
-    "correction": {
-        "a1": "User self-correcting. That's good! DON'T repeat. Say: 'OK, so...?' to let them finish.",
-        "a2": "User self-corrected. Encourage WITHOUT repeating: 'Good—tell me more?'",
-        "b1": "User self-corrected. Acknowledge: 'Ah, I see now—so the real point is...?' or 'That helps—go on.'",
-        "b2": "User self-corrected. Value it: 'I appreciate that—so you're really saying...?' Then: 'What made you refine that?'",
-        "c1": "User refined their statement. Engage: 'The nuance matters—so you're distinguishing between...?' or 'Precision matters—elaborate?'",
-        "c2": "User offered intellectual refinement. Explore: 'You're drawing a sophisticated distinction—one that hinges on...? Unpack it.' or 'Why was that clarification necessary?'"
-    },
-    "agreement": {
-        "a1": "User agreed! DON'T echo. Ask: 'Great! What else do you like about that?' or 'What's another thing?'",
-        "a2": "User agreed. Build on it WITHOUT repeating: 'Awesome! What else connects?' or 'Glad we agree—what's your favorite part?'",
-        "b1": "User agreed. Deepen WITHOUT repeating: 'Great—what draws you to it?' or 'I'm glad we see it the same way. What else?'",
-        "b2": "User confirmed. Explore deeper: 'Exactly—what else follows from that?' or 'I'm glad we align—what would be different otherwise?'",
-        "c1": "User expressed agreement. Use as springboard: 'Exactly—and that leads to what other conclusions?' or 'Right—so that means...?'",
-        "c2": "User affirmed perspective. Build: 'Indeed—and if we extend that logic, doesn't it suggest...?' or 'Precisely—which is why the nuance between X and Y matters.'"
-    },
-    "neutral": {
-        "a1": "User made statement. DON'T echo their exact words. Acknowledge and ask: 'That's nice! Tell me more.' or 'Why is that?'",
-        "a2": "User shared something. Show interest WITHOUT repeating: 'That's interesting. Tell me more?' or 'Why?'",
-        "b1": "User made statement. Explore WITHOUT echoing: 'That's an interesting angle—what led you there?' or 'Tell me more—what else?'",
-        "b2": "User shared something. Dig deeper: 'That catches my attention—why does that matter?' or 'How does it fit into things?'",
-        "c1": "User articulated something. Engage critically: 'That's intriguing—how would you defend it?' or 'What are the limits of that view?'",
-        "c2": "User presented idea. Challenge thoughtfully: 'Compelling—though doesn't that presuppose...?' or 'That raises an interesting question...'"
-    }
-}
-
 # Simple in-memory cache for voice chat responses (shared across users)
 _voice_chat_cache = {}
+
+
+# ---------- Análise de correção/bridge (chamada separada da resposta conversacional) ----------
+# Antes, o mesmo LLM que conversa também tinha que emitir marcadores JSON
+# ([CORRECTION], [BRIDGE]) dentro da própria fala — duas tarefas (conversar +
+# estruturar dados) na mesma geração tendem a deixar a resposta mais formal/
+# precavida. Esta função isola a extração numa chamada leve e independente,
+# que só roda quando há sinal de que vale a pena (erro claro ou code-switching).
+_CORRECTION_ANALYSIS_PROMPT = (
+    "You analyze one student/tutor exchange from an English-practice voice chat. "
+    "Given the student's message and the tutor's reply, output ONLY a compact JSON object, no prose:\n"
+    '{"correction": null | {"wrong": str, "correct": str, "tip": str (short, in Portuguese), '
+    '"error_type": "verb_tense|word_choice|preposition|article|subject_verb_agreement|gerund_after_verb|spelling"}, '
+    '"bridge_words": null | [{"pt": str, "en": str}]}\n'
+    "Rules:\n"
+    "- correction: only if the student made a CLEAR grammar mistake in otherwise-English words "
+    "(e.g. wrong tense, wrong preposition). null if their English was fine.\n"
+    "- bridge_words: Portuguese words the student mixed into an otherwise-English sentence (max 3, "
+    "e.g. \"I prefer the frango\" → [{\"pt\": \"frango\", \"en\": \"chicken\"}]). null if none.\n"
+    "- A Portuguese word standing in for an English one is ALWAYS bridge_words, never correction — "
+    "these two fields are mutually exclusive per word.\n"
+    "- Output valid JSON only, nothing else."
+)
+
+
+async def _extract_correction_and_bridge(
+    student_message: str,
+    tutor_reply: str,
+    want_bridge: bool,
+) -> tuple[dict | None, list | None]:
+    """Chamada leve e separada da resposta conversacional principal.
+
+    Roda em paralelo com a tradução bilíngue quando aplicável; falhas aqui
+    nunca devem derrubar o turno — o pior caso é simplesmente não ter
+    correção/bridge para o resumo daquela fala.
+    """
+    import json as _json_analysis
+
+    user_prompt = f"Student said: {student_message!r}\nTutor replied: {tutor_reply!r}"
+    if not want_bridge:
+        user_prompt += "\n(No Portuguese code-switching in this message — bridge_words will be null.)"
+
+    try:
+        raw = await _call_groq_with_retry(
+            messages=[
+                {"role": "system", "content": _CORRECTION_ANALYSIS_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            model="openai/gpt-oss-20b",
+            max_tokens=180,
+            temperature=0.1,
+            max_retries=1,
+        )
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        if not match:
+            return None, None
+        parsed = _json_analysis.loads(match.group(0))
+
+        correction = parsed.get("correction")
+        if isinstance(correction, dict):
+            correction["error_type"] = _normalize_voice_correction_type(correction.get("error_type"))
+        else:
+            correction = None
+
+        bridge_words = parsed.get("bridge_words")
+        if isinstance(bridge_words, list):
+            bridge_words = [
+                {"pt": str(item.get("pt", "")).strip(), "en": str(item.get("en", "")).strip()}
+                for item in bridge_words
+                if isinstance(item, dict) and str(item.get("pt", "")).strip() and str(item.get("en", "")).strip()
+            ][:3] or None
+        else:
+            bridge_words = None
+
+        return correction, bridge_words
+    except Exception as e:
+        logger.warning(f"[CORRECTION-ANALYSIS-ERROR] {str(e)}")
+        return None, None
 
 
 def compute_shadow_score(original: str, transcript: str) -> float:
@@ -1047,11 +1012,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             system_msg += (
                 "\n\n[MIXED-INPUT] The student said a mostly-English sentence but slipped 1-3 Portuguese "
                 "words into it. Understand the full intent and keep the conversation flowing naturally in "
-                "English, using the English equivalents of those words in your reply. Then append at the "
-                "very END of your reply, on its own, the exact marker: "
-                '[BRIDGE: [{"pt": "<portuguese word used>", "en": "<english equivalent>"}]] '
-                "with one object per Portuguese word (max 3). Never mention the marker or the correction "
-                "in the reply text itself."
+                "English, using the English equivalents of those words in your reply."
             )
         
         # Palpite assumido (baixa confiança / fragmento): ancora a resposta no
@@ -1071,18 +1032,15 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
                 )
 
         # ======== CORREÇÃO POR MODELAGEM (professor nativo) ========
-        # A IA usa a forma correta naturalmente na fala (sem apontar o erro) e
-        # registra a correção no marcador [CORRECTION] SÓ para o resumo/analytics.
-        # O parser já existe; o frontend não renderiza card ao vivo.
+        # A IA usa a forma correta naturalmente na fala (sem apontar o erro). O
+        # registro da correção para o resumo/analytics roda à parte, numa 2ª
+        # chamada leve (_extract_correction_and_bridge) — não pede mais para o
+        # modelo emitir marcador estruturado dentro da resposta conversacional.
         if not is_opening_turn and voice_mode in ("free", "guided"):
             system_msg += (
                 "\n\n[IMPLICIT-CORRECTION] If the student made a clear grammar or word-choice mistake, "
                 "model the correct form naturally in your spoken reply WITHOUT pointing out the error or "
-                "sounding like a teacher. Then, only if there was a real mistake, append at the very END "
-                "the exact marker: "
-                '[CORRECTION: {"wrong": "<what they said>", "correct": "<natural fix>", '
-                '"tip": "<one short PT tip>", "error_type": "<verb_tense|word_choice|preposition|article|subject_verb_agreement|gerund_after_verb|spelling>"}] '
-                "Never mention this marker or the correction in the reply text itself. No mistake → no marker."
+                "sounding like a teacher."
             )
 
         if is_opening_turn:
@@ -1094,21 +1052,10 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             system_msg += "\n\n[SHORT-INPUT-MODE] User gave a brief response (1-2 words). This is valid. Treat it as a complete thought and expand naturally by adding context or follow-up. Don't make them feel rushed."
             logger.info(f"[SHORT-INPUT] Detected: '{user_payload}' | Activating expansion mode")
         
-        # ======== INTENT DETECTION + DYNAMIC PROMPTING INJECTION ========
-        if not is_opening_turn:
-            user_intent = detect_user_intent(user_payload)
-            # Get intent-specific guidance for user's level, with fallback
-            intent_guidance = _INTENT_PROMPTS.get(user_intent, {}).get(level, 
-                            _INTENT_PROMPTS[user_intent].get("b1", ""))
-            if intent_guidance:
-                system_msg += f"\n\n[CONVERSATION-STYLE] {intent_guidance}"
-                logger.info(f"[INTENT-DETECTION] {user_intent} | level: {level} | guidance: {intent_guidance[:50]}...")
-        
         messages.insert(0, {"role": "system", "content": system_msg})
         messages.append({"role": "user", "content": user_payload})
         
-        # Max tokens by level e mode (~+30% vs. valores antigos p/ reduzir
-        # truncamento; +margem para o marcador [CORRECTION] que agora é emitido)
+        # Max tokens by level e mode (~+30% vs. valores antigos p/ reduzir truncamento)
         max_tokens_map = {
             "a1": 90, "a2": 110, "b1": 150, "b2": 180, "c1": 200, "c2": 220
         }
@@ -1133,48 +1080,41 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             max_retries=2
         )
 
-        
-        # ======== EXTRAIR BRIDGE WORDS (antes da CORRECTION, que trunca o reply) ========
-        import json as _json_corr
-        bridge_words: list | None = None
-        bridge_match = re.search(r'\[BRIDGE:\s*(\[.*?\])\]', reply, re.DOTALL)
-        if bridge_match:
-            try:
-                parsed_bridge = _json_corr.loads(bridge_match.group(1))
-                if isinstance(parsed_bridge, list):
-                    bridge_words = [
-                        {"pt": str(item.get("pt", "")).strip(), "en": str(item.get("en", "")).strip()}
-                        for item in parsed_bridge
-                        if isinstance(item, dict) and str(item.get("pt", "")).strip() and str(item.get("en", "")).strip()
-                    ][:3] or None
-            except Exception:
-                bridge_words = None
-            reply = (reply[:bridge_match.start()] + reply[bridge_match.end():]).strip()
-            if bridge_words:
-                logger.info(f"[BRIDGE] {len(bridge_words)} palavra(s) PT→EN extraída(s)")
 
-        # ======== EXTRAIR CORREÇÃO E PROCESSAR ========
-        correction: dict | None = None
-        corr_match = re.search(r'\[CORRECTION:\s*(\{.*?\})\]', reply, re.DOTALL)
-        if corr_match:
+        # ======== ANÁLISE DE CORREÇÃO/BRIDGE + TRADUÇÃO (em paralelo) ========
+        # Mesma condição que antes injetava [IMPLICIT-CORRECTION]/[MIXED-INPUT]
+        # no prompt: só vale rodar a análise quando o turno teve o contexto
+        # completo (FULL_LLM, não é o turno de abertura).
+        wants_correction_analysis = (
+            classification == FULL_LLM
+            and not is_opening_turn
+            and voice_mode in ("free", "guided")
+        )
+
+        async def _translate_if_needed():
+            if not bilingual_mode:
+                return None
             try:
-                correction = _json_corr.loads(corr_match.group(1))
-                if isinstance(correction, dict):
-                    correction["error_type"] = _normalize_voice_correction_type(correction.get("error_type"))
-                reply = reply[:corr_match.start()].rstrip()
-                logger.info(f"[CORRECTION] Extracted: {correction.get('error_type')}")
-            except Exception:
-                correction = None
-        
-        # ======== TRADUÇÃO BILÍNGUE (se necessário) ========
-        translation_pt: str | None = None
-        if bilingual_mode:
-            try:
-                translation_pt = await translate_with_direction(reply, "en", "pt")
-                logger.info(f"[BILINGUAL] Tradução gerada: {len(translation_pt)} chars")
+                t = await translate_with_direction(reply, "en", "pt")
+                logger.info(f"[BILINGUAL] Tradução gerada: {len(t)} chars")
+                return t
             except Exception as e:
                 logger.warning(f"[TRANSLATION-ERROR] {str(e)}")
-        
+                return None
+
+        async def _analyze_if_needed():
+            if not wants_correction_analysis:
+                return None, None
+            return await _extract_correction_and_bridge(user_payload, reply, wants_bridge_words)
+
+        translation_pt, (correction, bridge_words) = await asyncio.gather(
+            _translate_if_needed(), _analyze_if_needed()
+        )
+        if correction:
+            logger.info(f"[CORRECTION] Extracted: {correction.get('error_type')}")
+        if bridge_words:
+            logger.info(f"[BRIDGE] {len(bridge_words)} palavra(s) PT→EN extraída(s)")
+
         # ======== MONTAR RESULTADO E CACHE ========
         result = {
             "reply": reply,
