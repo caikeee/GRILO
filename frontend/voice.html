@@ -1987,7 +1987,10 @@ body {
     <!-- ===== SCRIPTS ===== -->
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/voice-recognition-utils.js?v=1"></script>
-    <script src="controllers/voice/chat-voice-controller.js?v=31"></script>
+    <!-- Silero VAD (deteccao de fala local, via WASM/ONNX) — carregado do CDN, com fallback automatico se falhar -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.wasm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.31/dist/bundle.min.js"></script>
+    <script src="controllers/voice/chat-voice-controller.js?v=32"></script>
     <script src="controllers/chat/chat-text-controller.js?v=21"></script>
 
     <script>

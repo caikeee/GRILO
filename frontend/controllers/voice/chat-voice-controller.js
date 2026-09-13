@@ -1116,6 +1116,7 @@ async function _startMicRecording() {
 
 function _beginAudioCapture() {
     if (!_micStream) return;
+    if (_mediaRecorder && _mediaRecorder.state === 'recording') return; // already capturing this turn
     _audioChunks = [];
     try {
         const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
@@ -1146,6 +1147,94 @@ function _stopAudioCapture() {
         };
         _mediaRecorder.stop();
     });
+}
+
+// ==================== SILERO VAD (deteccao de fala local) ====================
+// Substitui o VAD nativo do navegador (caixa-preta do SpeechRecognition) por um
+// modelo local (ONNX/WASM, via @ricky0123/vad-web) que roda no proprio browser,
+// sem custo de API. O VAD so detecta "tem voz humana agora?" — quem continua
+// gerando o texto e o SpeechRecognition (onresult); o VAD manda no TIMING:
+// inicio real de fala (liga o MediaRecorder na hora, sem corrida) e fim real
+// de fala (substitui a grace window fixa por um sinal de energia/probabilidade).
+let _vadInstance = null;
+let _vadReady = false;
+let _vadStarting = false;
+
+async function _initSileroVad() {
+    if (_vadInstance || _vadStarting) return _vadInstance;
+    if (typeof window === 'undefined' || !window.vad || typeof window.vad.MicVAD?.new !== 'function') {
+        console.log('[VAD] Silero VAD library not available — falling back to browser VAD');
+        return null;
+    }
+    _vadStarting = true;
+    try {
+        _vadInstance = await window.vad.MicVAD.new({
+            // Model/wasm assets are not bundled in this repo — point at the same
+            // CDN paths the <script> tags were loaded from (see voice.html).
+            baseAssetPath: 'https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.31/dist/',
+            onnxWASMBasePath: 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/',
+            // vad-web has no "stream" option — it always wants a getStream()
+            // factory. Reuse the pre-opened mic stream instead of letting it
+            // call getUserMedia() again (which would open a second stream).
+            getStream: async () => _micStream || navigator.mediaDevices.getUserMedia({ audio: true }),
+            onSpeechStart: () => {
+                console.log('[VAD] Speech start (Silero)');
+                if (!voiceChatActive) return;
+                _beginAudioCapture(); // start Whisper recording immediately, no race
+                if (!isListening) startVoiceListening();
+                updateVoiceModalStatus('listening');
+            },
+            onSpeechEnd: (_audio) => {
+                console.log('[VAD] Speech end (Silero)');
+                if (!voiceChatActive) return;
+                // Small tolerance: SpeechRecognition's onresult may lag a few
+                // hundred ms behind the raw audio signal — give it a chance to
+                // land pendingVoiceMessage before we commit on the VAD's cue.
+                setTimeout(() => _commitPendingSpeechFromVad(), 250);
+            },
+            onVADMisfire: () => {
+                console.log('[VAD] Misfire (noise, too short) — ignoring');
+            },
+        });
+        _vadInstance.start();
+        _vadReady = true;
+        console.log('[VAD] Silero VAD initialized and listening');
+    } catch (e) {
+        console.warn('[VAD] Silero VAD init failed, falling back to browser VAD:', e.message);
+        _vadInstance = null;
+        _vadReady = false;
+    } finally {
+        _vadStarting = false;
+    }
+    return _vadInstance;
+}
+
+function _stopSileroVad() {
+    if (_vadInstance) {
+        try {
+            const p = _vadInstance.destroy();
+            if (p && typeof p.catch === 'function') p.catch(() => {});
+        } catch (e) { /* already destroyed */ }
+        _vadInstance = null;
+    }
+    _vadReady = false;
+}
+
+// Quando o Silero detecta fim de fala, comitamos o que ja estiver acumulado em
+// pendingVoiceMessage sem esperar a grace window fixa — o sinal de energia e
+// mais confiavel que "esperar Xms apos a ultima palavra".
+function _commitPendingSpeechFromVad() {
+    if (!pendingVoiceMessage) return; // nothing transcribed yet, recognizer still catching up
+    if (_voiceTurnCommitTimer) {
+        clearTimeout(_voiceTurnCommitTimer);
+        _voiceTurnCommitTimer = null;
+    }
+    const committedMessage = String(pendingVoiceMessage || '').replace(/\s+/g, ' ').trim();
+    const committedConfidence = _pendingVoiceConfidence;
+    pendingVoiceMessage = null;
+    _pendingVoiceConfidence = 1.0;
+    if (!committedMessage || !voiceChatActive) return;
+    void processCommittedVoiceTurn(committedMessage, committedConfidence);
 }
 
 async function _transcribeWithWhisper(recording, browserTranscript, authToken) {
@@ -1354,7 +1443,7 @@ function _renderVoiceSetupPreview() {
 
 window._renderVoiceSetupPreview = _renderVoiceSetupPreview;
 
-function startVoiceChat({ autoListen = true } = {}) {
+async function startVoiceChat({ autoListen = true } = {}) {
     console.log("🚀 Starting voice chat mode | autoListen:", autoListen);
     voiceChatActive = true;
     if (!_voiceSessionStart) {
@@ -1364,23 +1453,34 @@ function startVoiceChat({ autoListen = true } = {}) {
     _voiceSessionAnalytics = _createEmptyVoiceSessionAnalytics();
     clearLiveErrors();
     console.log("✅ Voice chat active");
-    
-    _startMicRecording().catch((err) => {
+
+    // Awaited (not fire-and-forget): the Silero VAD below wants to reuse this
+    // same stream, so it must exist before we try to init the VAD.
+    await _startMicRecording().catch((err) => {
         console.warn("⚠️ Mic recording setup failed:", err);
-    }); // pre-open mic stream (silent fail)
-    
+    });
+
     console.log("📡 Initializing voice modal recognizer...");
     initializeVoiceModalRecognizer();
-    
-    if (autoListen) {
-        console.log("⏱️ Setting 100ms timeout to start listening...");
+
+    if (!autoListen) {
+        console.log("⏸️ Auto-listen disabled, updating status to 'processing'");
+        updateVoiceModalStatus("processing");
+        return;
+    }
+
+    // Silero VAD owns turn timing when available: it fires startVoiceListening()
+    // itself from onSpeechStart, so there's no fixed setTimeout race here.
+    const vad = await _initSileroVad();
+    if (!vad) {
+        console.log("⏱️ Silero VAD unavailable — falling back to browser VAD (100ms timeout)");
         setTimeout(() => {
-            console.log("🎤 Auto-starting voice listening");
+            console.log("🎤 Auto-starting voice listening (fallback)");
             startVoiceListening();
         }, 100);
     } else {
-        console.log("⏸️ Auto-listen disabled, updating status to 'processing'");
-        updateVoiceModalStatus("processing");
+        console.log("🎤 Silero VAD active — listening starts on real speech onset");
+        updateVoiceModalStatus("listening");
     }
 }
 
@@ -2502,6 +2602,7 @@ function stopVoiceChat(options = {}) {
     const suppressSessionRecord = !!options.suppressSessionRecord;
     console.log("⏹️ Stopping voice chat");
     voiceChatActive = false;
+    _stopSileroVad();
     if (voiceModalRecognizer && isListening) {
         console.log("Stopping recognizer");
         try {

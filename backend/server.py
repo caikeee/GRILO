@@ -294,12 +294,12 @@ app.add_middleware(RequestIDMiddleware)
 # QW8: Add security headers middleware (CSP included)
 _CSP_POLICY = (
     "default-src 'self'; "
-    "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; "
+    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; "
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
     "font-src 'self' https://fonts.gstatic.com data:; "
     "img-src 'self' data: blob: https:; "
     "media-src 'self' blob: data:; "
-    "connect-src 'self' https://api.elevenlabs.io https://api.groq.com; "
+    "connect-src 'self' https://api.elevenlabs.io https://api.groq.com https://cdn.jsdelivr.net; "
     "object-src 'none'; "
     "base-uri 'self'; "
     "frame-ancestors 'none'; "
