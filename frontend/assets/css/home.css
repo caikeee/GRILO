@@ -142,88 +142,454 @@ body {
     overflow: hidden;
 }
 
-/* ========== TOPBAR — cápsula flutuante de vidro (padrão lessons) ========== */
-.topbar {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 16px;
-    align-self: center;
-    width: min(1220px, calc(100% - 36px));
-    margin: 14px 0 6px;
-    padding: 10px 14px;
-    border-radius: 22px;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        0 1px 2px rgba(31, 59, 45, 0.04),
-        0 16px 40px -18px rgba(31, 59, 45, 0.18);
-    backdrop-filter: blur(16px) saturate(1.25);
-    -webkit-backdrop-filter: blur(16px) saturate(1.25);
+/* ========== CÁPSULA DE COMANDO — um ícone que expande no painel inteiro ==========
+   O gatilho é o losango da marca; o painel cresce a partir dele (origem no canto
+   superior esquerdo), com os itens entrando escalonados por --i. */
+.cmd {
+    position: relative;
+    align-self: flex-start;
+    margin: 14px 0 6px 18px;
     flex-shrink: 0;
-    z-index: 10;
+    z-index: 60;
 }
 
-/* sage-elegance troca a sombra em .topbar:hover — manter o vidro estável */
-.topbar:hover {
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.95),
-        0 1px 2px rgba(31, 59, 45, 0.04),
-        0 16px 40px -18px rgba(31, 59, 45, 0.18);
-}
-
-/* Lockup de marca: tile verde + kicker + título (espelha .lessons-title) */
-.topbar-brand {
-    justify-self: start;
-    display: inline-flex;
-    align-items: center;
-    gap: 11px;
-}
-
-.topbar-brand-icon {
+/* ── Gatilho ── */
+.cmd-trigger {
+    position: relative;
+    /* Acima do painel: o losango permanece visível e vira o canto dele */
+    z-index: 2;
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    font-size: 0.8rem;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px) saturate(1.25);
+    -webkit-backdrop-filter: blur(16px) saturate(1.25);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 1px 2px rgba(31, 59, 45, 0.04),
+        0 14px 34px -16px rgba(31, 59, 45, 0.22);
+    transition:
+        transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+        border-radius 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* O losango verde dentro do gatilho */
+.cmd-trigger-glyph {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    font-size: 0.78rem;
     color: #fff;
     background: linear-gradient(145deg, #4A7C5E, #3A5E47);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.25),
         0 4px 12px rgba(74, 124, 94, 0.35);
+    transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.topbar-brand-copy {
+/* Halo que pulsa para fora no hover e no clique */
+.cmd-trigger-halo {
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: 0 0 0 0 rgba(74, 124, 94, 0.32);
+    transition: box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Ponto âmbar: sinaliza que há algo novo (streak ativa) */
+.cmd-trigger-dot {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #E09A50;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cmd-trigger-dot.on {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.cmd-trigger:hover {
+    transform: translateY(-2px);
+}
+.cmd-trigger:hover .cmd-trigger-glyph {
+    transform: rotate(45deg) scale(1.04);
+}
+.cmd-trigger:hover .cmd-trigger-halo {
+    box-shadow: 0 0 0 6px rgba(74, 124, 94, 0.10);
+}
+.cmd-trigger:active {
+    transform: translateY(0) scale(0.96);
+}
+.cmd-trigger:focus-visible {
+    outline: 2px solid rgba(74, 124, 94, 0.55);
+    outline-offset: 3px;
+}
+
+/* Aberto: o losango gira e o gatilho vira o canto do painel */
+.cmd.open .cmd-trigger {
+    transform: none;
+    border-radius: 16px 16px 4px 16px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 18px 42px -18px rgba(31, 59, 45, 0.3);
+}
+.cmd.open .cmd-trigger-glyph {
+    transform: rotate(135deg);
+}
+.cmd.open .cmd-trigger-halo {
+    box-shadow: 0 0 0 0 rgba(74, 124, 94, 0);
+}
+.cmd.open .cmd-trigger-dot {
+    opacity: 0;
+    transform: scale(0.4);
+}
+
+/* ── Painel ── */
+.cmd-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 320px;
+    max-width: calc(100vw - 36px);
+    padding: 16px 16px 14px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(22px) saturate(1.3);
+    -webkit-backdrop-filter: blur(22px) saturate(1.3);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 1px 2px rgba(31, 59, 45, 0.05),
+        0 34px 70px -26px rgba(31, 59, 45, 0.34);
+    /* Cresce a partir do gatilho, no canto superior esquerdo */
+    transform-origin: 23px 23px;
+    opacity: 0;
+    transform: scale(0.82) translateY(-6px);
+    pointer-events: none;
+    visibility: hidden;
+    transition:
+        opacity 0.26s ease,
+        transform 0.46s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0s linear 0.3s;
+}
+
+.cmd.open .cmd-panel {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+    transition:
+        opacity 0.22s ease,
+        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0s;
+}
+
+/* Brilho diagonal que varre o vidro uma vez na abertura */
+.cmd-sheen {
+    position: absolute;
+    inset: -40% -60%;
+    pointer-events: none;
+    background: linear-gradient(
+        105deg,
+        transparent 38%,
+        rgba(255, 255, 255, 0.55) 50%,
+        transparent 62%
+    );
+    transform: translateX(-70%);
+    opacity: 0;
+}
+.cmd.open .cmd-sheen {
+    animation: cmd-sheen-sweep 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.1s 1;
+}
+@keyframes cmd-sheen-sweep {
+    0%   { transform: translateX(-70%); opacity: 0; }
+    35%  { opacity: 0.85; }
+    100% { transform: translateX(70%); opacity: 0; }
+}
+
+/* Entrada escalonada: cada filho sobe no seu tempo (--i) */
+.cmd-head,
+.cmd-nav .cmd-item,
+.cmd-foot {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+        opacity 0.34s ease,
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cmd.open .cmd-head,
+.cmd.open .cmd-nav .cmd-item,
+.cmd.open .cmd-foot {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: calc(0.05s + var(--i, 0) * 0.042s);
+}
+
+/* ── Cabeçalho do painel ── */
+.cmd-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    /* Abre espaço para o gatilho, que continua visível sobre o painel */
+    padding: 2px 0 12px 54px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(31, 59, 45, 0.08);
+}
+
+.cmd-brand-copy {
     display: flex;
     flex-direction: column;
     gap: 1px;
+    min-width: 0;
 }
 
-.topbar-brand-copy em {
+.cmd-brand-copy em {
     font-style: normal;
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     font-weight: 800;
-    letter-spacing: 0.11em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-light);
 }
 
-.topbar-brand-copy strong {
+.cmd-brand-copy strong {
     font-family: 'Space Grotesk', 'Manrope', sans-serif;
-    font-size: 1.02rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: -0.025em;
     line-height: 1.1;
     color: var(--text-primary);
 }
 
-.topbar-user {
+/* ── Itens ── */
+.cmd-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* !important nas propriedades que sage-elegance define em .nav-btn / .nav-btn.active
+   (borda, raio, fundo, overflow) — os itens aqui desenham o próprio estado. */
+.cmd-nav .cmd-item {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-self: end;
-    gap: var(--spacing-sm);
+    gap: 12px;
+    width: 100%;
+    /* 16px à esquerda: abre a calha onde o traço do item atual aparece */
+    padding: 10px 12px 10px 16px;
+    border: none !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    text-decoration: none !important;
+    color: inherit !important;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Fundo próprio, para animar sem repintar o item */
+.cmd-nav .cmd-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: rgba(74, 124, 94, 0.09);
+    box-shadow: inset 0 0 0 1px rgba(74, 124, 94, 0.13);
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+        opacity 0.24s ease,
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cmd-item-ico {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    font-size: 0.82rem;
+    color: #4A7C5E;
+    background: rgba(74, 124, 94, 0.10);
+    box-shadow: inset 0 0 0 1px rgba(74, 124, 94, 0.12);
+    transition:
+        transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.28s ease,
+        color 0.28s ease;
+}
+
+.cmd-item-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    flex: 1;
+}
+
+.cmd-item-copy b {
+    font-size: 0.895rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    transition: color 0.22s ease;
+}
+
+.cmd-item-copy small {
+    font-size: 0.715rem;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cmd-item-chev {
+    flex-shrink: 0;
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--text-light);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+        opacity 0.24s ease,
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cmd-nav .cmd-item:hover::before,
+.cmd-nav .cmd-item:focus-visible::before {
+    opacity: 1;
+    transform: scale(1);
+}
+.cmd-nav .cmd-item:hover .cmd-item-ico,
+.cmd-nav .cmd-item:focus-visible .cmd-item-ico {
+    transform: scale(1.06) rotate(-4deg);
+    background: rgba(74, 124, 94, 0.16);
+}
+.cmd-nav .cmd-item:hover .cmd-item-chev,
+.cmd-nav .cmd-item:focus-visible .cmd-item-chev {
+    opacity: 1;
+    transform: translateX(0);
+}
+/* O foco não desenha anel próprio: o ::before já marca o item, e o painel
+   foca o primeiro item na abertura — um anel ali seria ruído visual. */
+.cmd-nav .cmd-item:hover,
+.cmd-nav .cmd-item:focus,
+.cmd-nav .cmd-item:focus-visible {
+    border-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+.cmd-nav .cmd-item:active {
+    transform: scale(0.985);
+}
+
+/* Item da seção atual */
+.cmd-nav .cmd-item.active,
+.cmd-nav .cmd-item.active:hover {
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.cmd-nav .cmd-item.active::before {
+    opacity: 1;
+    transform: scale(1);
+    background: rgba(74, 124, 94, 0.10);
+    box-shadow: none;
+}
+.cmd-nav .cmd-item.active .cmd-item-ico {
+    color: #fff;
+    background: linear-gradient(145deg, #4A7C5E, #3A5E47);
+    box-shadow: 0 4px 12px rgba(74, 124, 94, 0.3);
+}
+.cmd-nav .cmd-item.active .cmd-item-copy b {
+    color: #2F4E3C;
+}
+/* Marcador do item atual: um traço vertical que cresce à esquerda */
+.cmd-nav .cmd-item::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    width: 3px;
+    height: 0;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #5C9070, #3A5E47);
+    transform: translateY(-50%);
+    transition: height 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cmd-nav .cmd-item.active::after {
+    height: 22px;
+}
+
+/* ── Rodapé: usuário + sair ── */
+.cmd-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(31, 59, 45, 0.08);
+}
+
+/* ── Véu de fundo ── */
+.cmd-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: rgba(31, 59, 45, 0.16);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.32s ease;
+}
+.cmd.open .cmd-scrim {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cmd-trigger,
+    .cmd-trigger-glyph,
+    .cmd-panel,
+    .cmd-head,
+    .cmd-nav .cmd-item,
+    .cmd-item-ico,
+    .cmd-item-chev,
+    .cmd-foot {
+        transition-duration: 0.01ms !important;
+        transition-delay: 0ms !important;
+    }
+    .cmd.open .cmd-sheen { animation: none; }
+    .cmd.open .cmd-trigger-glyph { transform: none; }
 }
 
 .user-badge {
@@ -285,63 +651,6 @@ body {
 
 .btn-logout:active {
     transform: translateY(0);
-}
-
-/* ── Topbar nav (pílula-spotlight por item, só no hover) ── */
-.topbar-nav {
-    display: flex;
-    align-items: center;
-    justify-self: center;
-    gap: 2px;
-}
-.topbar-nav .nav-btn {
-    appearance: none;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    font-family: 'Manrope', sans-serif;
-    font-weight: 600;
-    font-size: 0.875rem;
-    line-height: 1;
-    /* !important: âncoras (.nav-btn em <a>) herdariam a{color:…!important}
-       do sage-color-system — botões e links precisam da mesma cor. */
-    color: #6A7B71 !important;
-    text-decoration: none !important;
-    padding: 8px 14px;
-    border-radius: 99px;
-    transition: color 0.22s ease;
-}
-/* A pílula que expande do centro sob o item onde está o mouse.
-   Sem hover em nenhum item, nenhuma pílula aparece. */
-.topbar-nav .nav-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: rgba(74, 124, 94, 0.10);
-    box-shadow: inset 0 0 0 1px rgba(74, 124, 94, 0.14);
-    opacity: 0;
-    transform: scaleX(0.72);
-    transition:
-        transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 0.24s ease;
-}
-.topbar-nav .nav-btn:hover {
-    color: #3A5E47 !important;
-}
-.topbar-nav .nav-btn:hover::after {
-    opacity: 1;
-    transform: scaleX(1);
-}
-@media (max-width: 600px) {
-    .topbar-nav .nav-btn { padding: 6px 10px; font-size: 0.8125rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .topbar-nav .nav-btn::after { transition: opacity 0.2s ease; }
 }
 
 /* ========== MAIN PANEL ========== */
@@ -1203,7 +1512,7 @@ body {
     border-left: 4px solid var(--accent-danger);
     background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
 }/* ========== VOICE IMMERSIVE DIMENSION — INK DROP / ZEN ========== */
-body.voice-dimension-mode .topbar,
+body.voice-dimension-mode .cmd,
 body.voice-dimension-mode #chatWrittenTab,
 body.voice-dimension-mode #lessonsTab {
     display: none !important;
@@ -4177,27 +4486,14 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
         --spacing-2xl: 3rem;
     }
     
-    .topbar {
-        width: calc(100% - 20px);
-        margin: 10px 0 4px;
-        padding: 8px 10px;
-        gap: 10px;
+    .cmd {
+        margin: 10px 0 4px 12px;
     }
 
-    .topbar-brand-copy em {
-        display: none;
+    .cmd-panel {
+        width: min(300px, calc(100vw - 24px));
     }
 
-    .topbar-brand-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 10px;
-    }
-
-    .user-name-text {
-        display: none;
-    }
-    
     .chat-messages,
     .chat-input-area,
     .lessons-container {
@@ -4231,13 +4527,24 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
         --spacing-lg: 1.25rem;
     }
     
-    .topbar {
-        grid-template-columns: auto 1fr auto;
-        padding: 6px 8px;
+    .cmd-trigger {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
     }
 
-    .topbar-brand-copy {
-        display: none;
+    .cmd-trigger-glyph {
+        width: 31px;
+        height: 31px;
+        border-radius: 10px;
+    }
+
+    .cmd-panel {
+        transform-origin: 21px 21px;
+    }
+
+    .cmd-head {
+        padding-left: 48px;
     }
 
     .user-badge {
@@ -6369,35 +6676,100 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
         radial-gradient(ellipse 60% 40% at 10% 110%, rgba(143, 191, 154, 0.05), transparent),
         linear-gradient(175deg, #13211A 0%, #101C16 55%, #0E1913 100%);
 }
-:root[data-theme="dark"] .topbar,
-:root[data-theme="dark"] .topbar:hover {
-    background: rgba(22, 34, 28, 0.72);
+:root[data-theme="dark"] .cmd-trigger {
+    background: rgba(22, 34, 28, 0.74);
     border-color: rgba(181, 205, 176, 0.14);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.05),
         0 1px 2px rgba(0, 0, 0, 0.35),
-        0 16px 40px -18px rgba(0, 0, 0, 0.6);
+        0 14px 34px -16px rgba(0, 0, 0, 0.6);
 }
-:root[data-theme="dark"] .topbar-brand-copy em {
-    color: var(--dk-kicker);
+:root[data-theme="dark"] .cmd.open .cmd-trigger {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 18px 42px -18px rgba(0, 0, 0, 0.7);
 }
-:root[data-theme="dark"] .topbar-brand-copy strong {
-    color: #E8F1ED;
-}
-:root[data-theme="dark"] .topbar-brand-icon {
+:root[data-theme="dark"] .cmd-trigger-glyph {
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.18),
         0 4px 12px rgba(0, 0, 0, 0.4);
 }
-:root[data-theme="dark"] .topbar-nav .nav-btn {
-    color: #9BA9A0 !important;
+:root[data-theme="dark"] .cmd-trigger-halo {
+    box-shadow: 0 0 0 0 rgba(143, 191, 154, 0.3);
 }
-:root[data-theme="dark"] .topbar-nav .nav-btn::after {
-    background: rgba(143, 191, 154, 0.14);
-    box-shadow: inset 0 0 0 1px rgba(143, 191, 154, 0.22);
+:root[data-theme="dark"] .cmd-trigger:hover .cmd-trigger-halo {
+    box-shadow: 0 0 0 6px rgba(143, 191, 154, 0.09);
 }
-:root[data-theme="dark"] .topbar-nav .nav-btn:hover {
-    color: #C9DCCD !important;
+:root[data-theme="dark"] .cmd-trigger-dot {
+    box-shadow: 0 0 0 2px rgba(22, 34, 28, 0.9);
+}
+:root[data-theme="dark"] .cmd-panel {
+    background: rgba(22, 34, 28, 0.86);
+    border-color: rgba(181, 205, 176, 0.14);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 1px 2px rgba(0, 0, 0, 0.4),
+        0 34px 70px -26px rgba(0, 0, 0, 0.75);
+}
+:root[data-theme="dark"] .cmd-sheen {
+    background: linear-gradient(
+        105deg,
+        transparent 38%,
+        rgba(143, 191, 154, 0.14) 50%,
+        transparent 62%
+    );
+}
+:root[data-theme="dark"] .cmd-head {
+    border-bottom-color: rgba(181, 205, 176, 0.12);
+}
+:root[data-theme="dark"] .cmd-foot {
+    border-top-color: rgba(181, 205, 176, 0.12);
+}
+:root[data-theme="dark"] .cmd-brand-copy em {
+    color: var(--dk-kicker);
+}
+:root[data-theme="dark"] .cmd-brand-copy strong {
+    color: #E8F1ED;
+}
+:root[data-theme="dark"] .cmd-nav .cmd-item::before {
+    background: rgba(143, 191, 154, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(143, 191, 154, 0.2);
+}
+:root[data-theme="dark"] .cmd-nav .cmd-item-ico {
+    color: #A8C9B2;
+    background: rgba(143, 191, 154, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(143, 191, 154, 0.18);
+}
+:root[data-theme="dark"] .cmd-nav .cmd-item:hover .cmd-item-ico,
+:root[data-theme="dark"] .cmd-nav .cmd-item:focus-visible .cmd-item-ico {
+    background: rgba(143, 191, 154, 0.2);
+}
+:root[data-theme="dark"] .cmd-item-copy b {
+    color: #E8F1ED;
+}
+:root[data-theme="dark"] .cmd-item-copy small {
+    color: #8B9A90;
+}
+:root[data-theme="dark"] .cmd-item-chev {
+    color: #8B9A90;
+}
+:root[data-theme="dark"] .cmd-nav .cmd-item.active::before {
+    background: rgba(143, 191, 154, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(143, 191, 154, 0.28);
+}
+:root[data-theme="dark"] .cmd-nav .cmd-item.active .cmd-item-ico {
+    color: #12201A;
+    background: linear-gradient(145deg, #8FBF9A, #6FA47E);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="dark"] .cmd-nav .cmd-item.active .cmd-item-copy b {
+    color: #D8E9DD;
+}
+:root[data-theme="dark"] .cmd-nav .cmd-item::after {
+    background: linear-gradient(180deg, #8FBF9A, #6FA47E);
+}
+:root[data-theme="dark"] .cmd-scrim {
+    background: rgba(6, 12, 9, 0.44);
 }
 :root[data-theme="dark"] .btn-logout {
     background: rgba(239, 99, 90, 0.10);
