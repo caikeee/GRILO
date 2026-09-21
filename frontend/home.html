@@ -39,7 +39,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="assets/css/home.css?v=4">
+    <link rel="stylesheet" href="assets/css/home.css?v=8">
     <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
 </head>
 <body>
@@ -134,32 +134,75 @@
     <!-- Main Content (shown by chat-text-controller.js when token is valid) -->
     <div class="main-content" id="mainContent">
 
-        <!-- Top Bar -->
-        <header class="topbar">
-            <div class="topbar-brand">
-                <span class="topbar-brand-icon" aria-hidden="true">◆</span>
-                <span class="topbar-brand-copy">
-                    <em>Grilo · Inglês</em>
-                    <strong>Seu painel</strong>
-                </span>
-            </div>
-            <nav class="topbar-nav" aria-label="Navegação principal">
-                <button class="nav-btn active" data-tab="painel" onclick="switchTab('painel')">Painel</button>
-                <a class="nav-btn" href="lessons.html">Aulas</a>
-                <a class="nav-btn" href="shadowing.html">Shadowing</a>
-                <a class="nav-btn" href="voice.html">Chat de Voz</a>
-                <button class="nav-btn" id="adminNavBtn" data-tab="admin" onclick="switchTab('admin')" style="display:none;">Admin</button>
-            </nav>
-            <div class="topbar-user">
-                <div class="user-badge">
-                    <div class="user-avatar" id="userAvatarInitials">?</div>
-                    <span class="user-name-text" id="usernameDisplay">–</span>
+        <!-- Cápsula de comando: ícone único que expande no painel completo -->
+        <header class="cmd" id="cmdRoot">
+            <!-- Gatilho: o losango da marca. Vira o canto do painel ao abrir. -->
+            <button type="button" class="cmd-trigger" id="cmdTrigger"
+                    aria-expanded="false" aria-controls="cmdPanel"
+                    aria-label="Abrir menu de navegação">
+                <span class="cmd-trigger-glyph" aria-hidden="true">◆</span>
+                <span class="cmd-trigger-halo" aria-hidden="true"></span>
+                <span class="cmd-trigger-dot" id="cmdTriggerDot" aria-hidden="true"></span>
+            </button>
+
+            <!-- Painel expandido -->
+            <div class="cmd-panel" id="cmdPanel" role="menu" aria-label="Navegação principal" inert>
+                <div class="cmd-sheen" aria-hidden="true"></div>
+
+                <div class="cmd-head" style="--i:0">
+                    <span class="cmd-brand-copy">
+                        <em>Grilo · Inglês</em>
+                        <strong id="cmdHeadTitle">Seu painel</strong>
+                    </span>
+                    <div id="streakTopbar" style="display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#fff5ed,#ffecd8);border:1.5px solid #f4c89a;border-radius:99px;padding:5px 12px 5px 8px;font-size:.82rem;font-weight:700;color:#a0622a;font-family:'Space Grotesk',sans-serif;">
+                        <span>🔥</span><span id="streakTopbarNum">0</span><span style="font-size:.75rem;opacity:.8;">dias</span>
+                    </div>
                 </div>
-                <div id="streakTopbar" style="display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#fff5ed,#ffecd8);border:1.5px solid #f4c89a;border-radius:99px;padding:5px 12px 5px 8px;font-size:.82rem;font-weight:700;color:#a0622a;font-family:'Space Grotesk',sans-serif;">
-                    <span>🔥</span><span id="streakTopbarNum">0</span><span style="font-size:.75rem;opacity:.8;">dias</span>
+
+                <nav class="cmd-nav" aria-label="Seções">
+                    <button class="nav-btn cmd-item active" role="menuitem" data-tab="painel" style="--i:1" onclick="switchTab('painel')">
+                        <span class="cmd-item-ico" aria-hidden="true">◆</span>
+                        <span class="cmd-item-copy"><b>Painel</b><small>Seu progresso de hoje</small></span>
+                        <span class="cmd-item-chev" aria-hidden="true">›</span>
+                    </button>
+                    <a class="nav-btn cmd-item" role="menuitem" href="lessons.html" style="--i:2">
+                        <span class="cmd-item-ico" aria-hidden="true">▤</span>
+                        <span class="cmd-item-copy"><b>Aulas</b><small>Trilha em 4 pontas</small></span>
+                        <span class="cmd-item-chev" aria-hidden="true">›</span>
+                    </a>
+                    <a class="nav-btn cmd-item" role="menuitem" href="shadowing.html" style="--i:3">
+                        <span class="cmd-item-ico" aria-hidden="true">◉</span>
+                        <span class="cmd-item-copy"><b>Shadowing</b><small>Imite e afine a pronúncia</small></span>
+                        <span class="cmd-item-chev" aria-hidden="true">›</span>
+                    </a>
+                    <a class="nav-btn cmd-item" role="menuitem" href="voice.html" style="--i:4">
+                        <span class="cmd-item-ico" aria-hidden="true">◍</span>
+                        <span class="cmd-item-copy"><b>Chat de Voz</b><small>Converse em tempo real</small></span>
+                        <span class="cmd-item-chev" aria-hidden="true">›</span>
+                    </a>
+                    <a class="nav-btn cmd-item" role="menuitem" href="community.html" style="--i:5">
+                        <span class="cmd-item-ico" aria-hidden="true">◎</span>
+                        <span class="cmd-item-copy"><b>Comunidade</b><small>Sugira, corrija, decida junto</small></span>
+                        <span class="cmd-item-chev" aria-hidden="true">›</span>
+                    </a>
+                    <button class="nav-btn cmd-item" role="menuitem" id="adminNavBtn" data-tab="admin" style="--i:6;display:none;" onclick="switchTab('admin')">
+                        <span class="cmd-item-ico" aria-hidden="true">⚙</span>
+                        <span class="cmd-item-copy"><b>Admin</b><small>Métricas e usuários</small></span>
+                        <span class="cmd-item-chev" aria-hidden="true">›</span>
+                    </button>
+                </nav>
+
+                <div class="cmd-foot" style="--i:7">
+                    <div class="user-badge">
+                        <div class="user-avatar" id="userAvatarInitials">?</div>
+                        <span class="user-name-text" id="usernameDisplay">–</span>
+                    </div>
+                    <button class="btn-logout" onclick="handleLogout()">Sair</button>
                 </div>
-                <button class="btn-logout" onclick="handleLogout()">Sair</button>
             </div>
+
+            <!-- Véu que escurece o fundo enquanto o painel está aberto -->
+            <div class="cmd-scrim" id="cmdScrim" aria-hidden="true"></div>
         </header>
 
             <!-- Main Panel -->
@@ -462,6 +505,8 @@
 
     <!-- Scripts -->
     <script src="assets/js/utils.js"></script>
+    <!-- Cápsula de comando: ícone único que expande no painel de navegação -->
+    <script src="controllers/home/command-panel.js?v=1"></script>
     <script src="controllers/lessons/lessons-controller.js?v=9"></script>
     <!-- Painel "Seu progresso" clicável → modal de requisitos do próximo nível CEFR -->
     <script src="controllers/home/cefr-modal.js?v=7"></script>

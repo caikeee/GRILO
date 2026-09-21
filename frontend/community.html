@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Comunidade · GRILO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/sage-color-system.css?v=20260520">
+  <link rel="stylesheet" href="assets/css/sage-overrides.css?v=20260520">
+  <link rel="stylesheet" href="assets/css/community.css?v=20260920">
+</head>
+<body class="app-community">
+  <main class="cm-shell">
+
+    <!-- ── Topbar ─────────────────────────────────────────── -->
+    <header class="cm-topbar">
+      <a href="home.html" class="cm-back">Painel</a>
+      <div class="cm-topbar-title">
+        <em>Grilo · Comunidade</em>
+        <strong>Pauta aberta</strong>
+      </div>
+      <div class="cm-topbar-pill" id="cmTopbarPill">carregando…</div>
+    </header>
+
+    <!-- ── Hero ───────────────────────────────────────────── -->
+    <section class="cm-hero">
+      <div>
+        <span class="cm-hero-kicker">Construído com quem usa</span>
+        <h1 class="cm-hero-title">O que o GRILO faz a seguir <em>começa aqui</em>.</h1>
+        <p class="cm-hero-sub">Levante um tópico, vote no que importa, aponte o que está errado numa aula. Tudo é público: você vê o que foi decidido e por quê. Não é chat — é pauta.</p>
+        <button class="cm-hero-cta" id="cmNewTopicBtn" type="button">
+          <span aria-hidden="true">+</span>
+          <span>Levantar um tópico</span>
+        </button>
+      </div>
+
+      <aside class="cm-hero-panel">
+        <h2>Top contribuidores</h2>
+        <div id="cmLeaderboard">
+          <p class="cm-board-empty">Carregando…</p>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ── Filtros ────────────────────────────────────────── -->
+    <section class="cm-controls">
+      <div class="cm-filters" id="cmFilters" role="group" aria-label="Filtrar por tipo">
+        <button class="cm-filter is-active" type="button" data-type="">Tudo</button>
+        <button class="cm-filter" type="button" data-type="feature">Sugestões</button>
+        <button class="cm-filter" type="button" data-type="correction">Correções</button>
+        <button class="cm-filter" type="button" data-type="bug">Bugs</button>
+        <button class="cm-filter" type="button" data-type="resource">Recursos</button>
+        <button class="cm-filter" type="button" data-type="question">Dúvidas</button>
+      </div>
+
+      <select class="cm-sort" id="cmSort" aria-label="Ordenar tópicos">
+        <option value="trending">Em alta</option>
+        <option value="newest">Mais recentes</option>
+        <option value="most_voted">Mais votados</option>
+      </select>
+    </section>
+
+    <!-- ── Lista ──────────────────────────────────────────── -->
+    <section class="cm-list" id="cmList" aria-live="polite"></section>
+    <button class="cm-load-more" id="cmLoadMore" type="button" hidden>Carregar mais</button>
+  </main>
+
+  <!-- ── Modal: novo tópico ───────────────────────────────── -->
+  <div class="cm-modal" id="cmCreateModal" role="dialog" aria-modal="true" aria-labelledby="cmCreateTitle" hidden>
+    <div class="cm-modal-card">
+      <div class="cm-modal-head">
+        <div>
+          <h2 id="cmCreateTitle">Levantar um tópico</h2>
+          <p>Uma ideia, um erro que você encontrou, ou uma dúvida que outros também devem ter.</p>
+        </div>
+        <button class="cm-modal-close" id="cmCreateClose" type="button" aria-label="Fechar">&times;</button>
+      </div>
+
+      <form class="cm-modal-body" id="cmCreateForm">
+        <div class="cm-form-error" id="cmCreateError" hidden></div>
+
+        <div class="cm-field">
+          <label for="cmFieldType">Tipo</label>
+          <select id="cmFieldType" name="type" required>
+            <option value="feature">Sugestão — uma ideia nova para o app</option>
+            <option value="correction">Correção — algo errado no conteúdo</option>
+            <option value="bug">Bug — algo quebrado</option>
+            <option value="resource">Recurso — material que ajuda a estudar</option>
+            <option value="question">Dúvida — uma pergunta para o grupo</option>
+          </select>
+        </div>
+
+        <div class="cm-field" id="cmFieldLessonWrap" hidden>
+          <label for="cmFieldLesson">Qual aula? <span style="font-weight:400;color:var(--text-tertiary)">(opcional)</span></label>
+          <select id="cmFieldLesson" name="lesson_slug">
+            <option value="">Não é sobre uma aula específica</option>
+          </select>
+          <div class="cm-field-hint"><span>Apontar a aula ajuda a corrigir mais rápido.</span></div>
+        </div>
+
+        <div class="cm-field">
+          <label for="cmFieldTitle">Título</label>
+          <input type="text" id="cmFieldTitle" name="title" maxlength="120" required
+                 placeholder="Resuma em uma linha">
+          <div class="cm-field-hint">
+            <span>Seja específico — é o que as pessoas leem antes de votar.</span>
+            <span id="cmTitleCount">0/120</span>
+          </div>
+        </div>
+
+        <div class="cm-field">
+          <label for="cmFieldDesc">Descrição</label>
+          <textarea id="cmFieldDesc" name="description" maxlength="2000" required
+                    placeholder="Explique o contexto: o que acontece hoje, e o que deveria acontecer."></textarea>
+          <div class="cm-field-hint">
+            <span>Mínimo de 10 caracteres.</span>
+            <span id="cmDescCount">0/2000</span>
+          </div>
+        </div>
+
+        <div class="cm-field">
+          <label for="cmFieldTags">Tags <span style="font-weight:400;color:var(--text-tertiary)">(opcional)</span></label>
+          <input type="text" id="cmFieldTags" name="tags" placeholder="voz, pronúncia, mobile">
+          <div class="cm-field-hint"><span>Separe por vírgula. Até 5.</span></div>
+        </div>
+      </form>
+
+      <div class="cm-modal-foot">
+        <button class="cm-btn-ghost" id="cmCreateCancel" type="button">Cancelar</button>
+        <button class="cm-btn-primary" id="cmCreateSubmit" type="submit" form="cmCreateForm">Publicar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: detalhe do tópico ─────────────────────────── -->
+  <div class="cm-modal" id="cmDetailModal" role="dialog" aria-modal="true" aria-labelledby="cmDetailTitle" hidden>
+    <div class="cm-modal-card">
+      <div class="cm-detail-head">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+          <div class="cm-topic-tags" id="cmDetailTags"></div>
+          <button class="cm-modal-close" id="cmDetailClose" type="button" aria-label="Fechar">&times;</button>
+        </div>
+        <h2 class="cm-detail-title" id="cmDetailTitle"></h2>
+        <p class="cm-detail-desc" id="cmDetailDesc"></p>
+        <div class="cm-detail-actions">
+          <button class="cm-vote" id="cmDetailVote" type="button">
+            <span class="cm-vote-arrow" aria-hidden="true">▲</span>
+            <span class="cm-vote-count" id="cmDetailVoteCount">0</span>
+          </button>
+          <span class="cm-author">
+            <span class="cm-avatar" id="cmDetailAvatar"></span>
+            <span id="cmDetailAuthor"></span>
+          </span>
+          <span class="cm-comment-time" id="cmDetailDate"></span>
+        </div>
+      </div>
+
+      <div class="cm-admin-bar" id="cmAdminBar" hidden>
+        <label for="cmAdminStatus">Admin</label>
+        <select id="cmAdminStatus">
+          <option value="open">Aberto</option>
+          <option value="in_progress">Em andamento</option>
+          <option value="resolved">Resolvido</option>
+          <option value="declined">Recusado</option>
+        </select>
+        <input type="text" id="cmAdminNote" placeholder="Nota (opcional)" maxlength="300"
+               style="flex:1;min-width:140px;padding:8px 12px;border:1px solid var(--border-color);border-radius:9px;font-family:inherit;font-size:13.5px;background:var(--bg-primary);color:var(--text-primary);">
+        <button class="cm-btn-primary" id="cmAdminApply" type="button">Aplicar</button>
+      </div>
+
+      <div class="cm-comments">
+        <h3>Discussão</h3>
+        <div id="cmCommentList"></div>
+      </div>
+
+      <form class="cm-comment-form" id="cmCommentForm">
+        <textarea id="cmCommentInput" maxlength="500" required
+                  placeholder="Some contexto, confirme que também acontece com você, ou traga uma referência."></textarea>
+        <button class="cm-btn-primary" type="submit" id="cmCommentSubmit">Comentar</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="cm-toast" id="cmToast" role="status" hidden></div>
+
+  <script src="assets/js/lessons-4p-data.js?v=1780000200"></script>
+  <script src="assets/js/community.js?v=20260920"></script>
+</body>
+</html>

@@ -401,3 +401,65 @@ class ShadowLabPhrase(Base):
     last_correct_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# ── Comunidade ────────────────────────────────────────────────────────
+# Espaço público de tópicos: sugestões, correções de conteúdo, bugs,
+# recursos e dúvidas. Não é chat — cada tópico é um item de pauta que a
+# comunidade prioriza por voto e o time move pelos estados.
+
+COMMUNITY_TYPES = ("feature", "correction", "bug", "resource", "question")
+COMMUNITY_STATUSES = ("open", "in_progress", "resolved", "declined")
+
+
+class CommunityTopic(Base):
+    __tablename__ = "community_topics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    type = Column(String(20), nullable=False, index=True)
+    title = Column(String(120), nullable=False)
+    description = Column(Text, nullable=False)
+    status = Column(String(20), nullable=False, default="open", index=True)
+    # Âncora opcional: correções apontam para o slug da aula (lessons-4p-data.js)
+    lesson_slug = Column(String(60), nullable=True, index=True)
+    tags = Column(JSON, nullable=True)
+    # Contadores desnormalizados — o feed ordena por vote_count sem agregar votes
+    vote_count = Column(Integer, nullable=False, default=0, index=True)
+    comment_count = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    resolved_at = Column(DateTime, nullable=True)
+
+    author = relationship("User")
+    votes = relationship("CommunityVote", back_populates="topic", cascade="all, delete-orphan")
+    comments = relationship("CommunityComment", back_populates="topic", cascade="all, delete-orphan")
+
+
+class CommunityVote(Base):
+    __tablename__ = "community_votes"
+    __table_args__ = (
+        UniqueConstraint("topic_id", "user_id", name="unique_community_vote"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    topic_id = Column(Integer, ForeignKey("community_topics.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    topic = relationship("CommunityTopic", back_populates="votes")
+
+
+class CommunityComment(Base):
+    __tablename__ = "community_comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    topic_id = Column(Integer, ForeignKey("community_topics.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    content = Column(String(500), nullable=False)
+    # Comentário gerado pelo sistema ao mudar de status — renderizado como nota, não fala de usuário
+    is_system = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    topic = relationship("CommunityTopic", back_populates="comments")
+    author = relationship("User")
