@@ -3,7 +3,7 @@
 // que ativa .nav-btn[data-tab] — os botões da topbar carregam data-tab.)
 document.addEventListener('DOMContentLoaded', () => {
     // Set avatar initials from username
-    const user = localStorage.getItem('grilo_user');
+    const user = sessionStorage.getItem('grilo_user');
     if (user) {
         try {
             const u = JSON.parse(user);

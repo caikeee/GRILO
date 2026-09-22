@@ -92,8 +92,8 @@ async function handleLogin() {
             currentUser = data.user;
             
             // Save to localStorage
-            localStorage.setItem("grilo_token", authToken);
-            localStorage.setItem("grilo_user", JSON.stringify(currentUser));
+            sessionStorage.setItem("grilo_token", authToken);
+            sessionStorage.setItem("grilo_user", JSON.stringify(currentUser));
             localStorage.setItem('grilo_analytics_ping', String(Date.now()));
             
             // Show main content
@@ -144,8 +144,8 @@ async function handleRegister() {
             currentUser = data.user;
             
             // Save to localStorage
-            localStorage.setItem("grilo_token", authToken);
-            localStorage.setItem("grilo_user", JSON.stringify(currentUser));
+            sessionStorage.setItem("grilo_token", authToken);
+            sessionStorage.setItem("grilo_user", JSON.stringify(currentUser));
             
             // Show main content
             showMainContent();
@@ -177,7 +177,7 @@ async function handleRegister() {
 function handleLogout() {
     // Best-effort server-side revocation: invalidate refresh token + bump token_version.
     try {
-        const tk = localStorage.getItem("grilo_token");
+        const tk = sessionStorage.getItem("grilo_token");
         if (tk) {
             fetch("/api/logout", {
                 method: "POST",
@@ -198,8 +198,8 @@ function handleLogout() {
     currentWrittenSessionId = null;
     currentVoiceSessionId = null;
 
-    localStorage.removeItem("grilo_token");
-    localStorage.removeItem("grilo_user");
+    sessionStorage.removeItem("grilo_token");
+    sessionStorage.removeItem("grilo_user");
     localStorage.removeItem("grilo_written_sessions");
     localStorage.removeItem("grilo_active_written_session");
     localStorage.removeItem("grilo_voice_sessions");
@@ -629,7 +629,7 @@ function normalizeForLanguageDetection(text) {
 }
 
 async function detectPortugueseViaBackend(text, localResult = null) {
-    const token = authToken || localStorage.getItem('grilo_token');
+    const token = authToken || sessionStorage.getItem('grilo_token');
     if (!token) return null;
 
     try {
@@ -1114,7 +1114,7 @@ async function toggleMessageTranslationDrawer(toggleBtn, messageBubble, original
 }
 
 async function translateTextWithDirection(text, fromLang = 'en', toLang = 'pt', options = {}) {
-    const token = authToken || localStorage.getItem('grilo_token');
+    const token = authToken || sessionStorage.getItem('grilo_token');
 
     const response = await fetchWithTimeout(`${API_BASE_URL}/api/translate/`, {
         method: 'POST',
@@ -1490,8 +1490,8 @@ function completeLesson() {
 
 document.addEventListener("DOMContentLoaded", () => {
     // Check if user is already logged in
-    const savedToken = localStorage.getItem("grilo_token");
-    const savedUser = localStorage.getItem("grilo_user");
+    const savedToken = sessionStorage.getItem("grilo_token");
+    const savedUser = sessionStorage.getItem("grilo_user");
     
     if (savedToken && savedUser) {
         authToken = savedToken;
@@ -1790,7 +1790,7 @@ function showLevelUpToast(newLevel) {
 async function showSessionSummary(sessionStart) {
     return new Promise(async (resolve) => {
         try {
-            const token = authToken || localStorage.getItem('grilo_token');
+            const token = authToken || sessionStorage.getItem('grilo_token');
             const response = await fetch(`${API_BASE_URL}/api/chat/session-summary`, {
                 method: 'POST',
                 headers: {

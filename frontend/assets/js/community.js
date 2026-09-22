@@ -27,7 +27,7 @@
   const $ = (id) => document.getElementById(id);
 
   function getAuthToken() {
-    try { return localStorage.getItem('grilo_token'); } catch (e) { return null; }
+    try { return sessionStorage.getItem('grilo_token'); } catch (e) { return null; }
   }
 
   async function api(path, options) {

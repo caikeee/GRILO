@@ -771,7 +771,7 @@
   }
 
   function getAuthToken() {
-    try { return localStorage.getItem('grilo_token'); } catch (e) { return null; }
+    try { return sessionStorage.getItem('grilo_token'); } catch (e) { return null; }
   }
 
   function syncWordsToBackend(track, sentenceResults, score, unlockedNext) {

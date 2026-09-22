@@ -42,7 +42,7 @@
             obHide();
             localStorage.setItem('grilo_onboarding_done', '1');
             if (!why && !interest) return;
-            var token = localStorage.getItem('grilo_token');
+            var token = sessionStorage.getItem('grilo_token');
             if (!token) return;
             fetch('/api/user/onboarding', {
                 method: 'POST',
@@ -52,7 +52,7 @@
         }
 
         function loadProfile() {
-            var token = localStorage.getItem('grilo_token');
+            var token = sessionStorage.getItem('grilo_token');
             if (!token) return;
             fetch('/api/user/profile', { headers: { 'Authorization': 'Bearer ' + token } })
                 .then(function(r) { return r.json(); })

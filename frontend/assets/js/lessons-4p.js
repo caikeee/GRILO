@@ -220,7 +220,7 @@
 
   // ─── Sincronização com o backend (alimenta o painel CEFR da home) ──
   function getAuthToken() {
-    try { return localStorage.getItem('grilo_token'); } catch (e) { return null; }
+    try { return sessionStorage.getItem('grilo_token'); } catch (e) { return null; }
   }
 
   // Envia o escopo da aula (estado de cada ponta) ao backend.

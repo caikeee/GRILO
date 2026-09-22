@@ -376,7 +376,7 @@
     function loadVocabulary() {
         _loading = true;
         renderBody();
-        var token = (window.authToken) || localStorage.getItem('grilo_token');
+        var token = (window.authToken) || sessionStorage.getItem('grilo_token');
         var url = apiBase() + '/api/voice/vocabulary';
         console.log('[VOCAB-MODAL] fetching', url, '| token?', !!token);
         fetch(url, {

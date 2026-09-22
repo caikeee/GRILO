@@ -33,7 +33,7 @@
     <!-- Auth guard: redirect to landing if not logged in -->
     <script>
       (function() {
-        var t = localStorage.getItem('grilo_token');
+        var t = sessionStorage.getItem('grilo_token');
         if (!t) window.location.replace('/');
       })();
     </script>
@@ -2028,15 +2028,15 @@ body {
 
         // Minimal loadUserStats for voice page
         window.loadUserStats = async function() {
-            const token = window.authToken || localStorage.getItem('grilo_token');
+            const token = window.authToken || sessionStorage.getItem('grilo_token');
             if (!token) return;
             try {
                 const res = await fetch(API_BASE_URL + '/api/user/stats', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.status === 401) {
-                    localStorage.removeItem('grilo_token');
-                    localStorage.removeItem('grilo_user');
+                    sessionStorage.removeItem('grilo_token');
+                    sessionStorage.removeItem('grilo_user');
                     window.location.replace('/');
                     return;
                 }
@@ -2090,7 +2090,7 @@ body {
             if (voiceSidebar) voiceSidebar.remove();
 
             // Restore user badge from localStorage (fast, no flicker)
-            const savedUser = localStorage.getItem('grilo_user');
+            const savedUser = sessionStorage.getItem('grilo_user');
             if (savedUser) {
                 try {
                     const u = JSON.parse(savedUser);
@@ -2173,7 +2173,7 @@ body {
         };
 
         window.griloLoadPhrasebook = function() {
-            var token = localStorage.getItem('grilo_token');
+            var token = sessionStorage.getItem('grilo_token');
             if (!token) return;
             fetch('/api/voice/phrasebook', { headers: { 'Authorization': 'Bearer ' + token } })
                 .then(function(r) { return r.json(); })

@@ -26,7 +26,7 @@ async function loadAnalytics() {
     if (btn) btn.classList.add('loading');
 
     try {
-        const token = localStorage.getItem('grilo_token');
+        const token = sessionStorage.getItem('grilo_token');
         if (!token) { showError('Faça login como admin para acessar o painel.'); return; }
 
         const headers = { Authorization: `Bearer ${token}` };

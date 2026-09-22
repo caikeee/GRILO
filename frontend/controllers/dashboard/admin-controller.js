@@ -11,7 +11,7 @@ function _adminEscape(s) {
 
 // Check if current user is admin and show/hide admin tab
 async function checkAdminStatus() {
-    const token = localStorage.getItem('grilo_token');
+    const token = sessionStorage.getItem('grilo_token');
     if (!token) return;
 
     try {
@@ -38,7 +38,7 @@ async function checkAdminStatus() {
 
 // Load all users
 async function loadAdminUsers() {
-    const token = localStorage.getItem('grilo_token');
+    const token = sessionStorage.getItem('grilo_token');
     if (!token) return;
 
     try {
@@ -129,7 +129,7 @@ function selectUserForReset(username) {
 
 // Reset password for a user
 async function adminResetPassword() {
-    const token = localStorage.getItem('grilo_token');
+    const token = sessionStorage.getItem('grilo_token');
     const username = document.getElementById('adminUsername').value.trim();
     const newPassword = document.getElementById('adminNewPassword').value;
 
@@ -186,7 +186,7 @@ async function adminDeleteUser(username) {
         return;
     }
 
-    const token = localStorage.getItem('grilo_token');
+    const token = sessionStorage.getItem('grilo_token');
 
     try {
         const res = await fetch(`/api/admin/user/${encodeURIComponent(username)}`, {
@@ -248,7 +248,7 @@ function setupAdminSearch() {
 
 // Load business/PMF metrics
 async function loadAdminMetrics() {
-    const token = localStorage.getItem('grilo_token');
+    const token = sessionStorage.getItem('grilo_token');
     const grid = document.getElementById('adminMetricsGrid');
     const cohortEl = document.getElementById('adminMetricsCohort');
     if (!token || !grid) return;

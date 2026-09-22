@@ -242,8 +242,8 @@ const AuthForm = {
           showToast('Erro: servidor não retornou token.', 'error');
           return;
         }
-        localStorage.setItem('grilo_token', token);
-        localStorage.setItem('grilo_user', JSON.stringify(data.user));
+        sessionStorage.setItem('grilo_token', token);
+        sessionStorage.setItem('grilo_user', JSON.stringify(data.user));
         localStorage.setItem('grilo_analytics_ping', String(Date.now()));
 
         showToast('Login realizado com sucesso!', 'success');

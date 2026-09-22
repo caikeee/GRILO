@@ -23,7 +23,7 @@
   function $(id) { return document.getElementById(id); }
 
   function token() {
-    try { return localStorage.getItem('grilo_token'); } catch (_) { return null; }
+    try { return sessionStorage.getItem('grilo_token'); } catch (_) { return null; }
   }
 
   function esc(s) {

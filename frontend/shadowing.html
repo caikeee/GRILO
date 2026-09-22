@@ -31,7 +31,7 @@
   <!-- Guard: redirect to landing if not logged in -->
   <script>
     (function() {
-      var t = localStorage.getItem('grilo_token');
+      var t = sessionStorage.getItem('grilo_token');
       if (!t) window.location.replace('/');
     })();
   </script>

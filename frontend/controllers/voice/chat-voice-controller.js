@@ -178,8 +178,8 @@ function _handleVoiceUnauthorized(source = "voice") {
     console.warn(`[VOICE-AUTH] Unauthorized during ${source}`);
 
     try {
-        localStorage.removeItem("grilo_token");
-        localStorage.removeItem("grilo_user");
+        sessionStorage.removeItem("grilo_token");
+        sessionStorage.removeItem("grilo_user");
     } catch (error) {
         console.warn("[VOICE-AUTH] Failed to clear local auth state:", error.message);
     }
@@ -279,7 +279,7 @@ async function speakResponse(text, language = "pt-BR") {
     const lang = language.startsWith("en") ? "en" : "pt";
 
     // Try ElevenLabs via backend
-    const authToken = window.authToken || localStorage.getItem("grilo_token");
+    const authToken = window.authToken || sessionStorage.getItem("grilo_token");
     // API_BASE_URL is defined globally in utils.js
 
     let spokenChunks = 0;
@@ -989,7 +989,7 @@ async function _fetchSessionHistory() {
     try {
         // API_BASE_URL is defined globally in utils.js
         const resp = await fetch(API_BASE_URL + '/api/voice/history', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('grilo_token')}` },
+            headers: { 'Authorization': `Bearer ${sessionStorage.getItem('grilo_token')}` },
         });
         if (!resp.ok) return [];
         const data = await resp.json();
@@ -1562,7 +1562,7 @@ async function _ensureVoiceHelpTranslation(aiText) {
         return _voiceHelpTranslationCache.get(text);
     }
 
-    const authToken = window.authToken || localStorage.getItem("grilo_token");
+    const authToken = window.authToken || sessionStorage.getItem("grilo_token");
     if (!authToken) return "Você precisa entrar de novo para ver a tradução desta frase.";
 
     try {
@@ -1812,7 +1812,7 @@ window.voiceHelpAction = async function() {
 };
 
 async function _sendVoiceTextTurnFromHelp(userMessage, options = {}) {
-    const authToken = window.authToken || localStorage.getItem("grilo_token");
+    const authToken = window.authToken || sessionStorage.getItem("grilo_token");
     // API_BASE_URL is defined globally in utils.js
     const aiResponseText = document.getElementById("aiResponseText");
 
@@ -2287,7 +2287,7 @@ function _closeVoiceHelpPanel() {
 async function startAIKickoffTurn() {
     console.log("🤖 [KICKOFF] Starting AI kickoff turn");
     
-    const authToken = window.authToken || localStorage.getItem("grilo_token");
+    const authToken = window.authToken || sessionStorage.getItem("grilo_token");
     // API_BASE_URL is defined globally in utils.js
     const aiResponseText = document.getElementById("aiResponseText");
 
@@ -2640,7 +2640,7 @@ function stopVoiceChat(options = {}) {
     // Record session duration to backend (fire-and-forget).
     // quality_score is not available here (recap hasn't run yet) — session-end just stores duration.
     // The recap endpoint (/api/voice/recap) will persist the full quality snapshot.
-    const sessionToken = window.authToken || localStorage.getItem("grilo_token");
+    const sessionToken = window.authToken || sessionStorage.getItem("grilo_token");
     if (!suppressSessionRecord && durationSeconds > 5 && sessionToken) {
         fetch(`${API_BASE_URL}/api/voice/session-end`, {
             method: 'POST',
@@ -2775,7 +2775,7 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
     if (aiResponseText) _renderHeard(userMessage);
 
     // Validate auth token
-    const authToken = window.authToken || localStorage.getItem('grilo_token');
+    const authToken = window.authToken || sessionStorage.getItem('grilo_token');
     if (!authToken) {
         console.error('❌ No auth token available');
         updateVoiceModalStatus('listening');
@@ -3367,7 +3367,7 @@ async function showVoiceRecap(durationSeconds) {
     const loadingSection = document.getElementById("recapLoading");
     const contentSection = document.getElementById("recapContent");
     // API_BASE_URL is defined globally in utils.js
-    const recapToken = window.authToken || localStorage.getItem("grilo_token");
+    const recapToken = window.authToken || sessionStorage.getItem("grilo_token");
 
     if (loadingSection) loadingSection.style.display = "flex";
     if (contentSection) contentSection.style.display = "none";
