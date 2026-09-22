@@ -43,6 +43,13 @@ class _ScopeResultBody(BaseModel):
     completed: bool = True              # chegou ao recap
     items: List[_ScopeItemBody]
 
+    # Marcador de RETOMADA — enviado quando completed=False (aluno fechou ou
+    # caiu no meio da aula). Guarda onde ele parou para que a retomada
+    # sobreviva a troca de máquina / limpeza de cache.
+    resume_step: Optional[int] = None   # índice do passo no roteiro
+    resume_total: Optional[int] = None  # total de passos quando salvou
+    resume_fp: Optional[str] = None     # assinatura do roteiro (invalida se a aula mudar)
+
 
 def _derive_status(written: bool, heard: bool, spoken: bool) -> str:
     if written and heard and spoken:
@@ -122,29 +129,52 @@ async def submit_scope_result(
             if not was_dominated and new_status == "dominada":
                 newly_dominated += 1
 
-        # Conclusão da aula (gate A1→A2)
+        # Estado da aula: conclusão (gate A1→A2) e/ou marcador de retomada.
+        # A mesma linha serve aos dois: completed_at nulo = começada e não
+        # terminada. Um envio parcial NUNCA apaga uma conclusão já registrada
+        # (rever uma aula concluída não a "desconclui").
         just_completed = False
-        if body.completed:
-            comp = (
-                db.query(LessonScopeCompletion)
-                .filter(
-                    LessonScopeCompletion.user_id == uid,
-                    LessonScopeCompletion.lesson_slug == lesson_slug,
-                )
-                .first()
+        comp = (
+            db.query(LessonScopeCompletion)
+            .filter(
+                LessonScopeCompletion.user_id == uid,
+                LessonScopeCompletion.lesson_slug == lesson_slug,
             )
-            if comp is None:
-                db.add(
-                    LessonScopeCompletion(
-                        user_id=uid,
-                        lesson_slug=lesson_slug,
-                        lesson_group=body.lesson_group,
-                        completed_at=now,
-                    )
-                )
+            .first()
+        )
+        if comp is None:
+            comp = LessonScopeCompletion(
+                user_id=uid,
+                lesson_slug=lesson_slug,
+                lesson_group=body.lesson_group,
+            )
+            db.add(comp)
+
+        comp.lesson_group = body.lesson_group or comp.lesson_group
+        comp.updated_at = now
+
+        if body.completed:
+            if comp.completed_at is None:
+                comp.completed_at = now
                 just_completed = True
+            # Concluída: não há mais o que retomar.
+            comp.resume_step = None
+            comp.resume_total = None
+            comp.resume_fp = None
+            comp.resume_at = None
+        elif comp.completed_at is None:
+            # Parcial numa aula ainda não concluída: atualiza o marcador.
+            # resume_step nulo/0 = voltou para a capa: limpa o marcador.
+            if body.resume_step:
+                comp.resume_step = body.resume_step
+                comp.resume_total = body.resume_total
+                comp.resume_fp = body.resume_fp
+                comp.resume_at = now
             else:
-                comp.updated_at = now
+                comp.resume_step = None
+                comp.resume_total = None
+                comp.resume_fp = None
+                comp.resume_at = None
 
         db.commit()
 
@@ -164,6 +194,8 @@ async def submit_scope_result(
                 "newly_learned": newly_learned,
                 "newly_dominated": newly_dominated,
                 "just_completed": just_completed,
+                "partial": not body.completed,
+                "resume_step": body.resume_step,
             },
         )
 
@@ -182,6 +214,69 @@ async def submit_scope_result(
         raise HTTPException(status_code=500, detail="Error saving scope result")
 
 
+@router.get("/api/scope4p/progress")
+async def get_scope_progress(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """Progresso detalhado por aula — o que o cliente usa para se HIDRATAR.
+
+    É isto que faz o aluno reencontrar seu progresso em outro navegador ou
+    depois de limpar o cache: devolve, por aula, o estado das 4 pontas de
+    cada item, a conclusão e o marcador de retomada (onde ele parou).
+    """
+    try:
+        uid = int(user_id)
+
+        by_slug: dict = {}
+
+        for it in (
+            db.query(LessonScopeItem)
+            .filter(LessonScopeItem.user_id == uid)
+            .all()
+        ):
+            entry = by_slug.setdefault(it.lesson_slug, {
+                "lesson_slug": it.lesson_slug,
+                "lesson_group": it.lesson_group,
+                "completed_at": None,
+                "resume_step": None,
+                "resume_total": None,
+                "resume_fp": None,
+                "resume_at": None,
+                "items": [],
+            })
+            entry["items"].append({
+                "en": it.item_en,
+                "pt": it.item_pt,
+                "item_type": it.item_type,
+                "written_ok": bool(it.written_ok),
+                "heard_ok": bool(it.heard_ok),
+                "spoken_ok": bool(it.spoken_ok),
+                "status": it.status,
+            })
+
+        for comp in (
+            db.query(LessonScopeCompletion)
+            .filter(LessonScopeCompletion.user_id == uid)
+            .all()
+        ):
+            entry = by_slug.setdefault(comp.lesson_slug, {
+                "lesson_slug": comp.lesson_slug,
+                "lesson_group": comp.lesson_group,
+                "items": [],
+            })
+            entry["completed_at"] = comp.completed_at.isoformat() if comp.completed_at else None
+            entry["resume_step"] = comp.resume_step
+            entry["resume_total"] = comp.resume_total
+            entry["resume_fp"] = comp.resume_fp
+            entry["resume_at"] = comp.resume_at.isoformat() if comp.resume_at else None
+
+        return {"success": True, "lessons": list(by_slug.values())}
+    except Exception as exc:
+        logger.error("[SCOPE4P-PROGRESS] Error: %s", str(exc))
+        raise HTTPException(status_code=500, detail="Error loading scope progress")
+
+
 @router.get("/api/scope4p/summary")
 async def get_scope_summary(
     user_id: int = Depends(get_current_user_id),
@@ -197,7 +292,11 @@ async def get_scope_summary(
         )
         completions = (
             db.query(LessonScopeCompletion.lesson_slug)
-            .filter(LessonScopeCompletion.user_id == uid)
+            .filter(
+                LessonScopeCompletion.user_id == uid,
+                # a tabela também guarda aulas apenas COMEÇADAS (retomada)
+                LessonScopeCompletion.completed_at.isnot(None),
+            )
             .all()
         )
         words_learned = sum(1 for i in items if i.item_type == "word" and i.status in ("aprendida", "dominada"))

@@ -142,6 +142,55 @@
     return 'nova';
   }
 
+  // ─── Retomada: onde o aluno parou dentro da aula ─────────────
+  // Só o estado das 4 pontas era salvo; a posição no roteiro vivia em
+  // memória (S.idx), então qualquer queda — PC desligado, aba fechada,
+  // navegador crashado — jogava o aluno de volta na capa e ele refazia
+  // a aula inteira. Aqui gravamos um marcador leve por aula.
+  //
+  // `stepFingerprint` protege contra o roteiro mudar sob um marcador
+  // antigo (aula editada, item novo no escopo): se a assinatura não
+  // bate, o marcador é descartado e a aula recomeça do zero.
+  function stepFingerprint(lesson) {
+    return [
+      lesson.sections.length,
+      (lesson.sections || []).reduce((n, s) => n + ((s.checkpoint || []).length), 0),
+      lesson.scope.words.length,
+      lesson.scope.phrases.length,
+    ].join('.');
+  }
+
+  function saveCheckpoint(lesson, idx, totalSteps) {
+    const lp = lessonProg(lesson.slug);
+    // O recap é o último passo: chegou lá, a aula acabou — não há o que retomar.
+    if (idx >= totalSteps - 1) {
+      delete lp.resume;
+    } else if (idx <= 0) {
+      delete lp.resume; // ainda na capa: retomar não economiza nada
+    } else {
+      lp.resume = {
+        idx,
+        total: totalSteps,
+        fp: stepFingerprint(lesson),
+        at: new Date().toISOString(),
+      };
+    }
+    saveProgress(progress);
+  }
+
+  function readCheckpoint(lesson, totalSteps) {
+    const r = lessonProg(lesson.slug).resume;
+    if (!r || typeof r.idx !== 'number') return null;
+    if (r.fp !== stepFingerprint(lesson)) return null;   // roteiro mudou
+    if (r.idx <= 0 || r.idx >= totalSteps - 1) return null;
+    return r;
+  }
+
+  function clearCheckpoint(slug) {
+    const lp = lessonProg(slug);
+    if (lp.resume) { delete lp.resume; saveProgress(progress); }
+  }
+
   function lessonSummary(lesson) {
     const all = lesson.scope.words.concat(lesson.scope.phrases);
     let aprendidas = 0, dominadas = 0;
@@ -174,12 +223,21 @@
     try { return localStorage.getItem('grilo_token'); } catch (e) { return null; }
   }
 
-  // Envia o escopo completo da aula (estado de cada ponta) ao backend.
+  // Envia o escopo da aula (estado de cada ponta) ao backend.
   // O servidor faz merge monotônico e soma no /api/user/stats. Tolerante a
   // falha: se não houver token ou a rede cair, o progresso local não se perde.
-  function syncLessonToBackend(lesson) {
+  //
+  // `opts.completed` distingue as duas chamadas:
+  //   true  → recap: credita XP de conclusão e fecha o gate da aula
+  //   false → checkpoint parcial (meio da aula): só sobe as pontas já
+  //           conquistadas + onde o aluno parou, para a retomada sobreviver
+  //           a troca de máquina / limpeza de cache.
+  function syncLessonToBackend(lesson, opts) {
     const token = getAuthToken();
     if (!token) return; // deslogado (ex.: piloto aberto direto) — só local
+
+    const o = opts || {};
+    const completed = o.completed !== false;
 
     const build = (arr, type) => arr.map(it => {
       const st = itemState(lesson.slug, it.en);
@@ -188,27 +246,38 @@
         written_ok: !!st.writtenOk, heard_ok: !!st.heardOk, spoken_ok: !!st.spokenOk,
       };
     });
+    const resume = lessonProg(lesson.slug).resume || null;
     const payload = {
       lesson_group: lesson.group || null,
-      completed: true,
+      completed,
+      resume_step: completed ? null : (resume ? resume.idx : null),
+      resume_total: completed ? null : (resume ? resume.total : null),
+      resume_fp: completed ? null : (resume ? resume.fp : null),
       items: build(lesson.scope.words, 'word').concat(build(lesson.scope.phrases, 'phrase')),
     };
 
-    fetch(`/api/scope4p/lessons/${encodeURIComponent(lesson.slug)}/result`, {
+    return fetch(`/api/scope4p/lessons/${encodeURIComponent(lesson.slug)}/result`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
       body: JSON.stringify(payload),
+      // Checkpoint parcial pode sair durante o unload da página: keepalive
+      // deixa o browser terminar o envio mesmo com a aba fechando.
+      keepalive: !completed,
     }).then(r => {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     }).then(res => {
-      // Marca como sincronizada para não reenviar à toa
+      // Marca como sincronizada para não reenviar à toa (só na conclusão —
+      // um parcial não "fecha" a aula e precisa continuar reenviando).
       try {
-        const lp = lessonProg(lesson.slug);
-        lp.syncedAt = new Date().toISOString();
-        saveProgress(progress);
+        if (completed) {
+          const lp = lessonProg(lesson.slug);
+          lp.syncedAt = new Date().toISOString();
+          saveProgress(progress);
+        }
       } catch (e) {}
-      console.log('[4P] aula sincronizada:', lesson.slug, res);
+      console.log('[4P] aula sincronizada:', lesson.slug, completed ? '(concluída)' : '(parcial)', res);
+      return res;
     }).catch(err => {
       console.warn('[4P] sync falhou (progresso local preservado):', err.message);
     });
@@ -357,17 +426,35 @@
   function openLesson(slug) {
     const lesson = (window.Grilo4P.LESSONS || []).find(l => l.slug === slug);
     if (!lesson) return;
-    S = { lesson, steps: buildSteps(lesson), idx: 0 };
+    const steps = buildSteps(lesson);
+    S = { lesson, steps, idx: 0 };
     buildPlayerDom();
     const overlay = $('g4pPlayer');
     overlay.hidden = false;
     document.body.style.overflow = 'hidden';
-    renderStep();
+
+    // Parou no meio antes? Oferece retomar — sem decidir pelo aluno:
+    // rever a aula do começo é uma escolha legítima de estudo.
+    const cp = readCheckpoint(lesson, steps.length);
+    if (cp) renderResumePrompt($('g4pStage'), cp);
+    else renderStep();
+  }
+
+  // Sobe o parcial (pontas já conquistadas + posição) para a retomada
+  // sobreviver a troca de máquina ou limpeza de cache. Silencioso: o
+  // localStorage já garantiu a retomada neste navegador.
+  function flushPartialProgress() {
+    if (!S) return;
+    const lp = lessonProg(S.lesson.slug);
+    if (lp.completedAt) return;              // já concluída: o sync de conclusão manda
+    if (!lp.resume) return;                  // nada a retomar (capa / recap)
+    syncLessonToBackend(S.lesson, { completed: false });
   }
 
   function closePlayer() {
     stopListening();
     try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+    flushPartialProgress();
     const overlay = $('g4pPlayer');
     if (overlay) overlay.hidden = true;
     document.body.style.overflow = '';
@@ -378,6 +465,59 @@
   function next() {
     if (!S) return;
     if (S.idx < S.steps.length - 1) { S.idx++; renderStep(); }
+  }
+
+  // ─── Tela de retomada ────────────────────────────────────────
+  function resumeAgo(iso) {
+    const t = Date.parse(iso || '');
+    if (!t) return '';
+    const mins = Math.round((Date.now() - t) / 60000);
+    if (mins < 2) return 'agora há pouco';
+    if (mins < 60) return `há ${mins} min`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `há ${hrs} h`;
+    const days = Math.round(hrs / 24);
+    return days === 1 ? 'ontem' : `há ${days} dias`;
+  }
+
+  function renderResumePrompt(stage, cp) {
+    const L = S.lesson;
+    const phase = PHASES.find(p => p.id === phaseOfStep(S.steps[cp.idx]));
+    const pct = Math.round((cp.idx / (S.steps.length - 1)) * 100);
+    const when = resumeAgo(cp.at);
+
+    updateRail(phaseOfStep(S.steps[cp.idx]));
+    $('g4pHeadTitle').textContent = L.title;
+    $('g4pProgressFill').style.width = `${pct}%`;
+
+    stage.innerHTML = `
+      <div class="g4p-screen g4p-resume">
+        <span class="g4p-bridge-icon">↩️</span>
+        <h3 class="g4p-resume-title">Você parou no meio desta aula</h3>
+        <p class="g4p-resume-text">
+          Seu progresso ficou salvo${when ? ` — você estava aqui ${escapeHtml(when)}` : ''}.
+          Dá pra continuar de onde parou ou refazer a aula do começo.
+        </p>
+        <div class="g4p-resume-mark">
+          <span class="g4p-resume-phase">${phase ? phase.icon + ' ' + escapeHtml(phase.label) : ''}</span>
+          <span class="g4p-resume-pct">${pct}% da aula</span>
+        </div>
+        <div class="g4p-resume-actions">
+          <button class="g4p-btn g4p-btn-primary g4p-btn-lg" id="g4pResumeGo" type="button">Continuar de onde parei</button>
+          <button class="g4p-btn g4p-btn-ghost" id="g4pResumeRestart" type="button">Começar do início</button>
+        </div>
+        <p class="g4p-resume-note">O que você já acertou continua registrado nos dois caminhos.</p>
+      </div>`;
+
+    $('g4pResumeGo').addEventListener('click', () => {
+      S.idx = cp.idx;
+      renderStep();
+    });
+    $('g4pResumeRestart').addEventListener('click', () => {
+      clearCheckpoint(L.slug);
+      S.idx = 0;
+      renderStep();
+    });
   }
 
   function buildPlayerDom() {
@@ -423,6 +563,11 @@
   function renderStep() {
     const step = S.steps[S.idx];
     const grp = groupOf(S.lesson);
+
+    // Marca a posição ANTES de desenhar: se a máquina cair no meio do
+    // passo, o aluno volta para o início deste passo — nunca para a capa.
+    saveCheckpoint(S.lesson, S.idx, S.steps.length);
+
     $('g4pHeadTitle').textContent = S.lesson.title;
     $('g4pHeadKicker').textContent = grp ? `Grupo ${grp.id} · ${grp.label}` : 'Sistema 4 pontas';
     $('g4pProgressFill').style.width = `${Math.round((S.idx / (S.steps.length - 1)) * 100)}%`;
@@ -1030,10 +1175,11 @@
     const L = S.lesson;
     const lp = lessonProg(L.slug);
     if (!lp.completedAt) lp.completedAt = new Date().toISOString();
+    delete lp.resume; // chegou ao fim: não há mais o que retomar
     saveProgress(progress);
 
     // Persiste no backend → alimenta o painel CEFR da home (vocab/frases/4 pontas)
-    syncLessonToBackend(L);
+    syncLessonToBackend(L, { completed: true });
 
     const sum = lessonSummary(L);
 
@@ -1092,13 +1238,16 @@
     const sum = lessonSummary(L);
     const pct = sum.total ? Math.round((sum.aprendidas / sum.total) * 100) : 0;
     const done = !!sum.completedAt;
-    const cta = done ? 'Revisar' : (sum.aprendidas > 0 ? 'Continuar' : 'Começar');
+    const resume = done ? null : readCheckpoint(L, buildSteps(L).length);
+    const cta = done ? 'Revisar' : (resume || sum.aprendidas > 0 ? 'Continuar' : 'Começar');
     const flag = done
       ? '<span class="g4p-card-flag is-done">✓ concluída</span>'
-      : (isNext ? '<span class="g4p-card-flag is-next">▶ comece aqui</span>' : '');
+      : resume
+        ? `<span class="g4p-card-flag is-resume">↩️ parou em ${Math.round((resume.idx / (resume.total - 1)) * 100)}%</span>`
+        : (isNext ? '<span class="g4p-card-flag is-next">▶ comece aqui</span>' : '');
     return `
-      <article class="g4p-card ${done ? 'is-completed' : ''} ${isNext ? 'is-next' : ''}" data-slug="${escapeHtml(L.slug)}" tabindex="0" role="button"
-               aria-label="Abrir aula ${escapeHtml(L.title)}">
+      <article class="g4p-card ${done ? 'is-completed' : ''} ${isNext ? 'is-next' : ''} ${resume ? 'is-resume' : ''}" data-slug="${escapeHtml(L.slug)}" tabindex="0" role="button"
+               aria-label="${resume ? 'Continuar aula' : 'Abrir aula'} ${escapeHtml(L.title)}">
         ${flag}
         <div class="g4p-card-top">
           <span class="g4p-card-icon">${escapeHtml(L.icon)}</span>
@@ -1301,9 +1450,99 @@
     });
   }
 
+  // Traz do servidor as aulas com progresso parcial (e as concluídas) —
+  // é o que faz a retomada funcionar em OUTRO navegador/máquina, onde o
+  // localStorage está vazio. Merge conservador: só preenche buracos, nunca
+  // rebaixa uma ponta já conquistada localmente nem atrasa o marcador.
+  function hydrateFromBackend() {
+    if (!getAuthToken()) return Promise.resolve();
+    return fetch('/api/scope4p/progress', {
+      headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+    }).then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(data => {
+      let touched = false;
+      (data.lessons || []).forEach(row => {
+        const lesson = (window.Grilo4P.LESSONS || []).find(l => l.slug === row.lesson_slug);
+        if (!lesson) return;
+        const lp = lessonProg(lesson.slug);
+
+        (row.items || []).forEach(it => {
+          const st = itemState(lesson.slug, it.en);
+          if (it.written_ok && !st.writtenOk) { st.writtenOk = true; touched = true; }
+          if (it.heard_ok && !st.heardOk) { st.heardOk = true; touched = true; }
+          if (it.spoken_ok && !st.spokenOk) { st.spokenOk = true; touched = true; }
+        });
+
+        if (row.completed_at && !lp.completedAt) {
+          lp.completedAt = row.completed_at;
+          lp.syncedAt = row.completed_at;
+          delete lp.resume;
+          touched = true;
+        }
+
+        // Marcador remoto só entra se for válido para o roteiro atual e
+        // estiver ADIANTE do local (ou não houver local).
+        if (!lp.completedAt && row.resume_step) {
+          const total = buildSteps(lesson).length;
+          const fpOk = !row.resume_fp || row.resume_fp === stepFingerprint(lesson);
+          const ahead = !lp.resume || row.resume_step > lp.resume.idx;
+          if (fpOk && ahead && row.resume_step > 0 && row.resume_step < total - 1) {
+            lp.resume = {
+              idx: row.resume_step,
+              total,
+              fp: stepFingerprint(lesson),
+              at: row.resume_at || new Date().toISOString(),
+            };
+            touched = true;
+          }
+        }
+      });
+      if (touched) { saveProgress(progress); renderGrid(); }
+    }).catch(err => {
+      console.warn('[4P] hydrate falhou (usando progresso local):', err.message);
+    });
+  }
+
+  // API pública do player — usada pela home ("continuar de onde parou"),
+  // por testes e para depurar uma aula direto do console.
+  window.Grilo4P.openLesson = openLesson;
+  window.Grilo4P.buildSteps = buildSteps;
+
+  // Aulas começadas e não terminadas, da mais recente para a mais antiga.
+  window.Grilo4P.getResumable = function () {
+    return (window.Grilo4P.LESSONS || [])
+      .map(L => {
+        const lp = lessonProg(L.slug);
+        if (lp.completedAt) return null;
+        const steps = buildSteps(L);
+        const cp = readCheckpoint(L, steps.length);
+        if (!cp) return null;
+        return {
+          slug: L.slug, title: L.title, icon: L.icon,
+          step: cp.idx, total: steps.length,
+          percent: Math.round((cp.idx / (steps.length - 1)) * 100),
+          phase: phaseOfStep(steps[cp.idx]),
+          at: cp.at,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0));
+  };
+
   function init() {
     renderGrid();
+    hydrateFromBackend();
     resyncPendingLessons();
+
+    // Rede de segurança para o caso do aluno: aba fechada, navegador
+    // encerrado, PC desligado no tranco. O localStorage já foi gravado a
+    // cada passo; aqui só tentamos empurrar o parcial para o servidor.
+    window.addEventListener('pagehide', flushPartialProgress);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushPartialProgress();
+    });
   }
 
   if (document.readyState === 'loading') {

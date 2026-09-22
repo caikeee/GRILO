@@ -336,11 +336,16 @@ class LessonScopeItem(Base):
 
 
 class LessonScopeCompletion(Base):
-    """Marca quando o aluno CONCLUIU uma aula 4 pontas (chegou ao recap).
+    """Estado de uma aula 4 pontas por aluno: concluída e/ou onde ele parou.
 
     O gate A1→A2 é "completar as N aulas do bloco" — conclusão = chegar ao
     recap, independente de quantos itens ficaram dominados. Um registro por
-    (user, lesson_slug); upsert idempotente."""
+    (user, lesson_slug); upsert idempotente.
+
+    Os campos `resume_*` guardam o marcador de RETOMADA (aluno fechou/caiu no
+    meio da aula). O localStorage já resolve a retomada no mesmo navegador;
+    isto existe para ela sobreviver a troca de máquina e limpeza de cache.
+    `completed_at` nulo = aula começada e não terminada."""
     __tablename__ = "lesson_scope_completions"
     __table_args__ = (
         UniqueConstraint("user_id", "lesson_slug", name="unique_user_scope_completion"),
@@ -350,7 +355,14 @@ class LessonScopeCompletion(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     lesson_slug = Column(String(60), nullable=False, index=True)
     lesson_group = Column(String(4), nullable=True)
-    completed_at = Column(DateTime, default=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+
+    # Marcador de retomada (só relevante enquanto completed_at é nulo)
+    resume_step = Column(Integer, nullable=True)      # índice do passo no roteiro
+    resume_total = Column(Integer, nullable=True)     # total de passos quando salvou
+    resume_fp = Column(String(40), nullable=True)     # assinatura do roteiro
+    resume_at = Column(DateTime, nullable=True)       # quando parou
+
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 

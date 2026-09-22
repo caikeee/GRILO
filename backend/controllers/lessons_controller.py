@@ -204,9 +204,14 @@ async def get_user_stats(
             .scalar()
         ) or 0
         scope4p_items_dominated = scope4p_words_dominated + scope4p_phrases_dominated
+        # completed_at IS NOT NULL: a tabela também guarda aulas apenas
+        # COMEÇADAS (marcador de retomada), que não contam para o gate.
         scope4p_lessons_completed = (
             db.query(func.count(LessonScopeCompletion.id))
-            .filter(LessonScopeCompletion.user_id == uid)
+            .filter(
+                LessonScopeCompletion.user_id == uid,
+                LessonScopeCompletion.completed_at.isnot(None),
+            )
             .scalar()
         ) or 0
         # Bloco A1 = 20 aulas (gate de promoção A1→A2)
@@ -506,6 +511,7 @@ async def get_lesson_calendar(
             db.query(LessonScopeCompletion)
             .filter(
                 LessonScopeCompletion.user_id == uid,
+                LessonScopeCompletion.completed_at.isnot(None),
                 LessonScopeCompletion.completed_at >= start,
                 LessonScopeCompletion.completed_at <= end,
             )

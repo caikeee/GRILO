@@ -239,6 +239,36 @@ def _run_migrations():
                     engine,
                 )
 
+        # Retomada do sistema 4 pontas — onde o aluno parou dentro da aula.
+        # Sem isto, uma aula interrompida (PC desligado, aba fechada) voltava
+        # para a capa e o aluno refazia tudo. Ver lessons-4p.js (saveCheckpoint).
+        if "lesson_scope_completions" in insp.get_table_names():
+            cols_lsc = [c["name"] for c in insp.get_columns("lesson_scope_completions")]
+            if "resume_step" not in cols_lsc:
+                _run_migration_step(
+                    "added resume_step to lesson_scope_completions",
+                    "ALTER TABLE lesson_scope_completions ADD COLUMN resume_step INTEGER",
+                    engine,
+                )
+            if "resume_total" not in cols_lsc:
+                _run_migration_step(
+                    "added resume_total to lesson_scope_completions",
+                    "ALTER TABLE lesson_scope_completions ADD COLUMN resume_total INTEGER",
+                    engine,
+                )
+            if "resume_fp" not in cols_lsc:
+                _run_migration_step(
+                    "added resume_fp to lesson_scope_completions",
+                    "ALTER TABLE lesson_scope_completions ADD COLUMN resume_fp VARCHAR(40)",
+                    engine,
+                )
+            if "resume_at" not in cols_lsc:
+                _run_migration_step(
+                    "added resume_at to lesson_scope_completions",
+                    "ALTER TABLE lesson_scope_completions ADD COLUMN resume_at TIMESTAMP",
+                    engine,
+                )
+
     except Exception as exc:
         logger.warning("Migration check failed (non-fatal): %s", exc)
 
