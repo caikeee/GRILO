@@ -415,6 +415,40 @@ class ShadowLabPhrase(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class DictationResult(Base):
+    """Um registro por sessão concluída de Ditação (histórico, não upsert).
+    Sem modo Casual/Ranqueado: é teclado, não há qualidade de áudio a proteger."""
+    __tablename__ = "dictation_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    track_slug = Column(String(60), nullable=False, index=True)
+    score = Column(Integer, nullable=False)
+    words_correct = Column(Integer, default=0)
+    words_total = Column(Integer, default=0)
+    combo_max = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class DictationPhrase(Base):
+    """Domínio por frase na Ditação: uma frase digitada perfeita (sem dica) vira dominada. Latch."""
+    __tablename__ = "dictation_phrases"
+    __table_args__ = (
+        UniqueConstraint("user_id", "track_slug", "sentence_index", name="unique_user_dictation_phrase"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    track_slug = Column(String(60), nullable=False, index=True)
+    sentence_index = Column(Integer, nullable=False)
+    sentence_en = Column(Text, nullable=False)
+    correct_sessions = Column(Integer, default=0)
+    dominated = Column(Boolean, default=False)
+    last_correct_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 # ── Comunidade ────────────────────────────────────────────────────────
 # Espaço público de tópicos: sugestões, correções de conteúdo, bugs,
 # recursos e dúvidas. Não é chat — cada tópico é um item de pauta que a

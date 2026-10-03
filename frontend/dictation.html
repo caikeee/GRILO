@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ditação · GRILO</title>
+
+  <!-- Tema: aplica antes de pintar a tela p/ evitar flash. Padrão inicial = preferência do SO. -->
+  <script>
+    (function () {
+      try {
+        var k = 'grilo-theme', s = localStorage.getItem(k);
+        var t = (s === 'dark' || s === 'light')
+          ? s
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/sage-color-system.css">
+  <link rel="stylesheet" href="assets/css/sage-elegance.css">
+  <link rel="stylesheet" href="assets/css/sage-premium-polish.css">
+
+  <!-- Guard: redirect to landing if not logged in -->
+  <script>
+    (function() {
+      var t = sessionStorage.getItem('grilo_token');
+      if (!t) window.location.replace('/');
+    })();
+  </script>
+
+  <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
+  <link rel="stylesheet" href="assets/css/shadowing.css?v=7">
+  <link rel="stylesheet" href="assets/css/dictation.css?v=3">
+</head>
+<body class="app-shadowing app-dictation">
+  <main class="shadow-shell">
+
+    <!-- ── Topbar ─────────────────────────────────────────── -->
+    <header class="shadow-topbar">
+      <a href="home.html" class="shadow-back">Painel</a>
+      <div class="shadow-title">
+        <span class="shadow-title-icon" aria-hidden="true">✎</span>
+        <span class="shadow-title-copy">
+          <em>Grilo · Lab</em>
+          <strong>Ditação</strong>
+        </span>
+      </div>
+      <span class="shadow-streak-pill">🔥 <span>treino do dia</span></span>
+    </header>
+
+    <!-- ── Hero / hub ─────────────────────────────────────── -->
+    <header class="shadow-hero">
+      <div class="shadow-hero-main">
+        <span class="shadow-hero-kicker">Laboratório · Ouvir e escrever</span>
+        <h1 class="shadow-hero-title">Ouça, e escreva <em>exatamente</em> o que ouviu.</h1>
+        <p class="shadow-hero-explainer">Você escuta uma frase em inglês e digita palavra por palavra. Os blocos coloridos mostram a estrutura da frase (quem faz, o que faz, onde, quando), e cada palavra que você acerta já aparece no lugar dela. É o treino que liga o ouvido à escrita.</p>
+        <button type="button" class="shadow-hero-how" id="dtHowBtn">
+          <svg class="shadow-hero-how-ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9.5"></circle>
+            <line x1="12" y1="10.75" x2="12" y2="16.5"></line>
+            <circle cx="12" cy="7.6" r="0.25" fill="currentColor" stroke="none"></circle>
+          </svg>
+          Como funciona a Ditação
+        </button>
+        <p class="shadow-hero-sub">Frases perfeitas seguidas viram combo. Feche a faixa com a pontuação mínima para liberar a próxima.</p>
+      </div>
+      <div class="shadow-hero-panel" aria-label="Progresso da trilha">
+        <div class="shadow-ring">
+          <svg viewBox="0 0 96 96" aria-hidden="true">
+            <circle class="shadow-ring-track" cx="48" cy="48" r="40"/>
+            <circle class="shadow-ring-fill" id="dtRingFill" cx="48" cy="48" r="40"/>
+          </svg>
+          <div class="shadow-ring-text"><b id="dtRingNum">0</b><span>faixas</span></div>
+        </div>
+        <p class="shadow-hero-panel-label">concluídas</p>
+        <p class="shadow-hero-panel-hint" id="dtRingHint">de 4 disponíveis</p>
+      </div>
+    </header>
+
+    <!-- ── Treino do dia ──────────────────────────────────── -->
+    <div class="shadow-daily" id="dtDailyTrack" role="button" tabindex="0" style="cursor:pointer">
+      <span class="shadow-daily-ico">⚡</span>
+      <div class="shadow-daily-body">
+        <b>—</b>
+        <span>sua próxima faixa na trilha</span>
+      </div>
+    </div>
+
+    <!-- ── Trilha linear ──────────────────────────────────── -->
+    <div class="shadow-track-list" id="dtHubBody" aria-live="polite"></div>
+  </main>
+
+  <!-- ── Player em overlay ────────────────────────────────── -->
+  <div class="shadow-player" id="dtPlayerOverlay" hidden></div>
+
+  <!-- ── Modal "Como funciona" ──────────────────────────────── -->
+  <div class="shadow-how-modal" id="dtHowModal" hidden>
+    <div class="shadow-how-card" role="dialog" aria-modal="true" aria-labelledby="dtHowTitle">
+      <button type="button" class="shadow-how-close" id="dtHowClose" aria-label="Fechar">✕</button>
+      <span class="shadow-how-kicker">Como funciona</span>
+      <h2 class="shadow-how-title" id="dtHowTitle">Ouça, escreva, confira.</h2>
+
+      <p class="shadow-how-lede">Cada faixa tem frases curtas faladas por uma voz em inglês. Você ouve quantas vezes quiser, até mais devagar, e digita a frase inteira. Maiúsculas e pontuação não contam; a grafia de cada palavra conta.</p>
+
+      <div class="shadow-how-payoff">
+        <span class="shadow-how-payoff-ico" aria-hidden="true">🧩</span>
+        <div>
+          <strong>Os blocos mostram o esqueleto da frase.</strong>
+          <p>Sujeito, verbo, objeto, onde, quando: cada cor é uma peça. Você vê quantas palavras faltam em cada peça, e as que você acerta aparecem na hora. Se ajudar mais do que deveria, é só desligar a estrutura.</p>
+        </div>
+      </div>
+
+      <div class="shadow-how-modes">
+        <div class="shadow-how-mode">
+          <span class="shadow-how-mode-tag is-casual">🔥 Combo</span>
+          <p>Cada frase perfeita sem dica soma 1 no combo. Errou uma palavra ou pediu dica, o combo volta a zero.</p>
+        </div>
+        <div class="shadow-how-mode">
+          <span class="shadow-how-mode-tag is-ranked">📈 Progresso</span>
+          <p>Palavras certas entram no seu vocabulário e frases perfeitas viram frases dominadas, com XP.</p>
+        </div>
+      </div>
+
+      <button type="button" class="shadow-play-btn shadow-how-cta" id="dtHowGotIt">Entendi, vamos treinar</button>
+    </div>
+  </div>
+
+  <!-- Interruptor de tema flutuante — igual à home -->
+  <button class="theme-toggle theme-toggle--float" id="themeToggle" type="button"
+          aria-label="Alternar tema claro e escuro" aria-pressed="false" title="Alternar tema">
+      <span class="tt-orb" aria-hidden="true">
+          <span class="tt-shade"></span>
+      </span>
+  </button>
+  <script src="assets/js/theme-toggle.js?v=2"></script>
+
+  <script src="assets/js/voice-recognition-utils.js?v=1779500000" defer></script>
+  <script src="assets/js/dictation-data.js?v=1" defer></script>
+  <script src="assets/js/dictation.js?v=2" defer></script>
+
+</body>
+</html>

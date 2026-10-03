@@ -68,6 +68,61 @@ class _ShadowResultBody(BaseModel):
     unlocked_next: bool = False
 
 
+def credit_word_profiles(db: Session, uid: int, words, now: datetime):
+    """Credita palavras (objetos com .word/.correct) no pool WordProfile.
+    Retorna (word_stats, newly_mastered). Não faz commit."""
+    # dedup de palavras dentro do mesmo payload (o alinhador pode repetir
+    # a mesma palavra em frases diferentes da faixa)
+    word_stats: dict[str, dict] = {}
+    for w in words:
+        token = (w.word or "").strip().lower()
+        if not token or len(token) < 2:
+            continue
+        stats = word_stats.setdefault(token, {"uses": 0, "correct": 0})
+        stats["uses"] += 1
+        if w.correct:
+            stats["correct"] += 1
+
+    existing_profiles: dict[str, WordProfile] = {}
+    if word_stats:
+        existing_profiles = {
+            p.word: p
+            for p in db.query(WordProfile).filter(
+                and_(WordProfile.user_id == uid, WordProfile.word.in_(word_stats.keys()))
+            ).all()
+        }
+
+    newly_mastered = 0
+    for word, stats in word_stats.items():
+        if word in existing_profiles:
+            prof = existing_profiles[word]
+            was_mastered_before = prof.mastered
+            prof.total_uses += stats["uses"]
+            prof.correct_uses += stats["correct"]
+            prof.last_seen_at = now
+        else:
+            was_mastered_before = False
+            prof = WordProfile(
+                user_id=uid,
+                word=word,
+                total_uses=stats["uses"],
+                correct_uses=stats["correct"],
+                first_seen_at=now,
+                last_seen_at=now,
+            )
+            db.add(prof)
+            existing_profiles[word] = prof
+
+        acc = prof.correct_uses / prof.total_uses if prof.total_uses else 1.0
+        reached_mastery = acc >= 0.85 and prof.total_uses >= 5
+        # latch: mesma regra do chat de voz — uma vez dominada, não reverte
+        if reached_mastery and not was_mastered_before:
+            newly_mastered += 1
+        prof.mastered = was_mastered_before or reached_mastery
+
+    return word_stats, newly_mastered
+
+
 @router.post("/api/shadowing/tracks/{track_slug}/result")
 async def submit_shadow_result(
     track_slug: str,
@@ -85,54 +140,7 @@ async def submit_shadow_result(
         uid = int(user_id)
         now = datetime.utcnow()
 
-        # dedup de palavras dentro do mesmo payload (o alinhador pode repetir
-        # a mesma palavra em frases diferentes da faixa)
-        word_stats: dict[str, dict] = {}
-        for w in body.words:
-            token = (w.word or "").strip().lower()
-            if not token or len(token) < 2:
-                continue
-            stats = word_stats.setdefault(token, {"uses": 0, "correct": 0})
-            stats["uses"] += 1
-            if w.correct:
-                stats["correct"] += 1
-
-        existing_profiles: dict[str, WordProfile] = {}
-        if word_stats:
-            existing_profiles = {
-                p.word: p
-                for p in db.query(WordProfile).filter(
-                    and_(WordProfile.user_id == uid, WordProfile.word.in_(word_stats.keys()))
-                ).all()
-            }
-
-        newly_mastered = 0
-        for word, stats in word_stats.items():
-            if word in existing_profiles:
-                prof = existing_profiles[word]
-                was_mastered_before = prof.mastered
-                prof.total_uses += stats["uses"]
-                prof.correct_uses += stats["correct"]
-                prof.last_seen_at = now
-            else:
-                was_mastered_before = False
-                prof = WordProfile(
-                    user_id=uid,
-                    word=word,
-                    total_uses=stats["uses"],
-                    correct_uses=stats["correct"],
-                    first_seen_at=now,
-                    last_seen_at=now,
-                )
-                db.add(prof)
-                existing_profiles[word] = prof
-
-            acc = prof.correct_uses / prof.total_uses if prof.total_uses else 1.0
-            reached_mastery = acc >= 0.85 and prof.total_uses >= 5
-            # latch: mesma regra do chat de voz — uma vez dominada, não reverte
-            if reached_mastery and not was_mastered_before:
-                newly_mastered += 1
-            prof.mastered = was_mastered_before or reached_mastery
+        word_stats, newly_mastered = credit_word_profiles(db, uid, body.words, now)
 
         # ── Frases: só as 100% certas nesta sessão avançam o contador ──
         newly_dominated_phrases = 0

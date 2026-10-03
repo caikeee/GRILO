@@ -1,0 +1,308 @@
+/* ============================================================
+ *  Ditação — ESTILOS
+ *  ============================================================
+ *  Carregado DEPOIS de shadowing.css: reaproveita a casca do
+ *  Laboratório (topbar, hero, cards da trilha, player, resultado)
+ *  e só adiciona o que é da Ditação — HUD, andaime gramatical,
+ *  campo de digitação e chips de correção.
+ *
+ *  Cores do andaime vêm da mesma paleta do Shadowing; vermelho
+ *  fica reservado para erro, nunca para categoria gramatical.
+ * ============================================================ */
+
+:root {
+  --dt-good: var(--sh-good);
+  --dt-good-bg: var(--sh-good-bg);
+  --dt-bad: var(--sh-bad);
+  --dt-bad-bg: var(--sh-bad-bg);
+  --dt-warn: var(--sh-warn);
+  --dt-warn-bg: var(--sh-warn-bg);
+  --dt-gold: var(--sh-gold);
+
+  --dt-subject: #4a7c5e;
+  --dt-verb: #a8781a;
+  --dt-object: #2f5a78;
+  --dt-adverbial: #6d5a8a;
+  --dt-complement: #b8661f;
+  --dt-connector: #6a7b71;
+}
+
+:root[data-theme="dark"] {
+  --dt-subject: #7fc29a;
+  --dt-verb: #f0c35a;
+  --dt-object: #7fb4d9;
+  --dt-adverbial: #b39ddb;
+  --dt-complement: #eba25e;
+  --dt-connector: #a8b5aa;
+}
+
+.dt-mode-tag { background: var(--sh-gold-bg); color: var(--sh-text); }
+
+/* ─── Intro da faixa ──────────────────────────────────────────── */
+.dt-intro { text-align: center; padding: 8px 0 4px; }
+.dt-intro-kicker {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sh-accent-dark);
+}
+:root[data-theme="dark"] .dt-intro-kicker { color: var(--sh-accent); }
+.dt-intro-title { margin: 0 0 10px; font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; }
+.dt-intro-sub { margin: 0 auto 20px; max-width: 46ch; color: var(--sh-muted); font-size: 0.92rem; line-height: 1.55; }
+
+.dt-keys {
+  list-style: none;
+  margin: 0 auto 24px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  font-size: 0.8rem;
+  color: var(--sh-muted);
+}
+kbd {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--sh-border-strong);
+  border-bottom-width: 2px;
+  background: var(--sh-surface);
+  color: var(--sh-text);
+  font: 700 0.72rem/1.5 'Space Grotesk', monospace;
+  text-align: center;
+}
+
+/* ─── HUD (tempo · pontos · combo) ────────────────────────────── */
+.dt-hud {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.dt-hud-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+  font-size: 0.8rem;
+  color: var(--sh-muted);
+}
+.dt-hud-item b { font-family: 'Space Grotesk', sans-serif; color: var(--sh-text); font-variant-numeric: tabular-nums; }
+.dt-hud-item small { font-weight: 800; color: var(--dt-warn); }
+.dt-combo.is-hot { border-color: var(--dt-gold); background: var(--sh-gold-bg); }
+.dt-combo.is-bump { animation: dtBump 0.45s ease; }
+@keyframes dtBump { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+.dt-counter { margin: -8px 0 16px; font-size: 0.78rem; font-weight: 700; color: var(--sh-muted); }
+
+/* ─── Áudio ───────────────────────────────────────────────────── */
+.dt-audio-row { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 22px; }
+.dt-audio {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: var(--sh-r-pill);
+  border: 1px solid var(--sh-border);
+  background: var(--sh-surface);
+  color: var(--sh-text);
+  font: 700 0.9rem 'Manrope', sans-serif;
+  cursor: pointer;
+}
+.dt-audio:hover { border-color: var(--sh-accent); }
+.dt-audio-slow {
+  padding: 10px 14px;
+  border-radius: var(--sh-r-pill);
+  border: 1px dashed var(--sh-border);
+  background: transparent;
+  color: var(--sh-muted);
+  font: 700 0.8rem 'Manrope', sans-serif;
+  cursor: pointer;
+}
+.dt-audio-slow:hover { color: var(--sh-text); border-color: var(--sh-border-strong); }
+
+.dt-wave { display: inline-flex; align-items: center; gap: 3px; height: 18px; }
+.dt-wave i { width: 3px; height: 6px; border-radius: 2px; background: var(--sh-accent); }
+.dt-audio.is-playing .dt-wave i { animation: dtWave 0.9s ease-in-out infinite; }
+.dt-audio.is-playing .dt-wave i:nth-child(2) { animation-delay: 0.12s; }
+.dt-audio.is-playing .dt-wave i:nth-child(3) { animation-delay: 0.24s; }
+.dt-audio.is-playing .dt-wave i:nth-child(4) { animation-delay: 0.36s; }
+.dt-audio.is-playing .dt-wave i:nth-child(5) { animation-delay: 0.48s; }
+@keyframes dtWave { 0%, 100% { height: 5px; } 50% { height: 18px; } }
+
+/* ─── Andaime gramatical ──────────────────────────────────────── */
+.dt-scaffold-wrap { margin-bottom: 18px; }
+.dt-scaffold-toggle {
+  display: block;
+  margin: 0 auto 10px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: var(--sh-r-pill);
+  background: transparent;
+  color: var(--sh-muted);
+  font: 700 0.74rem 'Manrope', sans-serif;
+  cursor: pointer;
+}
+.dt-scaffold-toggle:hover { color: var(--sh-text); background: var(--sh-border-light); }
+
+.dt-scaffold {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.dt-scaffold.is-hidden { display: none; }
+
+.dt-block {
+  --c: var(--dt-connector);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px 9px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+  background: color-mix(in srgb, var(--c) 10%, transparent);
+}
+.dt-block[data-tag="subject"]    { --c: var(--dt-subject); }
+.dt-block[data-tag="verb"]       { --c: var(--dt-verb); }
+.dt-block[data-tag="object"]     { --c: var(--dt-object); }
+.dt-block[data-tag="adverbial"]  { --c: var(--dt-adverbial); }
+.dt-block[data-tag="complement"] { --c: var(--dt-complement); }
+.dt-block[data-tag="connector"]  { --c: var(--dt-connector); }
+
+.dt-block-label {
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--c);
+}
+.dt-block-slots { display: flex; gap: 6px; }
+
+/* Palavra escondida: ocupa a largura real (dica de tamanho), sem mostrar o texto */
+.dt-slot {
+  min-width: 1.2em;
+  padding: 0 1px 1px;
+  border-bottom: 2px dashed color-mix(in srgb, var(--c) 55%, transparent);
+  font: 700 1rem/1.4 'Space Grotesk', sans-serif;
+  color: transparent;
+  user-select: none;
+  transition: color var(--sh-dur-base) var(--sh-ease), border-color var(--sh-dur-base) var(--sh-ease);
+}
+.dt-slot.is-ok,
+.dt-slot.is-hint,
+.dt-slot.is-final { color: var(--sh-text); border-bottom-style: solid; user-select: text; }
+.dt-slot.is-ok { border-bottom-color: var(--dt-good); }
+.dt-slot.is-hint { color: var(--dt-warn); border-bottom-color: var(--dt-warn); }
+.dt-slot.is-final.is-almost { color: var(--dt-warn); border-bottom-color: var(--dt-warn); }
+.dt-slot.is-final.is-miss { color: var(--dt-bad); border-bottom-color: var(--dt-bad); }
+
+/* ─── Campo de digitação ──────────────────────────────────────── */
+/* sage-color-system.css força borda/fundo/raio de todo input com !important;
+   o seletor body.app-dictation input.dt-input precisa vencer em especificidade. */
+body.app-dictation input.dt-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  border: 2px solid var(--sh-border) !important;
+  border-radius: var(--sh-r-md) !important;
+  background: var(--sh-surface) !important;
+  color: var(--sh-text) !important;
+  font: 600 1.2rem 'Space Grotesk', sans-serif;
+  outline: none !important;
+  transition: border-color var(--sh-dur-fast) var(--sh-ease), box-shadow var(--sh-dur-fast) var(--sh-ease), background var(--sh-dur-fast) var(--sh-ease) !important;
+}
+body.app-dictation input.dt-input::placeholder { color: var(--sh-text-light); font-weight: 500; }
+/* sage-color-system.css também força texto escuro em input no dark (pressupõe fundo branco) */
+:root[data-theme="dark"] body.app-dictation input.dt-input { color: var(--sh-text) !important; }
+:root[data-theme="dark"] body.app-dictation input.dt-input::placeholder { color: var(--sh-text-light) !important; }
+body.app-dictation input.dt-input:focus {
+  border-color: var(--sh-accent) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sh-accent) 18%, transparent) !important;
+}
+body.app-dictation input.dt-input.is-pass { border-color: var(--dt-good) !important; background: var(--dt-good-bg) !important; }
+body.app-dictation input.dt-input.is-fail { border-color: var(--dt-warn) !important; background: var(--dt-warn-bg) !important; }
+.dt-input.is-shake { animation: dtShake 0.35s ease; }
+@keyframes dtShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+.dt-hint-line { margin: 10px 0 0; font-size: 0.85rem; color: var(--sh-text); }
+.dt-hint-line b { color: var(--dt-warn); }
+.dt-hint-line span { color: var(--sh-muted); font-size: 0.78rem; }
+
+/* ─── Feedback da frase ───────────────────────────────────────── */
+.dt-verdict {
+  margin: 16px 0 10px;
+  padding: 10px 14px;
+  border-radius: var(--sh-r-md);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+.dt-verdict.is-good { background: var(--dt-good-bg); color: var(--dt-good); }
+.dt-verdict.is-warn { background: var(--dt-warn-bg); color: var(--dt-warn); }
+.dt-verdict.is-bad  { background: var(--dt-bad-bg);  color: var(--dt-bad); }
+
+.dt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dt-wchip {
+  padding: 3px 9px;
+  border-radius: 8px;
+  font: 700 0.95rem 'Space Grotesk', sans-serif;
+}
+.dt-wchip s { opacity: 0.7; font-weight: 500; margin-right: 2px; }
+.dt-wchip.is-ok { background: var(--dt-good-bg); color: var(--dt-good); }
+.dt-wchip.is-almost { background: var(--dt-warn-bg); color: var(--dt-warn); }
+.dt-wchip.is-miss { background: var(--dt-bad-bg); color: var(--dt-bad); }
+
+.dt-extras { margin: 10px 0 0; font-size: 0.82rem; color: var(--sh-muted); }
+.dt-extras s { color: var(--dt-bad); }
+.dt-pt { margin: 12px 0 0; font-size: 0.88rem; color: var(--sh-muted); }
+.dt-pt b {
+  margin-right: 6px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sh-text-light);
+}
+
+.dt-controls { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+/* ─── Resultado ───────────────────────────────────────────────── */
+.dt-result-unlock { margin: 8px 0 0; color: var(--dt-good); font-weight: 800; }
+.dt-result-hint { margin: 8px 0 0; color: var(--sh-muted); font-size: 0.85rem; }
+.dt-loot { grid-template-columns: repeat(4, 1fr); }
+
+.dt-recap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.dt-recap-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--sh-r-md);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-border-light);
+}
+.dt-recap-star { width: 1em; flex-shrink: 0; color: var(--dt-gold); font-size: 1rem; line-height: 1.6; }
+.dt-recap .dt-wchip { font-size: 0.85rem; }
+
+.dt-audio, .dt-audio-slow { white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .dt-hud { justify-content: center; flex-wrap: wrap; }
+  .dt-audio { padding: 11px 16px; }
+  .dt-loot { grid-template-columns: repeat(2, 1fr); }
+  .dt-controls { justify-content: stretch; }
+  .dt-controls > * { flex: 1; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dt-combo.is-bump, .dt-input.is-shake, .dt-audio.is-playing .dt-wave i { animation: none; }
+}
