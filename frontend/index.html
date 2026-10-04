@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GRILO — prática de inglês todo dia: conversa em voz com IA, recap que vira plano e trilha que sabe onde você está.">
+    <meta name="description" content="GRILO — converse em inglês com uma IA que corrige sem interromper, fixe com aulas, shadowing e ditação, e acompanhe um mapa honesto do seu nível.">
     <meta name="theme-color" content="#3A5E47">
 
     <!-- Tema: aplica antes de pintar a tela p/ evitar flash. Padrão inicial = preferência do SO. -->
@@ -21,11 +21,11 @@
       })();
     </script>
 
-    <meta property="og:title" content="GRILO — Inglês que vira hábito antes de virar nota">
-    <meta property="og:description" content="Não substitui seu curso. Acelera. Conteúdo no padrão internacional e um mapa 360 do seu aprendizado.">
+    <meta property="og:title" content="GRILO — Fale inglês. A gente cuida do resto.">
+    <meta property="og:description" content="Misturou português no meio da frase? O GRILO entende, responde em inglês e te devolve a palavra que faltou. Beta aberta e gratuita.">
     <meta property="og:image" content="/assets/og-image.svg">
 
-    <title>GRILO — Inglês que vira hábito antes de virar nota</title>
+    <title>GRILO — Fale inglês. A gente cuida do resto.</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,7 +36,7 @@
     <link rel="stylesheet" href="assets/css/sage-color-system.css">
     <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
     <link rel="stylesheet" href="assets/css/form-validation-ux.css?v=1">
-    <link rel="stylesheet" href="assets/css/landing-v5.css?v=1">
+    <link rel="stylesheet" href="assets/css/landing-v5.css?v=2">
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
 
@@ -54,63 +54,71 @@
                 <span class="logo-icon">🦗</span>
                 <span class="logo-text">GRILO</span>
             </a>
-            <button class="navbar-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
-                <span></span><span></span><span></span>
-            </button>
             <div class="navbar-content" id="navContent">
                 <ul class="navbar-nav">
-                    <li><a href="#metodo"><span class="nav-i">01</span>Método</a></li>
-                    <li><a href="#pilares"><span class="nav-i">02</span>Pilares</a></li>
+                    <li><a href="#produto">Produto</a></li>
+                    <li><a href="#ponte">A Ponte</a></li>
+                    <li><a href="#niveis">Níveis</a></li>
                 </ul>
                 <div class="navbar-actions">
-                    <button class="navbar-cta-btn" id="navEntrarBtn" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Entrar</button>
+                    <button class="navbar-cta-btn" id="navEntrarBtn" type="button" data-auth-mode="login">Entrar</button>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- ============================================================
-         HERO — copy à esquerda, acesso à direita. A página inteira
-         converge para este cartão.
+         HERO — copy + sessão de voz rodando à esquerda, acesso à direita.
     ============================================================ -->
     <section class="v5-hero">
         <div class="v5-hero-inner">
             <div class="v5-hero-copy">
-                <div class="v5-tag v5-reveal" id="heroTag">
+                <div class="v5-tag" id="heroTag">
                     <span class="v5-tag-dot" aria-hidden="true"></span>
-                    Beta aberta · grátis
+                    Beta aberta e gratuita
                 </div>
 
-                <h1 class="v5-headline v5-reveal" id="heroHeadline" data-delay="1">
+                <h1 class="v5-headline" id="heroHeadline">
                     <span class="v5-headline-word">Fale</span> <span class="v5-headline-word">inglês.</span> <em><span class="v5-headline-word">A</span> <span class="v5-headline-word">gente</span> <span class="v5-headline-word">cuida</span> <span class="v5-headline-word">do</span> <span class="v5-headline-word">resto.</span></em>
                 </h1>
 
-                <p class="v5-sub v5-reveal" id="heroSub" data-delay="2">
-                    IA que corrige na hora, gente pra praticar quando você quiser, e um mapa honesto do seu nível. Sem vergonha de errar.
+                <p class="v5-sub" id="heroSub">
+                    Uma IA que conversa com você e corrige sem interromper. Aulas, shadowing e ditação pra fixar o que você falou. E um mapa honesto do seu nível.
                 </p>
 
-                <p class="v5-sub-2 v5-reveal" id="heroSub2" data-delay="2">
-                    Inglês, <strong>e pronto!</strong>
-                </p>
+                <!-- Sessão de voz de demonstração: três cenas reais do produto -->
+                <div class="lp-demo" id="heroSample">
+                    <div class="lp-demo-bar">
+                        <span class="lp-demo-live" aria-hidden="true"></span>
+                        <span class="lp-demo-title">Sessão de voz</span>
+                        <div class="lp-demo-scenes" role="tablist" aria-label="Exemplos de sessão">
+                            <button type="button" role="tab" class="lp-scene-btn is-on" data-scene="0" aria-selected="true">Pronúncia</button>
+                            <button type="button" role="tab" class="lp-scene-btn" data-scene="1" aria-selected="false">Mistura PT/EN</button>
+                            <button type="button" role="tab" class="lp-scene-btn" data-scene="2" aria-selected="false">Gramática</button>
+                        </div>
+                    </div>
 
-                <div class="v5-sample v5-reveal" id="heroSample" data-delay="3" aria-label="Exemplo de correção de pronúncia em uma sessão de voz">
-                    <div class="v5-sample-row" id="heroSampleYou">
-                        <span class="v5-sample-who">você</span>
-                        <span class="v5-sample-text">"I <em>tink</em> that's right."</span>
-                    </div>
-                    <div class="v5-sample-wave" id="heroSampleWave" aria-hidden="true">
-                        <span></span><span></span><span></span><span></span><span></span><span></span>
-                        <span></span><span></span><span></span><span></span><span></span><span></span>
-                        <span></span><span></span><span></span><span></span><span></span><span></span>
-                    </div>
-                    <div class="v5-sample-row v5-sample-row--ai" id="heroSampleAi">
-                        <span class="v5-sample-who">grilo</span>
-                        <span class="v5-sample-text">"<strong>Think.</strong>" A língua entre os dentes — não é "t".</span>
+                    <div class="lp-demo-body" aria-live="polite">
+                        <div class="lp-demo-row lp-demo-row--you">
+                            <span class="lp-demo-who">você</span>
+                            <span class="lp-demo-text" id="demoYou" lang="en">"I <em>tink</em> that's right."</span>
+                        </div>
+                        <div class="lp-demo-wave" id="heroSampleWave" aria-hidden="true">
+                            <span></span><span></span><span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                        <div class="lp-demo-row lp-demo-row--ai">
+                            <span class="lp-demo-who">grilo</span>
+                            <span class="lp-demo-text" id="demoAi">"<strong lang="en">Think.</strong>" A língua entre os dentes, não é "t".</span>
+                        </div>
+                        <div class="lp-demo-note" id="demoNote" hidden></div>
                     </div>
                 </div>
             </div>
 
-            <div class="v5-auth v5-reveal" data-delay="2" id="cta">
+            <div class="v5-auth" id="cta">
                 <div class="v5-auth-head">
                     <h2 class="v5-auth-title" id="formTitle">Entrar</h2>
                     <p class="v5-auth-sub" id="formSubtitle">Bem-vindo de volta.</p>
@@ -125,11 +133,11 @@
                     </div>
                     <div class="form-group">
                         <label for="username">Nome de usuário</label>
-                        <input type="text" id="username" class="form-input-v2" placeholder="como você quer ser chamado" required autocomplete="username">
+                        <input type="text" id="username" class="form-input-v2" placeholder="seu nome de usuário" required autocomplete="username">
                     </div>
                     <div class="form-group">
                         <label for="password">Senha</label>
-                        <input type="password" id="password" class="form-input-v2" placeholder="mínimo 10 caracteres" required autocomplete="current-password" minlength="10" aria-describedby="passwordRequirements">
+                        <input type="password" id="password" class="form-input-v2" placeholder="sua senha" required autocomplete="current-password" minlength="10" aria-describedby="passwordRequirements">
                         <button type="button" class="v5-forgot-btn" id="forgotPasswordBtn">Esqueci minha senha</button>
                         <ul class="password-requirements" id="passwordRequirements" style="display:none;">
                             <li class="requirement-item" data-rule="length">
@@ -167,112 +175,285 @@
     </section>
 
     <!-- ============================================================
-         MÉTODO — constância vence intensidade
+         TOUR — o produto por dentro, uma tela de cada vez
     ============================================================ -->
-    <section class="v5-manifesto" id="metodo">
-        <div class="v5-manifesto-inner v5-reveal">
-            <div class="v5-eyebrow">constância vence intensidade</div>
-            <p class="v5-manifesto-text">
-                Fluência não nasce de maratona. Nasce de <strong>dias comuns, repetidos:</strong> dez minutos hoje, uma frase a mais amanhã, gente do seu lado a semana inteira.
-            </p>
+    <section class="lp-tour" id="produto">
+        <div class="lp-tour-inner">
+            <header class="lp-sec-head">
+                <h2 class="lp-sec-title">Por dentro do GRILO.</h2>
+                <p class="lp-sec-lead">
+                    A conversa é o centro. O resto existe pra que o que você falou hoje ainda esteja lá amanhã.
+                </p>
+            </header>
+
+            <div class="lp-tour-grid">
+                <div class="lp-tabs" role="tablist" aria-label="Partes do produto" aria-orientation="vertical">
+                    <button type="button" class="lp-tab is-on" role="tab" id="tab-voz" aria-controls="tp-voz" aria-selected="true">
+                        <span class="lp-tab-name">Sessão de voz</span>
+                        <span class="lp-tab-desc">Conversa livre ou em 5 cenários guiados, com recap no final.</span>
+                        <span class="lp-tab-progress" aria-hidden="true"><span></span></span>
+                    </button>
+                    <button type="button" class="lp-tab" role="tab" id="tab-aulas" aria-controls="tp-aulas" aria-selected="false" tabindex="-1">
+                        <span class="lp-tab-name">Aulas 4 pontas</span>
+                        <span class="lp-tab-desc">44 aulas do A1 ao A2. Cada palavra passa por ver, ouvir, escrever e falar.</span>
+                        <span class="lp-tab-progress" aria-hidden="true"><span></span></span>
+                    </button>
+                    <button type="button" class="lp-tab" role="tab" id="tab-shadow" aria-controls="tp-shadow" aria-selected="false" tabindex="-1">
+                        <span class="lp-tab-name">Shadowing</span>
+                        <span class="lp-tab-desc">Fale junto com o áudio nativo e veja, palavra por palavra, onde descolou.</span>
+                        <span class="lp-tab-progress" aria-hidden="true"><span></span></span>
+                    </button>
+                    <button type="button" class="lp-tab" role="tab" id="tab-dita" aria-controls="tp-dita" aria-selected="false" tabindex="-1">
+                        <span class="lp-tab-name">Ditação</span>
+                        <span class="lp-tab-desc">Ouça uma frase e escreva exatamente o que ouviu. Frase perfeita vira combo.</span>
+                        <span class="lp-tab-progress" aria-hidden="true"><span></span></span>
+                    </button>
+                    <button type="button" class="lp-tab" role="tab" id="tab-comu" aria-controls="tp-comu" aria-selected="false" tabindex="-1">
+                        <span class="lp-tab-name">Comunidade</span>
+                        <span class="lp-tab-desc">Sugira, vote e aponte o que melhorar. O que o GRILO faz a seguir sai daqui.</span>
+                        <span class="lp-tab-progress" aria-hidden="true"><span></span></span>
+                    </button>
+                </div>
+
+                <div class="lp-stage">
+                    <div class="lp-window">
+                        <div class="lp-window-bar" aria-hidden="true">
+                            <span class="lp-window-dots"><i></i><i></i><i></i></span>
+                            <span class="lp-window-url" id="tourUrl">grilo · sessão de voz</span>
+                        </div>
+
+                        <!-- VOZ -->
+                        <div class="lp-panel is-on" role="tabpanel" id="tp-voz" aria-labelledby="tab-voz" data-url="grilo · sessão de voz">
+                            <div class="pv">
+                                <div class="pv-studio">
+                                    <div class="pv-modes" aria-hidden="true"><span class="is-on">Livre</span><span>Guiado</span></div>
+                                    <div class="pv-orb" aria-hidden="true"><i></i><i></i><i></i><b></b></div>
+                                    <p class="pv-head">Toque e comece a falar.</p>
+                                    <span class="pv-pill">Falar agora</span>
+                                    <div class="pv-scen">
+                                        <span>Restaurante</span><span>Aeroporto</span><span>Entrevista</span><span>Viagem</span><span>Médico</span>
+                                    </div>
+                                </div>
+                                <div class="pv-recap">
+                                    <div class="pv-recap-top">
+                                        <span>Recap da sessão</span>
+                                        <span class="pv-score"><strong>78</strong>/100</span>
+                                    </div>
+                                    <ul class="pv-bars">
+                                        <li><span>Fluência</span><i style="--v:72%"></i></li>
+                                        <li><span>Gramática</span><i style="--v:64%"></i></li>
+                                        <li><span>Vocabulário</span><i style="--v:81%"></i></li>
+                                        <li><span>Ritmo</span><i style="--v:70%"></i></li>
+                                        <li><span>Progresso</span><i style="--v:88%"></i></li>
+                                    </ul>
+                                    <div class="pv-best">
+                                        <span>Sua melhor frase</span>
+                                        <p lang="en">"I usually take the bus, but today I walked."</p>
+                                    </div>
+                                    <div class="pv-fix">
+                                        <span>Ponto para revisar</span>
+                                        <p><s lang="en">go</s> <strong lang="en">went</strong> · passado de "go"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AULAS -->
+                        <div class="lp-panel" role="tabpanel" id="tp-aulas" aria-labelledby="tab-aulas" data-url="grilo · aulas · bloco A1" hidden>
+                            <div class="pl">
+                                <div class="pl-top">
+                                    <span>Bloco A1 · Rotina e tempo</span>
+                                    <span class="pl-count">8 palavras + 5 frases</span>
+                                </div>
+                                <div class="pl-word">
+                                    <span class="pl-word-en" lang="en">breakfast</span>
+                                    <span class="pl-word-meta">/ˈbrekfəst/ · café da manhã</span>
+                                </div>
+                                <ol class="pl-points">
+                                    <li><span class="pl-dot"></span>ver</li>
+                                    <li><span class="pl-dot"></span>ouvir</li>
+                                    <li><span class="pl-dot"></span>escrever</li>
+                                    <li><span class="pl-dot"></span>falar</li>
+                                </ol>
+                                <div class="pl-state">
+                                    <span class="pl-state-a">aprendida</span>
+                                    <span class="pl-state-b">dominada</span>
+                                </div>
+                                <ul class="pl-list">
+                                    <li><span lang="en">always</span><span class="pl-tag pl-tag--dom">dominada</span></li>
+                                    <li><span lang="en">late</span><span class="pl-tag">aprendida</span></li>
+                                    <li><span lang="en">every day</span><span class="pl-tag pl-tag--new">ver · ouvir</span></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- SHADOWING -->
+                        <div class="lp-panel" role="tabpanel" id="tp-shadow" aria-labelledby="tab-shadow" data-url="grilo · laboratório de shadowing" hidden>
+                            <div class="ps">
+                                <div class="ps-top">
+                                    <div>
+                                        <strong lang="en">The Same Coffee</strong>
+                                        <span>Rotina · presente simples</span>
+                                    </div>
+                                    <span class="ps-mode">Ranqueada</span>
+                                </div>
+                                <p class="ps-line" lang="en" id="shadowLine"><span>I</span> <span>get</span> <span>the</span> <span>same</span> <span>coffee</span> <span>every</span> <span>single</span> <span>day.</span></p>
+                                <p class="ps-pt">Eu peço o mesmo café todo santo dia.</p>
+                                <div class="ps-waves" aria-hidden="true">
+                                    <div class="ps-wave"><span class="ps-wave-label">nativo</span><div class="ps-bars ps-bars--native"></div></div>
+                                    <div class="ps-wave"><span class="ps-wave-label">você</span><div class="ps-bars ps-bars--you"></div></div>
+                                </div>
+                                <div class="ps-result">
+                                    <div class="ps-meter">
+                                        <div class="ps-meter-fill"></div>
+                                        <div class="ps-meter-goal" title="Meta para liberar a próxima faixa"></div>
+                                    </div>
+                                    <div class="ps-result-text"><strong>84%</strong> de precisão · meta de 70% pra liberar a próxima faixa</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DITAÇÃO -->
+                        <div class="lp-panel" role="tabpanel" id="tp-dita" aria-labelledby="tab-dita" data-url="grilo · ditação" hidden>
+                            <div class="pd">
+                                <div class="pd-top">
+                                    <div>
+                                        <strong lang="en">Text Me Later</strong>
+                                        <span>Frase 4 de 8</span>
+                                    </div>
+                                    <span class="pd-combo">🔥 Combo 3</span>
+                                </div>
+                                <div class="pd-player" aria-hidden="true">
+                                    <span class="pd-play"></span>
+                                    <span class="pd-track"><i></i></span>
+                                    <span class="pd-speed">0.75×</span>
+                                </div>
+                                <div class="pd-input" lang="en">
+                                    Can you send me the <span class="pd-wrong">foto</span><span class="pd-right">photo</span>?
+                                </div>
+                                <p class="pd-feedback">6 de 7 palavras certas. "Photo" se escreve com <strong>ph</strong>.</p>
+                                <ul class="pd-done">
+                                    <li lang="en"><span>✓</span>I am reading your message now.</li>
+                                    <li lang="en"><span>✓</span>She is calling her mother.</li>
+                                    <li lang="en"><span>✓</span>My phone is on the table.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- COMUNIDADE -->
+                        <div class="lp-panel" role="tabpanel" id="tp-comu" aria-labelledby="tab-comu" data-url="grilo · comunidade" hidden>
+                            <div class="pc">
+                                <p class="pc-head">O que o GRILO faz a seguir começa aqui.</p>
+                                <div class="pc-filters" aria-hidden="true">
+                                    <span class="is-on">Tudo</span><span>Sugestões</span><span>Correções</span><span>Dúvidas</span>
+                                </div>
+                                <ul class="pc-list">
+                                    <li>
+                                        <span class="pc-vote"><b>▲</b>41</span>
+                                        <span class="pc-body"><strong>Cenário guiado de entrevista em TI</strong><span class="pc-meta"><i class="pc-type">Sugestão</i><i class="pc-status pc-status--prog">Em andamento</i></span></span>
+                                    </li>
+                                    <li>
+                                        <span class="pc-vote"><b>▲</b>17</span>
+                                        <span class="pc-body"><strong>Exemplo de "used to" confuso na aula de passado</strong><span class="pc-meta"><i class="pc-type">Correção</i><i class="pc-status pc-status--done">Resolvido</i></span></span>
+                                    </li>
+                                    <li>
+                                        <span class="pc-vote"><b>▲</b>9</span>
+                                        <span class="pc-body"><strong>Quando usar "make" e quando usar "do"?</strong><span class="pc-meta"><i class="pc-type">Dúvida</i><i class="pc-status">Aberto</i></span></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- ============================================================
-         PILARES — conteúdo e mapa 360, cada um com um
-         pedaço real do produto ao lado
+         A PONTE — o diferencial, em tipografia
     ============================================================ -->
-    <section class="v5-features" id="pilares">
-        <div class="v5-features-inner">
-            <div class="v5-features-head v5-reveal">
-                <span class="v5-feature-kicker">os pilares</span>
-                <h2 class="v5-features-title">Duas coisas. Bem feitas.</h2>
-                <p class="v5-features-lead">
-                    Conteúdo no padrão internacional e um mapa 360 do seu aprendizado. Nada além disso.
+    <section class="lp-ponte" id="ponte">
+        <div class="lp-ponte-inner">
+            <div class="lp-ponte-copy">
+                <p class="lp-ponte-kicker">A Ponte</p>
+                <h2 class="lp-ponte-title">Travou no meio da frase? Fala em português mesmo.</h2>
+                <p class="lp-ponte-body">
+                    O GRILO entende a mistura, responde em inglês e te devolve a palavra que faltou, com pronúncia pra ouvir. A conversa não para, e a palavra entra no seu vocabulário.
                 </p>
             </div>
 
-            <!-- CONTEÚDO -->
-            <div class="v5-feature v5-reveal">
-                <div class="v5-feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.75 7.5 12 12l9.25-4.5L12 3Z"/><path d="M2.75 12 12 16.5l9.25-4.5"/><path d="M2.75 16.5 12 21l9.25-4.5"/></svg>
-                </div>
-                <div>
-                    <span class="v5-feature-kicker">conteúdo</span>
-                    <h3 class="v5-feature-title">O padrão que o mundo reconhece.</h3>
-                    <p class="v5-feature-body">
-                        Cada nível segue o que as principais instituições internacionais definem como necessário, do A1 ao C2. Você estuda o que conta de verdade, na ordem que faz sentido, sem conteúdo de enrolação.
-                    </p>
-                </div>
-                <div class="v5-feature-chip" aria-hidden="true">
-                    <div class="v5-chip-label">trilha B1 · padrão internacional</div>
-                    <div class="v5-chip-line"><span class="v5-chip-mark v5-chip-mark--ok">✓</span><span>Descrever experiências passadas</span><span class="v5-chip-meta">feito</span></div>
-                    <div class="v5-chip-line"><span class="v5-chip-mark">!</span><span>Opinar e justificar</span><span class="v5-chip-meta">agora</span></div>
-                    <div class="v5-chip-line"><span>Narrar em detalhe</span><span class="v5-chip-meta">próximo</span></div>
-                </div>
-            </div>
+            <div class="lp-ponte-show" aria-label="Exemplo: você diz I prefer the frango e o GRILO devolve chicken">
+                <p class="lp-ponte-line" lang="en">
+                    I prefer the
+                    <span class="lp-nowrap"><span class="lp-swap" id="ponteSwap"><span class="lp-swap-pt" lang="pt-br">frango</span><span class="lp-swap-en">chicken</span></span>.</span>
+                </p>
+                <button type="button" class="lp-ponte-ipa" id="ponteIpa" aria-label="Ouvir a pronúncia de chicken">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+                    <span lang="en">/ˈtʃɪkɪn/</span> toque pra ouvir
+                </button>
 
-            <!-- MAPA 360 -->
-            <div class="v5-feature v5-reveal">
-                <div class="v5-feature-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.25"/><path d="M15.5 8.5l-2 5-5 2 2-5 5-2Z"/></svg>
-                </div>
-                <div>
-                    <span class="v5-feature-kicker">mapa 360</span>
-                    <h3 class="v5-feature-title">Seus dados viram direção.</h3>
-                    <p class="v5-feature-body">
-                        Cada sessão alimenta uma análise completa do seu aprendizado. IA dedicada olha para as suas maiores dificuldades e devolve o próximo passo, não um relatório.
-                    </p>
-                </div>
-                <div class="v5-feature-chip" aria-hidden="true">
-                    <div class="v5-chip-label">seu mapa · últimos 30 dias</div>
-                    <div class="v5-chip-line"><div class="v5-chip-bar"><span></span></div><span class="v5-chip-meta">62%</span></div>
-                    <div class="v5-chip-line"><span class="v5-chip-mark">!</span><span>Pronúncia de "th"</span><span class="v5-chip-meta">em foco</span></div>
-                    <div class="v5-chip-line"><span class="v5-chip-mark v5-chip-mark--ok">✓</span><span>Conectivos básicos</span><span class="v5-chip-meta">dominado</span></div>
+                <div class="lp-ponte-foot">
+                    <ul class="lp-ponte-more">
+                        <li><span lang="en">Can I pay with</span> <s lang="pt-br">cartão</s> <strong lang="en">card</strong>?</li>
+                        <li><span lang="en">My</span> <s lang="pt-br">chefe</s> <strong lang="en">boss</strong> <span lang="en">is very nice.</span></li>
+                        <li><span lang="en">I want a</span> <s lang="pt-br">sobremesa</s> <strong lang="en">dessert</strong>.</li>
+                    </ul>
+                    <button type="button" class="lp-ponte-replay" id="ponteReplay">Ver de novo</button>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ============================================================
-         PROVA — três números honestos
+         NÍVEIS — escada CEFR, conquista por evidência
     ============================================================ -->
-    <section class="v5-proof">
-        <div class="v5-proof-inner">
-            <div class="v5-proof-stat v5-reveal">
-                <div class="v5-proof-value">5 min</div>
-                <p class="v5-proof-label">por dia já mudam onde você trava</p>
-            </div>
-            <div class="v5-proof-stat v5-reveal" data-delay="1">
-                <div class="v5-proof-value v5-proof-value--amber">100%</div>
-                <p class="v5-proof-label">da sessão é a sua voz, não um quiz</p>
-            </div>
-            <div class="v5-proof-stat v5-reveal" data-delay="2">
-                <div class="v5-proof-value">R$ 0</div>
-                <p class="v5-proof-label">na beta. Você cresce junto com o produto</p>
+    <section class="lp-levels" id="niveis">
+        <div class="lp-levels-inner">
+            <header class="lp-sec-head">
+                <h2 class="lp-sec-title">Nível aqui é conquista, não pontinho.</h2>
+                <p class="lp-sec-lead">
+                    Você começa no A0 e sobe quando prova, não quando acumula XP. A escada segue o quadro europeu (CEFR) que escolas e empresas usam no mundo todo.
+                </p>
+            </header>
+
+            <ol class="lp-ladder" aria-label="Escada de níveis">
+                <li class="is-done"><b>A0</b><span>Início</span></li>
+                <li class="is-now"><b>A1</b><span>Fundamentos</span></li>
+                <li class="is-open"><b>A2</b><span>Conectando ideias</span></li>
+                <li><b>B1</b><span>em breve</span></li>
+                <li><b>B2</b><span>em breve</span></li>
+                <li><b>C1</b><span>em breve</span></li>
+                <li><b>C2</b><span>em breve</span></li>
+            </ol>
+
+            <div class="lp-gates">
+                <p class="lp-gates-title">Pra conquistar o A1, os quatro portões precisam fechar juntos:</p>
+                <ul class="lp-gates-list">
+                    <li><span class="lp-gate-name">Vocabulário essencial</span><span class="lp-gate-bar"><i style="--v:62%"></i></span><span class="lp-gate-num">312 / 500 palavras</span></li>
+                    <li><span class="lp-gate-name">Frases e estruturas</span><span class="lp-gate-bar"><i style="--v:62%"></i></span><span class="lp-gate-num">31 / 50 frases</span></li>
+                    <li><span class="lp-gate-name">Aulas do bloco</span><span class="lp-gate-bar"><i style="--v:70%"></i></span><span class="lp-gate-num">14 / 20 aulas</span></li>
+                    <li><span class="lp-gate-name">Shadowing ranqueado</span><span class="lp-gate-bar"><i style="--v:60%"></i></span><span class="lp-gate-num">6 / 10 sessões</span></li>
+                </ul>
+                <p class="lp-gates-foot">Palavra só conta quando você acerta escrevendo, ouvindo e falando. Ninguém sobe de nível por ter aberto o app.</p>
             </div>
         </div>
     </section>
 
     <!-- ============================================================
-         CTA FINAL — devolve ao cartão de acesso
+         CTA FINAL — devolve ao cartão de acesso, já em modo cadastro
     ============================================================ -->
     <section class="v5-cta">
-        <div class="v5-cta-inner v5-reveal">
-            <span class="v5-feature-kicker">comece hoje</span>
-            <h2 class="v5-cta-title">Sua próxima frase começa <em>aqui.</em></h2>
+        <div class="v5-cta-inner">
+            <h2 class="v5-cta-title">Dez minutos hoje. Uma frase a mais amanhã.</h2>
             <p class="v5-cta-body">
-                Conta criada em menos de dois minutos. Na primeira sessão você já sai falando. E amanhã tem gente esperando você voltar.
+                Fluência não nasce de maratona, nasce de dias comuns repetidos. Crie a conta em menos de dois minutos e saia da primeira sessão já falando.
             </p>
-            <button class="v5-cta-btn btn-primary" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
-                Criar minha conta
-                <span class="v5-arrow" aria-hidden="true">→</span>
-            </button>
-            <div class="v5-cta-meta">
-                <span><span class="v5-cta-check">✓</span> gratuito na beta</span>
-                <span><span class="v5-cta-check">✓</span> sem cartão</span>
-                <span><span class="v5-cta-check">✓</span> menos de 2 min</span>
-            </div>
+            <button class="v5-cta-btn btn-primary" type="button" data-auth-mode="register">Criar minha conta</button>
+            <ul class="v5-cta-meta">
+                <li><span class="v5-cta-check" aria-hidden="true">✓</span> grátis na beta</li>
+                <li><span class="v5-cta-check" aria-hidden="true">✓</span> sem cartão</li>
+                <li><span class="v5-cta-check" aria-hidden="true">✓</span> menos de 2 min</li>
+            </ul>
         </div>
     </section>
 
@@ -287,6 +468,7 @@
             </span>
             <p class="v5-footer-tag">Prática diária de verdade, construída junto com quem usa.</p>
             <nav class="v5-footer-links" aria-label="Links do rodapé">
+                <a href="https://instagram.com/griloai" target="_blank" rel="noopener noreferrer">Instagram</a>
                 <a href="/privacidade.html">Privacidade</a>
                 <a href="/termos.html">Termos</a>
             </nav>
@@ -328,115 +510,7 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/theme-toggle.js?v=2"></script>
     <script src="assets/js/registration-validator.js?v=1"></script>
-    <script src="assets/js/form-handler.js?v=6"></script>
-
-    <script>
-        (function () {
-            var modal   = document.getElementById('forgotPasswordModal');
-            var openBtn = document.getElementById('forgotPasswordBtn');
-            var closeBtn = document.getElementById('forgotModalClose');
-            if (!modal || !openBtn) return;
-
-            function openModal() {
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
-            function closeModal() {
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
-            }
-
-            openBtn.addEventListener('click', openModal);
-            if (closeBtn) closeBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) closeModal();
-            });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
-            });
-        })();
-
-        function closeNavbarMenu() {
-            var t = document.getElementById('navToggle');
-            var c = document.getElementById('navContent');
-            if (t) { t.classList.remove('active'); t.setAttribute('aria-expanded','false'); }
-            if (c) c.classList.remove('active');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var navToggle = document.getElementById('navToggle');
-            var navContent = document.getElementById('navContent');
-
-            if (navToggle) {
-                navToggle.addEventListener('click', function() {
-                    var isOpen = this.classList.toggle('active');
-                    this.setAttribute('aria-expanded', isOpen);
-                    if (navContent) navContent.classList.toggle('active');
-                });
-            }
-
-            document.querySelectorAll('.navbar-nav a').forEach(function(link) {
-                link.addEventListener('click', closeNavbarMenu);
-            });
-
-            document.querySelectorAll('button').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    if (window.Utils) Utils.track('button_click', {
-                        button_text: this.textContent.trim(),
-                        button_class: this.className
-                    });
-                });
-            });
-
-            // Reveal on scroll — respeita prefers-reduced-motion via CSS
-            // A hero (.v5-reveal dentro de .v5-hero) tem timeline própria via GSAP logo abaixo;
-            // aqui cuidamos só do restante da página.
-            var revealEls = document.querySelectorAll('.v5-reveal:not(.v5-hero .v5-reveal)');
-            if ('IntersectionObserver' in window) {
-                var io = new IntersectionObserver(function(entries) {
-                    entries.forEach(function(entry) {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('is-in');
-                            io.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-                revealEls.forEach(function(el) { io.observe(el); });
-            } else {
-                revealEls.forEach(function(el) { el.classList.add('is-in'); });
-            }
-
-            // Timeline coreografada da hero — GSAP se disponível. O CSS (.v5-hero
-            // .v5-reveal) já deixa tudo visível por padrão, então se o CDN falhar,
-            // travar ou dar qualquer erro no meio, nada fica invisível: o pior
-            // caso é a hero aparecer sem animação de entrada.
-            var heroReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            if (!heroReduced && typeof gsap !== 'undefined') {
-                try {
-                    var words = document.querySelectorAll('#heroHeadline .v5-headline-word');
-                    var wave = document.querySelectorAll('#heroSampleWave span');
-
-                    // Overlaps como fração da duração do passo anterior (não valores
-                    // fixos) — mantém a proporção de sobreposição consistente mesmo
-                    // se alguma duração mudar depois. ~45-60% de overlap = sensação
-                    // de continuidade; menos que isso começa a parecer uma lista.
-                    var tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-
-                    tl.from('#heroTag', { opacity: 0, y: 12, duration: 0.45 })
-                      .from(words, { opacity: 0, y: 16, duration: 0.55, stagger: 0.028 }, '-=0.25')
-                      .from('#heroSub', { opacity: 0, y: 12, duration: 0.5 }, '-=0.35')
-                      .from('#heroSub2', { opacity: 0, y: 8, duration: 0.4 }, '-=0.3')
-                      .from('#heroSample', { opacity: 0, y: 16, scale: 0.985, duration: 0.55 }, '-=0.2')
-                      .from('#cta', { opacity: 0, y: 16, duration: 0.55 }, '-=0.4')
-                      .from('#heroSampleYou', { opacity: 0, x: -6, duration: 0.35 }, '-=0.35')
-                      .from(wave, { scaleY: 0.3, opacity: 0, duration: 0.35, stagger: 0.018 }, '-=0.1')
-                      .from('#heroSampleAi', { opacity: 0, y: 8, duration: 0.4, ease: 'back.out(1.4)' }, '-=0.05');
-                } catch (err) {
-                    console.warn('Timeline da hero não pôde rodar:', err);
-                }
-            }
-        });
-    </script>
+    <script src="assets/js/form-handler.js?v=7"></script>
+    <script src="assets/js/landing.js?v=1"></script>
 </body>
 </html>

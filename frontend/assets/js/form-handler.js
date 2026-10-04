@@ -246,7 +246,7 @@ const AuthForm = {
         sessionStorage.setItem('grilo_user', JSON.stringify(data.user));
         localStorage.setItem('grilo_analytics_ping', String(Date.now()));
 
-        showToast('Login realizado com sucesso!', 'success');
+        showToast('Bem-vindo de volta.', 'success');
         setTimeout(function() {
           window.location.href = '/home.html';
         }, 800);
@@ -277,19 +277,19 @@ const AuthForm = {
 
     if (this.isLogin) {
       document.getElementById('formTitle').textContent    = 'Entrar';
-      document.getElementById('formSubtitle').textContent = 'Acesse seu plano.';
+      document.getElementById('formSubtitle').textContent = 'Bem-vindo de volta.';
       document.getElementById('submitText').textContent   = 'Entrar';
       document.getElementById('toggleText').textContent   = 'Novo aqui?';
       this.toggleBtn.textContent    = 'Criar conta';
       document.getElementById('registerFields').style.display = 'none';
       this.email.removeAttribute('required');
       // Update placeholders for login mode
-      this.username.placeholder = 'ex: joão_silva';
-      this.password.placeholder = 'Digite sua senha';
+      this.username.placeholder = 'seu nome de usuário';
+      this.password.placeholder = 'sua senha';
       if (forgotBtn) forgotBtn.style.display = 'inline-block';
     } else {
       document.getElementById('formTitle').textContent    = 'Criar conta';
-      document.getElementById('formSubtitle').textContent = 'Crie e comece hoje.';
+      document.getElementById('formSubtitle').textContent = 'Grátis na beta. Leva menos de 2 minutos.';
       document.getElementById('submitText').textContent   = 'Criar';
       document.getElementById('toggleText').textContent   = 'Já tem conta?';
       this.toggleBtn.textContent    = 'Entrar';
