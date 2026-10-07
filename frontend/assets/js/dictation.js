@@ -573,6 +573,19 @@
     bind('dtHowGotIt', () => setHowOpen(false));
     if (howModal) howModal.addEventListener('click', e => { if (e.target === howModal) setHowOpen(false); });
     document.addEventListener('keydown', onKeyDown);
+    openFromUrl();
+  }
+
+  // Link direto: dictation.html?faixa=<slug> (destino do "Treino de hoje"
+  // da home). Faixa trancada não abre — o aluno cai no hub, como sempre.
+  function openFromUrl() {
+    let slug = null;
+    try { slug = new URLSearchParams(location.search).get('faixa'); } catch (e) {}
+    if (!slug) return;
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    const order = window.GriloDictation.getTrackOrder();
+    const track = window.GriloDictation.getTrackBySlug(slug);
+    if (track && isUnlocked(track, order)) openTrack(slug);
   }
 
   document.addEventListener('DOMContentLoaded', init);

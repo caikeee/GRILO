@@ -1531,9 +1531,68 @@
       .sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0));
   };
 
+  // Lugar de cada aula na trilha, na mesma ordem e numeração da grade
+  // (grupos em sequência; "Aula NN" reinicia a cada bloco de nível).
+  function lessonPlaces() {
+    const lessons = window.Grilo4P.LESSONS || [];
+    const groups = window.Grilo4P.GROUPS || [];
+    const out = [];
+    LEVEL_BLOCKS.forEach(blk => {
+      const blkGroups = groups.filter(g => levelOfGroup(g) === blk.level);
+      const blkLessons = blkGroups.flatMap(g => lessons.filter(l => l.group === g.id));
+      blkLessons.forEach((L, i) => {
+        out.push({ lesson: L, group: groupOf(L), level: blk.level, num: i + 1, blockTotal: blkLessons.length });
+      });
+    });
+    return out;
+  }
+
+  function describePlace(p) {
+    const L = p.lesson;
+    return {
+      slug: L.slug, title: L.title, icon: L.icon, minutes: L.minutes || null,
+      objective: L.objective || '',
+      level: p.level, num: p.num, blockTotal: p.blockTotal,
+      groupId: p.group ? p.group.id : null, groupLabel: p.group ? p.group.label : '',
+      completed: !!lessonProg(L.slug).completedAt,
+    };
+  }
+
+  window.Grilo4P.describeLesson = function (slug) {
+    const p = lessonPlaces().find(x => x.lesson.slug === slug);
+    return p ? describePlace(p) : null;
+  };
+
+  // A aula "comece aqui" da grade: a 1ª não concluída do produto inteiro.
+  window.Grilo4P.getNextLesson = function () {
+    const p = lessonPlaces().find(x => !lessonProg(x.lesson.slug).completedAt);
+    return p ? describePlace(p) : null;
+  };
+
+  window.Grilo4P.countCompleted = function () {
+    return (window.Grilo4P.LESSONS || []).filter(L => lessonProg(L.slug).completedAt).length;
+  };
+
+  window.Grilo4P.phaseInfo = function (id) {
+    return PHASES.find(p => p.id === id) || null;
+  };
+
+  // Link direto: lessons.html?aula=<slug> abre o player naquela aula
+  // (com a tela de retomada, se houver marcador). É o destino do herói
+  // da home. Espera a hidratação para a retomada valer entre máquinas.
+  function openFromUrl() {
+    let slug = null;
+    try { slug = new URLSearchParams(location.search).get('aula'); } catch (e) {}
+    if (!slug) return;
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    if ($('g4pGrid')) openLesson(slug);
+  }
+
   function init() {
     renderGrid();
-    hydrateFromBackend();
+    // `ready`: resolve quando o progresso remoto já foi mesclado — a home
+    // espera isso para mostrar a aula certa em outro navegador.
+    window.Grilo4P.ready = hydrateFromBackend().then(openFromUrl);
     resyncPendingLessons();
 
     // Rede de segurança para o caso do aluno: aba fechada, navegador

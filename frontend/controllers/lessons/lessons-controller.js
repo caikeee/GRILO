@@ -194,6 +194,7 @@ function renderProgressDetail(stats) {
     // ─────────── RAMPA (pl2-*) ───────────
     _renderHero(stats);
     _renderSidebar(stats);
+    if (typeof window.renderHomeToday === 'function') window.renderHomeToday(stats);
 }
 
 // ─────────── RAMPA: lateral "Seu progresso" (read-only) ───────────
@@ -313,14 +314,112 @@ function _renderHero(stats) {
         }
     }
 
-    // Herói: continuar de onde parou (sistema 4 pontas não tem resume ainda —
-    // vai sempre para a tela de aulas)
+    // Herói: texto genérico enquanto a trilha carrega (ou se falhar);
+    // _renderLessonHero troca pela aula real assim que o player responde.
     const titleEl = document.getElementById('pl2HeroTitle');
-    const resumeMeta = document.getElementById('pl2HeroResumeMeta');
-    const resumeLink = document.getElementById('pl2HeroResume');
-    if (titleEl) titleEl.textContent = 'Começar sua próxima aula';
-    if (resumeMeta) resumeMeta.textContent = 'Aulas curtas de ~10 minutos, do zero.';
-    if (resumeLink) resumeLink.href = 'lessons.html';
+    if (titleEl && !titleEl.dataset.real) {
+        titleEl.textContent = 'Começar sua próxima aula';
+        _pd('pl2HeroResumeMeta', 'Aulas curtas de ~10 minutos, do zero.');
+    }
+    _renderLessonHero();
+}
+
+// ─────────── Herói: a aula real (retomada ou próxima) ───────────
+// A home não tem a trilha; carrega o data file + o player das aulas sob
+// demanda (mesmos arquivos da lessons.html, então o cache é compartilhado)
+// e usa a API pública Grilo4P — a mesma fonte da grade de aulas.
+const LESSONS_4P_SCRIPTS = [
+    'assets/js/lessons-4p-data.js?v=1780000200',
+    'assets/js/lessons-4p.js?v=1780000400',
+];
+let _lessons4pLoading = null;
+
+function _loadLessons4p() {
+    if (_lessons4pLoading) return _lessons4pLoading;
+    _lessons4pLoading = LESSONS_4P_SCRIPTS.reduce((chain, src) => chain.then(() =>
+        new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = resolve;
+            s.onerror = () => reject(new Error('falha ao carregar ' + src));
+            document.body.appendChild(s);
+        })
+    ), Promise.resolve()).then(() => window.Grilo4P && window.Grilo4P.ready);
+    return _lessons4pLoading;
+}
+window._loadLessons4p = _loadLessons4p;
+
+function _agoLabel(iso) {
+    const t = Date.parse(iso || '');
+    if (!t) return '';
+    const mins = Math.round((Date.now() - t) / 60000);
+    if (mins < 2) return 'agora há pouco';
+    if (mins < 60) return `há ${mins} min`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `há ${hrs} h`;
+    const days = Math.round(hrs / 24);
+    return days === 1 ? 'ontem' : `há ${days} dias`;
+}
+
+function _renderLessonHero() {
+    _loadLessons4p().then(() => {
+        const G = window.Grilo4P;
+        if (!G || !G.getNextLesson) return;
+
+        const eyebrowEl = document.getElementById('pl2HeroEyebrow');
+        const titleEl = document.getElementById('pl2HeroTitle');
+        const goalEl = document.getElementById('pl2HeroGoal');
+        const progEl = document.getElementById('pl2HeroProg');
+        const fillEl = document.getElementById('pl2HeroProgFill');
+        const link = document.getElementById('pl2HeroResume');
+        if (!titleEl || !link) return;
+
+        const place = (L) => `${L.level} · Aula ${String(L.num).padStart(2, '0')} de ${L.blockTotal}`;
+        const set = (eyebrow, title, meta, goal, btn, href) => {
+            if (eyebrowEl) eyebrowEl.textContent = eyebrow;
+            titleEl.textContent = title;
+            titleEl.dataset.real = '1';
+            _pd('pl2HeroResumeMeta', meta);
+            if (goalEl) { goalEl.textContent = goal || ''; goalEl.hidden = !goal; }
+            _pd('pl2HeroBtnLabel', btn);
+            link.href = href;
+        };
+
+        // 1) Aula pela metade → retomada exata
+        const resume = (G.getResumable() || [])[0];
+        if (resume) {
+            const L = G.describeLesson(resume.slug);
+            const phase = G.phaseInfo(resume.phase);
+            const bits = [L ? place(L) : null,
+                          phase ? `parou em ${phase.icon} ${phase.label}` : null,
+                          _agoLabel(resume.at) || null].filter(Boolean);
+            set('Continue de onde parou', resume.title, bits.join(' · '), '',
+                'Continuar aula', `lessons.html?aula=${encodeURIComponent(resume.slug)}`);
+            if (progEl && fillEl) {
+                progEl.hidden = false;
+                fillEl.style.width = `${resume.percent}%`;
+                _pd('pl2HeroProgLabel', `${resume.percent}% da aula`);
+            }
+            return;
+        }
+        if (progEl) progEl.hidden = true;
+
+        // 2) Próxima aula da trilha
+        const next = G.getNextLesson();
+        if (next) {
+            const first = G.countCompleted() === 0;
+            const bits = [place(next), next.groupLabel, next.minutes ? `${next.minutes} min` : null].filter(Boolean);
+            set(first ? 'Sua primeira aula' : 'Sua próxima aula', next.title, bits.join(' · '),
+                next.objective, first ? 'Começar agora' : 'Começar aula',
+                `lessons.html?aula=${encodeURIComponent(next.slug)}`);
+            return;
+        }
+
+        // 3) Trilha inteira concluída → hora de usar o inglês
+        set('Trilha concluída', `Você fechou as ${G.countCompleted()} aulas`,
+            'Agora é usar: converse sobre qualquer assunto no Chat de Voz.', '',
+            'Abrir Chat de Voz', 'voice.html');
+    }).catch(e => console.warn('[HERO] trilha indisponível, mantendo herói genérico:', e.message));
 }
 
 

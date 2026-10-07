@@ -3756,6 +3756,50 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
     color: #C9DCCD;
     margin: 0 0 20px;
 }
+/* Objetivo da aula: o "pra quê" em uma frase, entre a meta e o botão. */
+.pl2-hero-goal {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: #E6F0E8;
+    max-width: 56ch;
+    margin: -8px 0 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.pl2-hero-goal[hidden],
+.pl2-hero-prog[hidden] {
+    display: none;
+}
+/* Quanto da aula já foi feito (só na retomada). */
+.pl2-hero-prog {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 360px;
+    margin: -8px 0 20px;
+}
+.pl2-hero-prog-track {
+    flex: 1;
+    height: 6px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+}
+.pl2-hero-prog-fill {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: #CFE6D4;
+    transition: width 0.6s ease;
+}
+.pl2-hero-prog-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #C9DCCD;
+    white-space: nowrap;
+}
 .pl2-hero-btn {
     display: inline-flex;
     align-items: center;
@@ -3860,6 +3904,244 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
 }
 .pend-row-locked .pend-chev {
     visibility: hidden;
+}
+
+/* ─────────── Treino de hoje: aula → ditação → shadowing ─────────── */
+.today[hidden] {
+    display: none;
+}
+.today {
+    background: #fff;
+    border: 1px solid #E2EBE3;
+    border-radius: 16px;
+    padding: 18px 20px 16px;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+.today.is-complete {
+    background: #F6FAF6;
+    border-color: #C5DACB;
+}
+.today-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+.today-title {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8FA396;
+}
+.today-count {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #5A7E66;
+    white-space: nowrap;
+}
+.today.is-complete .today-count::before {
+    content: '✓ ';
+}
+.today-bar {
+    height: 4px;
+    border-radius: 99px;
+    background: #ECF1EC;
+    overflow: hidden;
+    margin: 10px 0 6px;
+}
+.today-bar-fill {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: #7A9E84;
+    transition: width 0.6s ease;
+}
+.today-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.today-steps li + li .today-step {
+    border-top: 1px solid #EEF3EE;
+}
+.today-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 4px;
+    /* !important: é <a> — vence a{color}/a:hover{underline} do sage-color-system. */
+    color: inherit !important;
+    text-decoration: none !important;
+    border-radius: 10px;
+    transition: background-color 0.18s;
+}
+.today-step:hover {
+    background: #F6F9F6;
+    text-decoration: none !important;
+}
+.today-step-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-premium);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    color: #3A5E47;
+    border: 2px solid #CFDCD1;
+    background: #fff;
+}
+.today-step.is-done .today-step-mark {
+    background: #7A9E84;
+    border-color: #7A9E84;
+    color: #fff;
+}
+.today-step-txt {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.today-step-txt small {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #8FA396;
+}
+.today-step-txt b {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: #1F3B2D;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.today-step-txt em {
+    font-style: normal;
+    font-size: 0.8125rem;
+    color: #7E8F84;
+}
+.today-step.is-done .today-step-txt b {
+    color: #5E7266;
+}
+.today-step-chev {
+    color: #A9B8AD;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-premium);
+}
+.today-note {
+    margin: 8px 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: #7E8F84;
+}
+.today .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* ─────────── Use o que aprendeu: Chat de Voz · Comunidade ─────────── */
+.use-head {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8FA396;
+    margin-bottom: 12px;
+}
+.use-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.use-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #E2EBE3;
+    border-radius: 14px;
+    padding: 16px;
+    color: inherit !important;
+    text-decoration: none !important;
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+}
+.use-card:hover {
+    border-color: #C9D8CB;
+    box-shadow: 0 8px 20px -12px rgba(42, 70, 53, 0.25);
+    transform: translateY(-1px);
+    text-decoration: none !important;
+}
+.use-ico {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    background: #E6EEF4;
+    color: #3B5E78;
+}
+.use-card-community .use-ico {
+    background: #F1E9D8;
+    color: #8A6D2F;
+}
+.use-txt {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.use-txt small {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #8FA396;
+}
+.use-txt b {
+    font-weight: 700;
+    font-size: 0.9063rem;
+    line-height: 1.35;
+    color: #1F3B2D;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.use-txt em {
+    font-style: normal;
+    font-size: 0.7813rem;
+    color: #7E8F84;
+}
+.use-chev {
+    color: #A9B8AD;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-premium);
+    align-self: center;
+}
+@media (max-width: 560px) {
+    .use-grid {
+        grid-template-columns: 1fr;
+    }
+    .today {
+        padding: 16px 14px 14px;
+    }
 }
 
 /* ─────────── RAMPA: sua semana ─────────── */
@@ -6801,6 +7083,55 @@ body.voice-dimension-mode.voice-dimension-live #chatVoiceTab::before {
         inset 0 1px 0 rgba(255, 255, 255, 0.07),
         0 0 0 1px rgba(181, 205, 176, 0.12),
         0 18px 40px -18px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Treino de hoje · Use o que aprendeu ── */
+:root[data-theme="dark"] .today,
+:root[data-theme="dark"] .use-card {
+    background: var(--dk-card-bg);
+    border-color: var(--dk-card-border);
+}
+:root[data-theme="dark"] .today.is-complete {
+    background: rgba(122, 158, 132, 0.08);
+    border-color: #35503F;
+}
+:root[data-theme="dark"] .today-title,
+:root[data-theme="dark"] .use-head,
+:root[data-theme="dark"] .today-step-txt small,
+:root[data-theme="dark"] .use-txt small { color: var(--dk-kicker); }
+:root[data-theme="dark"] .today-count { color: var(--dk-sage-bright); }
+:root[data-theme="dark"] .today-bar { background: rgba(255, 255, 255, 0.08); }
+:root[data-theme="dark"] .today-steps li + li .today-step { border-top-color: var(--dk-card-border); }
+:root[data-theme="dark"] .today-step:hover { background: rgba(255, 255, 255, 0.03); }
+:root[data-theme="dark"] .today-step-mark {
+    background: transparent;
+    border-color: #35503F;
+    color: var(--dk-sage-bright);
+}
+:root[data-theme="dark"] .today-step.is-done .today-step-mark {
+    background: #5E8569;
+    border-color: #5E8569;
+    color: #fff;
+}
+:root[data-theme="dark"] .today-step-txt b,
+:root[data-theme="dark"] .use-txt b { color: var(--text-primary); }
+:root[data-theme="dark"] .today-step.is-done .today-step-txt b,
+:root[data-theme="dark"] .today-step-txt em,
+:root[data-theme="dark"] .use-txt em,
+:root[data-theme="dark"] .today-note { color: var(--text-tertiary); }
+:root[data-theme="dark"] .today-step-chev,
+:root[data-theme="dark"] .use-chev { color: var(--text-light); }
+:root[data-theme="dark"] .use-card:hover {
+    border-color: #35503F;
+    box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.60);
+}
+:root[data-theme="dark"] .use-ico {
+    background: rgba(110, 150, 180, 0.14);
+    color: #9DBCD4;
+}
+:root[data-theme="dark"] .use-card-community .use-ico {
+    background: var(--dk-amber-soft);
+    color: var(--dk-amber);
 }
 
 /* ── Linha de pendência ── */

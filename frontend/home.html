@@ -39,7 +39,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="assets/css/home.css?v=8">
+    <link rel="stylesheet" href="assets/css/home.css?v=10">
     <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
 </head>
 <body>
@@ -228,14 +228,30 @@
 
                         <!-- ── Herói: continue de onde parou ── -->
                         <section class="pl2-hero" aria-labelledby="pl2HeroTitle">
-                            <div class="pl2-hero-eyebrow">Continue de onde parou</div>
+                            <div class="pl2-hero-eyebrow" id="pl2HeroEyebrow">Sua próxima aula</div>
                             <h3 class="pl2-hero-title" id="pl2HeroTitle">Carregando aula…</h3>
                             <p class="pl2-hero-meta" id="pl2HeroResumeMeta">&nbsp;</p>
+                            <p class="pl2-hero-goal" id="pl2HeroGoal" hidden></p>
+                            <div class="pl2-hero-prog" id="pl2HeroProg" hidden>
+                                <div class="pl2-hero-prog-track"><div class="pl2-hero-prog-fill" id="pl2HeroProgFill"></div></div>
+                                <span class="pl2-hero-prog-label" id="pl2HeroProgLabel"></span>
+                            </div>
                             <a class="pl2-hero-btn" id="pl2HeroResume" href="lessons.html">
                                 <span class="pl2-hero-btn-play" aria-hidden="true"></span>
-                                <span>Continuar agora</span>
+                                <span id="pl2HeroBtnLabel">Continuar agora</span>
                             </a>
                         </section>
+
+                        <!-- ── Treino de hoje: aula → ditação → shadowing (as 4 pontas no dia) ── -->
+                        <div class="today" id="todayPlan" role="region" aria-labelledby="todayTitle" hidden>
+                            <div class="today-head">
+                                <span class="today-title" id="todayTitle">Treino de hoje</span>
+                                <span class="today-count" id="todayCount"></span>
+                            </div>
+                            <div class="today-bar" aria-hidden="true"><div class="today-bar-fill" id="todayFill"></div></div>
+                            <ol class="today-steps" id="todaySteps"></ol>
+                            <p class="today-note" id="todayNote"></p>
+                        </div>
 
                         <!-- ── Pendência: revisar dificuldades · desafio da semana ── -->
                         <button type="button" class="pend-row" id="pendDif" hidden>
@@ -246,6 +262,31 @@
                             </span>
                             <span class="pend-chev" aria-hidden="true">›</span>
                         </button>
+
+                        <!-- ── Use o que aprendeu: frentes abertas ── -->
+                        <div class="use" role="region" aria-labelledby="useTitle">
+                            <div class="use-head" id="useTitle">Use o que aprendeu</div>
+                            <div class="use-grid">
+                                <a class="use-card use-card-voice" href="voice.html">
+                                    <span class="use-ico" aria-hidden="true">◍</span>
+                                    <span class="use-txt">
+                                        <small>Chat de Voz</small>
+                                        <b id="useVoiceTitle">Cinco minutos de conversa</b>
+                                        <em id="useVoiceSub">A IA corrige enquanto você fala</em>
+                                    </span>
+                                    <span class="use-chev" aria-hidden="true">›</span>
+                                </a>
+                                <a class="use-card use-card-community" href="community.html">
+                                    <span class="use-ico" aria-hidden="true">◎</span>
+                                    <span class="use-txt">
+                                        <small>Comunidade</small>
+                                        <b id="useCommunityTitle">Decida o que entra no GRILO</b>
+                                        <em id="useCommunitySub">Sugira, corrija e vote</em>
+                                    </span>
+                                    <span class="use-chev" aria-hidden="true">›</span>
+                                </a>
+                            </div>
+                        </div>
 
                         <!-- ── Sua semana ── -->
                         <section class="week-strip" aria-label="Sua semana">
@@ -512,7 +553,8 @@
     <script src="assets/js/utils.js"></script>
     <!-- Cápsula de comando: ícone único que expande no painel de navegação -->
     <script src="controllers/home/command-panel.js?v=1"></script>
-    <script src="controllers/lessons/lessons-controller.js?v=9"></script>
+    <script src="controllers/lessons/lessons-controller.js?v=11"></script>
+    <script src="controllers/home/home-today.js?v=1"></script>
     <!-- Painel "Seu progresso" clicável → modal de requisitos do próximo nível CEFR -->
     <script src="controllers/home/cefr-modal.js?v=7"></script>
     <!-- Caixa de vocabulário clicável → modal de review das palavras faladas na voz -->
