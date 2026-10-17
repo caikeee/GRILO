@@ -1,6 +1,6 @@
 /** ================================
     GRILO - LANDING
-    Vitrine do produto: demo da hero, tour por abas, Ponte, níveis,
+    Vitrine do produto: fotos da hero, tour por abas, Ponte, níveis,
     modal de senha e atalhos para o cartão de acesso.
     ================================ */
 'use strict';
@@ -63,77 +63,15 @@
     });
   }
 
-  /* ---- Hero: sessão de voz com três cenas reais ---- */
-  var SCENES = [
-    {
-      you: '"I <em>tink</em> that\'s right."',
-      ai: '"<strong lang="en">Think.</strong>" A língua entre os dentes, não é "t".',
-      note: ''
-    },
-    {
-      you: '"I prefer the <mark lang="pt-br">frango</mark>."',
-      ai: '<span lang="en">"<strong>Chicken</strong> it is! Grilled or fried?"</span>',
-      note: '<s lang="pt-br">frango</s> <strong lang="en">chicken</strong> <small lang="en">/ˈtʃɪkɪn/</small>'
-    },
-    {
-      you: '"Yesterday I <em>go</em> to the beach."',
-      ai: '<span lang="en">"Oh, you <strong>went</strong> to the beach yesterday? Was it crowded?"</span>',
-      note: '<small>Corrigido na própria resposta, sem parar a conversa. Fica anotado no seu recap.</small>'
-    }
-  ];
-
-  function initHeroDemo() {
-    var body = document.querySelector('.lp-demo-body');
-    var you = document.getElementById('demoYou');
-    var ai = document.getElementById('demoAi');
-    var note = document.getElementById('demoNote');
-    var btns = document.querySelectorAll('.lp-scene-btn');
-    if (!body || !you || !ai || !btns.length) return;
-
-    var current = 0, timer = null, auto = !reduced, visible = true, hovering = false;
-
-    function show(i) {
-      current = i;
-      var s = SCENES[i];
-      you.innerHTML = s.you;
-      ai.innerHTML = s.ai;
-      note.innerHTML = s.note;
-      note.hidden = !s.note;
-      btns.forEach(function (b, j) {
-        b.classList.toggle('is-on', j === i);
-        b.setAttribute('aria-selected', j === i ? 'true' : 'false');
-      });
-      if (!reduced) {
-        body.classList.remove('is-playing');
-        void body.offsetWidth;
-        body.classList.add('is-playing');
-      }
-    }
-
-    function schedule() {
-      clearTimeout(timer);
-      if (!auto || !visible || hovering) return;
-      timer = setTimeout(function () { show((current + 1) % SCENES.length); schedule(); }, 6500);
-    }
-
-    btns.forEach(function (b, j) {
-      b.addEventListener('click', function () { auto = false; clearTimeout(timer); show(j); });
-    });
-
-    var demo = document.getElementById('heroSample');
-    demo.addEventListener('mouseenter', function () { hovering = true; clearTimeout(timer); });
-    demo.addEventListener('mouseleave', function () { hovering = false; schedule(); });
-    onVisible(demo, function (v) { visible = v; v ? schedule() : clearTimeout(timer); }, 0.2);
-
-    show(0);
-  }
-
   /* ---- Tour: abas + avanço automático enquanto a seção está à vista ---- */
   function initTour() {
     var section = document.getElementById('produto');
     var tabs = Array.prototype.slice.call(document.querySelectorAll('.lp-tab'));
     var url = document.getElementById('tourUrl');
+    var count = document.getElementById('tourCount');
     if (!section || !tabs.length) return;
+
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
 
     var auto = !reduced, started = false, current = 0;
 
@@ -152,6 +90,7 @@
           if (on && url) url.textContent = panel.getAttribute('data-url') || '';
         }
       });
+      if (count) count.textContent = pad(i + 1) + ' / ' + pad(tabs.length);
       if (focus) tabs[i].focus();
       // no trilho horizontal (mobile), mantém a aba ativa à vista sem rolar a página
       var strip = tabs[i].parentElement;
@@ -267,18 +206,50 @@
     });
   }
 
+  /* ---- Fotos de fundo da hero: seletor temporário p/ comparar e escolher ---- */
+  function initHeroPhotos() {
+    var media = document.getElementById('heroMedia');
+    var picker = document.getElementById('heroPicker');
+    if (!media || !picker) return;
+
+    var slides = media.querySelectorAll('.v5-hero-slide');
+    var dots = picker.querySelectorAll('.v5-hero-picker-dots i');
+    var label = document.getElementById('heroPickerLabel');
+    var names = { estudo: 'Estudo à noite', dicionarios: 'Dicionários', biblioteca: 'Biblioteca' };
+    var current = 0;
+
+    function show(i) {
+      current = (i + slides.length) % slides.length;
+      var photo = slides[current].getAttribute('data-photo');
+      slides.forEach(function (s, n) { s.classList.toggle('is-on', n === current); });
+      dots.forEach(function (d, n) { d.classList.toggle('is-on', n === current); });
+      media.setAttribute('data-photo', photo);
+      if (label) label.textContent = (current + 1) + '/' + slides.length + ' · ' + names[photo];
+    }
+
+    picker.querySelectorAll('[data-step]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        show(current + Number(btn.getAttribute('data-step')));
+      });
+    });
+
+    picker.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+    });
+  }
+
   /* ---- Entrada coreografada da hero (GSAP, se disponível) ---- */
   function initHeroTimeline() {
     if (reduced || typeof gsap === 'undefined') return;
     try {
       var words = document.querySelectorAll('#heroHeadline .v5-headline-word');
       var tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-      // o cartão de acesso entra logo no início: quem volta pra entrar não espera a coreografia
       tl.from('#heroTag', { opacity: 0, y: 12, duration: 0.45 })
-        .from('#cta', { opacity: 0, y: 12, duration: 0.5 }, 0.1)
-        .from(words, { opacity: 0, y: 16, duration: 0.55, stagger: 0.028 }, 0.2)
+        .from(words, { opacity: 0, y: 16, duration: 0.55, stagger: 0.028 }, 0.15)
+        .from('#heroPillars li', { opacity: 0, y: 10, duration: 0.45, stagger: 0.08 }, 0.1)
         .from('#heroSub', { opacity: 0, y: 12, duration: 0.5 }, '-=0.35')
-        .from('#heroSample', { opacity: 0, y: 16, scale: 0.985, duration: 0.55 }, '-=0.25');
+        .from(['#heroActions', '#heroMeta'], { opacity: 0, y: 10, duration: 0.45, stagger: 0.08 }, '-=0.3');
     } catch (err) {
       console.warn('Timeline da hero não pôde rodar:', err);
     }
@@ -287,7 +258,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     initAuthShortcuts();
     initForgotModal();
-    initHeroDemo();
+    initHeroPhotos();
     initTour();
     initPonte();
     initLevels();
