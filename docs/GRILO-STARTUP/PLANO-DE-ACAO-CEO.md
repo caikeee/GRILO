@@ -1,5 +1,11 @@
 # GRILO — Plano de Ação do CEO
 
+> **Status em 2026-10-07:** parcialmente superado por [PLAYBOOK-ESTRATEGICO.md](PLAYBOOK-ESTRATEGICO.md).
+> - A regra "landing só-voz" (seção 0) caiu em 03/10: a landing mostra as 5 frentes, com a voz como promessa da hero.
+> - A Comunidade foi construída em 20/09 como **fórum de pauta** (sugestões e votos), não como salas/pareamento — a validação manual com grupos-piloto (seção 4) continua pendente para a parte de prática entre alunos.
+> - O plano 30/60/90 (seção 4) e o preço Founders (seção 3) foram substituídos pelas Partes 5 e 9 do playbook.
+> - As referências de growth (seções 1–2) continuam válidas e são reaproveitadas no playbook.
+
 **Data:** 2026-07-22
 **Base factual:** `RAIO-X-PRODUTO.md` (mesma pasta) — tudo que cito sobre o produto vem de lá, não é invenção.
 **Objetivo deste documento:** parar de analisar e decidir. Isto não é mais "matéria-prima" — é a chamada.

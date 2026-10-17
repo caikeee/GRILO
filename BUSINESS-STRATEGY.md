@@ -1,4 +1,6 @@
-﻿# GRILO Voice — Estrategia de Pivot
+﻿> **Documento histórico (abril/2026).** A estratégia vigente está em `docs/GRILO-STARTUP/PLAYBOOK-ESTRATEGICO.md` (outubro/2026). O produto deixou de ser só-voz: hoje são 5 frentes, com a voz como porta de entrada.
+
+# GRILO Voice — Estrategia de Pivot
 ## Abril 2026 · Versao 2.0 (Voice-First)
 
 ## Tese central
@@ -92,10 +94,7 @@ ICP principal:
 - Precisa falar ingles para trabalho, entrevista, viagem ou crescimento profissional
 - Ja tentou estudar por conteudo, mas trava na fala
 
-Subsegmentos de maior conversao inicial:
-- TI/Tech (entrevistas e reunioes)
-- Atendimento e vendas (comunicacao pratica)
-- Jovens profissionais com meta de carreira internacional
+/
 
 ---
 
