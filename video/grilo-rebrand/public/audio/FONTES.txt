@@ -1,0 +1,26 @@
+Áudios do vídeo de lançamento — origem e licença
+================================================
+
+Todos vêm do Pixabay, sob a Pixabay Content License (uso comercial permitido,
+edição permitida, atribuição não obrigatória). Não podem ser redistribuídos
+sozinhos, sem modificação (ex.: subir estes MP3 soltos num repositório público
+ou numa biblioteca de áudio). Na data do download (2026-10-07) nenhum tinha
+Content ID registrado no YouTube nem era marcado como gerado por IA.
+
+Trilhas
+- music-a-friends-like-us.mp3 — "Pop - Friends Like Us_33Sec", Easy_Eva
+  https://pixabay.com/music/pop-pop-friends-like-us-33sec-564053/
+- music-b-bossa-nova-summer.mp3 — "Bossa Nova - Summer - Instrumental Brazil", Musicalmix2020
+  https://pixabay.com/music/bossa-nova-bossa-nova-summer-instrumental-brazil-7969/
+
+Efeitos
+- sfx-pop.mp3 — "Clean Minimal Pop", DRAGON-STUDIO
+  https://pixabay.com/sound-effects/clean-minimal-pop-467466/
+- sfx-swoosh.mp3 — "Swoosh 015", Universfield
+  https://pixabay.com/sound-effects/film-special-effects-swoosh-015-383769/
+- sfx-swoosh-thin.mp3 — "Thin Swoosh", Universfield
+  https://pixabay.com/sound-effects/film-special-effects-thin-swoosh-352756/
+- sfx-swoosh-air.mp3 — "Air Swoosh", Universfield
+  https://pixabay.com/sound-effects/film-special-effects-air-swoosh-352049/
+- sfx-chime.mp3 — "Clear Bell Chime", Universfield
+  https://pixabay.com/sound-effects/film-special-effects-clear-bell-chime-487898/
