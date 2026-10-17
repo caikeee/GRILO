@@ -1,0 +1,38 @@
+KIT DE LOGOS GRILO · A Ponte
+================================
+
+Pastas: <logo>/<versão de cor>/<com ou sem fundo>/
+
+LOGOS
+ 1-horizontal ......... símbolo à esquerda, nome e descritor à direita (assinatura principal)
+ 2-vertical ........... símbolo em cima, nome embaixo
+ 3-conversa ........... o "o" do nome vira os dois balões (a favorita)
+ 4-pingo-do-i ......... os balões no lugar do pingo do i
+ 5-nome-no-balao ...... o nome dentro do balão do inglês
+ 6-nome-primeiro ...... nome e, depois, os balões
+ 7-selo ............... símbolo e nome numa pílula
+ simbolo .............. só os balões, com "pt" e "en"
+ simbolo-sem-siglas ... só os balões, sem letras (favicon e tamanhos abaixo de 24 px)
+
+VERSÕES DE COR
+ colorida ............. para fundos claros (fundo de referência #FBFCFB)
+ para-fundo-escuro .... nome claro para fundos escuros (#0F1E18)
+ para-fundo-verde ..... para o verde da marca (#3A5E47)
+ preta ................ uma cor só, tinta #1A2A22; letras dos balões vazadas
+ branca ............... uma cor só, branco; para fotos e fundos escuros
+
+FUNDO
+ sem-fundo ............ transparente
+ com-fundo ............ com o fundo de referência e margem de respiro
+
+FORMATOS
+ .svg ................. vetor: site, app, gráfica, qualquer tamanho
+ _512px / _1024px / _2048px .png ... imagem com a largura indicada
+
+CORES DA MARCA
+ Sálvia clara #B5CDB0 · Sálvia #7A9E84 · Âmbar da Ponte #E6B800
+ Verde profundo #3A5E47 · Tinta #1A2A22 · Estúdio #0F1E18 · Papel #FBFCFB
+
+TIPOGRAFIA
+ Nome: Poppins Bold Itálico (convertido em vetor)
+ Siglas e descritor: Inter Display SemiBold (convertidos em vetor)
