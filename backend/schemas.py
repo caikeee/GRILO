@@ -116,6 +116,8 @@ class ChatRequest(BaseModel):
     voice_mode: Optional[str] = Field("free", pattern="^(free|guided|shadow|dictation)$")
     conversation_topic: Optional[str] = Field(None, max_length=50)
     bilingual_mode: Optional[bool] = False
+    # True: devolve a fala sem esperar a tradução PT; o front busca em /api/translate/
+    defer_translation: Optional[bool] = False
     input_bridge_mode: Optional[bool] = False
     shadow_mode: Optional["ShadowModeData"] = None
     

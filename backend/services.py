@@ -15,7 +15,7 @@ import langdetect
 import logging
 
 # Import new optimization modules
-from backend.decision_engine import classify_voice_request, get_model_for_classification, NO_LLM, LIGHT_LLM, FULL_LLM
+from backend.decision_engine import classify_voice_request, get_model_for_classification, NO_LLM, LIGHT_LLM, FULL_LLM, VOICE_FALLBACK_MODEL
 from backend.voice_cache import voice_cache
 from backend.fallback import get_fallback_response, log_fallback_usage, RATE_LIMIT, TIMEOUT, API_ERROR
 
@@ -164,15 +164,19 @@ Return ONLY the translated text, nothing else.
 Portuguese: "{text}"
 English:"""
         
-        response = client.chat.completions.create(
+        # to_thread: o client Groq é síncrono e travaria o event loop (todos os
+        # usuários) durante a chamada.
+        response = await asyncio.to_thread(
+            client.chat.completions.create,
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            max_tokens=150
+            max_tokens=300,
+            reasoning_effort="low",
         )
-        
+
         translation = response.choices[0].message.content.strip()
-        return translation
+        return translation or text
     except Exception as e:
         print(f"[TRANSLATE-PT-EN ERROR] {str(e)}")
         # Fallback: return original text if translation fails
@@ -550,11 +554,13 @@ Return ONLY the translated text, nothing else.
 Text: \"{text}\"
 Translation:"""
 
-        response = client.chat.completions.create(
+        response = await asyncio.to_thread(
+            client.chat.completions.create,
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            max_tokens=220
+            max_tokens=320,
+            reasoning_effort="low",
         )
 
         translation = response.choices[0].message.content.strip()
@@ -570,7 +576,7 @@ Translation:"""
 MINIMAL_SYSTEM_PROMPT = """You are a friendly English tutor for beginners.
 Your job:
 1. Respond in English only.
-2. Keep it short: 1-2 sentences max (40-80 words).
+2. Keep it VERY short: a quick reaction plus ONE short question (under 20 words total). Learners are beginners.
 3. Engage with WHAT they actually said — react to the real content, not a vague acknowledgement.
    - Don't parrot their exact phrasing back word-for-word, but DO show you understood the specific thing.
    - If they say "Pizza", a real reaction ("Nice, homemade or a favorite spot?") beats a vague "Oh, food!".
@@ -596,7 +602,7 @@ _LEVEL_VOICE_RULES: dict = {
     "a1": (
         "You are coaching an absolute beginner (A1) in a voice lesson.\n"
         "SIMPLE RULES:\n"
-        "1. Keep replies SHORT: 1-2 short sentences max.\n"
+        "1. Keep replies VERY SHORT: a 2-4 word reaction + ONE simple question. 12 words total, max.\n"
         "2. Use ONLY simple present and very basic words.\n"
         "3. Show you understood their idea.\n"
         "   - Echo ONE word ONLY if it helps clarity (don't force it).\n"
@@ -609,7 +615,7 @@ _LEVEL_VOICE_RULES: dict = {
     "a2": (
         "You are coaching an elementary learner (A2) in a voice lesson.\n"
         "RULES:\n"
-        "1. Keep replies concise: 1-2 short sentences.\n"
+        "1. Keep replies concise: a short reaction + ONE short question, 18 words max.\n"
         "2. Use present and past simple only.\n"
         "3. Ask only one short question per turn.\n"
         "4. If user hesitates, offer two short options to pick from.\n"
@@ -619,7 +625,7 @@ _LEVEL_VOICE_RULES: dict = {
         "You are a friendly English conversation partner helping an intermediate learner (B1 level).\n"
         "RULES:\n"
         "1. ALWAYS respond in English only — this is immersion practice.\n"
-        "2. Keep responses to 1-2 short sentences (max 120 tokens). You will be read aloud.\n"
+        "2. Keep responses to 1-2 short sentences (about 25 words max). You will be read aloud.\n"
         "3. No markdown, no lists, no bullet points — natural spoken language only.\n"
         "4. If the user speaks Portuguese, respond in English and naturally model the correct English phrase.\n"
         "5. Be warm and conversational. Correct errors by modeling the right form in double quotes.\n"
@@ -736,8 +742,8 @@ _voice_chat_cache = {}
 # precavida. Esta função isola a extração numa chamada leve e independente,
 # que só roda quando há sinal de que vale a pena (erro claro ou code-switching).
 _CORRECTION_ANALYSIS_PROMPT = (
-    "You analyze one student/tutor exchange from an English-practice voice chat. "
-    "Given the student's message and the tutor's reply, output ONLY a compact JSON object, no prose:\n"
+    "You analyze one student message from an English-practice voice chat. "
+    "Given the student's message, output ONLY a compact JSON object, no prose:\n"
     '{"correction": null | {"wrong": str, "correct": str, "tip": str (short, in Portuguese), '
     '"error_type": "verb_tense|word_choice|preposition|article|subject_verb_agreement|gerund_after_verb|spelling"}, '
     '"bridge_words": null | [{"pt": str, "en": str}]}\n'
@@ -754,18 +760,17 @@ _CORRECTION_ANALYSIS_PROMPT = (
 
 async def _extract_correction_and_bridge(
     student_message: str,
-    tutor_reply: str,
     want_bridge: bool,
 ) -> tuple[dict | None, list | None]:
     """Chamada leve e separada da resposta conversacional principal.
 
-    Roda em paralelo com a tradução bilíngue quando aplicável; falhas aqui
-    nunca devem derrubar o turno — o pior caso é simplesmente não ter
-    correção/bridge para o resumo daquela fala.
+    Roda em paralelo com a resposta principal (só depende da fala do aluno);
+    falhas aqui nunca devem derrubar o turno — o pior caso é simplesmente não
+    ter correção/bridge para o resumo daquela fala.
     """
     import json as _json_analysis
 
-    user_prompt = f"Student said: {student_message!r}\nTutor replied: {tutor_reply!r}"
+    user_prompt = f"Student said: {student_message!r}"
     if not want_bridge:
         user_prompt += "\n(No Portuguese code-switching in this message — bridge_words will be null.)"
 
@@ -776,7 +781,7 @@ async def _extract_correction_and_bridge(
                 {"role": "user", "content": user_prompt},
             ],
             model="openai/gpt-oss-20b",
-            max_tokens=180,
+            max_tokens=320,  # o raciocínio do gpt-oss consome parte do teto
             temperature=0.1,
             max_retries=1,
         )
@@ -838,6 +843,9 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             level = "b1"
         voice_mode = (getattr(request, "voice_mode", None) or "free").lower().strip()
         bilingual_mode = bool(getattr(request, "bilingual_mode", False))
+        # Tradução inline só quando o front não vai buscá-la depois (turno principal
+        # pede defer: a fala chega ao aluno sem esperar a tradução).
+        translate_inline = bilingual_mode and not bool(getattr(request, "defer_translation", False))
         # 0.0 = "sem sinal de confiança" (vários browsers não reportam confidence);
         # o gate de entendimento cai para checagens lexicais nesse caso.
         # O antigo `or 1.0` convertia 0 em confiança máxima — lixo passava como fala clara.
@@ -857,7 +865,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
                 logger.info(f"[NO-LLM] Resposta local: {reply[:40]}...")
                 
                 translation_pt = None
-                if bilingual_mode:
+                if translate_inline:
                     try:
                         translation_pt = await translate_with_direction(reply, "en", "pt")
                     except Exception as e:
@@ -885,7 +893,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
 
         if not is_opening_turn and understanding.get("clarification_needed"):
             logger.info(f"[CLARIFICATION] Needed | reason: {understanding.get('reason')}")
-            return await _build_voice_clarification_result(understanding, bilingual_mode)
+            return await _build_voice_clarification_result(understanding, translate_inline)
 
         # ======== ROTA 2: CACHE HIT (0 API tokens) ========
         cache_key = voice_cache.compute_key(
@@ -897,7 +905,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         cached_response = await voice_cache.get(cache_key)  # Now async with latency
         if cached_response and not is_opening_turn:
             result = dict(cached_response)
-            if bilingual_mode and not result.get("translation_pt"):
+            if translate_inline and not result.get("translation_pt"):
                 # Hit sem tradução armazenada: traduz on-demand (1 chamada leve,
                 # muito mais barata que o LLM completo) e devolve ao cache.
                 try:
@@ -910,6 +918,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
                     result["translation_pt"] = None
             elif not bilingual_mode:
                 result["translation_pt"] = None
+            # (defer + tradução já no cache: devolve a cacheada, o front não busca de novo)
             # understanding/detected_input devem refletir o turno ATUAL, não o cacheado
             result["understanding"] = understanding
             result["detected_input"] = {
@@ -976,7 +985,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             if turn_count > 6:  # After ~3 exchanges, already established context
                 system_msg += "\n[VARIATION] You can now assume context is understood. Mix strategies: sometimes echo, sometimes build on what's known. Avoid repetition."
             else:  # Early in conversation, echo is important
-                system_msg += "\n[EARLY-STAGE] Echo and acknowledge to build clarity. First-turn clarity is critical."
+                system_msg += "\n[EARLY-STAGE] Briefly acknowledge what they said, then keep it short."
             
             # Injetar scripts de modo
             if voice_mode == "guided" and conversation_topic:
@@ -990,29 +999,33 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             elif voice_mode == "dictation":
                 system_msg += "\n\nDICTATION MODE: Dite uma frase clara para o aluno escrever. Começa com 'Write what you hear:'"
         
-        # Bridge mode: traduzir português input para english para Groq
+        # Bridge mode: o modelo entende português direto — a antiga tradução PT→EN
+        # prévia custava uma chamada de LLM inteira em série antes da resposta.
         user_payload = request.message
         if input_bridge_mode and detected_input_language == "pt" and not is_opening_turn:
-            try:
-                translated = await translate_with_direction(request.message, "pt", "en")
-                user_payload = f"[Student spoke PT] {request.message}\n[Intent in EN] {translated}"
-                system_msg += "\n\n[BRIDGE MODE] Entenda a intenção, mas responda em English natural."
-            except Exception as e:
-                logger.warning(f"[BRIDGE-TRANSLATE-ERROR] {str(e)}")
+            user_payload = f"[Student spoke PT] {request.message}"
+            system_msg += (
+                "\n\n[BRIDGE MODE] The student answered in Portuguese. Understand the intent, "
+                "reply in simple natural English, and naturally use the English version of what they said."
+            )
 
         # Ponte code-switching: frase majoritariamente EN com palavras PT no meio
         # ("I prefer the frango") → a IA identifica e ensina SÓ as palavras que
         # o aluno pulou para o português. Zero chamadas extras de API.
+        # O detector lexical nem sempre marca "mixed" com 1 palavra PT numa frase EN
+        # ("I prefer the frango…" saía como "en"): com a Ponte ligada, qualquer fala
+        # que não seja inteira em PT passa pela checagem — a análise já roda mesmo.
         wants_bridge_words = (
             input_bridge_mode
             and not is_opening_turn
-            and detected_input_language == "mixed"
+            and detected_input_language != "pt"
         )
         if wants_bridge_words:
             system_msg += (
-                "\n\n[MIXED-INPUT] The student said a mostly-English sentence but slipped 1-3 Portuguese "
-                "words into it. Understand the full intent and keep the conversation flowing naturally in "
-                "English, using the English equivalents of those words in your reply."
+                "\n\n[MIXED-INPUT] The student may slip 1-3 Portuguese words into an English sentence. "
+                "Understand the full intent and keep the conversation flowing naturally in "
+                "English, using the English equivalents of those words in your reply. NEVER repeat the "
+                "Portuguese words themselves (e.g. they say 'frango' → you say 'chicken')."
             )
         
         # Palpite assumido (baixa confiança / fragmento): ancora a resposta no
@@ -1049,21 +1062,24 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         # ======== SHORT INPUT DETECTION + EXPANSION ========
         is_short_input = should_expand_short_input(user_payload)
         if is_short_input and not is_opening_turn:
-            system_msg += "\n\n[SHORT-INPUT-MODE] User gave a brief response (1-2 words). This is valid. Treat it as a complete thought and expand naturally by adding context or follow-up. Don't make them feel rushed."
+            system_msg += "\n\n[SHORT-INPUT-MODE] User gave a brief response (1-2 words). This is valid. Treat it as a complete thought and react with a few words plus ONE short follow-up question. Don't make them feel rushed."
             logger.info(f"[SHORT-INPUT] Detected: '{user_payload}' | Activating expansion mode")
         
         messages.insert(0, {"role": "system", "content": system_msg})
         messages.append({"role": "user", "content": user_payload})
         
         # Max tokens by level e mode (~+30% vs. valores antigos p/ reduzir truncamento)
+        # Os modelos gpt-oss raciocinam antes de falar e esse raciocínio consome o
+        # max_tokens: teto baixo (60-80) devolvia resposta VAZIA. O tamanho da fala
+        # é garantido por _limit_reply_words; aqui é só a margem de segurança.
         max_tokens_map = {
-            "a1": 90, "a2": 110, "b1": 150, "b2": 180, "c1": 200, "c2": 220
+            "a1": 220, "a2": 240, "b1": 260, "b2": 300, "c1": 340, "c2": 380
         }
         max_tokens = max_tokens_map.get(level, 150)
         if voice_mode in ("shadow", "dictation"):
-            max_tokens = min(max_tokens, 110)
+            max_tokens = min(max_tokens, 240)
         if is_opening_turn:
-            max_tokens = min(max_tokens, 80 if is_beginner else 110)
+            max_tokens = min(max_tokens, 220 if is_beginner else 260)
         
         # Temperature por modo: conversa livre/guiada mais viva (0.7);
         # shadow/dictation precisam de precisão e previsibilidade (0.3).
@@ -1071,17 +1087,9 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
 
         logger.info(f"[API-CALL] model={model_name} | messages={len(messages)} | max_tokens={max_tokens} | temp={voice_temperature}")
 
-        # ======== CALL GROQ com RETRY LOGIC ========
-        reply = await _call_groq_with_retry(
-            messages=messages,
-            model=model_name,
-            max_tokens=max_tokens,
-            temperature=voice_temperature,
-            max_retries=2
-        )
-
-
-        # ======== ANÁLISE DE CORREÇÃO/BRIDGE + TRADUÇÃO (em paralelo) ========
+        # ======== RESPOSTA + ANÁLISE DE CORREÇÃO/BRIDGE (em paralelo) ========
+        # A análise só olha a frase do aluno, então não precisa esperar a resposta:
+        # as duas chamadas correm juntas e o turno custa a mais lenta, não a soma.
         # Mesma condição que antes injetava [IMPLICIT-CORRECTION]/[MIXED-INPUT]
         # no prompt: só vale rodar a análise quando o turno teve o contexto
         # completo (FULL_LLM, não é o turno de abertura).
@@ -1091,8 +1099,41 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
             and voice_mode in ("free", "guided")
         )
 
+        async def _analyze_if_needed():
+            if not wants_correction_analysis:
+                return None, None
+            return await _extract_correction_and_bridge(user_payload, wants_bridge_words)
+
+        async def _reply_with_fallback():
+            try:
+                return await _call_groq_with_retry(
+                    messages=messages,
+                    model=model_name,
+                    max_tokens=max_tokens,
+                    temperature=voice_temperature,
+                    max_retries=2
+                )
+            except Exception as e:
+                if model_name == VOICE_FALLBACK_MODEL:
+                    raise
+                logger.warning(f"[MODEL-FALLBACK] {model_name} falhou ({str(e)[:80]}) → {VOICE_FALLBACK_MODEL}")
+                return await _call_groq_with_retry(
+                    messages=messages,
+                    model=VOICE_FALLBACK_MODEL,
+                    max_tokens=max_tokens,
+                    temperature=voice_temperature,
+                    max_retries=1
+                )
+
+        reply, (correction, bridge_words) = await asyncio.gather(
+            _reply_with_fallback(),
+            _analyze_if_needed(),
+        )
+        if voice_mode in ("free", "guided") and isinstance(reply, str):
+            reply = _limit_reply_words(reply, level)
+
         async def _translate_if_needed():
-            if not bilingual_mode:
+            if not translate_inline:
                 return None
             try:
                 t = await translate_with_direction(reply, "en", "pt")
@@ -1102,14 +1143,7 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
                 logger.warning(f"[TRANSLATION-ERROR] {str(e)}")
                 return None
 
-        async def _analyze_if_needed():
-            if not wants_correction_analysis:
-                return None, None
-            return await _extract_correction_and_bridge(user_payload, reply, wants_bridge_words)
-
-        translation_pt, (correction, bridge_words) = await asyncio.gather(
-            _translate_if_needed(), _analyze_if_needed()
-        )
+        translation_pt = await _translate_if_needed()
         if correction:
             logger.info(f"[CORRECTION] Extracted: {correction.get('error_type')}")
         if bridge_words:
@@ -1193,6 +1227,45 @@ async def chat_concise_voice(request: ChatRequest) -> dict:
         }
 
 
+# Teto de palavras por nível: a fala da IA precisa caber na memória de trabalho de quem
+# está começando. O prompt pede curto, mas o modelo nem sempre obedece — aqui é garantido.
+_VOICE_REPLY_WORD_CAP = {"a1": 14, "a2": 22, "b1": 32, "b2": 45, "c1": 60, "c2": 70}
+
+
+def _limit_reply_words(reply: str, level: str) -> str:
+    """Corta a resposta na última frase completa que cabe no teto do nível.
+
+    Mantém a pergunta final (é ela que faz a conversa seguir) quando ainda cabe;
+    nunca devolve texto cortado no meio de uma frase.
+    """
+    text = re.sub(r"\s+", " ", reply or "").strip()  # fala: sem quebras de linha
+    cap = _VOICE_REPLY_WORD_CAP.get(level, 32)
+    if len(text.split()) <= cap:
+        return text
+
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    if len(sentences) <= 1:
+        return text  # uma frase só: cortar no meio é pior do que falar um pouco mais
+
+    kept = []
+    used = 0
+    for sentence in sentences:
+        n = len(sentence.split())
+        if kept and used + n > cap:
+            break
+        kept.append(sentence)
+        used += n
+
+    last = sentences[-1]
+    if last not in kept and last.endswith("?"):
+        last_n = len(last.split())
+        # troca o excesso pela pergunta final: reação curta + pergunta
+        while len(kept) > 1 and sum(len(s.split()) for s in kept) + last_n > cap:
+            kept.pop()
+        kept.append(last)
+    return " ".join(kept)
+
+
 # ======== HELPER: Retry logic com exponential backoff ========
 async def _call_groq_with_retry(
     messages: list,
@@ -1213,7 +1286,9 @@ async def _call_groq_with_retry(
                         max_tokens=max_tokens,
                         temperature=temperature,
                         top_p=0.9,
-                        reasoning_effort="low",
+                        # gpt-oss sempre raciocina (o mínimo é "low"); qwen aceita
+                        # desligar — numa frase de 12 palavras raciocínio só atrasa.
+                        reasoning_effort="low" if model.startswith("openai/gpt-oss") else "none",
                         timeout=10
                     )
                 ),

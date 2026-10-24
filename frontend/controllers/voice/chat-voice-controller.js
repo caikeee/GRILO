@@ -248,7 +248,7 @@ async function _fetchTtsAudio(chunk, lang, authToken) {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ text: chunk, lang, speed: ttsSpeed }),
+        body: JSON.stringify({ text: chunk, lang, speed: ttsSpeed, voice: ttsVoice }),
         signal: AbortSignal.timeout(10000),
     });
     if (resp.status === 401) return "__401__";
@@ -258,7 +258,21 @@ async function _fetchTtsAudio(chunk, lang, authToken) {
     return { b64: data.audio_base64, contentType: data.content_type || "audio/mpeg" };
 }
 
+// Toda fala da IA fecha o microfone do início ao fim (sem interrupção pelo aluno):
+// é o que impede a voz da IA de voltar como "fala do aluno".
 async function speakResponse(text, language = "pt-BR") {
+    if (language.startsWith("en") && String(text || "").split(/\s+/).length > 2) {
+        _lastAIReplyText = String(text);
+    }
+    _gateMic();
+    try {
+        await _speakResponseInner(text, language);
+    } finally {
+        _ungateMic();
+    }
+}
+
+async function _speakResponseInner(text, language) {
     console.log("🔊 [SPEAK] Speaking text:", text.substring(0, 50) + "...", "Language:", language);
 
     cancelCurrentSpeech();
@@ -374,7 +388,7 @@ function _speakWithWebSpeech(cleanText, language) {
 
         const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.lang = language;
-        utterance.rate = 1.0;
+        utterance.rate = ttsSpeed; // mesmo ritmo calmo da voz neural
         utterance.pitch = 1.0;
         utterance.volume = 1.0;
 
@@ -632,6 +646,37 @@ function renderVoiceResponseCard({
         ${translationBlock}
         ${turnBlock}
     `);
+}
+
+// A tradução não segura mais a resposta: o card aparece só com o inglês e o
+// "Apoio em português" é encaixado quando chega — se o card ainda for o mesmo.
+async function _fillDeferredTranslation(englishText, authToken) {
+    try {
+        const resp = await fetch(`${API_BASE_URL}/api/translate/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+            body: JSON.stringify({ text: englishText, from_lang: "en", to_lang: "pt" }),
+            signal: AbortSignal.timeout(8000),
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const translated = String(data.translated_text || "").trim();
+        if (!translated || translated === englishText) return;
+
+        const container = document.getElementById("aiResponseText");
+        const mainText = container && container.querySelector(".voice-response-main-text");
+        if (!mainText || mainText.textContent !== englishText) return; // turno já mudou
+        if (container.querySelector(".voice-translation-card")) return;
+
+        _lastTranslationPt = translated;
+        const card = document.createElement("div");
+        card.className = "voice-translation-card";
+        card.innerHTML = `<span class="voice-card-eyebrow">Apoio em português</span>
+            <p class="voice-translation-text">${_escapeHtml(translated)}</p>`;
+        container.querySelector(".voice-response-card-main").after(card);
+    } catch (e) {
+        console.warn("[TRANSLATE] Tradução adiada falhou:", e.message);
+    }
 }
 
 // Toca a pronúncia de uma palavra da Ponte (interrompe a fala atual — intenção do usuário)
@@ -1012,51 +1057,6 @@ function _getPerformanceComparison(history, currentScore) {
 }
 
 
-// ==================== RADAR CHART ====================
-
-function _buildRadarHTML(radarObj) {
-    const cx = 80, cy = 80, maxR = 58;
-    const labels = ['Fluência', 'Gramática', 'Vocab', 'Ritmo', 'Progresso'];
-    const keys   = ['fluency', 'grammar', 'vocabulary', 'rhythm', 'progress'];
-    const radarData = keys.map(k => Math.max(0, Math.min(100, radarObj[k] ?? 50)));
-
-    function anglePts(values) {
-        return values.map((v, i) => {
-            const angle = (Math.PI * 2 * i / values.length) - Math.PI / 2;
-            const r = (v / 100) * maxR;
-            return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
-        });
-    }
-    function polyPts(values) { return anglePts(values).map(p => p.join(',')).join(' '); }
-
-    const gridHTML = [0.25, 0.5, 0.75, 1.0].map(level =>
-        `<polygon class="radar-grid" points="${polyPts(Array(5).fill(level * 100))}"/>`
-    ).join('');
-
-    const axisHTML = labels.map((_, i) => {
-        const angle = (Math.PI * 2 * i / labels.length) - Math.PI / 2;
-        const x2 = cx + maxR * Math.cos(angle), y2 = cy + maxR * Math.sin(angle);
-        return `<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
-    }).join('');
-
-    const labelHTML = labels.map((label, i) => {
-        const angle = (Math.PI * 2 * i / labels.length) - Math.PI / 2;
-        const r = maxR + 15;
-        return `<text class="radar-tick-label" x="${(cx + r*Math.cos(angle)).toFixed(1)}" y="${(cy + r*Math.sin(angle)).toFixed(1)}">${label}</text>`;
-    }).join('');
-
-    return `
-        <div class="recap-radar-wrap stagger-in stagger-5">
-            <div class="recap-radar-label-row">COMPETÊNCIAS</div>
-            <svg class="radar-svg" viewBox="0 0 160 160">
-                ${gridHTML}${axisHTML}
-                <polygon class="radar-fill" points="${polyPts(radarData)}"/>
-                ${labelHTML}
-            </svg>
-        </div>`;
-}
-
-
 // ==================== SPARKLINE ====================
 
 function _buildSparklineHTML(history) {
@@ -1104,18 +1104,70 @@ let _mediaRecorder = null;
 let _audioChunks = [];
 let _micStream = null;
 let _whisperPending = false; // guard: only one Whisper call in flight at a time
+// Contexto do Whisper: currentAIResponse é limpo quando a fala da IA termina,
+// justamente antes do aluno responder — por isso guardamos a última à parte.
+let _lastAIReplyText = "";
+
+// Cancelamento de eco/ruído do próprio navegador: sem isso o microfone capta a
+// voz da IA saindo do alto-falante e o Whisper a transcreve como fala do aluno.
+const _MIC_CONSTRAINTS = {
+    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+};
 
 async function _startMicRecording() {
     if (_micStream) return; // already open
     try {
-        _micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        _micStream = await navigator.mediaDevices.getUserMedia(_MIC_CONSTRAINTS);
     } catch (e) {
         console.warn('[WHISPER] getUserMedia failed:', e.message);
     }
 }
 
+// ==================== MICROFONE FECHADO ENQUANTO A IA PENSA/FALA ====================
+// Turno de rádio: enquanto a IA processa ou fala, nada do microfone vale — o VAD
+// pausa, a gravação não começa e resultados do reconhecedor são descartados.
+// Contador (não booleano) porque processamento e fala se sobrepõem.
+let _micGateDepth = 0;
+let _micResumeTimer = null;
+
+function _isMicGated() {
+    return _micGateDepth > 0;
+}
+
+function _gateMic() {
+    _micGateDepth++;
+    if (_micGateDepth > 1) return;
+    clearTimeout(_micResumeTimer);
+    isListening = false;
+    try { voiceModalRecognizer && voiceModalRecognizer.stop(); } catch (e) { /* already stopped */ }
+    if (_mediaRecorder && _mediaRecorder.state === 'recording') {
+        _mediaRecorder.onstop = null;
+        try { _mediaRecorder.stop(); } catch (e) { /* noop */ }
+        _audioChunks = [];
+    }
+    if (_vadInstance) {
+        try { _vadInstance.pause(); } catch (e) { /* noop */ }
+    }
+}
+
+function _ungateMic() {
+    _micGateDepth = Math.max(0, _micGateDepth - 1);
+    if (_micGateDepth > 0) return;
+    // Pequena folga: o fim do áudio da IA ainda ecoa no ambiente por alguns ms
+    clearTimeout(_micResumeTimer);
+    _micResumeTimer = setTimeout(() => {
+        if (_isMicGated() || !voiceChatActive) return;
+        if (_vadInstance) {
+            try { _vadInstance.start(); } catch (e) { /* noop */ }
+        }
+        // O reconhecedor pode ter sido religado ainda durante o gate (o onstart
+        // dele não grava nesse momento) — garante a gravação para o Whisper.
+        if (isListening) _beginAudioCapture();
+    }, 300);
+}
+
 function _beginAudioCapture() {
-    if (!_micStream) return;
+    if (!_micStream || _isMicGated()) return;
     if (_mediaRecorder && _mediaRecorder.state === 'recording') return; // already capturing this turn
     _audioChunks = [];
     try {
@@ -1176,17 +1228,18 @@ async function _initSileroVad() {
             // vad-web has no "stream" option — it always wants a getStream()
             // factory. Reuse the pre-opened mic stream instead of letting it
             // call getUserMedia() again (which would open a second stream).
-            getStream: async () => _micStream || navigator.mediaDevices.getUserMedia({ audio: true }),
+            getStream: async () => _micStream || navigator.mediaDevices.getUserMedia(_MIC_CONSTRAINTS),
             onSpeechStart: () => {
                 console.log('[VAD] Speech start (Silero)');
-                if (!voiceChatActive) return;
+                if (!voiceChatActive || _isMicGated()) return; // IA pensando/falando
+
                 _beginAudioCapture(); // start Whisper recording immediately, no race
                 if (!isListening) startVoiceListening();
                 updateVoiceModalStatus('listening');
             },
             onSpeechEnd: (_audio) => {
                 console.log('[VAD] Speech end (Silero)');
-                if (!voiceChatActive) return;
+                if (!voiceChatActive || _isMicGated()) return;
                 // Small tolerance: SpeechRecognition's onresult may lag a few
                 // hundred ms behind the raw audio signal — give it a chance to
                 // land pendingVoiceMessage before we commit on the VAD's cue.
@@ -1244,12 +1297,22 @@ async function _transcribeWithWhisper(recording, browserTranscript, authToken) {
     _whisperPending = true;
     try {
         const arrayBuf = await blob.arrayBuffer();
-        const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuf)));
+        // Em blocos: o spread de um áudio longo estoura a pilha de argumentos.
+        const bytes = new Uint8Array(arrayBuf);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+        }
+        const base64 = btoa(binary);
         // API_BASE_URL is defined globally in utils.js
         const resp = await fetch(API_BASE_URL + '/api/voice/transcribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-            body: JSON.stringify({ audio_base64: base64, mime_type: mimeType }),
+            body: JSON.stringify({
+                audio_base64: base64,
+                mime_type: mimeType,
+                context: String(_lastAIReplyText || '').slice(-300),
+            }),
             signal: AbortSignal.timeout(12000),
         });
         if (resp.status === 401) {
@@ -1276,7 +1339,37 @@ let voiceMode = "free";            // "free" | "guided" | "shadow" | "dictation"
 let voiceTopic = null;             // "restaurant" | "airport" | "job" | "travel" | "doctor"
 let bilingualMode = false;         // show PT translation under AI bubble
 let voiceBridgeMode = true;        // free mode: allow PT or EN input
-let ttsSpeed = 1.0;                // 0.5–1.5, sent to ElevenLabs
+let ttsSpeed = 0.9;                // 0.5–1.5, sent to ElevenLabs (0.9: iniciante precisa de ritmo calmo)
+
+// Voz neural (Groq Orpheus) escolhida no seletor #voiceVoiceSelect — provisório,
+// até a voz definitiva ser fixada. Lembrada por navegador; padrão Troy.
+const _TTS_VOICES = ["troy", "daniel", "austin", "hannah", "diana", "autumn"];
+let ttsVoice = "troy";
+try {
+    const savedVoice = localStorage.getItem("griloTtsVoice");
+    if (_TTS_VOICES.includes(savedVoice)) ttsVoice = savedVoice;
+} catch (e) { /* storage indisponível: fica o padrão */ }
+
+function _initVoicePicker() {
+    const select = document.getElementById("voiceVoiceSelect");
+    if (!select) return;
+    select.value = ttsVoice;
+    select.addEventListener("change", () => {
+        if (!_TTS_VOICES.includes(select.value)) return;
+        ttsVoice = select.value;
+        try { localStorage.setItem("griloTtsVoice", ttsVoice); } catch (e) { /* noop */ }
+        // Amostra curta — não interrompe a IA no meio de um turno
+        if (!isAISpeaking && !_isMicGated()) {
+            const name = ttsVoice.charAt(0).toUpperCase() + ttsVoice.slice(1);
+            speakResponse(`Hi, I'm ${name}. Let's practice English together!`, "en-US");
+        }
+    });
+}
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", _initVoicePicker);
+} else {
+    _initVoicePicker();
+}
 let shadowPhraseTarget = null;     // original AI phrase for shadow comparison
 let dictationPhraseTarget = null;  // original AI phrase for dictation comparison
 let _lastTranslationPt = null;     // latest bilingual translation from API
@@ -1323,8 +1416,10 @@ function _bridgeModeHint() {
     return voiceBridgeMode ? "Aceita PT e EN" : "Só inglês";
 }
 
+// O navegador só aceita um idioma por vez; ele serve de legenda ao vivo e de gatilho
+// de turno. Quem decide EN/PT de verdade é o Whisper (auto-detect), então o alvo
+// do aprendizado (en-US) fica sempre fixo — pt-BR aqui distorcia o inglês falado.
 function _voiceRecognizerLanguage() {
-    if (voiceMode === "free" && voiceBridgeMode) return "pt-BR";
     return "en-US";
 }
 
@@ -2411,7 +2506,7 @@ window.startVoiceChatWithSetup = async function(opts = {}) {
                 console.log("🔄 [VOICE-SETUP] Restored bridge mode from localStorage:", voiceBridgeMode);
             }
         }
-        ttsSpeed = 1.0;
+        ttsSpeed = 0.9;
         shadowPhraseTarget = null;
         dictationPhraseTarget = null;
         console.log("✅ [VOICE-SETUP] Settings configured:", { voiceMode, voiceTopic, bilingualMode, voiceBridgeMode });
@@ -2783,10 +2878,16 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
         return;
     }
 
+    // Microfone fechado do envio até a IA terminar de falar (liberado no finally)
+    _gateMic();
     try {
         // Whisper só quando o STT do navegador não deu segurança suficiente —
         // com confiança alta, o upgrade não paga os ~0.5-1.5s que custa no turno.
-        const needsWhisperUpgrade = !hasConfidenceSignal || minConfidence < 0.75;
+        // Para iniciantes (e com a Ponte ligada, onde o navegador em en-US não entende
+        // português) o Whisper é a fonte principal; o navegador só dispensa o upgrade
+        // quando está muito seguro.
+        const needsWhisperUpgrade = !hasConfidenceSignal || minConfidence < 0.9
+            || (voiceMode === 'free' && voiceBridgeMode);
         if (needsWhisperUpgrade) {
             const recording = await recordingPromise;
             const whisperResult = await _transcribeWithWhisper(recording, userMessage, authToken);
@@ -2840,6 +2941,7 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
                 voice_mode: voiceMode,
                 conversation_topic: voiceTopic,
                 bilingual_mode: voiceMode === 'free' ? true : bilingualMode,
+                defer_translation: true, // a fala vem já; a tradução chega depois (_fillDeferredTranslation)
                 input_bridge_mode: voiceMode === 'free' ? voiceBridgeMode : false,
             }),
             signal: abortController.signal
@@ -2890,6 +2992,9 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
                     bridgeWords: Array.isArray(data.bridge_words) ? data.bridge_words : null,
                 });
                 console.log('📱 AI Response Modal shown');
+                if (!_lastTranslationPt && (voiceMode === 'free' || bilingualMode)) {
+                    void _fillDeferredTranslation(aiResponse, authToken);
+                }
             }
 
             _syncVoiceHelpPanelWithAI(aiResponse);
@@ -2981,6 +3086,8 @@ async function processCommittedVoiceTurn(initialMessage, minConfidence) {
         if (voiceChatActive) {
             setTimeout(() => startVoiceListening(), 2000);
         }
+    } finally {
+        _ungateMic();
     }
 }
 
@@ -3031,7 +3138,7 @@ function initializeVoiceModalRecognizer() {
         if (!voiceChatActive) return;
         // Tom leve, sem "repita" acusatório — a máquina só volta a ouvir.
         _swapStageContent(`<p class="voice-status-note voice-status-note-soft">Estou te ouvindo — pode continuar.</p>`);
-        setTimeout(() => { if (voiceChatActive) startVoiceListening(); }, 1500);
+        setTimeout(() => { if (voiceChatActive && !_isMicGated()) startVoiceListening(); }, 1500);
     };
 
     voiceModalRecognizer.onerror = (event) => {
@@ -3081,7 +3188,7 @@ function initializeVoiceModalRecognizer() {
 
         isListening = false;
         if (autoRestart) {
-            setTimeout(() => { if (voiceChatActive) startVoiceListening(); }, restartDelay);
+            setTimeout(() => { if (voiceChatActive && !_isMicGated()) startVoiceListening(); }, restartDelay);
         } else {
             updateVoiceModalStatus("error");
         }
@@ -3094,6 +3201,10 @@ function initializeVoiceModalRecognizer() {
 
         if (!voiceChatActive) {
             console.log("Voice chat not active, ignoring result");
+            return;
+        }
+        if (_isMicGated()) {
+            console.log("🔇 Mic gated (IA pensando/falando) — resultado descartado");
             return;
         }
 
@@ -3193,7 +3304,7 @@ function initializeVoiceModalRecognizer() {
             return;
         }
         // Only auto-restart for unexpected stops (not when AI is speaking or processing a message)
-        if (!messageDebounceTimer && !isAISpeaking) {
+        if (!messageDebounceTimer && !isAISpeaking && !_isMicGated()) {
             console.log("🔄 Recognizer ended unexpectedly — restarting");
             startVoiceListening(); // No delay: restart immediately to catch start of next utterance
         }
@@ -3422,6 +3533,40 @@ async function showVoiceRecap(durationSeconds) {
     }
 }
 
+// Barras do recap: as 5 competências quando a API manda o radar; senão, o que
+// dá pra medir localmente (parcela em inglês, precisão e qualidade).
+function _recapBars(radarObj, analytics, qualityScore) {
+    const keys = ['fluency', 'grammar', 'vocabulary', 'rhythm', 'progress'];
+    if (keys.every((k) => radarObj[k] != null)) {
+        const labels = ['Fluência', 'Gramática', 'Vocabulário', 'Ritmo', 'Progresso'];
+        return keys.map((k, i) => ({ label: labels[i], value: radarObj[k] }));
+    }
+    const en = analytics.en_turns || 0;
+    const pt = analytics.pt_turns || 0;
+    const bars = [];
+    if (en + pt > 0) bars.push({ label: 'Em inglês', value: (en / (en + pt)) * 100 });
+    if (en > 0) bars.push({ label: 'Precisão', value: (analytics.english_accuracy_ratio || 0) * 100 });
+    bars.push({ label: 'Qualidade', value: qualityScore });
+    return bars;
+}
+
+// "Sua melhor frase": a fala em inglês mais longa que passou sem correção.
+function _recapBestPhrase() {
+    const turns = (_voiceSessionAnalytics && _voiceSessionAnalytics.turns) || [];
+    let best = '';
+    let bestWords = 0;
+    turns.forEach((turn) => {
+        if (turn.language !== 'en' || turn.hadCorrection) return;
+        const text = String(turn.finalText || '').trim();
+        const words = text.split(/\s+/).filter(Boolean).length;
+        if (words >= 3 && words <= 28 && words > bestWords) {
+            best = text;
+            bestWords = words;
+        }
+    });
+    return best;
+}
+
 function renderVoiceRecap(data) {
     const loadingSection = document.getElementById("recapLoading");
     const contentSection = document.getElementById("recapContent");
@@ -3440,7 +3585,6 @@ function renderVoiceRecap(data) {
     const analytics = data.session_analytics || _summarizeVoiceSessionAnalytics(duration);
     const stats = window._lastUserStats || {};
     const challengeDays = stats.challenge_days_completed || 0;
-    const challengePct = Math.max(0, Math.min(100, stats.challenge_completion_percent || 0));
     const unlockedModes = Array.isArray(stats.voice_modes_unlocked) && stats.voice_modes_unlocked.length
         ? stats.voice_modes_unlocked.map(_modeLabelPt)
         : ["Guiado"];
@@ -3454,186 +3598,109 @@ function renderVoiceRecap(data) {
         ? `Próximo desbloqueio: ${_escapeHtml(_modeLabelPt(stats.next_mode_unlock.mode))} · ${_escapeHtml(stats.next_mode_unlock.requires || "")}`
         : "Todos os modos já estão liberados.";
 
-    const qualityBar = Math.max(6, Math.min(100, qualityScore));
+    const barsHTML = _recapBars(radarObj, analytics, qualityScore).map((bar) => {
+        const v = Math.round(Math.max(0, Math.min(100, Number(bar.value) || 0)));
+        return `<li><span>${_escapeHtml(bar.label)}</span><i style="--v:${v}%"></i><b>${v}</b></li>`;
+    }).join("");
 
-    // ======== VOCABULARY SNAPSHOT ========
-    const vocabSnap = data.vocabulary_snapshot || null;
-    const vocabSectionHTML = vocabSnap ? `
-        <section class="recap-v4-card recap-vocab-card">
-            <h3 class="recap-v4-card-title">Vocabulário desta sessão</h3>
-            <div class="recap-vocab-chips">
-                <div class="recap-vocab-chip">
-                    <span class="recap-vocab-chip-value">${vocabSnap.new_words_count || 0}</span>
-                    <span class="recap-vocab-chip-label">Palavras únicas</span>
-                </div>
-                <div class="recap-vocab-chip">
-                    <span class="recap-vocab-chip-value">${vocabSnap.mastered_this_session || 0}</span>
-                    <span class="recap-vocab-chip-label">Dominadas</span>
-                </div>
-                <div class="recap-vocab-chip">
-                    <span class="recap-vocab-chip-value">${Math.round((vocabSnap.avg_word_accuracy || 0) * 100)}%</span>
-                    <span class="recap-vocab-chip-label">Precisão média</span>
-                </div>
-            </div>
-            ${vocabSnap.top_words && vocabSnap.top_words.length ? `
-            <div class="recap-vocab-list">
-                ${vocabSnap.top_words.map(w => `
-                    <div class="recap-vocab-row">
-                        <span class="recap-vocab-word">${_escapeHtml(w.word)}</span>
-                        <div class="recap-vocab-bar"><span style="width:${Math.round(w.accuracy * 100)}%;background:${w.accuracy >= 0.85 ? '#16a34a' : w.accuracy >= 0.6 ? '#d97706' : '#dc2626'}"></span></div>
-                        <span class="recap-vocab-acc">${Math.round(w.accuracy * 100)}%</span>
-                        ${w.was_new ? '<span class="recap-vocab-new">nova</span>' : ''}
-                    </div>`).join('')}
-            </div>` : ''}
-        </section>
-    ` : '';
+    const bestPhrase = data.best_phrase || _recapBestPhrase();
+    const bestHTML = bestPhrase ? `
+        <div class="vr-best">
+            <span class="vr-label">Sua melhor frase</span>
+            <p lang="en">"${_escapeHtml(bestPhrase)}"</p>
+            <button class="vr-listen" type="button" onclick="window.playPracticePhrase(${_escapeHtml(JSON.stringify(bestPhrase))})">Ouvir de novo</button>
+        </div>` : "";
+
+    const fixesHTML = corrections.length
+        ? corrections.map((c) => `
+            <li>
+                <p>${c.wrong ? `<s lang="en">${_escapeHtml(c.wrong)}</s> ` : ""}<strong lang="en">${_escapeHtml(c.correct || "")}</strong>${c.tip ? ` · ${_escapeHtml(c.tip)}` : ""}</p>
+                ${c.correct ? `<button class="vr-listen" type="button" onclick="window.playPracticePhrase(${_escapeHtml(JSON.stringify(c.correct))})">Ouvir</button>` : ""}
+            </li>`).join("")
+        : `<li><p>Sem correções críticas nesta sessão. Continue aumentando o tempo de fala.</p></li>`;
 
     const strengthsHTML = highlights.length
-        ? highlights.map(h => `<li>${_escapeHtml(h)}</li>`).join("")
+        ? highlights.map((h) => `<li>${_escapeHtml(h)}</li>`).join("")
         : `<li>Você manteve consistência na prática hoje.</li>`;
 
-    const correctionsHTML = corrections.length
-        ? corrections.map((c) => `
-            <div class="recap-v4-fix-item">
-                <div class="recap-v4-fix-line">
-                    ${c.wrong ? `<span class="recap-v4-fix-wrong">${_escapeHtml(c.wrong)}</span>` : ""}
-                    ${c.wrong ? '<span class="recap-v4-fix-arrow">→</span>' : ""}
-                    <span class="recap-v4-fix-correct">${_escapeHtml(c.correct || "")}</span>
-                </div>
-                ${c.tip ? `<p class="recap-v4-fix-tip">${_escapeHtml(c.tip)}</p>` : ""}
-                ${c.correct ? `<button class="recap-v4-mini-btn" onclick="window.playPracticePhrase(${JSON.stringify(c.correct)})">Ouvir correção</button>` : ""}
-            </div>`).join("")
-        : `<div class="recap-v4-fix-item"><p class="recap-v4-fix-tip">Sem correções críticas nesta sessão. Continue aumentando o tempo de fala.</p></div>`;
-
-    const radarHTML = Object.keys(radarObj).length >= 5 ? _buildRadarHTML(radarObj) : "";
     const topErrors = (analytics.top_error_types || []).slice(0, 3);
-    const topErrorsHTML = topErrors.length
-        ? topErrors.map((item) => `
-            <div class="recap-breakdown-row">
-                <span class="recap-breakdown-label">${_escapeHtml(item.label)}</span>
-                <div class="recap-breakdown-bar"><span style="width:${Math.min(100, item.count * 22)}%"></span></div>
-                <strong class="recap-breakdown-value">${item.count}</strong>
-            </div>
-        `).join('')
-        : `<p class="recap-soft-note">Nenhum padrão forte de ajuste apareceu nesta sessão.</p>`;
+    const patternsHTML = topErrors.length ? `
+        <section class="vr-card">
+            <span class="vr-label">Padrões que apareceram</span>
+            <ul class="vr-bars vr-bars--count">
+                ${topErrors.map((item) => `<li><span>${_escapeHtml(item.label)}</span><i style="--v:${Math.min(100, item.count * 22)}%"></i><b>${item.count}</b></li>`).join("")}
+            </ul>
+        </section>` : "";
 
-    const languageBreakdownHTML = `
-        <div class="recap-language-grid">
-            <div class="recap-language-card is-pt">
-                <span class="recap-language-k">Respostas em português</span>
-                <strong class="recap-language-v">${analytics.pt_turns || 0}</strong>
-                <p class="recap-language-note">Usadas para destravar via Ponte quando necessário.</p>
+    const vocabSnap = data.vocabulary_snapshot || null;
+    const vocabHTML = vocabSnap ? `
+        <section class="vr-card">
+            <span class="vr-label">Vocabulário desta sessão</span>
+            <div class="vr-mini">
+                <div><strong>${vocabSnap.new_words_count || 0}</strong><span>palavras únicas</span></div>
+                <div><strong>${vocabSnap.mastered_this_session || 0}</strong><span>dominadas</span></div>
+                <div><strong>${Math.round((vocabSnap.avg_word_accuracy || 0) * 100)}%</strong><span>precisão média</span></div>
             </div>
-            <div class="recap-language-card is-en">
-                <span class="recap-language-k">Respostas em inglês</span>
-                <strong class="recap-language-v">${analytics.en_turns || 0}</strong>
-                <p class="recap-language-note">${analytics.english_turns_without_correction || 0} vieram sem ajuste detectado.</p>
-            </div>
-            <div class="recap-language-card">
-                <span class="recap-language-k">Precisão em inglês</span>
-                <strong class="recap-language-v">${Math.round((analytics.english_accuracy_ratio || 0) * 100)}%</strong>
-                <p class="recap-language-note">Baseado nas respostas em inglês sem correção estruturada.</p>
-            </div>
-        </div>
-    `;
-
-    const realtimeStatsHTML = `
-        <div class="recap-analytics-grid">
-            <div class="recap-analytics-card">
-                <span class="recap-analytics-k">Trocas reais</span>
-                <strong class="recap-analytics-v">${analytics.turns_total || exchanges}</strong>
-            </div>
-            <div class="recap-analytics-card">
-                <span class="recap-analytics-k">Média por resposta</span>
-                <strong class="recap-analytics-v">${analytics.avg_words_per_turn || 0} palavras</strong>
-            </div>
-            <div class="recap-analytics-card">
-                <span class="recap-analytics-k">Ponte usada</span>
-                <strong class="recap-analytics-v">${analytics.bridge_turns || 0} vez(es)</strong>
-            </div>
-            <div class="recap-analytics-card">
-                <span class="recap-analytics-k">Ajuda aberta</span>
-                <strong class="recap-analytics-v">${analytics.help?.panel_opens || 0} vez(es)</strong>
-            </div>
-            <div class="recap-analytics-card">
-                <span class="recap-analytics-k">Sugestões usadas</span>
-                <strong class="recap-analytics-v">${analytics.help?.suggestion_uses || 0}</strong>
-            </div>
-            <div class="recap-analytics-card">
-                <span class="recap-analytics-k">Pronúncias ouvidas</span>
-                <strong class="recap-analytics-v">${analytics.help?.pronunciation_plays || 0}</strong>
-            </div>
-        </div>
-    `;
-
-    const coachingHTML = analytics.latest_correction && analytics.latest_correction.correct
-        ? `
-            <section class="recap-v4-card recap-focus-card">
-                <h3 class="recap-v4-card-title">Ajuste mais recente</h3>
-                <div class="recap-v4-fix-item">
-                    <div class="recap-v4-fix-line">
-                        ${analytics.latest_correction.wrong ? `<span class="recap-v4-fix-wrong">${_escapeHtml(analytics.latest_correction.wrong)}</span><span class="recap-v4-fix-arrow">→</span>` : ''}
-                        <span class="recap-v4-fix-correct">${_escapeHtml(analytics.latest_correction.correct)}</span>
-                    </div>
-                    ${analytics.latest_correction.tip ? `<p class="recap-v4-fix-tip">${_escapeHtml(analytics.latest_correction.tip)}</p>` : ''}
-                </div>
-            </section>
-        `
-        : '';
+            ${vocabSnap.top_words && vocabSnap.top_words.length ? `
+            <ul class="vr-bars vr-bars--words">
+                ${vocabSnap.top_words.map((w) => `<li><span lang="en">${_escapeHtml(w.word)}${w.was_new ? ' <em>nova</em>' : ''}</span><i style="--v:${Math.round(w.accuracy * 100)}%"></i><b>${Math.round(w.accuracy * 100)}%</b></li>`).join("")}
+            </ul>` : ""}
+        </section>` : "";
 
     const safeLabel = durationLabel.replace(/'/g, "\\'");
-    const shareHTML = `<button class="recap-v4-share" onclick="_openShareCard(${qualityScore}, ${exchanges}, '${safeLabel}')">Compartilhar resultado</button>`;
 
     contentSection.innerHTML = `
-        <div class="recap-v4-shell">
-            <div class="recap-v4-head">
-                <span class="recap-v4-kicker">Voice Session Report</span>
-                <h2 class="recap-v4-title">Sessão concluída</h2>
-                <p class="recap-v4-subtitle">${_escapeHtml(grade)} · ${challengeDays}/7 dias no desafio</p>
-                <span id="recapSparklinePlaceholder"></span>
-            </div>
-            <div class="recap-v4-journey">
-                <p class="recap-v4-stage">${_voiceJourneyStageText(challengeDays)}</p>
-                <div class="recap-v4-journey-track"><span style="width:${challengePct}%"></span></div>
-                <p class="recap-v4-journey-meta" id="recapPerfNote">Carregando comparação com sessões anteriores...</p>
-            </div>
-            <div class="recap-v4-metrics">
-                <div class="recap-v4-metric"><span class="recap-v4-metric-v">${qualityScore}</span><span class="recap-v4-metric-k">Qualidade</span></div>
-                <div class="recap-v4-metric"><span class="recap-v4-metric-v">${exchanges}</span><span class="recap-v4-metric-k">Trocas</span></div>
-                <div class="recap-v4-metric"><span class="recap-v4-metric-v">${durationLabel}</span><span class="recap-v4-metric-k">Duração</span></div>
-            </div>
-            <div class="recap-v4-quality-track"><span style="width:${qualityBar}%"></span></div>
-            ${realtimeStatsHTML}
-            ${languageBreakdownHTML}
-            ${vocabSectionHTML}
-            <div class="recap-v4-grid">
-                <section class="recap-v4-card">
-                    <h3 class="recap-v4-card-title">Pontos fortes</h3>
-                    <ul class="recap-v4-list">${strengthsHTML}</ul>
+        <div class="vr">
+            <div class="vr-grid">
+                <section class="vr-score">
+                    <div class="vr-score-top">
+                        <span>Recap da sessão</span>
+                        <span class="vr-score-num"><strong>${qualityScore}</strong>/100</span>
+                    </div>
+                    <p class="vr-grade">${_escapeHtml(grade)} · ${challengeDays}/7 dias no desafio</p>
+                    <ul class="vr-bars">${barsHTML}</ul>
+                    <div class="vr-trend">
+                        <span id="recapPerfNote">Comparando com sessões anteriores...</span>
+                        <span id="recapSparklinePlaceholder"></span>
+                    </div>
                 </section>
-                <section class="recap-v4-card">
-                    <h3 class="recap-v4-card-title">Ajustes recomendados</h3>
-                    <div class="recap-v4-fix-list">${correctionsHTML}</div>
-                </section>
+
+                <div class="vr-side">
+                    ${bestHTML}
+                    <div class="vr-fix">
+                        <span class="vr-label">${corrections.length > 1 ? "Pontos para revisar" : "Ponto para revisar"}</span>
+                        <ul>${fixesHTML}</ul>
+                    </div>
+                    <div class="vr-strong">
+                        <span class="vr-label">O que foi bem</span>
+                        <ul>${strengthsHTML}</ul>
+                    </div>
+                </div>
             </div>
-            <section class="recap-v4-card recap-breakdown-card">
-                <h3 class="recap-v4-card-title">Padrões detectados na sessão</h3>
-                ${topErrorsHTML}
+
+            <ul class="vr-stats">
+                <li><strong>${durationLabel}</strong><span>duração</span></li>
+                <li><strong>${analytics.turns_total || exchanges}</strong><span>trocas</span></li>
+                <li><strong>${analytics.en_turns || 0}</strong><span>falas em inglês</span></li>
+                <li><strong>${analytics.bridge_turns || 0}</strong><span>usos da Ponte</span></li>
+                <li><strong>${analytics.avg_words_per_turn || 0}</strong><span>palavras por fala</span></li>
+            </ul>
+
+            ${patternsHTML}
+            ${vocabHTML}
+
+            <section class="vr-card vr-next">
+                <span class="vr-label">Próxima missão</span>
+                <p class="vr-next-main">${_escapeHtml(data.study_suggestion || "Mantenha o ritmo com uma nova sessão curta amanhã.")}</p>
+                ${data.next_topic ? `<p>Foco sugerido: <strong>${_escapeHtml(data.next_topic)}</strong></p>` : ""}
+                <p>${nextUnlockLine} · Modos ativos: ${_escapeHtml(unlockedModes.join(" · "))}</p>
             </section>
-            ${coachingHTML}
-            ${radarHTML}
-            <section class="recap-v4-plan">
-                <h3 class="recap-v4-card-title">Próxima missão</h3>
-                <p>${_escapeHtml(data.study_suggestion || "Mantenha o ritmo com uma nova sessão curta amanhã.")}</p>
-                ${data.next_topic ? `<p><strong>Foco sugerido:</strong> ${_escapeHtml(data.next_topic)}</p>` : ""}
-                <p>${nextUnlockLine}</p>
-                <p><strong>Modos ativos:</strong> ${_escapeHtml(unlockedModes.join(" · "))}</p>
-            </section>
-            <div class="recap-v4-actions">
-                <button class="recap-v4-primary" onclick="closeVoiceRecap()">Nova sessão agora</button>
-                <button class="recap-v4-secondary" onclick="closeVoiceRecap()">Fechar resumo</button>
+
+            <div class="vr-actions">
+                <button class="vr-btn vr-btn--primary" type="button" onclick="closeVoiceRecap(); window.startVoiceSession && window.startVoiceSession();">Nova sessão agora</button>
+                <button class="vr-btn" type="button" onclick="_openShareCard(${qualityScore}, ${exchanges}, '${safeLabel}')">Compartilhar resultado</button>
+                <button class="vr-btn vr-btn--ghost" type="button" onclick="closeVoiceRecap()">Fechar</button>
             </div>
-            ${shareHTML}
         </div>
     `;
 

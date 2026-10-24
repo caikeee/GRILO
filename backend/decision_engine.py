@@ -9,8 +9,8 @@ from backend.schemas import ChatRequest
 
 # Classificações de requisição (rota de processamento)
 NO_LLM = "no_llm"              # 0 tokens API, resposta local (10-30ms)
-LIGHT_LLM = "light_llm"        # Mixtral 8x7b (200-300 tokens, 1-2s)
-FULL_LLM = "full_llm"          # Llama 70B (600-1000 tokens, 2-5s)
+LIGHT_LLM = "light_llm"        # contexto mínimo (histórico curto)
+FULL_LLM = "full_llm"          # contexto completo (regras por nível + histórico)
 
 # Utterances ultra-curtas que sempre retornam NO_LLM
 COMPLETE_SHORT_UTTERANCES = {
@@ -93,19 +93,14 @@ def get_model_for_classification(
     Retorna modelo Groq apropriado para classificação.
     Implementa downgrade elegante quando quota baixa.
     """
-    groq_tokens_remaining = groq_tokens_remaining or 100000
-
+    # Fala de tutor é curta (≤12-30 palavras): modelo sem raciocínio responde em
+    # ~0.25s contra ~0.6-1s do gpt-oss-120b, sem o risco de o raciocínio comer o
+    # max_tokens e devolver vazio. Medido em 2026-10-24 na conta Groq do projeto.
+    # Se o primário falhar, chat_concise_voice cai para VOICE_FALLBACK_MODEL.
     if classification == NO_LLM:
         return "LOCAL"
+    return VOICE_PRIMARY_MODEL
 
-    elif classification == LIGHT_LLM:
-        return "openai/gpt-oss-20b"  # Rápido + barato
 
-    elif classification == FULL_LLM:
-        if groq_tokens_remaining > 50000:
-            return "openai/gpt-oss-120b"  # Premium
-        else:
-            return "openai/gpt-oss-20b"  # Fallback rápido
-
-    else:
-        return "openai/gpt-oss-20b"  # Default seguro
+VOICE_PRIMARY_MODEL = "qwen/qwen3.8-27b"
+VOICE_FALLBACK_MODEL = "openai/gpt-oss-20b"

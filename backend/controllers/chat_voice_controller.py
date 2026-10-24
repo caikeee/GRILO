@@ -1,8 +1,8 @@
 from datetime import datetime
+import asyncio
 import logging
 import os
 import base64
-import tempfile
 import json as _json
 import time as _time
 from collections import defaultdict
@@ -270,6 +270,12 @@ ELEVENLABS_VOICE_EN = os.getenv("ELEVENLABS_VOICE_EN", "EXAVITQu4vr4xnSDxMaL")  
 ELEVENLABS_VOICE_PT = os.getenv("ELEVENLABS_VOICE_PT", "pNInz6obpgDQGcFmaJgB")   # "Adam" — warm male
 ELEVENLABS_MODEL = "eleven_multilingual_v2"
 
+# Groq Orpheus (TTS neural só em inglês — a IA só fala inglês). Usado quando não
+# há chave ElevenLabs. Vozes: autumn, diana, hannah, austin, daniel, troy. Só WAV.
+GROQ_TTS_MODEL = "canopylabs/orpheus-v1-english"
+GROQ_TTS_VOICE = os.getenv("GROQ_TTS_VOICE", "troy")
+GROQ_TTS_VOICES = {"autumn", "diana", "hannah", "austin", "daniel", "troy"}
+
 
 class _VoiceSessionEnd(BaseModel):
     duration_seconds: int
@@ -287,6 +293,7 @@ _MAX_AUDIO_BYTES = 5 * 1024 * 1024  # 5 MB
 class _TranscribeRequest(BaseModel):
     audio_base64: str
     mime_type: str = "audio/webm"
+    context: str | None = None  # última fala da IA, vira dica de vocabulário pro Whisper
 
     @field_validator("mime_type")
     @classmethod
@@ -301,6 +308,7 @@ class _TTSRequest(BaseModel):
     text: str
     lang: str = "en"   # "en" or "pt"
     speed: float = 1.0  # 0.5 (slow) – 1.5 (fast)
+    voice: Optional[str] = None  # voz Orpheus escolhida no seletor da tela; inválida → padrão
 
     @field_validator("lang")
     @classmethod
@@ -667,36 +675,69 @@ async def voice_transcribe(
                "audio/wav": ".wav", "audio/mpeg": ".mp3"}
     ext = ext_map.get(body.mime_type, ".webm")
 
+    # Sem `language`: o Whisper detecta EN/PT sozinho (a Ponte aceita os dois).
+    # O prompt ancora o vocabulário: aluno brasileiro, inglês simples, às vezes PT no meio.
+    whisper_prompt = (
+        "A Brazilian beginner practicing English. Short, simple sentences in English, "
+        "sometimes mixing in a Portuguese word."
+    )
+    if body.context:
+        whisper_prompt += " Conversation so far: " + body.context.strip()[-300:]
+
     try:
         import groq as _groq_lib
         client_w = _groq_lib.Groq(api_key=groq_key)
-        with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
-            tmp.write(raw_bytes)
-            tmp_path = tmp.name
-        try:
-            with open(tmp_path, "rb") as audio_file:
-                result = client_w.audio.transcriptions.create(
-                    model="whisper-large-v3",
-                    file=(f"audio{ext}", audio_file, body.mime_type),
-                    response_format="verbose_json",
-                )
-            transcript = (result.text or "").strip()
-            # verbose_json may include avg_logprob as confidence proxy
-            confidence = None
-            if hasattr(result, "segments") and result.segments:
-                import math
-                avg_lp = sum(s.get("avg_logprob", -1) for s in result.segments) / len(result.segments)
-                confidence = round(min(1.0, max(0.0, math.exp(avg_lp))), 3)
-            logger.info("[WHISPER] user=%s | chars=%d | conf=%s", user_id, len(transcript), confidence)
-            return JSONResponse({"transcript": transcript, "confidence": confidence, "fallback": False})
-        finally:
-            try:
-                os.unlink(tmp_path)
-            except Exception:
-                pass
+        # Bytes direto da memória (sem arquivo temporário) e em thread: o client é
+        # síncrono e, chamado direto aqui, travava o servidor inteiro durante a
+        # transcrição. large-v3 (não turbo): em falas de 2-5s a diferença de tempo
+        # é mínima e a precisão com sotaque brasileiro é o que importa.
+        result = await asyncio.to_thread(
+            client_w.audio.transcriptions.create,
+            model="whisper-large-v3",
+            file=(f"audio{ext}", raw_bytes, body.mime_type),
+            response_format="verbose_json",
+            temperature=0.0,
+            prompt=whisper_prompt,
+        )
+        transcript = (result.text or "").strip()
+        # verbose_json may include avg_logprob as confidence proxy
+        confidence = None
+        if hasattr(result, "segments") and result.segments:
+            import math
+            avg_lp = sum(s.get("avg_logprob", -1) for s in result.segments) / len(result.segments)
+            confidence = round(min(1.0, max(0.0, math.exp(avg_lp))), 3)
+        logger.info("[WHISPER] user=%s | chars=%d | conf=%s", user_id, len(transcript), confidence)
+        return JSONResponse({"transcript": transcript, "confidence": confidence, "fallback": False})
     except Exception as exc:
         logger.warning("[WHISPER] Failed for user=%s: %s", user_id, str(exc))
         return JSONResponse({"transcript": None, "fallback": True, "reason": "transcription_error"})
+
+
+async def _groq_orpheus_tts(text: str, speed: float | None, voice: str | None = None) -> JSONResponse:
+    """TTS via Groq Orpheus. Mesmo contrato de resposta do ramo ElevenLabs."""
+    import groq as _groq_lib
+
+    voice = voice if voice in GROQ_TTS_VOICES else GROQ_TTS_VOICE
+    try:
+        client_tts = _groq_lib.Groq(api_key=os.getenv("GROQ_API_KEY"), timeout=12, max_retries=0)
+        result = await asyncio.to_thread(
+            client_tts.audio.speech.create,
+            model=GROQ_TTS_MODEL,
+            voice=voice,
+            input=text[:500],
+            response_format="wav",
+            speed=max(0.5, min(1.5, float(speed or 1.0))),
+        )
+        audio = result.read()
+        logger.info("[TTS] Orpheus SUCCESS | voice=%s | chars=%d", voice, len(text))
+        return JSONResponse({
+            "fallback": False,
+            "audio_base64": base64.b64encode(audio).decode("utf-8"),
+            "content_type": "audio/wav",
+        })
+    except Exception as exc:
+        logger.warning("[TTS] Orpheus failed — fallback to browser TTS: %s", str(exc)[:200])
+        return JSONResponse({"fallback": True, "reason": "groq_tts_error"})
 
 
 @router.post("/api/tts")
@@ -721,7 +762,9 @@ async def text_to_speech(
     # lang is already validated by the Pydantic field_validator
 
     if not ELEVENLABS_API_KEY:
-        logger.info("[TTS] No ElevenLabs API key — fallback to browser TTS")
+        if body.lang == "en" and os.getenv("GROQ_API_KEY"):
+            return await _groq_orpheus_tts(text, body.speed, body.voice)
+        logger.info("[TTS] No neural TTS for lang=%s — fallback to browser TTS", body.lang)
         return JSONResponse({"fallback": True, "reason": "no_api_key"})
 
     voice_id = ELEVENLABS_VOICE_EN if body.lang == "en" else ELEVENLABS_VOICE_PT
