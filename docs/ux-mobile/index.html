@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GRILO — Auditoria mobile</title>
+<meta name="description" content="Investigação das telas mobile do GRILO, com foco em aulas, shadowing e ditação, e direções de design para cada uma.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f3ec; --surface:#fffdf8; --ink:#1d2a22; --muted:#66746b; --line:#e3ddcf;
+  --green:#3c5f4b; --green-2:#58806a; --lime:#c9e56a; --amber:#d7832a; --red:#c4544d; --blue:#3d7391;
+  --bug:#c4544d; --warn:#c98a1c; --ok:#3c7a55; --idea:#6a5a9c;
+  --shadow:0 1px 2px rgba(30,40,30,.06),0 12px 32px -12px rgba(30,40,30,.18);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#151b17; --surface:#1d251f; --ink:#ebeee7; --muted:#9aa89e; --line:#2f3a32;
+    --green:#8fc2a4; --green-2:#a5d1b6; --lime:#cde86f; --amber:#ecaa5f; --red:#e58a83; --blue:#79b2d1;
+    --bug:#e58a83; --warn:#e2b24f; --ok:#7fc79c; --idea:#b3a4ea;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151b17; --surface:#1d251f; --ink:#ebeee7; --muted:#9aa89e; --line:#2f3a32;
+  --green:#8fc2a4; --green-2:#a5d1b6; --lime:#cde86f; --amber:#ecaa5f; --red:#e58a83; --blue:#79b2d1;
+  --bug:#e58a83; --warn:#e2b24f; --ok:#7fc79c; --idea:#b3a4ea;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 12px 32px -12px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 "Space Grotesk","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,h5{font-family:"Manrope","Space Grotesk",system-ui,sans-serif;line-height:1.15;margin:0;letter-spacing:-.02em}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+.narrow{max-width:700px}
+a{color:var(--green)}
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:16px;height:52px}
+header.top b{font-family:Manrope,sans-serif}
+header.top nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+header.top nav a{font-size:14px;padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--muted);white-space:nowrap}
+header.top nav a:hover{background:var(--line);color:var(--ink)}
+.hero{padding:72px 0 40px}
+.kicker{font:700 12px/1 Manrope,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:18px;display:block}
+.hero h1{font-size:clamp(34px,6vw,60px);margin-bottom:22px}
+.hero h1 em{font-style:normal;color:var(--green-2)}
+.lede{font-size:clamp(18px,2.4vw,21px);color:var(--muted);max-width:680px}
+section{padding:56px 0;border-top:1px solid var(--line)}
+section h2{font-size:clamp(26px,4vw,38px);margin-bottom:14px}
+section h3{font-size:22px;margin:38px 0 12px}
+p{margin:0 0 14px}
+.muted{color:var(--muted)}
+.callout{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:14px;padding:18px 20px;margin:20px 0;box-shadow:var(--shadow)}
+.callout.warn{border-left-color:var(--amber)}
+.callout h4{font-size:16px;margin-bottom:6px}
+.findings{display:grid;gap:12px;margin:24px 0;padding:0;list-style:none;counter-reset:f}
+.findings li{counter-increment:f;display:grid;grid-template-columns:36px 1fr;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.findings li::before{content:counter(f);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--green);color:var(--bg);font:700 14px Manrope,sans-serif}
+.findings b{display:block;font-family:Manrope,sans-serif}
+.grid-thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;margin-top:24px}
+.thumb{all:unset;cursor:zoom-in;display:block}
+.thumb img{display:block;width:100%;aspect-ratio:390/844;object-fit:cover;object-position:top;border-radius:18px;border:5px solid #1b231e;box-shadow:var(--shadow);background:#fff}
+.thumb span{display:block;margin-top:8px;font:600 14px/1.3 Manrope,sans-serif}
+.thumb small{display:block;font:400 12px/1.3 "Space Grotesk",sans-serif;color:var(--muted)}
+.strip{display:flex;gap:22px;overflow-x:auto;padding:8px 20px 28px;margin:22px -20px 0;scroll-snap-type:x proximity;scrollbar-width:thin}
+.shot{flex:0 0 280px;scroll-snap-align:start}
+.phone{all:unset;cursor:zoom-in;display:block;position:relative;border-radius:28px;border:6px solid #1b231e;overflow:hidden;box-shadow:var(--shadow);background:#fff;height:560px}
+.phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+.pin{position:absolute;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;font:700 12px/24px Manrope,sans-serif;text-align:center;box-shadow:0 0 0 4px rgba(196,84,77,.3)}
+.shot figcaption h4{font-size:15px;margin:14px 0 8px}
+.shot ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.shot li{font-size:13.5px;line-height:1.45;color:var(--muted)}
+.shot li b{display:inline-block;font:700 10.5px/1 Manrope,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:5px;margin-right:6px;color:#fff;vertical-align:1px}
+.n-bug b{background:var(--bug)} .n-warn b{background:var(--warn)} .n-ok b{background:var(--ok)} .n-idea b{background:var(--idea)}
+.hint{font-size:13px;color:var(--muted);margin-top:-10px}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-size:13px;color:var(--muted);margin:16px 0 0}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:var(--c)}
+.opt{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px;margin:20px 0;box-shadow:var(--shadow)}
+.opt.is-rec{border-color:var(--green);box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 25%,transparent),var(--shadow)}
+.opt header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.opt-letter{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--green);color:var(--bg);font:800 16px Manrope,sans-serif}
+.opt h4{font-size:20px}
+.rec{font:700 11px/1 Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:var(--lime);color:#1d2a22;padding:5px 8px;border-radius:6px}
+.effort{margin-left:auto;font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.opt-grid{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:26px}
+.opt-mock{display:flex;gap:10px;justify-content:center;align-items:flex-start}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+.pc h5{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.pc ul{margin:0;padding-left:18px;font-size:14.5px;line-height:1.5}
+.pc li{margin-bottom:4px}
+/* mockups */
+.mock{flex:1 1 0;min-width:0;max-width:150px}
+.mk-screen{position:relative;aspect-ratio:9/17;background:var(--bg);border:3px solid #1b231e;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;padding:8px 7px;gap:6px;font:10px/1.2 Manrope,sans-serif}
+.mk-label{display:block;text-align:center;font:600 11px/1.2 Manrope,sans-serif;margin-top:7px;color:var(--muted)}
+.mk-top{display:flex;align-items:center;gap:6px}
+.mk-top em{font-style:normal;font-size:8px;color:var(--muted);white-space:nowrap}
+.mk-x{width:12px;height:12px;border-radius:50%;background:var(--line);flex:none}
+.mk-bar{flex:1;height:6px;border-radius:9px;background:var(--line);overflow:hidden}.mk-bar b{display:block;height:100%;background:var(--green-2)}
+.mk-seg{flex:1;display:flex;gap:3px}.mk-seg b{flex:1;height:6px;border-radius:9px;background:var(--line)}.mk-seg b.on{background:var(--green-2)}
+.mk-body{flex:1;display:flex;flex-direction:column;gap:7px;min-height:0}
+.mk-center{justify-content:center;align-items:center;text-align:center}
+.mk-chip{font-size:8px;font-weight:700;color:var(--amber);letter-spacing:.05em}
+.mk-btn{border-radius:99px;padding:6px 8px;text-align:center;font-weight:700;font-size:9px}
+.mk-btn.prim{background:var(--green);color:var(--bg)} .mk-btn.ghost{border:1.5px solid var(--line);color:var(--green)} .mk-btn.sm{padding:4px 7px;font-size:8px}
+.mk-line{height:7px;border-radius:5px;background:var(--line)}.w70{width:70%}.w50{width:50%}
+.mk-input{height:26px;border-radius:8px;border:2px solid var(--line);width:100%;background:var(--surface)}
+.mk-input.on{border-color:var(--amber)} .mk-input.bad{border-color:var(--red);background:color-mix(in srgb,var(--red) 10%,var(--surface))}
+.mk-dock{margin-top:auto;padding-top:4px}.mk-dock.row{display:flex;gap:6px}.mk-dock.row .prim{flex:1}
+.mk-hero{background:var(--green);border-radius:10px;padding:8px;color:#fff;display:flex;justify-content:space-between;align-items:center;font-size:9px}
+.mk-hero.small{height:34px}
+.mk-ring{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.5)}
+.mk-path{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:6px;flex:1;position:relative}
+.mk-node{width:30px;height:30px;border-radius:50%;background:var(--line)}
+.mk-node:nth-child(odd){transform:translateX(-22px)}.mk-node:nth-child(even){transform:translateX(22px)}
+.mk-node.done{background:var(--green-2)}.mk-node.cur{background:var(--amber);width:38px;height:38px;position:relative;box-shadow:0 0 0 5px color-mix(in srgb,var(--amber) 25%,transparent)}
+.mk-node.cur i{position:absolute;left:46px;top:11px;font-style:normal;font-size:8px;font-weight:700;white-space:nowrap;color:var(--ink)}
+.mk-node.lock{opacity:.5}.mk-node.cur{transform:translateX(-14px)!important}.mk-node.cur i{left:44px}
+.mk-opt{height:20px;border-radius:7px;border:1.5px solid var(--line);background:var(--surface)}.mk-opt.ok{border-color:var(--green-2);background:color-mix(in srgb,var(--green-2) 18%,var(--surface))}
+.mk-sheet{position:absolute;left:0;right:0;bottom:0;padding:9px 8px;display:flex;flex-direction:column;gap:4px;border-radius:12px 12px 0 0;font-size:8.5px}
+.mk-sheet b{font-size:11px}.mk-sheet.good{background:color-mix(in srgb,var(--ok) 20%,var(--surface))}.mk-sheet.bad{background:color-mix(in srgb,var(--red) 16%,var(--surface))}
+.mk-sheet small{color:var(--muted)}
+.mk-big{font-weight:800;font-size:12.5px;line-height:1.25}.mk-big u{text-decoration:none;background:var(--lime);color:#1d2a22;border-radius:3px;padding:0 2px}.mk-big span{color:var(--muted)}
+.mk-wave{display:flex;align-items:center;gap:2px;height:22px}.mk-wave i{display:block;width:3px;border-radius:2px;background:var(--green-2);height:30%}
+.mk-wave i:nth-child(3n){height:90%}.mk-wave i:nth-child(3n+1){height:55%}.mk-wave i:nth-child(4n){height:75%}
+.mk-wave.alt i{background:var(--amber)}
+.mk-mic{width:34px;height:34px;border-radius:50%;background:var(--amber);display:grid;place-items:center;margin:0 auto;font-size:15px;box-shadow:0 0 0 6px color-mix(in srgb,var(--amber) 22%,transparent)}
+.mk-toggle{display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:5px 6px;font-size:8.5px;font-weight:700}
+.mk-toggle i{width:16px;height:9px;border-radius:9px;background:var(--green-2);position:relative}.mk-toggle i::after{content:"";position:absolute;right:1px;top:1px;width:7px;height:7px;border-radius:50%;background:#fff}
+.mk-hint{font-size:8px;color:var(--ok);font-weight:700}
+.mk-cmp{display:grid;gap:5px;width:100%}.mk-cmp small{font-size:7.5px;color:var(--muted)}.mk-cmp .mk-wave{height:14px}
+.mk-row{display:flex;gap:5px}
+.mk-blocks{display:flex;gap:4px;flex-wrap:wrap}.mk-blocks b{padding:4px 5px;border-radius:6px;font-size:8.5px;border:1.5px solid}
+.mk-blocks .s{border-color:#9bb7a6;background:#e9f0eb;color:#2f5a44}.mk-blocks .v{border-color:#d9bd86;background:#f6efe0;color:#8a6417}.mk-blocks .c{border-color:#d6b19a;background:#f6ece6;color:#9a5a33}
+:root[data-theme="dark"] .mk-blocks .s,:root[data-theme="dark"] .mk-blocks .v,:root[data-theme="dark"] .mk-blocks .c{background:transparent}
+.mk-kbd{margin:auto -7px -8px;background:#d8dbd5;padding:4px;display:flex;flex-direction:column;gap:4px}
+.mk-kbd .mk-bar2{display:flex;justify-content:space-between;font-size:8px;font-weight:700;padding:3px 5px;background:var(--surface);border-radius:6px}.mk-bar2 .p{color:var(--green)}
+.mk-kbd .keys{height:50px;background:repeating-linear-gradient(90deg,#fff 0 12px,#d8dbd5 12px 14px);border-radius:4px;opacity:.9}
+.mk-slotgroup{border:1.5px solid #9bb7a6;border-radius:8px;padding:4px 5px;font-size:7.5px;color:#2f5a44;background:#e9f0eb}
+.mk-slotgroup.v{border-color:#d9bd86;background:#f6efe0;color:#8a6417}.mk-slotgroup.c{border-color:#d6b19a;background:#f6ece6;color:#9a5a33}
+.mk-slotgroup div{display:flex;gap:4px;margin-top:3px}.mk-slotgroup b{min-width:18px;height:14px;border-bottom:2px solid currentColor;font-size:9px;padding:0 2px;color:var(--ink)}
+.mk-slotgroup b.ok{color:var(--ok)}.mk-slotgroup b.cur{background:var(--surface);border-radius:3px;border:1.5px solid var(--amber)}
+:root[data-theme="dark"] .mk-slotgroup{background:transparent}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mk-slotgroup,:root:not([data-theme="light"]) .mk-blocks b{background:transparent!important}}
+table{width:100%;border-collapse:collapse;font-size:15px;margin:20px 0;background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 12px/1 Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:color-mix(in srgb,var(--line) 40%,var(--surface))}
+tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto}
+.tag{display:inline-block;font:700 11px/1 Manrope,sans-serif;padding:4px 7px;border-radius:6px;background:var(--line);color:var(--ink)}
+.tag.hi{background:var(--lime);color:#1d2a22}
+.q{counter-reset:q;display:grid;gap:12px;padding:0;list-style:none}
+.q li{counter-increment:q;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px 14px 52px;position:relative}
+.q li::before{content:counter(q);position:absolute;left:14px;top:14px;width:28px;height:28px;border-radius:50%;background:var(--amber);color:#fff;display:grid;place-items:center;font:700 13px Manrope,sans-serif}
+.q b{font-family:Manrope,sans-serif}
+.lb{position:fixed;inset:0;background:rgba(10,14,11,.86);display:none;place-items:center;z-index:50;padding:20px;cursor:zoom-out}
+.lb.on{display:grid}.lb img{max-height:94vh;max-width:min(94vw,460px);border-radius:22px;border:6px solid #1b231e;background:#fff}
+footer{padding:40px 0 80px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+button.themebtn{all:unset;cursor:pointer;font-size:13px;color:var(--muted);padding:6px 10px;border:1px solid var(--line);border-radius:999px}
+@media (max-width:760px){
+  .opt-grid{grid-template-columns:1fr}.pc{grid-template-columns:1fr}.opt-mock{max-width:360px;margin:0 auto}
+  .hero{padding-top:44px}.shot{flex-basis:250px}.phone{height:500px}
+  header.top nav{display:none}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <b>GRILO · Auditoria mobile</b>
+  <nav>
+    <a href="#resumo">Resumo</a><a href="#mapa">Mapa</a><a href="#aulas">Aulas</a><a href="#shadowing">Shadowing</a><a href="#ditacao">Ditação</a><a href="#decidir">Decidir</a>
+  </nav>
+  <button class="themebtn" id="themeBtn" type="button">Claro / escuro</button>
+</div></header>
+
+<main>
+<div class="wrap">
+
+<div class="hero">
+  <span class="kicker">Investigação · 30 out 2026</span>
+  <h1>Como o GRILO se comporta <em>na palma da mão</em> — e para onde podemos levar.</h1>
+  <p class="lede">Naveguei por cada tela no tamanho de um iPhone (390 × 844), fiz o print de cada etapa e ação das aulas, do shadowing e da ditação, e anotei o que atrapalha, o que funciona e o que dá para melhorar. No fim, três direções de design para cada área.</p>
+</div>
+
+<section id="resumo">
+  <h2>Resumo para ler em 2 minutos</h2>
+  <p>As três áreas têm <b>boa pedagogia e boa microcopy</b>: erros sem culpa, fonética em português, estrutura colorida na ditação, “ouvir sem ler”. O que pesa no celular não é a ideia — é o <b>casco</b>: muito espaço gasto em cabeçalhos e heróis, botões longe do polegar e alguns bugs de layout que quebram a sensação de produto pronto.</p>
+  <ol class="findings">
+    <li><div><b>Os heróis comem a primeira tela.</b> Nos hubs de Aulas, Shadowing e Ditação o aluno rola uma tela inteira de texto e anel antes de ver a primeira aula/faixa. O hub de aulas tem ~20.000 px (≈24 telas).</div></li>
+    <li><div><b>Bugs de layout visíveis.</b> Conteúdo deslocado à direita na capa e nas transições das aulas; campo de escrita que vaza do cartão; botão “Devagar” da ditação que ultrapassa a coluna; texto truncado nos cartões de aula; atalho cortado no preview do shadowing.</div></li>
+    <li><div><b>A ação principal não está na zona do polegar.</b> “Continuar”, “Verificar” e “Próxima frase” ficam no meio ou no fim de um scroll; metade inferior das telas de aula fica vazia.</div></li>
+    <li><div><b>O Shadowing pede decisões técnicas antes de ouvir.</b> Casual × Ranqueada, calibração de fone e uma faixa inteira em cinza claro; sem fone, o caminho natural no celular termina em erro vermelho.</div></li>
+    <li><div><b>A Ditação nunca foi pensada com teclado aberto.</b> HUD + barra + áudio + blocos + campo + dica somam muito antes do botão; não consegui testar o teclado real (headless), mas o risco é alto — precisa de validação em aparelho.</div></li>
+    <li><div><b>Falta de peso emocional nos resultados.</b> Telas de resultado usam círculo vermelho (13, 0) e palavras riscadas; o “+8 XP” aparece junto. Recompensa e fracasso brigam na mesma tela.</div></li>
+    <li><div><b>Inconsistências pequenas, mas que somam.</b> Fonte pesada diferente em botões do shadowing; bolha branca (botão de tema) flutuando sobre o conteúdo; pílula “treino do dia” quebrando em 3 linhas; ícone 🏁 quadriculado preto e branco.</div></li>
+  </ol>
+  <div class="callout">
+    <h4>Minha sugestão de caminho</h4>
+    <p style="margin:0">Fazer primeiro uma rodada de <b>“casco comum”</b> (hero compacto, dock de ação, header enxuto, botão de tema, bugs de overflow) que melhora as três áreas ao mesmo tempo, e só depois escolher uma direção maior por área: <b>Aulas A</b>, <b>Shadowing A</b> e <b>Ditação A</b> são as opções de maior retorno por esforço. As alternativas B e C estão aí para você comparar caminhos mais ousados.</p>
+  </div>
+</section>
+
+<section id="mapa">
+  <h2>Mapa das telas</h2>
+  <p>Todas as páginas acessíveis, em 390 px de largura (primeira tela de cada uma; toque para ampliar). O painel admin respondeu <b>403</b> para um usuário comum e ficou fora da análise. Termos e Privacidade são texto corrido e não entram nas conclusões.</p>
+  <div class="grid-thumbs"><button class="thumb" data-full="shots/p-index.png"><img loading="lazy" src="shots/p-index.png" alt="Landing (index)"><span>Landing (index)<small>Pública</small></span></button><button class="thumb" data-full="shots/p-home.png"><img loading="lazy" src="shots/p-home.png" alt="Home / Painel"><span>Home / Painel<small>Logado</small></span></button><button class="thumb" data-full="shots/p-lessons-hub.png"><img loading="lazy" src="shots/p-lessons-hub.png" alt="Aulas — hub"><span>Aulas — hub<small>Foco</small></span></button><button class="thumb" data-full="shots/p-shadowing-hub.png"><img loading="lazy" src="shots/p-shadowing-hub.png" alt="Shadowing — hub"><span>Shadowing — hub<small>Foco</small></span></button><button class="thumb" data-full="shots/p-dictation-hub.png"><img loading="lazy" src="shots/p-dictation-hub.png" alt="Ditação — hub"><span>Ditação — hub<small>Foco</small></span></button><button class="thumb" data-full="shots/p-voice.png"><img loading="lazy" src="shots/p-voice.png" alt="Chat de voz"><span>Chat de voz<small>Logado</small></span></button><button class="thumb" data-full="shots/p-community.png"><img loading="lazy" src="shots/p-community.png" alt="Comunidade"><span>Comunidade<small>Logado</small></span></button><button class="thumb" data-full="shots/p-dashboard.png"><img loading="lazy" src="shots/p-dashboard.png" alt="Painel admin"><span>Painel admin<small>Só admin (403)</small></span></button></div>
+  <h3>Problemas que se repetem entre as páginas</h3>
+  <ul>
+    <li><b>Botão de tema flutuante.</b> Uma bolha branca sem ícone aparece no canto inferior direito da landing, da home, dos hubs e do chat de voz, cobrindo texto e CTAs.</li>
+    <li><b>Hero como padrão.</b> Landing, home, Aulas, Shadowing e Ditação abrem com bloco grande e escuro/verde; em celular só uma tela de “promessa” antes da ação.</li>
+    <li><b>Topbars diferentes em cada área.</b> Aulas: “← Painel” + título que quebra em 2 linhas + pílula. Shadowing/Ditação: pílula “treino do dia” que quebra em 3. Voz: botões “Painel / Sair” e avatar. Comunidade: outro estilo.</li>
+    <li><b>Dois vocabulários visuais de botão.</b> Aulas usam botões verdes pílula limpos; Shadowing usa caixa alta com fonte pesada; Ditação mistura os dois.</li>
+  </ul>
+</section>
+
+<section id="aulas">
+  <span class="kicker">Foco 1</span>
+  <h2>Aulas (sistema das 4 pontas)</h2>
+  <p>Fluxo percorrido: hub → capa → teoria → checar (ver / ouvir / ordenar) → ponte → escrever palavra → ouvir e falar → recap. Aula 01 completa, mais uma aula A2 para ver “ordenar”. A etapa de “contraste” do A2 não foi capturada.</p>
+  <div class="legend"><span style="--c:var(--bug)">Problema</span><span style="--c:var(--warn)">Atenção</span><span style="--c:var(--ok)">Funciona</span><span class="muted">Toque numa tela para ampliar; arraste para o lado para ver a sequência.</span></div>
+  <div class="strip" tabindex="0">
+<figure class="shot">
+  <button class="phone" data-full="shots/p-lessons-hub.png" aria-label="Ampliar: Hub das aulas — topo">
+    <img loading="lazy" src="shots/p-lessons-hub.png" alt="Hub das aulas — topo"><span class="pin" style="left:86%;top:30%">1</span>
+  </button>
+  <figcaption><h4>Hub das aulas — topo</h4><ul><li class="n-bug"><b>Problema</b> O hero (título + parágrafo + 4 chips + anel) ocupa a tela inteira: nenhuma aula aparece antes do primeiro scroll.</li><li class="n-bug"><b>Problema</b> Parte do título (“Cada palavra passa por…”) é verde-escuro sobre verde-médio — contraste fraco.</li><li class="n-warn"><b>Atenção</b> A página inteira tem ~20.000 px (≈ 24 telas) para 20 aulas.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-card.png" aria-label="Ampliar: Hub — cartão de aula">
+    <img loading="lazy" src="shots/l-card.png" alt="Hub — cartão de aula"><span class="pin" style="left:60%;top:66%">1</span>
+  </button>
+  <figcaption><h4>Hub — cartão de aula</h4><ul><li class="n-bug"><b>Problema</b> Textos truncados: “0/13 no vocabulário · 0 domi…” e o objetivo termina em “quan…”.</li><li class="n-ok"><b>Funciona</b> Estados claros: “✓ concluída” e “▶ comece aqui”.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-01-g4p-screen--wide-g4p-cover.png" aria-label="Ampliar: Capa da aula">
+    <img loading="lazy" src="shots/l-01-g4p-screen--wide-g4p-cover.png" alt="Capa da aula"><span class="pin" style="left:52%;top:20%">1</span>
+  </button>
+  <figcaption><h4>Capa da aula</h4><ul><li class="n-bug"><b>Problema</b> Conteúdo deslocado ~20 px para a direita (centro em x≈400 de 390): títulos encostam na borda.</li><li class="n-warn"><b>Atenção</b> Header ocupa ~15% da altura: kicker, título truncado (“…boa no…”), 5 ícones cinza, X.</li><li class="n-ok"><b>Funciona</b> A caixa “passa pelas 4 pontas” explica a lógica em duas linhas.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-02-g4p-screen--wide-g4p-theory.png" aria-label="Ampliar: Teoria (seção 1 de 2)">
+    <img loading="lazy" src="shots/l-02-g4p-screen--wide-g4p-theory.png" alt="Teoria (seção 1 de 2)">
+  </button>
+  <figcaption><h4>Teoria (seção 1 de 2)</h4><ul><li class="n-warn"><b>Atenção</b> Bloco único de ~10 linhas antes dos exemplos; os áudios “Ouça e repita” ficam abaixo da dobra.</li><li class="n-ok"><b>Funciona</b> Palavras-chave em verde negrito; dica da “pegadinha do brasileiro” é ótima.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-03-g4p-check-resp.png" aria-label="Ampliar: Checar — identificar (erro)">
+    <img loading="lazy" src="shots/l-03-g4p-check-resp.png" alt="Checar — identificar (erro)">
+  </button>
+  <figcaption><h4>Checar — identificar (erro)</h4><ul><li class="n-ok"><b>Funciona</b> Resposta certa fica marcada mesmo quando erra; mensagem direta, sem culpa.</li><li class="n-warn"><b>Atenção</b> Metade inferior da tela vazia; “Continuar” flutua no meio, não na zona do polegar.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-04-g4p-check-resp.png" aria-label="Ampliar: Checar — ouvir">
+    <img loading="lazy" src="shots/l-04-g4p-check-resp.png" alt="Checar — ouvir">
+  </button>
+  <figcaption><h4>Checar — ouvir</h4><ul><li class="n-ok"><b>Funciona</b> Separar “ouvir sem ler” da leitura é uma decisão pedagógica forte.</li><li class="n-warn"><b>Atenção</b> Botão “Ouvir” é pequeno e fica à esquerda; para essa etapa ele deveria ser o herói da tela.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-order-3-resp.png" aria-label="Ampliar: Checar — ordenar a frase (A2)">
+    <img loading="lazy" src="shots/l-order-3-resp.png" alt="Checar — ordenar a frase (A2)">
+  </button>
+  <figcaption><h4>Checar — ordenar a frase (A2)</h4><ul><li class="n-ok"><b>Funciona</b> Mecânica de tocar nas palavras é natural no celular.</li><li class="n-warn"><b>Atenção</b> “Limpar” e “Conferir” longe das palavras e com pesos visuais parecidos.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-12-g4p-bridge-g4p-bridge--write.png" aria-label="Ampliar: Transição “Agora escreve.”">
+    <img loading="lazy" src="shots/l-12-g4p-bridge-g4p-bridge--write.png" alt="Transição “Agora escreve.”"><span class="pin" style="left:88%;top:56%">1</span>
+  </button>
+  <figcaption><h4>Transição “Agora escreve.”</h4><ul><li class="n-bug"><b>Problema</b> Texto deslocado para a direita (centro em x≈430): a última palavra de cada linha encosta na borda.</li><li class="n-warn"><b>Atenção</b> Tela inteira só para um aviso: é um toque a mais sem informação nova.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-13-g4p-write-erro-final.png" aria-label="Ampliar: Escrever palavra (3ª tentativa errada)">
+    <img loading="lazy" src="shots/l-13-g4p-write-erro-final.png" alt="Escrever palavra (3ª tentativa errada)"><span class="pin" style="left:96%;top:40%">1</span>
+  </button>
+  <figcaption><h4>Escrever palavra (3ª tentativa errada)</h4><ul><li class="n-bug"><b>Problema</b> O campo de texto vaza do cartão pela direita (some na borda da tela).</li><li class="n-ok"><b>Funciona</b> Microcopy excelente: “Era ‘morning’… ela volta em outra rodada, sem stress.”</li><li class="n-warn"><b>Atenção</b> “Continuar” troca para botão fantasma (outline) — perde peso justo quando é a única ação.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-27-g4p-speak-compreensao.png" aria-label="Ampliar: Ouvir e falar — etapa 1 (entender)">
+    <img loading="lazy" src="shots/l-27-g4p-speak-compreensao.png" alt="Ouvir e falar — etapa 1 (entender)">
+  </button>
+  <figcaption><h4>Ouvir e falar — etapa 1 (entender)</h4><ul><li class="n-warn"><b>Atenção</b> Pede entender o significado antes de falar: bom, mas na prática são duas telas para a mesma frase.</li><li class="n-bug"><b>Problema</b> Erro final: “Bom dia! Como você está?.” — ponto sobrando depois do “?”.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-27-g4p-speak-fala.png" aria-label="Ampliar: Ouvir e falar — etapa 2 (falar)">
+    <img loading="lazy" src="shots/l-27-g4p-speak-fala.png" alt="Ouvir e falar — etapa 2 (falar)">
+  </button>
+  <figcaption><h4>Ouvir e falar — etapa 2 (falar)</h4><ul><li class="n-ok"><b>Funciona</b> Fonética em português (“gud MOR-ning”) abaixo da frase é muito útil.</li><li class="n-warn"><b>Atenção</b> Três botões empilhados com peso parecido; o microfone não é o centro da tela.</li><li class="n-warn"><b>Atenção</b> Painel da frase tem muito espaço vazio — o mic poderia morar ali.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/l-32-g4p-screen--wide-g4p-recap.png" aria-label="Ampliar: Recap — “Aula concluída!”">
+    <img loading="lazy" src="shots/l-32-g4p-screen--wide-g4p-recap.png" alt="Recap — “Aula concluída!”">
+  </button>
+  <figcaption><h4>Recap — “Aula concluída!”</h4><ul><li class="n-warn"><b>Atenção</b> Mostra 0 no vocabulário / 0 dominadas e ainda celebra “Aula concluída!” (no teste errei tudo de propósito, mas o estado merece um texto próprio).</li><li class="n-bug"><b>Problema</b> O ícone 🏁 renderiza como um quadriculado preto e branco, sem cor.</li></ul></figcaption>
+</figure></div>
+  <h3>O que preservar</h3>
+  <p>A <b>escada aprendida → dominada</b>, o selo de fase com ícones, a microcopy de erro sem culpa (“sem stress”) e a fonética em português são raros e valiosos. Qualquer redesign deve carregá-los intactos.</p>
+  <h3>Direções de design</h3>
+  
+<article class="opt is-rec">
+  <header><span class="opt-letter">A</span><h4>Player enxuto — mesma estrada, menos atrito</h4><span class="rec">Minha recomendação</span><span class="effort">Esforço: baixo (CSS + 1 template)</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-seg"><b></b><b></b><b class="on"></b><b></b><b></b></div><em>3/12</em></div>
+<div class="mk-body mk-center">
+  <div class="mk-chip">✍️ Escrever</div>
+  <div class="mk-btn ghost">🔊 Ouvir</div>
+  <div class="mk-line w70"></div>
+  <div class="mk-input"></div>
+</div>
+<div class="mk-dock"><div class="mk-btn prim">Verificar</div></div></div><span class="mk-label">Hoje</span></div></div>
+    <div class="opt-text"><p>Mantém o fluxo atual (teoria → checar → escrever → falar → recap), mas refaz o <b>casco</b> do player: o header vira uma linha com X, barra segmentada pelas 4 pontas e contador; o botão principal sobe para um <b>dock fixo</b> na zona do polegar; o conteúdo se centraliza na altura que sobra. Corrige junto os bugs de deslocamento (capa/transição) e o input que vaza.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Ganho imediato de espaço útil (~15% da altura) e ação principal sempre no mesmo lugar</li><li>Resolve vários bugs visuais de uma vez</li><li>Não mexe em dados nem pedagogia</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Não muda a sensação de “jogo”; é arrumação, não reinvenção</li></ul></div></div>
+    </div>
+  </div>
+</article>
+<article class="opt">
+  <header><span class="opt-letter">B</span><h4>Hub em trilha — o caminho vira o protagonista</h4><span class="effort">Esforço: médio</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-hero small"><span>A1 · 0/20</span><div class="mk-ring"></div></div>
+<div class="mk-path">
+  <div class="mk-node done"></div><div class="mk-node cur"><i>Aula 2</i></div><div class="mk-node"></div><div class="mk-node lock"></div><div class="mk-node lock"></div>
+</div></div><span class="mk-label">Trilha</span></div></div>
+    <div class="opt-text"><p>No hub, o hero encolhe para uma linha com o anel de progresso e as 20 aulas viram uma <b>trilha vertical</b> de nós (feita / atual / bloqueada), agrupadas por bloco. Tocar no nó atual abre a aula. A página cai de ~24 telas para ~6 e a pergunta “o que faço agora?” é respondida em 1 olhar.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Resolve o hero gigante e a falta de senso de caminho</li><li>Combina com a escada “aprendida → dominada” que vocês já têm</li><li>Dá mais personalidade visual à marca</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Perde a descrição do objetivo em cada cartão (vai para um sheet ao tocar)</li><li>Mais trabalho de design (nós, estados, responsivo)</li></ul></div></div>
+    </div>
+  </div>
+</article>
+<article class="opt">
+  <header><span class="opt-letter">C</span><h4>Sessão contínua — exercícios em feed com feedback em sheet</h4><span class="effort">Esforço: alto</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-bar"><b style="width:38%"></b></div><em>🔥3</em></div>
+<div class="mk-body">
+  <div class="mk-line w50"></div><div class="mk-opt"></div><div class="mk-opt ok"></div><div class="mk-opt"></div>
+</div>
+<div class="mk-sheet good"><b>✓ Isso!</b><span>morning = manhã</span><div class="mk-btn prim">Continuar</div></div></div><span class="mk-label">Feed</span></div></div>
+    <div class="opt-text"><p>As etapas deixam de ser “telas” com botão Continuar. O aluno vive uma <b>barra única de progresso</b>; cada resposta abre um <b>bottom-sheet</b> verde/vermelho com a explicação e o botão de seguir. As transições (“Agora escreve.”) viram um selo curto dentro do próprio feed. É o padrão mais usado pelos apps de idioma líderes e o que mais encurta o tempo até o próximo exercício.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Ritmo mais rápido, menos toques por exercício</li><li>Feedback sempre na zona do polegar</li><li>Elimina as telas de ponte</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Reescreve boa parte do player (1.600 linhas em lessons-4p.js)</li><li>Exige repensar a teoria longa, que não cabe nesse formato</li></ul></div></div>
+    </div>
+  </div>
+</article>
+</section>
+
+<section id="shadowing">
+  <span class="kicker">Foco 2</span>
+  <h2>Shadowing</h2>
+  <p>Fluxo percorrido: hub → como funciona → escolher faixa → modo → calibração (Ranqueada) → preview → ao vivo → resultado. Importante: o reconhecimento de voz não funciona no navegador automatizado que usei, então a tela de <b>resultado</b> mostra o estado “sem fala detectada”. Isso é útil (é o que o aluno vê se o microfone falhar), mas <b>não valida</b> a experiência de quem fala de fato.</p>
+  <div class="strip" tabindex="0">
+<figure class="shot">
+  <button class="phone" data-full="shots/p-shadowing-hub.png" aria-label="Ampliar: Hub do Shadowing">
+    <img loading="lazy" src="shots/p-shadowing-hub.png" alt="Hub do Shadowing"><span class="pin" style="left:87%;top:7%">1</span><span class="pin" style="left:92%;top:96%">2</span>
+  </button>
+  <figcaption><h4>Hub do Shadowing</h4><ul><li class="n-bug"><b>Problema</b> Hero com 3 blocos de texto + anel “0 faixas” empurra a trilha para fora da tela (página: 2.600 px).</li><li class="n-bug"><b>Problema</b> Pílula “treino do dia” quebra em 3 linhas dentro do topo.</li><li class="n-bug"><b>Problema</b> Bolha branca vazia no canto inferior direito (botão de tema) por cima do conteúdo.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/s-1-como-funciona.png" aria-label="Ampliar: Modal “Como funciona”">
+    <img loading="lazy" src="shots/s-1-como-funciona.png" alt="Modal “Como funciona”">
+  </button>
+  <figcaption><h4>Modal “Como funciona”</h4><ul><li class="n-ok"><b>Funciona</b> Explica por que (“imitar a música da língua”) e como o acerto conta para o nível.</li><li class="n-warn"><b>Atenção</b> Parede de texto em modal; no celular vira uma leitura longa que poucos terminam.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/s-3-escolha-modo.png" aria-label="Ampliar: Escolher modo: Casual × Ranqueada">
+    <img loading="lazy" src="shots/s-3-escolha-modo.png" alt="Escolher modo: Casual × Ranqueada"><span class="pin" style="left:32%;top:44%">1</span>
+  </button>
+  <figcaption><h4>Escolher modo: Casual × Ranqueada</h4><ul><li class="n-warn"><b>Atenção</b> A frase “Detectamos fone conectado?” mistura pergunta com afirmação — o app detectou ou não?</li><li class="n-bug"><b>Problema</b> Títulos e botões (“Casual”, “JOGAR”, “CALIBRAR E IR”) usam uma fonte pesada diferente do resto do app.</li><li class="n-warn"><b>Atenção</b> A primeira decisão do aluno é entre dois “modos” antes de ouvir uma única palavra.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/s-4b-calibracao-depois.png" aria-label="Ampliar: Calibração de áudio (sem fone)">
+    <img loading="lazy" src="shots/s-4b-calibracao-depois.png" alt="Calibração de áudio (sem fone)">
+  </button>
+  <figcaption><h4>Calibração de áudio (sem fone)</h4><ul><li class="n-warn"><b>Atenção</b> Sem fone, o caminho comum no celular termina em erro vermelho. (Reproduzido com microfone falso; com fone real não testei.)</li><li class="n-bug"><b>Problema</b> “tentar de novo — ou — seguir em Casual” quebra em 3 linhas desalinhadas.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/s-5-preview.png" aria-label="Ampliar: Preview: “Primeiro, ouça”">
+    <img loading="lazy" src="shots/s-5-preview.png" alt="Preview: “Primeiro, ouça”"><span class="pin" style="left:52%;top:97%">1</span>
+  </button>
+  <figcaption><h4>Preview: “Primeiro, ouça”</h4><ul><li class="n-ok"><b>Funciona</b> Ouvir a faixa antes de falar reduz a ansiedade.</li><li class="n-bug"><b>Problema</b> O atalho “já conheço, começar →” está cortado na borda inferior do cartão.</li><li class="n-warn"><b>Atenção</b> Entre as frases há muito espaço — o texto da faixa ocupa 12 linhas.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/s-6-ao-vivo.png" aria-label="Ampliar: Ao vivo: “Acompanhando”">
+    <img loading="lazy" src="shots/s-6-ao-vivo.png" alt="Ao vivo: “Acompanhando”"><span class="pin" style="left:14%;top:26%">1</span>
+  </button>
+  <figcaption><h4>Ao vivo: “Acompanhando”</h4><ul><li class="n-bug"><b>Problema</b> A faixa inteira (11 linhas) em cinza claro: só o “I” está destacado; difícil saber onde olhar.</li><li class="n-warn"><b>Atenção</b> Sem ondas nativo × você visíveis nesta captura mobile.</li><li class="n-warn"><b>Atenção</b> Único controle é “⏸ encerrar”: não há pausa, nem repetir a frase.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/s-7-resultado.png" aria-label="Ampliar: Resultado (sem fala detectada)">
+    <img loading="lazy" src="shots/s-7-resultado.png" alt="Resultado (sem fala detectada)">
+  </button>
+  <figcaption><h4>Resultado (sem fala detectada)</h4><ul><li class="n-bug"><b>Problema</b> Nota 0 em círculo vermelho + todas as palavras riscadas — para quem não falou ou para quem não teve reconhecimento de voz, é punitivo.</li><li class="n-ok"><b>Funciona</b> Honesto: “Treino visual — não conta pra progressão.”</li></ul></figcaption>
+</figure></div>
+  <h3>O que preservar</h3>
+  <p>A ideia de <b>preview antes de falar</b>, o aviso honesto “Treino visual — não conta pra progressão” e a explicação por que o shadowing funciona (“a música da língua”). A promessa de nível “cada acerto conta” é forte — só precisa ser mostrada sem peso.</p>
+  <h3>Direções de design</h3>
+  
+<article class="opt is-rec">
+  <header><span class="opt-letter">A</span><h4>Karaokê por frase — uma frase por vez, grande, com palavra destacada</h4><span class="rec">Minha recomendação</span><span class="effort">Esforço: médio</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-bar"><b style="width:25%"></b></div><em>2/6</em></div>
+<div class="mk-body mk-center">
+  <div class="mk-big">I get the <u>same</u> coffee <span>every single day.</span></div>
+  <div class="mk-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div>
+<div class="mk-dock"><div class="mk-mic">🎙</div></div></div><span class="mk-label">Karaokê por frase</span></div></div>
+    <div class="opt-text"><p>Em vez de mostrar a faixa inteira em cinza, mostra <b>uma frase por vez</b> em texto grande; a palavra tocada pelo áudio acende (lima) e as já ditas ficam escuras. As ondas nativo × você ficam embaixo e o microfone vira o botão central. Quando a frase termina, a próxima desliza.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Resolve a parede de texto cinza e o “onde olhar?”</li><li>Dá controle: pausar e repetir a frase atual</li><li>Funciona melhor em tela pequena</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Perde a visão da faixa inteira (pode ficar numa linha de pontos no topo)</li><li>Precisa de timestamps por palavra (já existe sincronia no live?)</li></ul></div></div>
+    </div>
+  </div>
+</article>
+<article class="opt">
+  <header><span class="opt-letter">B</span><h4>Um modo só — nota como opção, não como porta de entrada</h4><span class="effort">Esforço: médio</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-bar"><b style="width:50%"></b></div></div>
+<div class="mk-body">
+  <div class="mk-line w70"></div><div class="mk-line w50"></div>
+  <div class="mk-toggle"><span>🏆 Valer nota</span><i></i></div>
+  <div class="mk-hint">🎧 fone detectado</div>
+</div>
+<div class="mk-dock"><div class="mk-btn prim">▶ Começar</div></div></div><span class="mk-label">Um modo só</span></div></div>
+    <div class="opt-text"><p>Some a tela “Casual × Ranqueada”. Todo mundo começa a ouvir e treinar. Se o app <b>detectar fone</b> (ou o aluno ligar “Valer nota”), a calibração roda sob demanda e a sessão passa a contar para o nível. A primeira decisão deixa de ser técnica e passa a ser “ouvir”.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Menos fricção para quem está no celular sem fone</li><li>Remove a copy ambígua “Detectamos fone conectado?”</li><li>O conceito de nota aparece quando faz sentido</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Exige decisão de produto: o que conta para o nível e quando</li><li>Detecção de fone no navegador é limitada (precisa tratar o caso “não sei”)</li></ul></div></div>
+    </div>
+  </div>
+</article>
+<article class="opt">
+  <header><span class="opt-letter">C</span><h4>Ouvir → repetir → comparar — shadowing em passos</h4><span class="effort">Esforço: alto</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-seg"><b class="on"></b><b class="on"></b><b></b></div></div>
+<div class="mk-body mk-center">
+  <div class="mk-big">It’s always a small one.</div>
+  <div class="mk-cmp"><div><small>nativo</small><div class="mk-wave"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div><small>você</small><div class="mk-wave alt"><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
+</div>
+<div class="mk-dock row"><div class="mk-btn ghost">🔁</div><div class="mk-btn prim">🎙 Gravar</div></div></div><span class="mk-label">Ouvir → repetir → comparar</span></div></div>
+    <div class="opt-text"><p>Troca o “falar junto” por um ciclo de 3 toques: <b>ouvir a frase</b>, <b>gravar</b> a sua, <b>comparar as ondas</b> e ouvir as duas. Mais lento que o shadowing simultâneo, mas funciona sem fone, com ruído e em qualquer navegador, e deixa o aluno se ouvir.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Funciona em qualquer cenário mobile (sem calibração nem fone)</li><li>Comparar a própria voz é motivador e didático</li><li>Reduz dependência de reconhecimento de voz em tempo real</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Deixa de ser shadowing “de verdade” (simultâneo); muda o nome da feature</li><li>Precisa gravar e guardar áudio do aluno</li></ul></div></div>
+    </div>
+  </div>
+</article>
+</section>
+
+<section id="ditacao">
+  <span class="kicker">Foco 3</span>
+  <h2>Ditação</h2>
+  <p>Fluxo percorrido: hub → como funciona → faixa → frase (vazia, digitando, dica, errada, certa) → resultado, jogando a faixa “Nice to Meet You” (8 frases).</p>
+  <div class="strip" tabindex="0">
+<figure class="shot">
+  <button class="phone" data-full="shots/p-dictation-hub.png" aria-label="Ampliar: Hub da Ditação">
+    <img loading="lazy" src="shots/p-dictation-hub.png" alt="Hub da Ditação"><span class="pin" style="left:87%;top:7%">1</span>
+  </button>
+  <figcaption><h4>Hub da Ditação</h4><ul><li class="n-bug"><b>Problema</b> Hero copiado do Shadowing: mesma altura, mesmo anel, mesma pílula quebrando.</li><li class="n-warn"><b>Atenção</b> Texto fala em “blocos coloridos” antes de o aluno ter visto um.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/d-1-como-funciona.png" aria-label="Ampliar: Modal “Como funciona”">
+    <img loading="lazy" src="shots/d-1-como-funciona.png" alt="Modal “Como funciona”">
+  </button>
+  <figcaption><h4>Modal “Como funciona”</h4><ul><li class="n-ok"><b>Funciona</b> Reaproveita o padrão do Shadowing — consistente.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/d-4-frase-vazia.png" aria-label="Ampliar: Frase 1 de 8 — antes de digitar">
+    <img loading="lazy" src="shots/d-4-frase-vazia.png" alt="Frase 1 de 8 — antes de digitar"><span class="pin" style="left:93%;top:43%">1</span>
+  </button>
+  <figcaption><h4>Frase 1 de 8 — antes de digitar</h4><ul><li class="n-ok"><b>Funciona</b> A estrutura colorida (Sujeito · Verbo · Complemento) com traços de tamanho de palavra é o grande diferencial.</li><li class="n-bug"><b>Problema</b> A linha “Ouvir de novo / Devagar” é mais larga que a coluna: “Devagar” vaza para a direita.</li><li class="n-warn"><b>Atenção</b> HUD de tempo, pontos e combo + barra + “Frase 1 de 8” = 4 faixas de informação antes da frase.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/d-5-digitando.png" aria-label="Ampliar: Digitando">
+    <img loading="lazy" src="shots/d-5-digitando.png" alt="Digitando">
+  </button>
+  <figcaption><h4>Digitando</h4><ul><li class="n-ok"><b>Funciona</b> Campo grande, borda laranja de foco.</li><li class="n-warn"><b>Atenção</b> Não testado com teclado aberto (o navegador automatizado não abre teclado virtual). Numa tela de 844 px, o teclado de celular ocupa cerca de 40% e pode cobrir Dica e Verificar.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/d-6-dica.png" aria-label="Ampliar: Dica usada">
+    <img loading="lazy" src="shots/d-6-dica.png" alt="Dica usada">
+  </button>
+  <figcaption><h4>Dica usada</h4><ul><li class="n-ok"><b>Funciona</b> A dica diz explicitamente o custo: “esta frase não conta pro combo”.</li><li class="n-warn"><b>Atenção</b> A dica aparece abaixo do campo — com teclado aberto fica escondida.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/d-7-feedback-parcial.png" aria-label="Ampliar: Feedback — frase errada">
+    <img loading="lazy" src="shots/d-7-feedback-parcial.png" alt="Feedback — frase errada">
+  </button>
+  <figcaption><h4>Feedback — frase errada</h4><ul><li class="n-ok"><b>Funciona</b> Chips por palavra + “Sobrou: nice to” + tradução: diagnóstico completo.</li><li class="n-warn"><b>Atenção</b> Tudo isso empilhado verticalmente: os blocos continuam mostrando a resposta e os chips repetem a mesma coisa.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/d-8-acerto.png" aria-label="Ampliar: Feedback — acerto">
+    <img loading="lazy" src="shots/d-8-acerto.png" alt="Feedback — acerto">
+  </button>
+  <figcaption><h4>Feedback — acerto</h4><ul><li class="n-ok"><b>Funciona</b> Os blocos preenchem com a frase certa e +100 / combo 1 reagem na hora.</li><li class="n-warn"><b>Atenção</b> “Perfeito!” vive em uma barra discreta; o ganho emocional é pequeno para o esforço.</li></ul></figcaption>
+</figure>
+<figure class="shot">
+  <button class="phone" data-full="shots/d-9-resultado.png" aria-label="Ampliar: Resultado da faixa">
+    <img loading="lazy" src="shots/d-9-resultado.png" alt="Resultado da faixa">
+  </button>
+  <figcaption><h4>Resultado da faixa</h4><ul><li class="n-warn"><b>Atenção</b> Nota 13 em círculo vermelho, mas “+8 XP”: a recompensa vem misturada com a sensação de fracasso.</li><li class="n-ok"><b>Funciona</b> Cada frase mostra as palavras certas/erradas — dá para revisar.</li></ul></figcaption>
+</figure></div>
+  <h3>O que preservar</h3>
+  <p>A <b>estrutura colorida com traços do tamanho de cada palavra</b>, que dá pista sem entregar a resposta, a regra honesta da dica (“esta frase não conta pro combo”) e o diagnóstico por palavra. É a melhor ideia de interface do produto hoje.</p>
+  <h3>Direções de design</h3>
+  
+<article class="opt is-rec">
+  <header><span class="opt-letter">A</span><h4>Teclado primeiro — o layout nasce com o teclado aberto</h4><span class="rec">Minha recomendação</span><span class="effort">Esforço: médio</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock kbd"><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-bar"><b style="width:25%"></b></div><em>⭐100 🔥1</em></div>
+<div class="mk-body">
+  <div class="mk-row"><div class="mk-btn ghost sm">🔊 Ouvir</div><div class="mk-btn ghost sm">🐢</div></div>
+  <div class="mk-blocks"><b class="s">I</b><b class="v">am</b><b class="c">from…</b></div>
+  <div class="mk-input on"></div>
+</div>
+<div class="mk-kbd"><div class="mk-bar2"><span>💡 Dica</span><span class="p">Verificar</span></div><div class="keys"></div></div></div><span class="mk-label">Teclado primeiro</span></div></div>
+    <div class="opt-text"><p>Redesenha a tela pensando que, ao digitar, <b>metade da altura é teclado</b>. O HUD (tempo, pontos, combo) vira uma linha de 24 px no topo; áudio e <i>Devagar</i> ficam lado a lado (corrigindo o vazamento); os blocos de estrutura ficam compactos; e <b>Dica / Verificar</b> sobem para uma barra colada ao teclado.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Resolve o maior risco real de uso no celular</li><li>Dica e Verificar sempre visíveis</li><li>Reduz a rolagem por frase</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Precisa de teste em iOS e Android reais (visualViewport)</li><li>O HUD fica menos “gamificado” (pode ir para o recap)</li></ul></div></div>
+    </div>
+  </div>
+</article>
+<article class="opt">
+  <header><span class="opt-letter">B</span><h4>Palavra a palavra — a estrutura vira o campo</h4><span class="effort">Esforço: alto</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-bar"><b style="width:25%"></b></div></div>
+<div class="mk-body">
+  <div class="mk-row"><div class="mk-btn ghost sm">🔊 Ouvir</div></div>
+  <div class="mk-slotgroup"><small>SUJEITO</small><div><b class="ok">My</b><b class="ok">name</b></div></div>
+  <div class="mk-slotgroup v"><small>VERBO</small><div><b class="cur">…</b></div></div>
+  <div class="mk-slotgroup c"><small>COMPLEMENTO</small><div><b></b></div></div>
+</div>
+<div class="mk-dock"><div class="mk-btn prim">Verificar</div></div></div><span class="mk-label">Palavra a palavra</span></div></div>
+    <div class="opt-text"><p>Cada bloco (Sujeito, Verbo, Complemento) deixa de ser decoração e vira <b>onde se digita</b>: o aluno toca no bloco, escreve a palavra e ela fica verde ao acertar. O feedback é imediato e visual; o campo único some. Mais lúdico e reforça justamente o diferencial pedagógico da ditação.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Protagonismo para a estrutura (o que ninguém mais tem)</li><li>Feedback imediato por palavra, sem esperar o Verificar</li><li>Ótimo em frases curtas (A1)</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Em frases longas, vários campos pequenos podem cansar</li><li>Muda o modelo de pontuação e o juiz de frase (judgeSentence)</li></ul></div></div>
+    </div>
+  </div>
+</article>
+<article class="opt">
+  <header><span class="opt-letter">C</span><h4>Feedback em sheet — mantém a tela, melhora o depois</h4><span class="effort">Esforço: baixo</span></header>
+  <div class="opt-grid">
+    <div class="opt-mock"><div class="mock "><div class="mk-screen">
+<div class="mk-top"><i class="mk-x"></i><div class="mk-bar"><b style="width:25%"></b></div></div>
+<div class="mk-body">
+  <div class="mk-blocks"><b class="s">My name</b><b class="v">is</b><b class="c">Ana.</b></div>
+  <div class="mk-input bad"></div>
+</div>
+<div class="mk-sheet bad"><b>Quase lá</b><span><s>nice to</s> → <u>My name is Ana.</u></span><small>Meu nome é Ana.</small><div class="mk-btn prim">Próxima frase</div></div></div><span class="mk-label">Feedback em sheet</span></div></div>
+    <div class="opt-text"><p>Não mexe no antes de digitar. Só o <b>pós-verificação</b> vira um bottom-sheet compacto: diff em uma linha (<s>nice to</s> → My name is Ana.), tradução e <b>Próxima frase</b> sempre no mesmo ponto. Os chips repetidos e o bloco de “Sobrou” são fundidos nessa linha.</p>
+      <div class="pc"><div><h5>Ganha</h5><ul><li>Mudança pequena com efeito grande na sensação de fluidez</li><li>Combina com a opção C das aulas (mesmo padrão de sheet)</li></ul></div>
+      <div><h5>Custa</h5><ul><li>Não resolve o problema do teclado cobrindo a tela</li></ul></div></div>
+    </div>
+  </div>
+</article>
+</section>
+
+<section id="decidir">
+  <span class="kicker">Para decidir</span>
+  <h2>Comparativo e próximos passos</h2>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Área</th><th>Opção</th><th>Resolve</th><th>Esforço</th><th>Risco</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3"><b>Aulas</b></td><td><span class="tag hi">A</span> Player enxuto</td><td>Header pesado, ação longe do polegar, bugs de overflow</td><td>Baixo</td><td>Baixo</td></tr>
+      <tr><td><span class="tag">B</span> Hub em trilha</td><td>Hero gigante, falta de senso de caminho</td><td>Médio</td><td>Médio</td></tr>
+      <tr><td><span class="tag">C</span> Sessão contínua</td><td>Ritmo e tempo até o próximo exercício</td><td>Alto</td><td>Alto</td></tr>
+      <tr><td rowspan="3"><b>Shadowing</b></td><td><span class="tag hi">A</span> Karaokê por frase</td><td>Parede de texto cinza, falta de controle</td><td>Médio</td><td>Médio</td></tr>
+      <tr><td><span class="tag">B</span> Um modo só</td><td>Fricção inicial e dependência de fone</td><td>Médio</td><td>Médio (decisão de produto)</td></tr>
+      <tr><td><span class="tag">C</span> Ouvir → repetir → comparar</td><td>Funcionar em qualquer celular</td><td>Alto</td><td>Alto (muda a feature)</td></tr>
+      <tr><td rowspan="3"><b>Ditação</b></td><td><span class="tag hi">A</span> Teclado primeiro</td><td>Layout com teclado, dica/verificar acessíveis</td><td>Médio</td><td>Médio (testar em aparelho)</td></tr>
+      <tr><td><span class="tag">B</span> Palavra a palavra</td><td>Protagonismo da estrutura, feedback imediato</td><td>Alto</td><td>Alto</td></tr>
+      <tr><td><span class="tag">C</span> Feedback em sheet</td><td>Rolagem e fluidez no pós-resposta</td><td>Baixo</td><td>Baixo</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Perguntas que mudam a decisão</h3>
+  <ol class="q">
+    <li><b>Como seu aluno usa o GRILO?</b> Se a maioria estuda no celular sem fone, o Shadowing B ou C ganha peso; se usa fone e fica sentado, o A basta.</li>
+    <li><b>Qual é a área mais importante agora?</b> Posso sugerir uma ordem: casco comum → Ditação A → Aulas A → Shadowing A, ou outra que você preferir.</li>
+    <li><b>Casual × Ranqueada precisa existir?</b> É uma decisão de produto, não de design; ela define se o Shadowing B é possível.</li>
+    <li><b>Quer ousar visualmente ou polir?</b> As opções A de cada área polem; as B e C reinventam. Dá para misturar (ex.: Aulas A + Ditação C).</li>
+    <li><b>Posso prototipar a escolhida?</b> Sugiro fazer primeiro uma tela real (ex.: a escrita das aulas) em uma branch e comparar com um print lado a lado.</li>
+  </ol>
+  <div class="callout warn">
+    <h4>O que não consegui validar</h4>
+    <p style="margin:0">Teclado virtual real, reconhecimento de voz falando de verdade, calibração com fone, áudio do TTS, estados de “aula já em andamento” (retomar), contraste de aulas A2, modo escuro nas telas de aula, e o Safari/iOS. Os prints são de um Chromium em tamanho de celular; antes de decidir em cima de “teclado” e “voz”, vale rodar no seu aparelho.</p>
+  </div>
+</section>
+
+</div>
+</main>
+<footer><div class="wrap">Capturas feitas em 30/10/2026 em Chromium 390×844 @2x com conta de teste e banco descartável. Arquivos em <code>docs/ux-mobile/shots/</code>.</div></footer>
+
+<div class="lb" id="lb" role="dialog" aria-label="Imagem ampliada"><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById('lb'),im=lb.querySelector('img');
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-full]');
+    if(b){im.src=b.getAttribute('data-full');lb.classList.add('on');return;}
+    if(lb.classList.contains('on'))lb.classList.remove('on');
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')lb.classList.remove('on')});
+  var btn=document.getElementById('themeBtn');
+  btn.addEventListener('click',function(){
+    var r=document.documentElement,cur=r.getAttribute('data-theme');
+    var dark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme:dark)').matches;
+    r.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>

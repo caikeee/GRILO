@@ -375,8 +375,9 @@ function _renderHero(stats) {
 // demanda (mesmos arquivos da lessons.html, então o cache é compartilhado)
 // e usa a API pública Grilo4P — a mesma fonte da grade de aulas.
 const LESSONS_4P_SCRIPTS = [
+    'assets/js/session-shell.js?v=1',
     'assets/js/lessons-4p-data.js?v=1780000200',
-    'assets/js/lessons-4p.js?v=1780000400',
+    'assets/js/lessons-4p.js?v=1780000600',
 ];
 let _lessons4pLoading = null;
 

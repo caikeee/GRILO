@@ -11,57 +11,66 @@
   <link rel="stylesheet" href="assets/css/sage-color-system.css?v=20260520">
   <link rel="stylesheet" href="assets/css/sage-overrides.css?v=20260520">
   <link rel="stylesheet" href="assets/css/sage-premium-polish.css?v=20260520">
-  <link rel="stylesheet" href="assets/css/lessons-4p.css?v=1780000300">
+  <link rel="stylesheet" href="assets/css/session-shell.css?v=1">
+  <link rel="stylesheet" href="assets/css/lessons-4p.css?v=1780000400">
 </head>
 <body class="app-lessons">
-  <main class="lessons-shell">
+  <main class="gs-hub" id="lessons4pStage">
 
-    <!-- ── Topbar ─────────────────────────────────────────── -->
-    <header class="lessons-topbar">
-      <a href="home.html" class="lessons-back">Painel</a>
-      <div class="lessons-title">
-        <span class="lessons-title-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg>
-        </span>
-        <span class="lessons-title-copy">
-          <em>Grilo · Bloco A1</em>
-          <strong>Suas aulas</strong>
-        </span>
+    <!-- ── Topo: voltar + progresso do bloco ──────────────── -->
+    <div class="gs-hub-top">
+      <a href="home.html" class="gs-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Painel</a>
+      <span class="gs-chip" id="lessonsTopbarProgress">A1 · 20 aulas</span>
+    </div>
+
+    <!-- ── Cabeçalho compacto ─────────────────────────────── -->
+    <header class="gs-hub-head">
+      <div>
+        <span class="gs-kick" id="g4pHeroKicker">Bloco A1 · 4 pontas</span>
+        <h1 class="gs-h1">Suas aulas</h1>
       </div>
-      <div class="lessons-module-pill" id="lessonsTopbarProgress">20 aulas · A1</div>
+      <div class="gs-ring" id="g4pRing" role="img" aria-label="Aulas concluídas no bloco">
+        <svg viewBox="0 0 58 58" aria-hidden="true">
+          <circle class="gs-ring-track" cx="29" cy="29" r="24"/>
+          <circle class="gs-ring-fill" cx="29" cy="29" r="24"/>
+        </svg>
+        <b><span data-ring-num>0</span><small data-ring-total>de 20</small></b>
+      </div>
     </header>
+    <button type="button" class="gs-how" id="g4pHowBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor" stroke="none"/></svg>
+      Como funcionam as 4 pontas
+    </button>
 
-    <!-- ── Sistema 4 pontas — bloco A1 ───────────────────────── -->
-    <section id="lessons4pStage" class="g4p-stage-shell">
-      <header class="g4p-hero">
-        <div class="g4p-hero-main">
-          <span class="g4p-hero-kicker">Bloco A1 · Sistema 4 pontas</span>
-          <h1 class="g4p-hero-title">Cada palavra passa por <em>ver</em>, <em>ouvir</em>, <em>escrever</em> e <em>falar</em>.</h1>
-          <p class="g4p-hero-sub">20 aulas em 4 grupos, na ordem em que a vida real pede. O que você escrever certo entra no seu vocabulário — o que também ouvir e falar, você domina.</p>
-          <div class="g4p-hero-route" aria-hidden="true">
-            <span>👁 ver</span><span>👂 ouvir</span><span>✍️ escrever</span><span>🎙 falar</span>
-          </div>
-        </div>
-        <div class="g4p-hero-panel" aria-label="Progresso do bloco A1">
-          <div class="g4p-ring">
-            <svg viewBox="0 0 96 96" aria-hidden="true">
-              <circle class="g4p-ring-track" cx="48" cy="48" r="40"/>
-              <circle class="g4p-ring-fill" id="g4pRingFill" cx="48" cy="48" r="40"/>
-            </svg>
-            <div class="g4p-ring-text"><b id="g4pRingNum">0</b><span id="g4pRingTotal">de 20</span></div>
-          </div>
-          <p class="g4p-hero-panel-label">aulas concluídas</p>
-          <p class="g4p-hero-panel-hint">Complete as 20 e o A1 é seu.</p>
-        </div>
-      </header>
-      <div id="g4pGrid" aria-live="polite"></div>
-    </section>
+    <!-- ── Aula da vez ────────────────────────────────────── -->
+    <div id="g4pContinue"></div>
+
+    <!-- ── Blocos → grupos → aulas ────────────────────────── -->
+    <div id="g4pGrid" aria-live="polite"></div>
   </main>
+
+  <!-- ── "Como funciona" (sheet no celular) ────────────────── -->
+  <div class="gs-modal" id="g4pHowModal" hidden>
+    <div class="gs-modal-card" role="dialog" aria-modal="true" aria-labelledby="g4pHowTitle">
+      <button type="button" class="gs-modal-close" data-how-close aria-label="Fechar">✕</button>
+      <span class="gs-kick">Como funciona</span>
+      <h2 class="gs-modal-title" id="g4pHowTitle">Cada palavra passa por ver, ouvir, escrever e falar.</h2>
+      <div class="g4p-four">
+        <span><i aria-hidden="true">👁</i>ver</span><span><i aria-hidden="true">👂</i>ouvir</span>
+        <span><i aria-hidden="true">✍️</i>escrever</span><span><i aria-hidden="true">🎙</i>falar</span>
+      </div>
+      <p class="gs-modal-text">São 20 aulas em 4 grupos, na ordem em que a vida real pede. Cada aula tem 8 palavras e 5 frases.</p>
+      <p class="gs-modal-text">O que você <b>escrever certo</b> entra no seu vocabulário. O que você também <b>ouvir e falar</b> fica <b>dominado</b>.</p>
+      <p class="gs-modal-text">Complete as 20 aulas do bloco e o A1 é seu.</p>
+      <button type="button" class="gs-btn is-pri gs-modal-cta" data-how-close>Entendi</button>
+    </div>
+  </div>
 
   <script src="assets/js/grilo-tts.js?v=3" defer></script>
   <script src="assets/js/voice-recognition-utils.js?v=1779500000" defer></script>
+  <script src="assets/js/session-shell.js?v=1" defer></script>
   <script src="assets/js/lessons-4p-data.js?v=1780000200" defer></script>
-  <script src="assets/js/lessons-4p.js?v=1780000500" defer></script>
+  <script src="assets/js/lessons-4p.js?v=1780000600" defer></script>
 
 </body>
 </html>

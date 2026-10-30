@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GRILO — Redesenho mobile</title>
+<meta name="description" content="Proposta de redesenho mobile de Aulas, Shadowing e Ditação do GRILO, tela a tela, com comparação com o estado atual.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================ página */
+:root{
+  --bg:#f3f1ea; --surface:#fffdf8; --ink:#1d2a22; --muted:#66746b; --line:#e2ddd0;
+  --accent:#4a7c5e; --accent-2:#3a5e47; --warm:#d9832e; --lime:#c9e86a;
+  --shadow:0 1px 2px rgba(30,40,30,.06),0 18px 40px -18px rgba(30,40,30,.25);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#131915; --surface:#1b231e; --ink:#e9ede6; --muted:#9aa89e; --line:#2c372f;
+    --accent:#8fc2a4; --accent-2:#a8d4b9; --warm:#ecaa5f;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 40px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131915; --surface:#1b231e; --ink:#e9ede6; --muted:#9aa89e; --line:#2c372f;
+  --accent:#8fc2a4; --accent-2:#a8d4b9; --warm:#ecaa5f;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 40px -18px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 "Space Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:Manrope,system-ui,sans-serif;letter-spacing:-.02em;line-height:1.15;margin:0}
+p{margin:0 0 14px}
+a{color:var(--accent)}
+code{font-size:.88em;background:color-mix(in srgb,var(--line) 60%,transparent);padding:1px 5px;border-radius:5px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.read{max-width:720px}
+header.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:14px;height:54px}
+header.top b{font-family:Manrope,sans-serif;white-space:nowrap}
+header.top nav{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+header.top nav a{font-size:14px;padding:6px 10px;border-radius:999px;text-decoration:none;color:var(--muted);white-space:nowrap}
+header.top nav a:hover{background:var(--line);color:var(--ink)}
+.tbtn{all:unset;cursor:pointer;font-size:13px;color:var(--muted);padding:6px 11px;border:1px solid var(--line);border-radius:999px;white-space:nowrap}
+.hero{padding:70px 0 34px}
+.kicker{display:block;font:700 12px/1 Manrope,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--warm);margin-bottom:16px}
+.hero h1{font-size:clamp(34px,6vw,62px);margin-bottom:20px;max-width:900px}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:clamp(18px,2.3vw,21px);color:var(--muted);max-width:720px}
+.pillrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.pillrow a,.pillrow span{font:600 14px Manrope,sans-serif;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
+.pillrow a.main{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+section.blk{padding:60px 0;border-top:1px solid var(--line)}
+section.blk>.wrap>h2{font-size:clamp(28px,4.4vw,42px);margin-bottom:14px}
+.sub{font-size:22px;margin:40px 0 12px}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:24px}
+.principles div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.principles b{display:block;font:800 16px/1.25 Manrope,sans-serif;margin-bottom:4px}
+.principles span{font-size:14.5px;color:var(--muted);line-height:1.5}
+.principles i{font-style:normal;font:800 13px Manrope,sans-serif;color:var(--warm);display:block;margin-bottom:8px}
+
+/* galeria de telas */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:44px 30px;margin-top:30px}
+.dev{margin:0}
+.device{width:330px;margin:0 auto;border:9px solid #121a15;border-radius:48px;box-shadow:var(--shadow);background:#121a15;position:relative}
+.vp{position:relative;width:312px;height:675.2px;overflow:hidden;border-radius:39px;background:#f4f7f5}
+.old{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50;background:#fff}
+.dev.show-old .old{opacity:1}
+.badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);z-index:60;font:800 11px/1 Manrope,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:var(--lime);color:#1f3b2d;white-space:nowrap}
+.dev.show-old .badge{background:#d9d4c7;color:#4a4a40}
+.dev figcaption{max-width:330px;margin:16px auto 0}
+.cap-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.num{font:800 12px/1 Manrope,sans-serif;padding:6px 8px;border-radius:8px;background:var(--ink);color:var(--bg)}
+.dev h4{font-size:17px;flex:1}
+.cmp{all:unset;cursor:pointer;font:600 12.5px Manrope,sans-serif;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:5px 10px;white-space:nowrap;background:var(--surface)}
+.cmp:hover{border-color:var(--accent)}
+.spec{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.spec li{font-size:14px;line-height:1.5;color:var(--muted);padding-left:16px;position:relative}
+.spec li::before{content:"";position:absolute;left:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.spec li.fix::before{background:#c0554d}
+.spec b{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--c);vertical-align:1px}
+
+/* kit */
+.kitgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;margin-top:24px}
+.kitcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.kitcard h4{font-size:15px;margin-bottom:4px}
+.kitcard p{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+.kitstage{background:#f4f7f5;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:hidden;position:relative}
+.tokens{display:flex;flex-wrap:wrap;gap:8px}
+.tok{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#3b4d42}
+.tok i{width:26px;height:26px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--c)}
+
+table.dec{width:100%;border-collapse:collapse;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:20px}
+.dec th,.dec td{padding:13px 15px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.dec th{font:700 12px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dec tr:last-child td{border-bottom:0}
+.dec td b{font-family:Manrope,sans-serif}
+.rec{display:inline-block;font:700 11px/1 Manrope,sans-serif;padding:4px 7px;border-radius:6px;background:var(--lime);color:#1f3b2d;margin-left:6px;vertical-align:2px}
+.tblw{overflow-x:auto}
+.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:12px;margin-top:20px}
+.steps li{counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px 16px 60px;position:relative}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:16px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--bg);display:grid;place-items:center;font:800 14px Manrope,sans-serif}
+.steps b{font-family:Manrope,sans-serif}
+footer{padding:40px 0 90px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+
+/* ============================================================ app (mockups) */
+.app{--a-bg:#f4f7f5;--a-ink:#1f3b2d;--a-muted:#6a7b71;--a-border:#d9e7dc;--a-green:#4a7c5e;--a-green-d:#3a5e47;--a-warm:#d9832e;--a-danger:#c0554d;--a-lime:#c9e86a;
+  --dt-subject:#4a7c5e;--dt-verb:#a8781a;--dt-object:#2f5a78;--dt-adverbial:#6d5a8a;--dt-complement:#b8661f;--dt-connector:#6a7b71;
+  color:var(--a-ink);font:16px/1.5 "Space Grotesk",system-ui,sans-serif;text-align:left}
+.scr{position:absolute;top:0;left:0;width:390px;height:844px;transform:scale(.8);transform-origin:0 0;background:var(--a-bg);display:flex;flex-direction:column;overflow:hidden}
+.app svg{width:22px;height:22px;flex:none}
+.sb{height:46px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:6px 30px 0 34px;font:700 15px Manrope,sans-serif}
+.sb span{display:flex;gap:5px;align-items:center}
+.sb span i{display:block;width:17px;height:11px;border-radius:3px;border:1.6px solid currentColor;position:relative}
+.sb span i::after{content:"";position:absolute;inset:1.5px;right:4px;background:currentColor;border-radius:1px}
+.sb span em{display:block;width:16px;height:10px;background:linear-gradient(90deg,currentColor 0 3px,transparent 3px 4.5px,currentColor 4.5px 7.5px,transparent 7.5px 9px,currentColor 9px 12px,transparent 12px 13.5px,currentColor 13.5px);clip-path:polygon(0 70%,25% 70%,25% 45%,50% 45%,50% 20%,75% 20%,75% 0,100% 0,100% 100%,0 100%)}
+.top{height:56px;flex:none;display:flex;align-items:center;gap:12px;padding:0 16px 0 10px}
+.xb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--a-muted);flex:none}
+.prog{flex:1;display:flex;gap:4px}
+.prog i{flex:var(--w,1);height:8px;border-radius:9px;background:#e1eae3;position:relative;overflow:hidden}
+.prog i::after{content:"";position:absolute;top:0;bottom:0;left:0;width:var(--f,0%);background:var(--a-green);border-radius:9px}
+.cnt{font:700 14px Manrope,sans-serif;color:var(--a-muted);white-space:nowrap}
+.hud{display:flex;gap:6px}
+.hud span{font:800 13px/1 Manrope,sans-serif;padding:7px 9px;border-radius:999px;background:#fff;border:1px solid var(--a-border);white-space:nowrap}
+.hud .hot{background:var(--a-lime);border-color:var(--a-lime);color:#2c3d0c}
+.bd{flex:1;min-height:0;padding:14px 20px 0;display:flex;flex-direction:column;gap:16px;position:relative}
+.bd.center{justify-content:center;align-items:center;text-align:center}
+.kick{font:700 12px/1.2 Manrope,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--a-warm)}
+.h1{font:800 28px/1.15 Manrope,sans-serif;letter-spacing:-.02em;margin:0}
+.h2{font:800 23px/1.2 Manrope,sans-serif;letter-spacing:-.015em;margin:0}
+.p{color:var(--a-muted);font-size:16px;line-height:1.5;margin:0}
+.dock{flex:none;display:flex;gap:10px;padding:12px 16px 30px;align-items:center;background:linear-gradient(transparent,var(--a-bg) 30%)}
+.dock.kb{padding:8px 10px;background:#f4f7f5;border-top:1px solid var(--a-border)}
+.btn{height:52px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:8px;font:700 17px Manrope,sans-serif;padding:0 20px;white-space:nowrap}
+.btn.pri{background:var(--a-green);color:#fff;flex:1;box-shadow:0 8px 18px -8px rgba(74,124,94,.7)}
+.btn.lime{background:var(--a-lime);color:#1f3b2d}
+.btn.sec{background:#fff;border:1.5px solid var(--a-border);color:var(--a-green-d)}
+.btn.txt{color:var(--a-muted);padding:0 12px;font-weight:600}
+.btn.ic{width:52px;padding:0}
+.btn.dis{opacity:.42;box-shadow:none}
+.btn.sm{height:44px;font-size:15px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{min-height:58px;border-radius:14px;background:#fff;border:1.5px solid var(--a-border);display:flex;align-items:center;gap:14px;padding:10px 16px;font:500 17px/1.3 "Space Grotesk",sans-serif}
+.opt .lt{width:32px;height:32px;border-radius:9px;background:#eef3ef;display:grid;place-items:center;font:700 14px Manrope,sans-serif;color:var(--a-muted);flex:none}
+.opt.ok{border-color:var(--a-green);background:#eaf3ed}
+.opt.ok .lt{background:var(--a-green);color:#fff}
+.opt.no{border-color:#e6b7b1;background:#fbf0ee}
+.opt.no .lt{background:var(--a-danger);color:#fff}
+.opt.dim{opacity:.5}
+.ah{width:92px;height:92px;border-radius:50%;background:var(--a-green);display:grid;place-items:center;color:#fff;box-shadow:0 0 0 12px rgba(74,124,94,.12),0 14px 28px -10px rgba(74,124,94,.7)}
+.ah svg{width:36px;height:36px}
+.ah-cap{font:600 14px Manrope,sans-serif;color:var(--a-muted);margin-top:6px}
+.arow{display:flex;gap:10px;align-items:center}
+.apill{height:56px;border-radius:999px;background:#fff;border:1.5px solid var(--a-border);display:inline-flex;align-items:center;gap:12px;padding:0 20px 0 7px;font:700 17px Manrope,sans-serif;color:var(--a-green-d);flex:1}
+.apill .pl{width:42px;height:42px;border-radius:50%;background:var(--a-green);display:grid;place-items:center;color:#fff}
+.apill .pl svg{width:18px;height:18px}
+.wv{display:flex;align-items:center;gap:3px;height:22px;margin-left:auto}
+.wv i{display:block;width:3px;border-radius:2px;background:currentColor;opacity:.75}
+.slow{height:56px;border-radius:999px;border:1.5px solid var(--a-border);padding:0 16px;display:inline-flex;align-items:center;gap:6px;font:700 15px Manrope,sans-serif;color:var(--a-muted);background:#fff;flex:none}
+.slow.on{border-color:var(--a-green);color:var(--a-green-d);background:#eaf3ed}
+.inp{height:58px;border-radius:14px;border:2px solid var(--a-border);background:#fff;display:flex;align-items:center;padding:0 16px;font:500 21px "Space Grotesk",sans-serif;color:var(--a-ink)}
+.inp.ph{color:#9aa79f}
+.inp.focus{border-color:var(--a-green);box-shadow:0 0 0 4px rgba(74,124,94,.14)}
+.inp.bad{border-color:#e6b7b1;background:#fbf0ee}
+.inp.good{border-color:var(--a-green);background:#eaf3ed}
+.caret{display:inline-block;width:2px;height:26px;background:var(--a-green);margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.tries{display:flex;gap:6px;align-items:center;font:600 13px Manrope,sans-serif;color:var(--a-muted)}
+.tries i{width:8px;height:8px;border-radius:50%;background:#dbe5de}
+.tries i.used{background:var(--a-warm)}
+.scrim{position:absolute;inset:0;background:rgba(20,32,25,.32);z-index:4}
+.sheet{position:absolute;left:0;right:0;bottom:0;border-radius:26px 26px 0 0;padding:22px 20px 0;box-shadow:0 -14px 34px -14px rgba(31,59,45,.32);z-index:5;background:#fff}
+.sheet::before{content:"";position:absolute;top:8px;left:50%;width:38px;height:4px;border-radius:4px;background:rgba(31,59,45,.15);transform:translateX(-50%)}
+.sheet.good{background:#e5f1e9}
+.sheet.warn{background:#fcf1e2}
+.sheet.bad{background:#fbedeb}
+.st{display:flex;gap:12px;align-items:center;font:800 21px/1.2 Manrope,sans-serif}
+.st .si{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;flex:none}
+.st .si svg{width:18px;height:18px}
+.sheet.good .st{color:#2c6643}.sheet.good .si{background:var(--a-green)}
+.sheet.warn .st{color:#9b5510}.sheet.warn .si{background:var(--a-warm)}
+.sheet.bad .st{color:#a3413a}.sheet.bad .si{background:var(--a-danger)}
+.sheet .sp{margin:10px 0 0;font-size:16px;line-height:1.5;color:#36493d}
+.sheet .sp b{color:var(--a-ink)}
+.sheet .dock{padding:16px 0 30px;background:none}
+.again{display:inline-flex;align-items:center;gap:6px;font:700 14px Manrope,sans-serif;color:var(--a-green-d);margin-top:10px}
+.again svg{width:18px;height:18px}
+.toast{position:absolute;top:420px;left:50%;transform:translateX(-50%);background:var(--a-ink);color:#fff;border-radius:999px;padding:11px 18px;font:700 15px Manrope,sans-serif;white-space:nowrap;z-index:6;box-shadow:0 12px 24px -10px rgba(0,0,0,.45);display:flex;gap:8px;align-items:center}
+.kbd{background:#d2d6db;padding:8px 3px 30px;display:flex;flex-direction:column;gap:11px;flex:none}
+.kr{display:flex;gap:6px;justify-content:center}
+.kr b{width:33px;height:43px;background:#fff;border-radius:6px;display:grid;place-items:center;font:400 21px -apple-system,"Segoe UI",sans-serif;box-shadow:0 1px 0 #898e94;color:#111}
+.kr b.w{width:44px;background:#adb3ba;font-size:15px}
+.kr b.sp{width:180px;font-size:15px}
+.kr b.rt{width:90px;background:#adb3ba;font-size:15px}
+/* hubs */
+.hh{padding:0 20px;display:flex;flex-direction:column;gap:6px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.back{display:flex;align-items:center;gap:2px;font:600 15px Manrope,sans-serif;color:var(--a-muted);height:44px;margin-left:-6px}
+.back svg{width:20px;height:20px}
+.chip{height:32px;padding:0 12px;border-radius:999px;background:#fff;border:1px solid var(--a-border);font:700 13px Manrope,sans-serif;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ring{width:58px;height:58px;position:relative;flex:none}
+.ring svg{width:58px;height:58px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:800 14px Manrope,sans-serif;line-height:1}
+.ring b small{display:block;font:600 10px Manrope,sans-serif;color:var(--a-muted);text-align:center;margin-top:2px}
+.how{font:600 14px Manrope,sans-serif;color:var(--a-green);display:inline-flex;gap:6px;align-items:center;height:32px}
+.how svg{width:17px;height:17px}
+.cont{margin:12px 16px 0;border-radius:24px;background:linear-gradient(155deg,#3f664e,#21392b);color:#fff;padding:18px 18px 16px;display:flex;flex-direction:column;gap:7px;box-shadow:0 18px 30px -18px rgba(31,59,45,.8)}
+.cont .k{font:700 11px Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--a-lime)}
+.cont h3{font:800 21px/1.2 Manrope,sans-serif;margin:0;letter-spacing:-.01em}
+.cont .m{font-size:14px;color:#c4d6ca}
+.cont .go{margin-top:8px;height:50px;border-radius:999px;background:var(--a-lime);color:#1f3b2d;font:800 16px Manrope,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px}
+.cont .go svg{width:16px;height:16px}
+.ladder{display:flex;align-items:center;gap:10px;font-size:12.5px;color:#c4d6ca}
+.ladder span{flex:1;height:6px;border-radius:9px;background:rgba(255,255,255,.16);overflow:hidden}
+.ladder span i{display:block;height:100%;background:var(--a-lime)}
+.secth{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 8px;font:800 15px Manrope,sans-serif}
+.secth small{color:var(--a-muted);font-weight:600;font-size:13px;display:flex;align-items:center;gap:4px}
+.secth small svg{width:16px;height:16px}
+.list{padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.row{min-height:68px;background:#fff;border:1px solid var(--a-border);border-radius:16px;display:flex;align-items:center;gap:13px;padding:10px 14px}
+.row .rs{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:800 13px Manrope,sans-serif;background:#eef3ef;color:var(--a-muted);flex:none}
+.row .rs svg{width:17px;height:17px}
+.row .rs.done{background:var(--a-green);color:#fff}
+.row .rs.cur{background:var(--a-lime);color:#2c3d0c}
+.row .rs.lock{background:#f1f3f1;color:#a3ada6}
+.row .t{flex:1;min-width:0}
+.row .t b{display:block;font:700 15.5px/1.3 Manrope,sans-serif}
+.row .t small{font-size:13px;color:var(--a-muted);line-height:1.35}
+.row .r{font:700 13px Manrope,sans-serif;color:var(--a-muted);text-align:right;white-space:nowrap}
+.row .r em{display:block;font-style:normal;font-size:16px;color:var(--a-ink)}
+.row.cur{border-color:#b9d65a;box-shadow:0 0 0 3px rgba(201,232,106,.35)}
+.row.lockd{opacity:.65}
+/* conteúdo aulas */
+.tile{width:84px;height:84px;border-radius:24px;background:#e3ece5;display:grid;place-items:center;font:800 30px Manrope,sans-serif;color:var(--a-green)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.meta span{font:700 13px Manrope,sans-serif;padding:7px 11px;border-radius:999px;background:#fff;border:1px solid var(--a-border)}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;margin-top:4px}
+.four div{background:#fff;border:1px solid var(--a-border);border-radius:14px;padding:10px 4px;font:700 12px Manrope,sans-serif;color:var(--a-muted);display:flex;flex-direction:column;align-items:center;gap:4px}
+.four div span{font-size:20px}
+.tcard{background:#fff;border:1px solid var(--a-border);border-radius:20px;padding:18px;font-size:17px;line-height:1.55}
+.tcard b{color:var(--a-green-d)}
+.dots{display:flex;gap:5px;margin-top:12px}
+.dots i{width:18px;height:5px;border-radius:9px;background:#dbe5de}
+.dots i.on{background:var(--a-green)}
+.trap{background:#fcf1e2;border:1px solid #f0d3ab;border-radius:16px;padding:12px 14px;font-size:15px;line-height:1.45;color:#5b3d12;display:flex;gap:10px}
+.trap b{color:#9b5510}
+.ex{display:flex;flex-direction:column;gap:8px}
+.exr{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--a-border);border-radius:14px;padding:10px 12px}
+.exr .pp{width:36px;height:36px;border-radius:50%;background:#eaf3ed;color:var(--a-green);display:grid;place-items:center;flex:none}
+.exr .pp svg{width:14px;height:14px}
+.exr b{display:block;font:700 15px/1.3 Manrope,sans-serif}
+.exr small{color:var(--a-muted);font-size:13px}
+.lbl{font:700 11.5px Manrope,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--a-muted)}
+.build{min-height:96px;border-radius:16px;border:2px dashed #c8d9cc;background:#eef5f0;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;position:relative}
+.build .rst{position:absolute;right:8px;bottom:8px;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--a-border);display:grid;place-items:center;color:var(--a-muted)}
+.build .rst svg{width:17px;height:17px}
+.tk{height:46px;padding:0 16px;border-radius:12px;background:#fff;border:1.5px solid var(--a-border);display:inline-flex;align-items:center;font:600 17px "Space Grotesk",sans-serif;box-shadow:0 2px 0 #d9e7dc}
+.tk.used{opacity:.25;box-shadow:none;border-style:dashed}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.phr{font:800 30px/1.2 Manrope,sans-serif;letter-spacing:-.02em}
+.phon{font:italic 500 17px "Space Grotesk",sans-serif;color:var(--a-muted)}
+.w-ok{color:var(--a-green)}
+.w-pend{color:#9aa79f}
+.listen{display:inline-flex;align-items:center;gap:8px;font:700 14px Manrope,sans-serif;color:var(--a-danger)}
+.listen i{width:9px;height:9px;border-radius:50%;background:var(--a-danger);box-shadow:0 0 0 4px rgba(192,85,77,.2);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(192,85,77,.05)}}
+.btn.rec{background:var(--a-danger);color:#fff;flex:1}
+.flag{width:76px;height:76px;border-radius:24px;display:grid;place-items:center;background:#e3ece5;color:var(--a-green)}
+.flag svg{width:38px;height:38px}
+.rring{width:150px;height:150px;position:relative}
+.rring svg{width:150px;height:150px;transform:rotate(-90deg)}
+.rring b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 40px/1 Manrope,sans-serif}
+.rring b small{font:600 13px Manrope,sans-serif;color:var(--a-muted);margin-top:6px}
+.mets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.mets div{background:#fff;border:1px solid var(--a-border);border-radius:14px;padding:10px 6px;text-align:center}
+.mets b{display:block;font:800 22px/1.1 Manrope,sans-serif}
+.mets small{font-size:12px;color:var(--a-muted);line-height:1.2;display:block;margin-top:3px}
+.take{background:#fff;border:1px solid var(--a-border);border-radius:16px;padding:12px 14px;width:100%;text-align:left}
+.take .lbl{display:block;margin-bottom:8px}
+.take div{display:flex;flex-wrap:wrap;gap:6px}
+.take span{display:inline-flex;align-items:center;gap:6px;font:600 14px Manrope,sans-serif;padding:6px 10px;border-radius:999px;background:#eef3ef}
+.take span svg{width:12px;height:12px;color:var(--a-green)}
+.xp{font:800 14px Manrope,sans-serif;color:#4e6b12;background:rgba(201,232,106,.35);padding:5px 10px;border-radius:999px}
+/* shadowing */
+.sents{display:flex;flex-direction:column;gap:2px;background:#fff;border:1px solid var(--a-border);border-radius:18px;padding:6px}
+.sent{display:flex;gap:10px;align-items:flex-start;padding:9px 8px;border-radius:12px}
+.sent .pp{width:30px;height:30px;border-radius:50%;background:#eaf3ed;color:var(--a-green);display:grid;place-items:center;flex:none;margin-top:1px}
+.sent .pp svg{width:12px;height:12px}
+.sent b{display:block;font:600 15.5px/1.35 "Space Grotesk",sans-serif}
+.sent small{font-size:13px;color:var(--a-muted);line-height:1.35;display:block}
+.sent.playing{background:#f1f7e0}
+.sent.playing .pp{background:var(--a-lime);color:#2c3d0c}
+.tgl{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--a-border);border-radius:16px;padding:12px 14px}
+.tgl .tx{flex:1}
+.tgl .tx b{display:block;font:700 15px Manrope,sans-serif}
+.tgl .tx small{font-size:13px;color:var(--a-muted)}
+.sw{width:50px;height:30px;border-radius:99px;background:#d6dfd8;position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw.on{background:var(--a-green)}
+.sw.on::after{left:23px}
+.kara{font:800 29px/1.32 Manrope,sans-serif;letter-spacing:-.015em;color:#7d8c83}
+.kara span{transition:color .15s,background .15s;border-radius:7px;padding:0 2px;margin:0 -2px}
+.kara .d{color:var(--a-green-d)}
+.kara .n{background:var(--a-lime);color:#1f3b2d}
+.nextp{font-size:15px;color:var(--a-muted);border-top:1px dashed var(--a-border);padding-top:12px}
+.nextp b{font-weight:600;color:#7d8c83}
+.waves{background:#fff;border:1px solid var(--a-border);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.wrow{display:flex;align-items:center;gap:10px;font:700 12px Manrope,sans-serif;color:var(--a-muted)}
+.wrow span{width:48px}
+.wbar{flex:1;display:flex;align-items:center;gap:2px;height:28px}
+.wbar i{flex:1;border-radius:2px;background:var(--c,var(--a-green));opacity:.85}
+.livetag{display:inline-flex;align-items:center;gap:8px;font:700 12px Manrope,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#4e6b12}
+.livetag i{width:9px;height:9px;border-radius:50%;background:#8db72a;animation:pulse2 1.2s infinite}
+@keyframes pulse2{50%{opacity:.35}}
+.ctl{flex:none;display:flex;justify-content:center;align-items:center;gap:26px;padding:10px 16px 34px}
+.ctl .c{width:54px;height:54px;border-radius:50%;background:#fff;border:1.5px solid var(--a-border);display:grid;place-items:center;color:var(--a-green-d)}
+.ctl .c.big{width:76px;height:76px;background:var(--a-green);border:0;color:#fff;box-shadow:0 12px 24px -10px rgba(74,124,94,.8)}
+.ctl .c.big svg{width:30px;height:30px}
+.ctl small{display:block;text-align:center;font:600 11.5px Manrope,sans-serif;color:var(--a-muted);margin-top:6px}
+.headph{width:72px;height:72px;border-radius:22px;background:#fcf1e2;color:var(--a-warm);display:grid;place-items:center;margin-bottom:12px}
+.headph svg{width:36px;height:36px}
+.fr{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#fff;border:1px solid var(--a-border);border-radius:14px}
+.fr .sc{width:44px;height:30px;border-radius:999px;display:grid;place-items:center;font:800 13px Manrope,sans-serif;flex:none}
+.sc.g{background:#e5f1e9;color:#2c6643}.sc.a{background:#fcf1e2;color:#9b5510}.sc.n{background:#eef1ef;color:#6a7b71}
+.fr b{flex:1;font:500 14.5px/1.3 "Space Grotesk",sans-serif;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr .pp{color:var(--a-green);display:grid;place-items:center}
+.fr .pp svg{width:16px;height:16px}
+.chk{display:flex;flex-direction:column;gap:10px;width:100%;text-align:left}
+.chk div{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--a-border);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.35}
+.chk div i{width:26px;height:26px;border-radius:50%;border:2px solid #c8d6cc;flex:none;display:grid;place-items:center;font:800 13px/1 Manrope,sans-serif;font-style:normal;color:var(--a-green)}
+.micoff{width:84px;height:84px;border-radius:26px;background:#eef1ef;color:var(--a-muted);display:grid;place-items:center}
+.micoff svg{width:40px;height:40px}
+.foot{font-size:13px;color:var(--a-muted);text-align:center}
+/* ditação */
+.blks{display:flex;gap:6px;flex-wrap:nowrap}
+.b{--c:var(--dt-subject);border:1.5px solid color-mix(in srgb,var(--c) 40%,white);background:color-mix(in srgb,var(--c) 7%,white);border-radius:12px;padding:6px 10px 8px;display:flex;flex-direction:column;gap:3px}
+.b small{font:800 10px/1 Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.b .ws{display:flex;gap:6px}
+.b .ws u{text-decoration:none;display:inline-block;min-width:var(--l,30px);height:25px;border-bottom:2.5px solid color-mix(in srgb,var(--c) 45%,white);font:700 17px/25px Manrope,sans-serif;color:var(--a-ink);text-align:center}
+.b .ws u.ok{border-bottom-color:var(--a-green);color:var(--a-green-d)}
+.b .ws u.hint{border-bottom-color:var(--a-warm);color:#9b5510;background:#fcf1e2;border-radius:4px 4px 0 0}
+.b .ws u.miss{border-bottom-color:var(--a-danger);color:#a3413a}
+.b.v{--c:var(--dt-verb)}.b.c{--c:var(--dt-complement)}.b.o{--c:var(--dt-object)}.b.a{--c:var(--dt-adverbial)}
+.hintline{display:flex;align-items:center;gap:8px;font:600 13.5px Manrope,sans-serif;color:#9b5510;background:#fcf1e2;border-radius:999px;padding:7px 12px;align-self:flex-start}
+.diff{display:flex;flex-wrap:wrap;gap:4px 8px;font:700 22px/1.35 Manrope,sans-serif;margin-top:12px}
+.diff .ok{color:#2c6643}
+.diff .del{color:#a3413a;text-decoration:line-through;text-decoration-thickness:2px;opacity:.75;font-weight:500}
+.diff .fix{color:#a3413a;border-bottom:2.5px solid #a3413a}
+.pts{margin-left:auto;font:800 15px Manrope,sans-serif;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.7)}
+.legendblk{background:#fff;border:1px solid var(--a-border);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.tips{display:flex;flex-direction:column;gap:8px;font-size:15px;color:#3b4d42}
+.tips div{display:flex;gap:10px;align-items:flex-start}
+.tips span{width:28px;height:28px;border-radius:9px;background:#eef3ef;display:grid;place-items:center;flex:none;font-size:14px}
+@media (prefers-reduced-motion:reduce){.caret,.listen i,.livetag i{animation:none}.kara span{transition:none}}
+@media (max-width:420px){.gallery{grid-template-columns:1fr}}
+header.top nav{min-width:0}
+@media (max-width:760px){header.top nav{display:none}header.top .tbtn{margin-left:auto}.kitgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ícones -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z" fill="currentColor"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-micoff" viewBox="0 0 24 24"><path d="M9 9V6a3 3 0 016 0v5M15 13.5A3 3 0 019 11M5.5 11a6.5 6.5 0 0010.3 5.3M18.5 11a6.4 6.4 0 01-.6 2.7M12 17.5V21M4 4l16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 107.5-7.5H8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M10 1.5L7 4.5l3 3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 5.5v13l9-6.5zM17 5h2.5v14H17z" fill="currentColor"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cross" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-bang" viewBox="0 0 24 24"><path d="M12 6v8" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/><circle cx="12" cy="18.5" r="1.7" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 018 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 4.5h11l-2.5 4 2.5 4H6z" fill="currentColor"/></symbol>
+  <symbol id="i-headph" viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0116 0v3" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="3" y="14" width="5" height="7" rx="2" fill="currentColor"/><rect x="16" y="14" width="5" height="7" rx="2" fill="currentColor"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M19.5 12A7.5 7.5 0 115 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4 3v5h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="top"><div class="wrap">
+  <b>GRILO · Redesenho mobile</b>
+  <nav>
+    <a href="#principios">Princípios</a><a href="#casco">Casco comum</a><a href="#aulas">Aulas</a><a href="#shadowing">Shadowing</a><a href="#ditacao">Ditação</a><a href="#decidir">Decidir</a>
+  </nav>
+  <button class="tbtn" id="themeBtn" type="button">Claro / escuro</button>
+</div></header>
+
+<main>
+<div class="wrap">
+  <div class="hero">
+    <span class="kicker">Proposta v1 · 30 out 2026</span>
+    <h1>O novo GRILO no celular: <em>menos casco, mais inglês.</em></h1>
+    <p class="lede">Este é o redesenho de Aulas, Shadowing e Ditação, tela a tela, no tamanho real de um iPhone e com as cores e fontes do app. Em cada tela, toque em <b>“ver como é hoje”</b> para comparar com o print atual. A especificação completa, pronta para virar implementação, está no prompt.</p>
+    <div class="pillrow">
+      <a class="main" href="PROMPT-redesign.md">Abrir o prompt (spec completa)</a>
+      <a href="index.html">Auditoria com os prints de hoje</a>
+      <span>21 telas novas · 3 práticas · 1 casco</span>
+    </div>
+  </div>
+</div>
+
+<section class="blk" id="principios"><div class="wrap">
+  <h2>As regras que guiam tudo</h2>
+  <p class="read" style="color:var(--muted)">Sete princípios, todos nascidos dos problemas da auditoria. Quando houver dúvida na implementação, a resposta sai daqui.</p>
+  <div class="principles">
+    <div><i>01</i><b>Ação no polegar</b><span>A ação principal mora sempre no dock do rodapé. Sem caçar botão.</span></div>
+    <div><i>02</i><b>Uma coisa por tela</b><span>Uma pergunta, uma palavra, uma frase. O resto sai do caminho.</span></div>
+    <div><i>03</i><b>Ouvir é herói</b><span>Em etapa de escuta, o botão de áudio é o maior elemento da tela.</span></div>
+    <div><i>04</i><b>Errar não pune</b><span>Âmbar e rosado suave, com a resposta certa. Vermelho nunca vira nota.</span></div>
+    <div><i>05</i><b>Explicar sob demanda</b><span>“Como funciona” vira um link que abre um sheet. Os hubs começam pela ação.</span></div>
+    <div><i>06</i><b>Progresso, não burocracia</b><span>Barra segmentada por fase. Contadores só onde mudam uma decisão.</span></div>
+    <div><i>07</i><b>Funciona no pior cenário</b><span>Sem fone, sem voz reconhecida, de teclado aberto, em 360 px.</span></div>
+  </div>
+</div></section>
+
+<section class="blk" id="casco"><div class="wrap">
+  <span class="kicker">Base</span>
+  <h2>O casco comum</h2>
+  <p class="read" style="color:var(--muted)">As três práticas passam a usar as mesmas peças. É o primeiro passo da implementação e, sozinho, já resolve metade dos problemas da auditoria. Os componentes estão abaixo em tamanho real.</p>
+  <div class="kitgrid app">
+    <div class="kitcard">
+      <h4>Topbar de sessão · 56 px</h4>
+      <p>X de 44 px, barra de progresso e contador. Nas aulas, a barra se divide nas 5 fases. O título da aula sai daqui.</p>
+      <div class="kitstage">
+        <div class="top" style="background:#fff;border-radius:12px"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:40%"></i><i></i><i></i></div><span class="cnt">14/32</span></div>
+        <div class="top" style="background:#fff;border-radius:12px"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:30%"></i><i></i><i></i><i></i></div><span class="cnt">3/6</span></div>
+        <div class="top" style="background:#fff;border-radius:12px"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:25%"></i></div><div class="hud"><span>⭐ 200</span><span class="hot">🔥 2</span></div></div>
+      </div>
+    </div>
+    <div class="kitcard">
+      <h4>Dock de ação</h4>
+      <p>Fixo no rodapé, com o primário ocupando o resto da largura. Fica desabilitado até haver resposta e sobe junto com o teclado (visualViewport).</p>
+      <div class="kitstage">
+        <div class="dock" style="padding:0;background:none"><div class="btn pri">Verificar</div></div>
+        <div class="dock" style="padding:0;background:none"><div class="btn sec ic">🐢</div><div class="btn pri dis">Verificar</div></div>
+        <div class="dock" style="padding:0;background:none"><div class="btn txt">Pular</div><div class="btn pri"><svg><use href="#i-mic"/></svg>Falar</div></div>
+      </div>
+    </div>
+    <div class="kitcard">
+      <h4>Sheet de feedback · 3 tons</h4>
+      <p>Sobe do dock e mostra a resposta certa. O botão vira <b>Continuar</b> no mesmo lugar, para o polegar não se mover.</p>
+      <div class="kitstage" style="gap:8px">
+        <div class="sheet good" style="position:relative;border-radius:18px;padding:16px 16px 14px;box-shadow:none"><div class="st"><span class="si"><svg><use href="#i-check"/></svg></span>Isso!</div><p class="sp" style="font-size:14.5px">Good morning = <b>Bom dia</b></p></div>
+        <div class="sheet warn" style="position:relative;border-radius:18px;padding:16px 16px 14px;box-shadow:none"><div class="st"><span class="si"><svg><use href="#i-bang"/></svg></span>Quase lá</div><p class="sp" style="font-size:14.5px">Uma letra fora do lugar — confira a grafia.</p></div>
+        <div class="sheet bad" style="position:relative;border-radius:18px;padding:16px 16px 14px;box-shadow:none"><div class="st"><span class="si"><svg><use href="#i-cross"/></svg></span>Não foi essa</div><p class="sp" style="font-size:14.5px">A certa era <b>morning</b> · manhã</p></div>
+      </div>
+    </div>
+    <div class="kitcard">
+      <h4>Áudio herói</h4>
+      <p>Círculo de 92 px nas etapas de ouvir e pílula de 56 px nas mistas. O 🐢 0,75× aparece ao lado quando a prática permite.</p>
+      <div class="kitstage" style="flex-direction:row;align-items:center;gap:18px;padding:18px">
+        <div class="ah" style="width:72px;height:72px;box-shadow:0 0 0 9px rgba(74,124,94,.12)"><svg><use href="#i-sound"/></svg></div>
+        <div style="display:flex;flex-direction:column;gap:10px;flex:1">
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-play"/></svg></span>Ouvir<span class="wv"><i style="height:30%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:95%"></i><i style="height:40%"></i></span></div></div>
+          <div class="arow"><div class="slow on">🐢 0,75×</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="kitcard">
+      <h4>Linha de hub · 68 px</h4>
+      <p>Estado à esquerda, título que nunca trunca a informação importante e meta curta. O item atual ganha um anel lima.</p>
+      <div class="kitstage" style="padding:12px 0">
+        <div class="list">
+          <div class="row"><span class="rs done"><svg><use href="#i-check"/></svg></span><div class="t"><b>Cumprimentos</b><small>13/13 no vocabulário · 5 dominadas</small></div></div>
+          <div class="row cur"><span class="rs cur">02</span><div class="t"><b>Apresentações</b><small>8 palavras · 5 frases · 12 min</small></div><span class="r">agora</span></div>
+          <div class="row lockd"><span class="rs lock"><svg><use href="#i-lock"/></svg></span><div class="t"><b>Ten Minutes Awake</b><small>faça 70 em The Same Coffee</small></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="kitcard">
+      <h4>Resultado · 3 faixas</h4>
+      <p>O anel fica verde, âmbar ou neutro, mas nunca vermelho. O XP aparece como “ganhou” e fica separado da meta.</p>
+      <div class="kitstage" style="flex-direction:row;justify-content:space-around;padding:16px 8px">
+        <div style="text-align:center"><div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#e1eae3" stroke-width="6"/><circle cx="29" cy="29" r="24" fill="none" stroke="#4a7c5e" stroke-width="6" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="18"/></svg><b>88</b></div><div class="lbl" style="margin-top:6px">Mandou bem</div></div>
+        <div style="text-align:center"><div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#e1eae3" stroke-width="6"/><circle cx="29" cy="29" r="24" fill="none" stroke="#d9832e" stroke-width="6" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="62"/></svg><b>59</b></div><div class="lbl" style="margin-top:6px">No caminho</div></div>
+        <div style="text-align:center"><div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#e1eae3" stroke-width="6"/><circle cx="29" cy="29" r="24" fill="none" stroke="#9fb0a5" stroke-width="6" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="130"/></svg><b>13</b></div><div class="lbl" style="margin-top:6px">1ª volta</div></div>
+      </div>
+    </div>
+    <div class="kitcard" style="grid-column:1/-1">
+      <h4>Tokens (os que o app já tem)</h4>
+      <p>Nenhuma cor nova. O lima passa a ter uma regra: ele significa <b>“agora”</b> (palavra tocando, item atual, combo) e só isso. Manrope fica com títulos e botões, Space Grotesk com o corpo. Botão em caixa alta e fonte pesada genérica saem.</p>
+      <div class="tokens">
+        <span class="tok"><i style="--c:#1f3b2d"></i>Tinta #1f3b2d</span>
+        <span class="tok"><i style="--c:#4a7c5e"></i>Verde #4a7c5e</span>
+        <span class="tok"><i style="--c:#3a5e47"></i>Verde escuro #3a5e47</span>
+        <span class="tok"><i style="--c:#f4f7f5"></i>Fundo #f4f7f5</span>
+        <span class="tok"><i style="--c:#d9e7dc"></i>Borda #d9e7dc</span>
+        <span class="tok"><i style="--c:#6a7b71"></i>Muted #6a7b71</span>
+        <span class="tok"><i style="--c:#c9e86a"></i>Lima = agora</span>
+        <span class="tok"><i style="--c:#d9832e"></i>Âmbar = fase / quase</span>
+        <span class="tok"><i style="--c:#c0554d"></i>Erro (suave)</span>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ======================================================== AULAS -->
+<section class="blk" id="aulas"><div class="wrap">
+  <span class="kicker">Prática 1</span>
+  <h2>Aulas — sistema das 4 pontas</h2>
+  <p class="read" style="color:var(--muted)">O fluxo pedagógico continua o mesmo (teoria → checar → escrever → falar → fecho), assim como progresso e checkpoints. O que muda é o casco: hub que começa pela ação, topbar de uma linha, dock fixo, feedback em sheet e o fim das telas de ponte.</p>
+  <div class="legend"><span style="--c:var(--accent)">O que muda</span><span style="--c:#c0554d">Bug da auditoria que é corrigido</span></div>
+
+  <div class="gallery">
+
+    <!-- A1 hub -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="hh">
+          <div class="hrow"><span class="back"><svg><use href="#i-back"/></svg>Painel</span><span class="chip">🔥 3 dias</span></div>
+          <div class="hrow" style="align-items:flex-end">
+            <div><div class="kick" style="margin-bottom:8px">Bloco A1 · 4 pontas</div><h1 class="h1">Suas aulas</h1></div>
+            <div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#e1eae3" stroke-width="6"/><circle cx="29" cy="29" r="24" fill="none" stroke="#4a7c5e" stroke-width="6" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="143"/></svg><b>1<small>de 20</small></b></div>
+          </div>
+          <span class="how"><svg><use href="#i-info"/></svg>Como funcionam as 4 pontas</span>
+        </div>
+        <div class="cont">
+          <span class="k">Continuar · Aula 02</span>
+          <h3>Apresentações — quem é você em inglês</h3>
+          <span class="m">8 palavras · 5 frases · ~12 min</span>
+          <div class="ladder"><span><i style="width:0%"></i></span>0/13 no vocabulário</div>
+          <div class="go">Começar <svg><use href="#i-play"/></svg></div>
+        </div>
+        <div class="secth">Grupo A · Sobrevivência<small>1 de 6 <svg><use href="#i-down"/></svg></small></div>
+        <div class="list">
+          <div class="row"><span class="rs done"><svg><use href="#i-check"/></svg></span><div class="t"><b>Cumprimentos</b><small>13/13 no vocabulário · 5 dominadas</small></div></div>
+          <div class="row cur"><span class="rs cur">02</span><div class="t"><b>Apresentações</b><small>8 palavras · 12 min</small></div><span class="r">agora</span></div>
+          <div class="row"><span class="rs">03</span><div class="t"><b>Números</b><small>8 palavras · 12 min</small></div></div>
+          <div class="row"><span class="rs">04</span><div class="t"><b>Horas</b><small>8 palavras · 12 min</small></div></div>
+        </div>
+      </div>
+      <img class="old" src="shots/p-lessons-hub.png" alt="Hub de aulas hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A1</span><h4>Hub</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A aula atual aparece <b>sem scroll</b>, em um cartão “Continuar” com CTA lima.</li>
+        <li>O texto do hero vira o link <b>“Como funcionam as 4 pontas”</b>, que abre um sheet.</li>
+        <li>Os grupos são seções recolhíveis; só o grupo atual vem aberto. A página cai de ~24 telas para ~3.</li>
+        <li class="fix">Fim do título escuro sobre verde e dos textos truncados (“0 domi…”).</li>
+      </ul></figcaption></figure>
+
+    <!-- A2 capa -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i></i><i></i><i></i><i></i><i></i></div><span class="cnt">~12 min</span></div>
+        <div class="bd center" style="gap:14px">
+          <div class="tile">HI</div>
+          <div class="kick">Aula 01 · Grupo A</div>
+          <h1 class="h1" style="padding:0 6px">Cumprimentos — do bom dia ao boa noite</h1>
+          <p class="p" style="padding:0 10px">Sair cumprimentando qualquer pessoa, em qualquer hora do dia.</p>
+          <div class="meta"><span>8 palavras</span><span>5 frases</span><span>4 pontas</span></div>
+          <div class="four"><div><span>👁</span>ver</div><div><span>👂</span>ouvir</div><div><span>✍️</span>escrever</div><div><span>🎙</span>falar</div></div>
+          <p class="p" style="font-size:14px">Escreveu certo → entra no vocabulário.<br>Ouviu e falou também → <b style="color:var(--a-green-d)">dominada</b>.</p>
+        </div>
+        <div class="dock"><div class="btn pri">Começar aula</div></div>
+      </div>
+      <img class="old" src="shots/l-01-g4p-screen--wide-g4p-cover.png" alt="Capa hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A2</span><h4>Capa</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A topbar mostra as <b>5 fases vazias</b>: o aluno vê o tamanho do caminho antes de começar.</li>
+        <li>A legenda das 4 pontas vira 4 ícones e a regra da escada cabe em 2 linhas.</li>
+        <li class="fix">Conteúdo centralizado de verdade (hoje está ~20 px à direita) e CTA no dock.</li>
+      </ul></figcaption></figure>
+
+    <!-- A3 teoria -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:25%"></i><i></i><i></i><i></i><i></i></div><span class="cnt">2/32</span></div>
+        <div class="bd" style="gap:14px">
+          <div class="kick">📖 Aula · Seção 1 de 2</div>
+          <h2 class="h2">As quatro saudações do dia</h2>
+          <div class="tcard">O inglês divide o dia em <b>quatro momentos</b>, e cada um tem a sua saudação: <b>morning</b> até o meio-dia, <b>afternoon</b> até umas 18h, <b>evening</b> à noite.
+            <div class="dots"><i class="on"></i><i></i><i></i></div></div>
+          <div class="trap"><span>⚠️</span><div><b>Pegadinha clássica:</b> “Good night” não cumprimenta — é só despedida.</div></div>
+          <span class="lbl">Ouça e repita</span>
+          <div class="ex">
+            <div class="exr"><span class="pp"><svg><use href="#i-play"/></svg></span><div><b>Good morning! Did you sleep well?</b><small>Bom dia! Você dormiu bem?</small></div></div>
+            <div class="exr"><span class="pp"><svg><use href="#i-play"/></svg></span><div><b>Good evening! Come in, please.</b><small>Boa noite! Entre, por favor.</small></div></div>
+          </div>
+        </div>
+        <div class="dock"><div class="btn sec ic"><svg><use href="#i-back"/></svg></div><div class="btn pri">Próximo cartão</div></div>
+      </div>
+      <img class="old" src="shots/l-02-g4p-screen--wide-g4p-theory.png" alt="Teoria hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A3</span><h4>Teoria em cartões</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>O parágrafo de ~10 linhas vira <b>cartões de até 3 frases</b> (os pontinhos mostram 1 de 3).</li>
+        <li>A pegadinha vira um callout âmbar próprio, porque é o que o aluno mais precisa lembrar.</li>
+        <li>Os exemplos com ▶ aparecem <b>na primeira tela</b>, não abaixo da dobra.</li>
+      </ul></figcaption></figure>
+
+    <!-- A4 ouvir + sheet -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:35%"></i><i></i><i></i><i></i></div><span class="cnt">5/32</span></div>
+        <div class="bd" style="gap:14px">
+          <div class="kick">👂 Ouvir — sem ler</div>
+          <div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 4px"><div class="ah"><svg><use href="#i-sound"/></svg></div><span class="ah-cap">toque para ouvir de novo</span></div>
+          <h2 class="h2">O que você ouviu?</h2>
+          <div class="opts">
+            <div class="opt no"><span class="lt">A</span>Boa tarde</div>
+            <div class="opt ok"><span class="lt">B</span>Boa noite, ao chegar</div>
+            <div class="opt dim"><span class="lt">C</span>Boa noite, ao se despedir</div>
+          </div>
+        </div>
+        <div class="dock"><div class="btn pri">Continuar</div></div>
+        <div class="sheet bad"><div class="st"><span class="si"><svg><use href="#i-cross"/></svg></span>Não foi essa</div>
+          <p class="sp">Você ouviu <b>“Good evening!”</b> — boa noite, <b>ao chegar</b>.</p>
+          <span class="again"><svg><use href="#i-sound"/></svg>ouvir de novo</span>
+          <div class="dock"><div class="btn pri">Continuar</div></div></div>
+      </div>
+      <img class="old" src="shots/l-04-g4p-check-resp.png" alt="Checar ouvir hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A4</span><h4>Checar · ouvir</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>O áudio vira o <b>herói centralizado</b> (92 px) e toca sozinho ao entrar.</li>
+        <li>O feedback sobe em um <b>sheet</b> que mostra o que foi dito em inglês, não só a tradução.</li>
+        <li>“Continuar” fica sempre no mesmo lugar, e a metade de baixo deixa de ficar vazia.</li>
+      </ul></figcaption></figure>
+
+    <!-- A5 ordenar -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:60%"></i><i></i><i></i><i></i></div><span class="cnt">7/34</span></div>
+        <div class="bd" style="gap:16px">
+          <div class="kick">🧩 Monte a frase</div>
+          <h2 class="h2">“Estava chovendo na rua.”</h2>
+          <div class="build"><span class="tk">It</span><span class="tk">was</span><span class="tk">raining</span><span class="rst"><svg><use href="#i-reset"/></svg></span></div>
+          <div class="bank"><span class="tk used">was</span><span class="tk used">It</span><span class="tk">the</span><span class="tk used">raining</span><span class="tk">street</span><span class="tk">on</span></div>
+          <p class="p" style="font-size:14px">Toque numa palavra montada para devolvê-la.</p>
+        </div>
+        <div class="dock"><div class="btn pri dis">Conferir</div></div>
+      </div>
+      <img class="old" src="shots/l-order-1.png" alt="Ordenar hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A5</span><h4>Checar · ordenar</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>As palavras usadas ficam <b>fantasma no banco</b>, no lugar original. O aluno não perde a referência.</li>
+        <li>“Limpar” vira um ícone ↺ dentro da área de montagem e deixa de competir com o Conferir.</li>
+        <li>Conferir só acende quando todas as palavras estão na frase.</li>
+      </ul></figcaption></figure>
+
+    <!-- A6 escrever + teclado + toast -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:8%"></i><i></i><i></i></div><span class="cnt">12/32</span></div>
+        <div class="toast">✍️ Agora você escreve</div>
+        <div class="bd" style="gap:14px">
+          <div class="kick">✍️ Escrever · palavra 1 de 8</div>
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-play"/></svg></span>Ouvir<span class="wv"><i style="height:30%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:95%"></i><i style="height:40%"></i></span></div><div class="slow">🐢</div></div>
+          <p class="p" style="font-size:17px">Significa: <b style="color:var(--a-ink)">manhã</b></p>
+          <div class="inp focus">mornig<span class="caret"></span></div>
+          <div class="tries"><i></i><i></i><i></i>3 tentativas</div>
+        </div>
+        <div class="dock kb"><div class="btn sec sm" style="padding:0 16px">Não sei</div><div class="btn pri sm">Verificar</div></div>
+        <div class="kbd"></div>
+      </div>
+      <img class="old" src="shots/l-13-g4p-write.png" alt="Escrever hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A6</span><h4>Escrever · teclado aberto</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A tela de ponte “Agora escreve.” <b>deixa de existir</b> e vira um selo (toast) de 1,6 s no topo.</li>
+        <li>O dock <b>gruda no teclado</b>: Verificar fica sempre visível. “Não sei” encerra sem gastar as 3 tentativas.</li>
+        <li>Os pontinhos de tentativa mostram quanto falta antes de revelar a resposta.</li>
+        <li class="fix">O input fica dentro da coluna (hoje vaza do cartão pela direita).</li>
+      </ul></figcaption></figure>
+
+    <!-- A7 escrever erro final -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:8%"></i><i></i><i></i></div><span class="cnt">12/32</span></div>
+        <div class="bd" style="gap:14px">
+          <div class="kick">✍️ Escrever · palavra 1 de 8</div>
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-play"/></svg></span>Ouvir</div><div class="slow">🐢</div></div>
+          <p class="p" style="font-size:17px">Significa: <b style="color:var(--a-ink)">manhã</b></p>
+          <div class="inp bad">morming</div>
+          <div class="tries"><i class="used"></i><i class="used"></i><i class="used"></i>sem tentativas</div>
+        </div>
+        <div class="sheet bad"><div class="st"><span class="si"><svg><use href="#i-cross"/></svg></span>Era “morning”</div>
+          <p class="sp">manhã · <b>MOR-ning</b>. Ela volta numa próxima rodada — sem stress.</p>
+          <span class="again"><svg><use href="#i-sound"/></svg>ouvir de novo</span>
+          <div class="dock"><div class="btn pri">Continuar</div></div></div>
+      </div>
+      <img class="old" src="shots/l-13-g4p-write-erro-final.png" alt="Escrever erro hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A7</span><h4>Escrever · errou as 3</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A microcopy atual (“sem stress”) é mantida, agora dentro do sheet.</li>
+        <li>“Continuar” continua <b>primário e cheio</b>; hoje vira outline justamente quando é a única ação.</li>
+        <li>Antes disso, os erros intermediários usam o sheet âmbar “Quase lá” com dica de fonética.</li>
+      </ul></figcaption></figure>
+
+    <!-- A8 falar T1 -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:10%"></i><i></i></div><span class="cnt">27/32</span></div>
+        <div class="bd" style="gap:14px">
+          <div class="kick">👂🎙 Ouvir e falar · frase 1 de 5</div>
+          <div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 4px"><div class="ah"><svg><use href="#i-sound"/></svg></div><span class="ah-cap">1º entenda, depois fale</span></div>
+          <h2 class="h2">O que essa frase quer dizer?</h2>
+          <div class="opts">
+            <div class="opt dim"><span class="lt">A</span>Boa noite! Bem-vindo!</div>
+            <div class="opt ok"><span class="lt">B</span>Bom dia! Como você está?</div>
+            <div class="opt dim"><span class="lt">C</span>Boa tarde! Prazer em conhecer você.</div>
+          </div>
+        </div>
+        <div class="sheet good"><div class="st"><span class="si"><svg><use href="#i-check"/></svg></span>Isso! Agora fala ela.</div>
+          <p class="sp"><b>Good morning! How are you?</b><br>Bom dia! Como você está?</p>
+          <div class="dock"><div class="btn pri"><svg><use href="#i-mic"/></svg>Ir para a fala</div></div></div>
+      </div>
+      <img class="old" src="shots/l-27-g4p-speak-compreensao.png" alt="Ouvir e falar etapa 1 hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A8</span><h4>Ouvir e falar · tempo 1</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>O sheet confirma o sentido e já mostra a <b>frase em inglês</b> que vai ser falada.</li>
+        <li>O CTA “Ir para a fala” transforma a <b>mesma tela</b> no tempo 2, sem um Continuar no meio.</li>
+        <li class="fix">Corrige o “Como você está?.” (ponto depois da interrogação).</li>
+      </ul></figcaption></figure>
+
+    <!-- A9 falar T2 -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:14%"></i><i></i></div><span class="cnt">27/32</span></div>
+        <div class="bd" style="gap:16px;justify-content:center">
+          <div class="kick">🎙 Falar · frase 1 de 5</div>
+          <div class="phr"><span class="w-ok">Good morning!</span> <span class="w-ok">How</span> <span class="w-pend">are you?</span></div>
+          <div class="phon">gud MOR-ning · rau ar iu</div>
+          <div class="listen"><i></i>Ouvindo… fale no seu ritmo</div>
+          <p class="p" style="font-size:14px">As palavras acendem em verde conforme a gente reconhece.</p>
+        </div>
+        <div class="dock"><div class="btn sec ic"><svg><use href="#i-sound"/></svg></div><div class="btn rec"><span class="wv" style="margin:0;color:#fff"><i style="height:30%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:95%"></i><i style="height:40%"></i></span>Ouvindo…</div><div class="btn txt">Pular</div></div>
+      </div>
+      <img class="old" src="shots/l-27-g4p-speak-fala.png" alt="Ouvir e falar etapa 2 hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A9</span><h4>Ouvir e falar · tempo 2</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A frase vira o centro da tela (Manrope 30) e as palavras <b>acendem conforme são reconhecidas</b>.</li>
+        <li>O microfone fica no dock, com 🔊 à esquerda e “Pular” como texto (hoje pesa igual aos outros botões).</li>
+        <li>No fim, o diff por palavra aparece no sheet: verde, ou âmbar se faltou alguma.</li>
+      </ul></figcaption></figure>
+
+    <!-- A10 recap -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i></div><span class="cnt">fim</span></div>
+        <div class="bd center" style="gap:14px">
+          <div class="flag"><svg><use href="#i-flag"/></svg></div>
+          <h1 class="h1">Aula concluída!</h1>
+          <p class="p">Cumprimentos · conta para o bloco A1</p>
+          <span class="xp">+40 XP</span>
+          <div class="mets"><div><b>8</b><small>no vocabulário</small></div><div><b style="color:var(--a-green)">5</b><small>dominadas</small></div><div><b>13</b><small>itens da aula</small></div></div>
+          <div class="take"><span class="lbl">O que levar desta aula</span><div><span><svg><use href="#i-play"/></svg>evening</span><span><svg><use href="#i-play"/></svg>night</span><span><svg><use href="#i-play"/></svg>welcome</span></div></div>
+        </div>
+        <div class="dock"><div class="btn sec">Revisar</div><div class="btn pri">Próxima aula</div></div>
+      </div>
+      <img class="old" src="shots/l-32-g4p-screen--wide-g4p-recap.png" alt="Recap hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">A10</span><h4>Fecho</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>Os três contadores ficam em uma linha e sobra espaço para <b>“O que levar”</b>, as palavras que mais custaram, com ▶.</li>
+        <li>Se nada entrou no vocabulário, o título vira <b>“Primeira volta feita”</b> e o texto diz que as 8 palavras voltam na próxima rodada.</li>
+        <li class="fix">O 🏁 (que renderiza preto e branco) vira um ícone SVG da marca.</li>
+      </ul></figcaption></figure>
+
+  </div>
+</div></section>
+
+<!-- ======================================================== SHADOWING -->
+<section class="blk" id="shadowing"><div class="wrap">
+  <span class="kicker">Prática 2</span>
+  <h2>Shadowing</h2>
+  <p class="read" style="color:var(--muted)">A grande mudança é a <b>ordem</b>: primeiro ouvir, depois decidir se vale nota. A escolha Casual × Ranqueada sai da porta de entrada e vira um interruptor. O “ao vivo” deixa de ser uma parede de texto cinza e vira um karaokê por frase, que dá para ver animado abaixo.</p>
+
+  <div class="gallery">
+
+    <!-- S1 hub -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="hh">
+          <div class="hrow"><span class="back"><svg><use href="#i-back"/></svg>Painel</span><span class="chip">🔥 3 dias</span></div>
+          <div class="hrow" style="align-items:flex-end">
+            <div><div class="kick" style="margin-bottom:8px">Lab · ouvir e imitar</div><h1 class="h1">Shadowing</h1></div>
+            <div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#e1eae3" stroke-width="6"/></svg><b>0<small>de 6</small></b></div>
+          </div>
+          <span class="how"><svg><use href="#i-info"/></svg>O que é shadowing?</span>
+        </div>
+        <div class="cont">
+          <span class="k">Próxima faixa · A1</span>
+          <h3>The Same Coffee</h3>
+          <span class="m">6 frases · Rotina · presente simples</span>
+          <div class="go">Ouvir e treinar <svg><use href="#i-play"/></svg></div>
+        </div>
+        <div class="secth">Trilha A1<small>0 de 6</small></div>
+        <div class="list">
+          <div class="row cur"><span class="rs cur">01</span><div class="t"><b>The Same Coffee</b><small>6 frases · Rotina</small></div><span class="r">novo</span></div>
+          <div class="row lockd"><span class="rs lock"><svg><use href="#i-lock"/></svg></span><div class="t"><b>Ten Minutes Awake</b><small>faça 70 na faixa anterior</small></div></div>
+          <div class="row lockd"><span class="rs lock"><svg><use href="#i-lock"/></svg></span><div class="t"><b>A Small Place</b><small>Casa · there is / there are</small></div></div>
+          <div class="row lockd"><span class="rs lock"><svg><use href="#i-lock"/></svg></span><div class="t"><b>The Long Way</b><small>Direções · transporte</small></div></div>
+        </div>
+      </div>
+      <img class="old" src="shots/p-shadowing-hub.png" alt="Hub shadowing hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">S1</span><h4>Hub</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A faixa da vez aparece <b>sem scroll</b>; os 3 blocos de texto do hero vão para “O que é shadowing?”.</li>
+        <li>As faixas bloqueadas dizem <b>o que fazer para liberar</b>, e não só 🔒.</li>
+        <li class="fix">“treino do dia” vira o chip “🔥 3 dias”, que não quebra linha. A bolha branca do tema sai.</li>
+      </ul></figcaption></figure>
+
+    <!-- S2 preview -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="cnt">6 frases</span></div>
+        <div class="bd" style="gap:12px">
+          <div class="kick">Primeiro, ouça</div>
+          <h2 class="h2">The Same Coffee</h2>
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-pause"/></svg></span>Tocando · 0:12 / 0:38<span class="wv"><i style="height:30%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:95%"></i></span></div></div>
+          <div class="sents">
+            <div class="sent"><span class="pp"><svg><use href="#i-play"/></svg></span><div><b>I get the same coffee every single day.</b><small>Eu peço o mesmo café todo santo dia.</small></div></div>
+            <div class="sent playing"><span class="pp"><svg><use href="#i-sound"/></svg></span><div><b>It’s always a small one, with milk and no sugar.</b><small>É sempre um pequeno, com leite e sem açúcar.</small></div></div>
+            <div class="sent"><span class="pp"><svg><use href="#i-play"/></svg></span><div><b>Some people think that’s boring.</b><small>Algumas pessoas acham isso chato.</small></div></div>
+          </div>
+          <div class="tgl"><div class="tx"><b>🏆 Valer nota</b><small>Conta para a trilha · precisa de fone</small></div><span class="sw"></span></div>
+        </div>
+        <div class="dock"><div class="btn pri">Começar a falar junto</div></div>
+      </div>
+      <img class="old" src="shots/s-3-escolha-modo.png" alt="Escolha de modo hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">S2</span><h4>Primeiro, ouça (+ “Valer nota”)</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li><b>Substitui duas telas</b> de hoje: a escolha Casual × Ranqueada e o preview.</li>
+        <li>Frase a frase, com tradução e ▶ individual. A frase tocando ganha fundo lima (lima = agora).</li>
+        <li>O interruptor “Valer nota” é a antiga Ranqueada: desligado é treino livre, ligado conta para a trilha.</li>
+        <li class="fix">Sai a fonte pesada em caixa alta (“JOGAR”, “CALIBRAR E IR”) e a frase ambígua “Detectamos fone conectado?”.</li>
+      </ul></figcaption></figure>
+
+    <!-- S3 calibração sheet -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="cnt">6 frases</span></div>
+        <div class="bd" style="gap:12px">
+          <div class="kick">Primeiro, ouça</div>
+          <h2 class="h2">The Same Coffee</h2>
+          <div class="sents">
+            <div class="sent"><span class="pp"><svg><use href="#i-play"/></svg></span><div><b>I get the same coffee every single day.</b><small>Eu peço o mesmo café todo santo dia.</small></div></div>
+            <div class="sent"><span class="pp"><svg><use href="#i-play"/></svg></span><div><b>It’s always a small one, with milk and no sugar.</b><small>É sempre um pequeno, com leite e sem açúcar.</small></div></div>
+          </div>
+        </div>
+        <div class="scrim"></div>
+        <div class="sheet" style="text-align:center;padding-top:30px">
+          <div style="display:flex;justify-content:center"><div class="headph"><svg><use href="#i-headph"/></svg></div></div>
+          <div class="h2" style="font-size:22px">Pra valer nota, use fone</div>
+          <p class="sp" style="margin:10px 6px 0">Sem fone, sua voz se mistura ao áudio e a nota sai errada. Treine livre agora e ligue a nota quando estiver de fone.</p>
+          <div class="dock" style="flex-direction:column;align-items:stretch;gap:8px"><div class="btn pri" style="flex:none">Treinar livre agora</div><div class="btn txt">Já coloquei o fone — testar de novo</div></div>
+        </div>
+      </div>
+      <img class="old" src="shots/s-4b-calibracao-depois.png" alt="Calibração hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">S3</span><h4>Calibração que falhou</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A calibração só roda <b>se “Valer nota” for ligado</b>, em um sheet sobre o preview, e não numa tela própria.</li>
+        <li>Quando falha, o caminho principal é <b>seguir treinando</b>, não o erro vermelho.</li>
+        <li>Se passar, o aparelho fica lembrado por 7 dias.</li>
+        <li class="fix">Sai o “tentar de novo — ou — seguir em Casual”, que quebrava em 3 linhas.</li>
+      </ul></figcaption></figure>
+
+    <!-- S4 ao vivo karaoke -->
+    <figure class="dev"><div class="device"><span class="badge">Novo · animado</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:50%"></i><i></i><i></i><i></i><i></i></div><span class="cnt">2/6</span></div>
+        <div class="bd" style="gap:18px;justify-content:center">
+          <span class="livetag"><i></i>Fale junto</span>
+          <div class="kara" data-kara>It’s always a small one, with milk and no sugar.</div>
+          <div class="nextp">próxima: <b>Some people think that’s boring.</b></div>
+          <div class="waves">
+            <div class="wrow"><span>nativo</span><div class="wbar" data-wave></div></div>
+            <div class="wrow"><span>você</span><div class="wbar" data-wave style="--c:#d9832e"></div></div>
+          </div>
+        </div>
+        <div class="ctl">
+          <div><div class="c"><svg><use href="#i-replay"/></svg></div><small>repetir</small></div>
+          <div><div class="c big"><svg><use href="#i-pause"/></svg></div><small>pausar</small></div>
+          <div><div class="c"><svg><use href="#i-next"/></svg></div><small>próxima</small></div>
+        </div>
+      </div>
+      <img class="old" src="shots/s-6-ao-vivo.png" alt="Ao vivo hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">S4</span><h4>Ao vivo · karaokê por frase</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li><b>Uma frase por vez</b>, grande. A palavra que o nativo diz acende em lima; as já ditas ficam em verde; as próximas ficam em cinza <b>legível</b> (contraste AA).</li>
+        <li>A próxima frase aparece em prévia, e as ondas nativo × você são compactas.</li>
+        <li>Controles reais: <b>repetir frase, pausar, próxima</b>. Hoje só existe “encerrar”.</li>
+        <li>Usa o <code>onboundary</code> que já existe no código, com fallback de ritmo.</li>
+      </ul></figcaption></figure>
+
+    <!-- S5 resultado -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i></div><span class="cnt">fim</span></div>
+        <div class="bd center" style="gap:12px">
+          <div class="rring"><svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="64" fill="none" stroke="#e1eae3" stroke-width="12"/><circle cx="75" cy="75" r="64" fill="none" stroke="#d9832e" stroke-width="12" stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="153"/></svg><b>62<small>meta 70</small></b></div>
+          <h2 class="h2">No caminho!</h2>
+          <p class="p">Faltam <b style="color:var(--a-ink)">8 pontos</b> para liberar <i>Ten Minutes Awake</i>.</p>
+          <span class="xp">ganhou +15 XP</span>
+          <div style="display:flex;flex-direction:column;gap:6px;width:100%">
+            <div class="fr"><span class="sc g">92</span><b>I get the same coffee every single day.</b><span class="pp"><svg><use href="#i-sound"/></svg></span></div>
+            <div class="fr"><span class="sc a">48</span><b>It’s always a small one, with milk…</b><span class="pp"><svg><use href="#i-sound"/></svg></span></div>
+            <div class="fr"><span class="sc a">55</span><b>Some people think that’s boring.</b><span class="pp"><svg><use href="#i-sound"/></svg></span></div>
+          </div>
+        </div>
+        <div class="dock"><div class="btn sec">Trilha</div><div class="btn pri">Tentar de novo</div></div>
+      </div>
+      <img class="old" src="shots/s-7-resultado.png" alt="Resultado hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">S5</span><h4>Resultado</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>Anel <b>âmbar</b> (no caminho) com a meta escrita dentro, e o título diz <b>quanto falta</b>.</li>
+        <li>A nota por frase mostra onde está o problema, com 🔊 para ouvir o nativo de novo.</li>
+        <li>O XP aparece como “ganhou” e fica separado da meta.</li>
+      </ul></figcaption></figure>
+
+    <!-- S6 sem voz -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i><i style="--f:100%"></i></div><span class="cnt">fim</span></div>
+        <div class="bd center" style="gap:14px">
+          <div class="micoff"><svg><use href="#i-micoff"/></svg></div>
+          <h2 class="h2">Não ouvimos sua voz</h2>
+          <p class="p" style="padding:0 6px">Isso não é nota — é o microfone. Confira três coisas e tente de novo:</p>
+          <div class="chk">
+            <div><i>1</i>Permitiu o microfone quando o navegador pediu?</div>
+            <div><i>2</i>Está no Chrome ou no Safari atualizado?</div>
+            <div><i>3</i>Fale perto do celular, no ritmo do áudio.</div>
+          </div>
+          <p class="foot">Treino livre — não conta para a trilha.</p>
+        </div>
+        <div class="dock"><div class="btn sec">Só ouvir</div><div class="btn pri">Tentar de novo</div></div>
+      </div>
+      <img class="old" src="shots/s-7-resultado.png" alt="Resultado sem voz hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">S6</span><h4>Resultado · sem fala detectada</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>Hoje esse caso mostra <b>nota 0 em vermelho e todas as palavras riscadas</b>. Passa a ser uma tela de ajuda, sem nota.</li>
+        <li>O checklist cobre as causas reais: permissão, navegador e distância.</li>
+        <li>“Treino livre” vira uma nota de rodapé discreta, não uma caixa.</li>
+      </ul></figcaption></figure>
+
+  </div>
+</div></section>
+
+<!-- ======================================================== DITAÇÃO -->
+<section class="blk" id="ditacao"><div class="wrap">
+  <span class="kicker">Prática 3</span>
+  <h2>Ditação</h2>
+  <p class="read" style="color:var(--muted)">Os blocos coloridos de estrutura, a melhor ideia de interface do GRILO hoje, viram protagonistas. A tela passa a ser desenhada <b>com o teclado aberto</b>, e todo o pós-resposta cabe em um sheet com o diff em uma linha.</p>
+
+  <div class="gallery">
+
+    <!-- D1 hub -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="hh">
+          <div class="hrow"><span class="back"><svg><use href="#i-back"/></svg>Painel</span><span class="chip">🔥 3 dias</span></div>
+          <div class="hrow" style="align-items:flex-end">
+            <div><div class="kick" style="margin-bottom:8px">Lab · ouvir e escrever</div><h1 class="h1">Ditação</h1></div>
+            <div class="ring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#e1eae3" stroke-width="6"/></svg><b>0<small>de 4</small></b></div>
+          </div>
+          <span class="how"><svg><use href="#i-info"/></svg>Como ler os blocos coloridos</span>
+        </div>
+        <div class="cont">
+          <span class="k">Próxima faixa · A1</span>
+          <h3>Nice to Meet You</h3>
+          <span class="m">8 frases · Apresentações · verbo to be</span>
+          <div class="blks" style="margin-top:4px"><span class="chip" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff">Sujeito</span><span class="chip" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff">Verbo</span><span class="chip" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff">Complemento</span></div>
+          <div class="go">Começar <svg><use href="#i-play"/></svg></div>
+        </div>
+        <div class="secth">Trilha A1<small>0 de 4</small></div>
+        <div class="list">
+          <div class="row cur"><span class="rs cur">01</span><div class="t"><b>Nice to Meet You</b><small>8 frases · meta 70</small></div><span class="r">novo</span></div>
+          <div class="row lockd"><span class="rs lock"><svg><use href="#i-lock"/></svg></span><div class="t"><b>Text Me Later</b><small>presente contínuo</small></div></div>
+          <div class="row lockd"><span class="rs lock"><svg><use href="#i-lock"/></svg></span><div class="t"><b>Work and Study</b><small>have to / can</small></div></div>
+        </div>
+      </div>
+      <img class="old" src="shots/p-dictation-hub.png" alt="Hub ditação hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">D1</span><h4>Hub</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>Ganha <b>identidade própria</b>: os chips de estrutura no cartão adiantam o que torna a ditação diferente.</li>
+        <li>Mesmo esqueleto de hub das outras práticas, mas sem copiar o hero do shadowing.</li>
+      </ul></figcaption></figure>
+
+    <!-- D2 intro -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i></i></div><span class="cnt">8 frases</span></div>
+        <div class="bd" style="gap:14px">
+          <div class="kick">Apresentações · A1</div>
+          <h1 class="h1">Nice to Meet You</h1>
+          <p class="p">Ouça cada frase e escreva exatamente o que ouviu. Faça <b style="color:var(--a-ink)">70 pontos</b> para liberar a próxima.</p>
+          <div class="legendblk">
+            <span class="lbl">Como ler os blocos</span>
+            <div class="blks">
+              <div class="b"><small>Sujeito</small><span class="ws"><u class="ok" style="--l:18px">I</u></span></div>
+              <div class="b v"><small>Verbo</small><span class="ws"><u class="ok" style="--l:34px">am</u></span></div>
+              <div class="b c"><small>Complemento</small><span class="ws"><u style="--l:46px"></u><u style="--l:66px"></u></span></div>
+            </div>
+            <p class="p" style="font-size:14px">Cada traço tem o <b>tamanho da palavra</b>. O que você acerta aparece no lugar certo.</p>
+          </div>
+          <div class="tips">
+            <div><span>🔊</span>Ouça quantas vezes quiser.</div>
+            <div><span>🐢</span>“Devagar” toca a 0,75×.</div>
+            <div><span>💡</span>A dica revela uma palavra, mas a frase sai do combo.</div>
+          </div>
+        </div>
+        <div class="dock"><div class="btn pri">Começar</div></div>
+      </div>
+      <img class="old" src="shots/d-3-intro.png" alt="Intro hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">D2</span><h4>Intro da faixa</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>Ensina a <b>ler os blocos</b> com um exemplo real antes da primeira frase.</li>
+        <li class="fix">Os atalhos de teclado (Ctrl+Espaço, Ctrl+H) <b>somem no celular</b> e só aparecem com mouse e teclado físico.</li>
+      </ul></figcaption></figure>
+
+    <!-- D3 frase teclado -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:14%"></i></div><div class="hud"><span>⭐ 100</span><span class="hot">🔥 1</span></div></div>
+        <div class="bd" style="gap:12px;padding-top:6px">
+          <div class="kick">Frase 2 de 8</div>
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-play"/></svg></span>Ouvir de novo<span class="wv"><i style="height:30%"></i><i style="height:80%"></i><i style="height:55%"></i></span></div><div class="slow on">🐢 0,75×</div></div>
+          <div class="blks">
+            <div class="b"><small>Sujeito</small><span class="ws"><u class="ok" style="--l:16px">I</u></span></div>
+            <div class="b v"><small>Verbo</small><span class="ws"><u class="ok" style="--l:34px">am</u></span></div>
+            <div class="b a"><small>De onde</small><span class="ws"><u class="ok" style="--l:48px">from</u><u style="--l:70px"></u></span></div>
+          </div>
+          <div class="inp focus">I am from Bra<span class="caret"></span></div>
+        </div>
+        <div class="dock kb"><div class="btn sec sm" style="padding:0 16px">💡 Dica</div><div class="btn pri sm">Verificar</div></div>
+        <div class="kbd"></div>
+      </div>
+      <img class="old" src="shots/d-5-digitando.png" alt="Digitando hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">D3</span><h4>Frase · teclado aberto</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A tela inteira <b>cabe acima do teclado</b>: áudio, blocos, campo e o dock com Dica e Verificar.</li>
+        <li>O HUD vira 2 chips na topbar. O tempo sai da sessão e vai para o resultado.</li>
+        <li>Os blocos continuam preenchendo <b>ao vivo</b> enquanto o aluno digita.</li>
+        <li class="fix">“Ouvir de novo” e “Devagar” cabem na coluna (hoje o Devagar vaza para a direita).</li>
+      </ul></figcaption></figure>
+
+    <!-- D4 dica -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:14%"></i></div><div class="hud"><span>⭐ 100</span><span>🔥 0</span></div></div>
+        <div class="bd" style="gap:12px;padding-top:6px">
+          <div class="kick">Frase 2 de 8</div>
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-play"/></svg></span>Ouvir de novo</div><div class="slow">🐢 0,75×</div></div>
+          <div class="blks">
+            <div class="b"><small>Sujeito</small><span class="ws"><u class="ok" style="--l:16px">I</u></span></div>
+            <div class="b v"><small>Verbo</small><span class="ws"><u class="ok" style="--l:34px">am</u></span></div>
+            <div class="b a"><small>De onde</small><span class="ws"><u class="ok" style="--l:48px">from</u><u class="hint" style="--l:70px">Brazil.</u></span></div>
+          </div>
+          <div class="inp focus">I am from <span class="caret"></span></div>
+          <div class="hintline">💡 Dica usada · esta frase sai do combo</div>
+        </div>
+        <div class="dock kb"><div class="btn sec sm dis" style="padding:0 16px">💡 Dica</div><div class="btn pri sm">Verificar</div></div>
+        <div class="kbd"></div>
+      </div>
+      <img class="old" src="shots/d-6-dica.png" alt="Dica hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">D4</span><h4>Dica usada</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>A palavra revelada aparece <b>dentro do bloco</b>, em âmbar, no lugar exato dela.</li>
+        <li>O aviso do custo (“sai do combo”) fica acima do dock, sempre visível com o teclado aberto.</li>
+        <li>O combo na topbar zera na hora: a consequência fica clara.</li>
+      </ul></figcaption></figure>
+
+    <!-- D5 sheet erro -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:2%"></i></div><div class="hud"><span>⭐ 75</span><span>🔥 0</span></div></div>
+        <div class="bd" style="gap:12px;padding-top:6px">
+          <div class="kick">Frase 1 de 8</div>
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-play"/></svg></span>Ouvir de novo</div><div class="slow">🐢 0,75×</div></div>
+          <div class="blks">
+            <div class="b"><small>Sujeito</small><span class="ws"><u class="ok" style="--l:30px">My</u><u class="ok" style="--l:52px">name</u></span></div>
+            <div class="b v"><small>Verbo</small><span class="ws"><u class="ok" style="--l:24px">is</u></span></div>
+            <div class="b c"><small>Complemento</small><span class="ws"><u class="miss" style="--l:46px">Ana.</u></span></div>
+          </div>
+          <div class="inp bad">My name is Anna.</div>
+        </div>
+        <div class="sheet warn"><div class="st"><span class="si"><svg><use href="#i-bang"/></svg></span>Quase lá<span class="pts">+75</span></div>
+          <div class="diff"><span class="ok">My</span><span class="ok">name</span><span class="ok">is</span><span class="del">Anna.</span><span class="fix">Ana.</span></div>
+          <p class="sp">Meu nome é Ana.</p>
+          <span class="again"><svg><use href="#i-sound"/></svg>ouvir de novo</span>
+          <div class="dock"><div class="btn pri">Próxima frase</div></div></div>
+      </div>
+      <img class="old" src="shots/d-7-feedback-parcial.png" alt="Feedback erro hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">D5</span><h4>Feedback · quase</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>O diagnóstico inteiro cabe <b>em uma linha</b>: certo em verde, o que foi digitado riscado e a correção sublinhada.</li>
+        <li>Somem os chips repetidos e a caixa “Sobrou”: o que sobrou aparece riscado no próprio diff.</li>
+        <li>Os pontos da frase aparecem no título do sheet (+75).</li>
+      </ul></figcaption></figure>
+
+    <!-- D6 sheet acerto -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:25%"></i></div><div class="hud"><span>⭐ 200</span><span class="hot">🔥 2</span></div></div>
+        <div class="bd" style="gap:12px;padding-top:6px">
+          <div class="kick">Frase 2 de 8</div>
+          <div class="arow"><div class="apill"><span class="pl"><svg><use href="#i-play"/></svg></span>Ouvir de novo</div><div class="slow">🐢 0,75×</div></div>
+          <div class="blks">
+            <div class="b"><small>Sujeito</small><span class="ws"><u class="ok" style="--l:16px">I</u></span></div>
+            <div class="b v"><small>Verbo</small><span class="ws"><u class="ok" style="--l:34px">am</u></span></div>
+            <div class="b a"><small>De onde</small><span class="ws"><u class="ok" style="--l:48px">from</u><u class="ok" style="--l:70px">Brazil.</u></span></div>
+          </div>
+          <div class="inp good">I am from Brazil.</div>
+        </div>
+        <div class="sheet good"><div class="st"><span class="si"><svg><use href="#i-check"/></svg></span>Perfeito! Combo 2 🔥<span class="pts">+100</span></div>
+          <p class="sp">Eu sou do Brasil.</p>
+          <div class="dock"><div class="btn pri">Próxima frase</div></div></div>
+      </div>
+      <img class="old" src="shots/d-8-acerto.png" alt="Feedback acerto hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">D6</span><h4>Feedback · perfeito</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>O acerto ganha <b>peso emocional</b>: sheet verde, combo no título e o chip 🔥 em lima na topbar.</li>
+        <li>Os blocos todos verdes fecham a frase visualmente, e a tradução fecha o sentido.</li>
+      </ul></figcaption></figure>
+
+    <!-- D7 resultado -->
+    <figure class="dev"><div class="device"><span class="badge">Novo</span><div class="vp">
+      <div class="scr app">
+        <div class="sb">9:41<span><em></em><i></i></span></div>
+        <div class="top"><span class="xb"><svg><use href="#i-x"/></svg></span><div class="prog"><i style="--f:100%"></i></div><span class="cnt">fim</span></div>
+        <div class="bd center" style="gap:12px">
+          <div class="rring"><svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="64" fill="none" stroke="#e1eae3" stroke-width="12"/><circle cx="75" cy="75" r="64" fill="none" stroke="#9fb0a5" stroke-width="12" stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="350"/></svg><b>13<small>meta 70</small></b></div>
+          <h2 class="h2">Primeira volta feita</h2>
+          <p class="p">Você ouviu as 8 frases. Na segunda volta o ouvido já conhece o ritmo.</p>
+          <span class="xp">ganhou +8 XP</span>
+          <div class="mets"><div><b>1/8</b><small>perfeitas</small></div><div><b>1</b><small>maior combo</small></div><div><b>2:14</b><small>tempo</small></div></div>
+          <div class="take"><span class="lbl">Para treinar</span><div><span><svg><use href="#i-play"/></svg>My name is Ana.</span><span><svg><use href="#i-play"/></svg>I live in this city.</span><span><svg><use href="#i-play"/></svg>I work at a bank.</span></div></div>
+        </div>
+        <div class="dock"><div class="btn sec">Trilha</div><div class="btn pri">Repetir faixa</div></div>
+      </div>
+      <img class="old" src="shots/d-9-resultado.png" alt="Resultado hoje">
+    </div></div>
+    <figcaption><div class="cap-head"><span class="num">D7</span><h4>Resultado · primeira volta</h4><button class="cmp" type="button">ver como é hoje</button></div>
+      <ul class="spec">
+        <li>13 pontos deixam de ser um <b>círculo vermelho</b> e viram um anel neutro com a meta escrita dentro.</li>
+        <li>O título conta a história (“Primeira volta feita”) e diz por que vale repetir.</li>
+        <li>“Para treinar” lista as frases que mais custaram, com ▶.</li>
+      </ul></figcaption></figure>
+
+  </div>
+</div></section>
+
+<!-- ======================================================== DECIDIR -->
+<section class="blk" id="decidir"><div class="wrap">
+  <span class="kicker">Para decidir</span>
+  <h2>O que preciso de você</h2>
+  <p class="read" style="color:var(--muted)">O desenho acima já assume uma resposta para cada ponto (marcada como “proposta”). Se concordar com tudo, dá para implementar direto; se discordar de algum, muda só aquela parte.</p>
+  <div class="tblw"><table class="dec">
+    <thead><tr><th>#</th><th>Decisão</th><th>Proposta neste desenho</th><th>Alternativa</th></tr></thead>
+    <tbody>
+      <tr><td><b>D1</b></td><td>Nota no Shadowing exige fone?</td><td>Sim: “Valer nota” só com fone calibrado; sem fone é treino livre.<span class="rec">proposta</span></td><td>Aceitar nota sem fone, com aviso de precisão menor (mais gente libera a trilha, nota menos confiável).</td></tr>
+      <tr><td><b>D2</b></td><td>Teoria em cartões</td><td>Dividir automaticamente o texto atual por frase, em até ~280 caracteres por cartão.<span class="rec">proposta</span></td><td>Reescrever a teoria das 20 aulas à mão em cartões (melhor resultado, bem mais trabalho de conteúdo).</td></tr>
+      <tr><td><b>D3</b></td><td>Tempo na ditação</td><td>Sai da sessão e aparece só no resultado.<span class="rec">proposta</span></td><td>Manter o cronômetro na topbar (mais pressão, mais “jogo”).</td></tr>
+      <tr><td><b>D4</b></td><td>Formato do hub de aulas</td><td>Lista compacta com cartão “Continuar” e grupos recolhíveis.<span class="rec">proposta</span></td><td>Trilha de nós estilo mapa (opção B da auditoria): mais personalidade, mais trabalho.</td></tr>
+      <tr><td><b>D5</b></td><td>Telas de ponte nas aulas</td><td>Viram um toast de fase, sem toque extra.<span class="rec">proposta</span></td><td>Manter como tela, mas com o conteúdo centralizado corrigido.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub">Se decidir implementar: a ordem</h3>
+  <ol class="steps">
+    <li><b>Casco comum + limpeza global.</b> Topbar, dock (com teclado), sheet, hub compacto, resultado, fim da bolha de tema e dos overflows. Já melhora as três práticas.</li>
+    <li><b>Ditação.</b> Maior risco real no celular (teclado) e mudança mais contida.</li>
+    <li><b>Aulas.</b> Maior volume de uso, e o casco já faz metade do trabalho.</li>
+    <li><b>Shadowing.</b> Depende da D1, e o karaokê pede mais teste com voz real.</li>
+  </ol>
+  <p class="read" style="color:var(--muted);margin-top:20px">Cada etapa sai com prints antes/depois em 390 px e com o checklist de aceite do prompt (sem scroll horizontal, ação a no máximo 100 px do rodapé, contraste AA, temas claro e escuro, progresso intacto).</p>
+</div></section>
+</main>
+
+<footer><div class="wrap">Mockups em HTML/CSS na escala de 390×844 com os tokens de <code>lessons-4p.css</code>, <code>home.css</code> e <code>dictation.css</code>. Os conteúdos (frases, faixas, aulas) são os reais do app. Spec completa em <code>docs/ux-mobile/PROMPT-redesign.md</code>.</div></footer>
+
+<script>
+(function(){
+  // teclado iOS-like
+  var rows=[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['⇧','z','x','c','v','b','n','m','⌫'],['123','espaço','return']];
+  document.querySelectorAll('.kbd').forEach(function(k){
+    k.innerHTML=rows.map(function(r,ri){return '<div class="kr">'+r.map(function(c){
+      var cls=(c==='⇧'||c==='⌫'||c==='123')?'w':(c==='espaço'?'sp':(c==='return'?'rt':''));
+      return '<b class="'+cls+'">'+c+'</b>';}).join('')+'</div>';}).join('');
+  });
+  // ondas
+  document.querySelectorAll('[data-wave]').forEach(function(w,wi){
+    var h='';for(var i=0;i<34;i++){var v=Math.abs(Math.sin(i*0.55+wi)*0.7+Math.sin(i*1.7)*0.3);h+='<i style="height:'+Math.max(12,Math.round(v*100))+'%"></i>';}
+    w.innerHTML=h;
+  });
+  // karaokê
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('[data-kara]').forEach(function(el){
+    var words=el.textContent.trim().split(/\s+/);
+    el.innerHTML=words.map(function(w){return '<span>'+w+'</span>';}).join(' ');
+    var spans=el.querySelectorAll('span'),i=0;
+    function paint(){spans.forEach(function(s,j){s.className=j<i?'d':(j===i?'n':'');});}
+    if(reduce){i=4;paint();return;}
+    paint();
+    setInterval(function(){i++;if(i>spans.length+2)i=0;paint();},430);
+  });
+  // comparar com hoje
+  document.querySelectorAll('.cmp').forEach(function(b){
+    b.addEventListener('click',function(){
+      var f=b.closest('.dev'),on=f.classList.toggle('show-old');
+      b.textContent=on?'ver o novo':'ver como é hoje';
+      f.querySelector('.badge').textContent=on?'Hoje':(f.querySelector('[data-kara]')?'Novo · animado':'Novo');
+    });
+  });
+  // tema
+  document.getElementById('themeBtn').addEventListener('click',function(){
+    var r=document.documentElement,cur=r.getAttribute('data-theme');
+    var dark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;
+    r.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>

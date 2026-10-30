@@ -63,7 +63,17 @@
     return Math.max(a.length, b.length); // fallback grosseiro: só igualdade exata
   }
 
-  function speak(text, btnEl) {
+  // rate só é passado no modo "devagar" (🐢): aí vai direto ao GriloTTS,
+  // que toca o MP3 pré-gerado com playbackRate e o tom preservado.
+  function speak(text, btnEl, rate) {
+    if (rate && window.GriloTTS) {
+      window.GriloTTS.speak(text, {
+        rate,
+        onstart: btnEl ? () => btnEl.classList.add('is-playing') : null,
+        onend: btnEl ? () => btnEl.classList.remove('is-playing') : null,
+      });
+      return;
+    }
     if (typeof window._griloSpeak === 'function') {
       window._griloSpeak(text, btnEl || null);
       return;
@@ -365,22 +375,16 @@
     try { rec.start(); } catch (e) { onError('start-failed'); }
   }
 
-  // ─── Feedback rico (acerto/erro com ícone + título + detalhe) ─
-  function setFeedback(el, kind, title, detailHtml) {
-    if (!el) return;
-    const icon = kind === 'good' ? '✓' : kind === 'warn' ? '!' : '✗';
-    el.className = 'g4p-feedback is-' + kind;
-    el.innerHTML = `
-      <span class="g4p-feedback-ico" aria-hidden="true">${icon}</span>
-      <span class="g4p-feedback-body">
-        <b>${escapeHtml(title)}</b>
-        ${detailHtml ? `<span>${detailHtml}</span>` : ''}
-      </span>`;
-    el.hidden = false;
-  }
+  // ─── Casco comum (session-shell.js) ──────────────────────────
+  // A home carrega este arquivo só pela API de dados; sem o casco o player
+  // não abre, mas o módulo precisa carregar sem quebrar.
+  const Shell = window.GriloShell || {};
+  const icon = name => (Shell.icon ? Shell.icon(name) : '');
+  const SLOW_RATE = 0.7;
 
   // ─── Estado do player ────────────────────────────────────────
   let S = null; // sessão da aula aberta
+  let unfitViewport = null;
 
   const PHASES = [
     { id: 'teoria',   icon: '📖', label: 'Aula' },
@@ -427,17 +431,21 @@
     const lesson = (window.Grilo4P.LESSONS || []).find(l => l.slug === slug);
     if (!lesson) return;
     const steps = buildSteps(lesson);
-    S = { lesson, steps, idx: 0 };
+    S = { lesson, steps, idx: 0, slow: false };
     buildPlayerDom();
     const overlay = $('g4pPlayer');
     overlay.hidden = false;
-    document.body.style.overflow = 'hidden';
+    $('g4pSession').setAttribute('aria-label', `Aula — ${lesson.title}`);
+    Shell.lockScroll(true);
+    if (unfitViewport) unfitViewport(); // "Próxima aula" reabre sem fechar
+    unfitViewport = Shell.fitViewport(overlay);
 
     // Parou no meio antes? Oferece retomar — sem decidir pelo aluno:
-    // rever a aula do começo é uma escolha legítima de estudo.
+    // rever a aula do começo é uma escolha legítima de estudo. A capa fica
+    // por trás do sheet SEM gravar posição (senão o marcador seria apagado).
     const cp = readCheckpoint(lesson, steps.length);
-    if (cp) renderResumePrompt($('g4pStage'), cp);
-    else renderStep();
+    renderStep({ keepCheckpoint: !!cp });
+    if (cp) renderResumePrompt(cp);
   }
 
   // Sobe o parcial (pontas já conquistadas + posição) para a retomada
@@ -455,19 +463,22 @@
     stopListening();
     try { window.GriloTTS ? window.GriloTTS.stop() : window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
     flushPartialProgress();
+    if (unfitViewport) { unfitViewport(); unfitViewport = null; }
     const overlay = $('g4pPlayer');
     if (overlay) overlay.hidden = true;
-    document.body.style.overflow = '';
+    Shell.closeSheet($('g4pSession'));
+    Shell.lockScroll(false);
     S = null;
     renderGrid();
   }
 
   function next() {
     if (!S) return;
+    stopListening();
     if (S.idx < S.steps.length - 1) { S.idx++; renderStep(); }
   }
 
-  // ─── Tela de retomada ────────────────────────────────────────
+  // ─── Retomada (sheet na abertura) ────────────────────────────
   function resumeAgo(iso) {
     const t = Date.parse(iso || '');
     if (!t) return '';
@@ -480,182 +491,265 @@
     return days === 1 ? 'ontem' : `há ${days} dias`;
   }
 
-  function renderResumePrompt(stage, cp) {
+  function renderResumePrompt(cp) {
     const L = S.lesson;
     const phase = PHASES.find(p => p.id === phaseOfStep(S.steps[cp.idx]));
     const pct = Math.round((cp.idx / (S.steps.length - 1)) * 100);
     const when = resumeAgo(cp.at);
 
-    updateRail(phaseOfStep(S.steps[cp.idx]));
-    $('g4pHeadTitle').textContent = L.title;
-    $('g4pProgressFill').style.width = `${pct}%`;
-
-    stage.innerHTML = `
-      <div class="g4p-screen g4p-resume">
-        <span class="g4p-bridge-icon">↩️</span>
-        <h3 class="g4p-resume-title">Você parou no meio desta aula</h3>
-        <p class="g4p-resume-text">
-          Seu progresso ficou salvo${when ? ` — você estava aqui ${escapeHtml(when)}` : ''}.
-          Dá pra continuar de onde parou ou refazer a aula do começo.
-        </p>
-        <div class="g4p-resume-mark">
-          <span class="g4p-resume-phase">${phase ? phase.icon + ' ' + escapeHtml(phase.label) : ''}</span>
-          <span class="g4p-resume-pct">${pct}% da aula</span>
-        </div>
-        <div class="g4p-resume-actions">
-          <button class="g4p-btn g4p-btn-primary g4p-btn-lg" id="g4pResumeGo" type="button">Continuar de onde parei</button>
-          <button class="g4p-btn g4p-btn-ghost" id="g4pResumeRestart" type="button">Começar do início</button>
-        </div>
-        <p class="g4p-resume-note">O que você já acertou continua registrado nos dois caminhos.</p>
-      </div>`;
-
-    $('g4pResumeGo').addEventListener('click', () => {
-      S.idx = cp.idx;
-      renderStep();
-    });
-    $('g4pResumeRestart').addEventListener('click', () => {
-      clearCheckpoint(L.slug);
-      S.idx = 0;
-      renderStep();
+    Shell.openSheet($('g4pSession'), {
+      tone: 'plain',
+      icon: null,
+      scrim: true,
+      stack: true,
+      title: `Você parou em ${phase ? escapeHtml(phase.label) : 'Aula'} (${pct}%)`,
+      html: `<p class="gs-sheet-text gs-muted">Seu progresso ficou salvo${when ? ` ${escapeHtml(when)}` : ''}. O que você já acertou continua registrado nos dois caminhos.</p>`,
+      actions: [
+        { label: 'Continuar de onde parei', kind: 'pri', id: 'g4pResumeGo', onClick: () => {
+          Shell.closeSheet($('g4pSession'));
+          S.idx = cp.idx;
+          renderStep();
+        } },
+        { label: 'Começar do início', kind: 'txt', id: 'g4pResumeRestart', onClick: () => {
+          clearCheckpoint(L.slug);
+          Shell.closeSheet($('g4pSession'));
+          S.idx = 0;
+          renderStep();
+        } },
+      ],
     });
   }
 
+  // ─── Casco do player ─────────────────────────────────────────
   function buildPlayerDom() {
     if ($('g4pPlayer')) return;
-    const railHtml = PHASES.map((p, i) => `
-      ${i > 0 ? '<span class="g4p-rail-link" aria-hidden="true"></span>' : ''}
-      <span class="g4p-rail-node" data-phase="${p.id}">
-        <i aria-hidden="true">${p.icon}</i><em>${p.label}</em>
-      </span>`).join('');
-
     const root = document.createElement('div');
     root.id = 'g4pPlayer';
+    root.className = 'gs-overlay';
     root.hidden = true;
     root.innerHTML = `
-      <div class="g4p-shell" role="dialog" aria-modal="true" aria-label="Aula — novo sistema">
-        <div class="g4p-head">
-          <div class="g4p-head-info">
-            <span class="g4p-head-kicker" id="g4pHeadKicker">4 pontas</span>
-            <span class="g4p-head-title" id="g4pHeadTitle"></span>
-          </div>
-          <div class="g4p-rail" id="g4pRail" aria-hidden="true">${railHtml}</div>
-          <button class="g4p-close" id="g4pClose" type="button" aria-label="Fechar aula">×</button>
-          <div class="g4p-progressbar"><span class="g4p-progressfill" id="g4pProgressFill"></span></div>
+      <div class="gs-session" id="g4pSession" role="dialog" aria-modal="true" aria-label="Aula">
+        <div class="gs-top">
+          <button class="gs-x" id="g4pClose" type="button" aria-label="Fechar aula">${icon('x')}</button>
+          <div class="gs-prog" id="g4pProg" aria-hidden="true">${Shell.progHtml(PHASES.map(() => 0))}</div>
+          <span class="gs-cnt" id="g4pCnt"></span>
         </div>
-        <div class="g4p-stage" id="g4pStage"></div>
+        <div class="gs-body" id="g4pStage"></div>
+        <div class="gs-dock" id="g4pDock"></div>
       </div>`;
     document.body.appendChild(root);
     $('g4pClose').addEventListener('click', closePlayer);
-  }
-
-  function updateRail(activePhase) {
-    const rail = $('g4pRail');
-    if (!rail) return;
-    const order = PHASES.map(p => p.id);
-    const activeIdx = order.indexOf(activePhase);
-    rail.querySelectorAll('.g4p-rail-node').forEach(node => {
-      const idx = order.indexOf(node.dataset.phase);
-      node.classList.toggle('is-active', idx === activeIdx);
-      node.classList.toggle('is-done', idx < activeIdx);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && S && !$('g4pPlayer').hidden) closePlayer();
     });
   }
 
-  function renderStep() {
+  function session() { return $('g4pSession'); }
+
+  // Barra da topbar: um segmento por fase, cheio na proporção dos passos já feitos.
+  function updateTop() {
     const step = S.steps[S.idx];
-    const grp = groupOf(S.lesson);
+    const last = S.steps.length - 1;
+    const fracs = PHASES.map(p => {
+      const idxs = [];
+      S.steps.forEach((st, i) => { if (phaseOfStep(st) === p.id) idxs.push(i); });
+      if (!idxs.length) return 0;
+      if (p.id === 'recap') return S.idx >= last ? 1 : 0;
+      return idxs.filter(i => i < S.idx).length / idxs.length;
+    });
+    Shell.setProg($('g4pProg'), fracs);
+
+    const visible = S.steps.filter(st => st.t !== 'bridge');
+    const pos = S.steps.slice(0, S.idx + 1).filter(st => st.t !== 'bridge').length;
+    $('g4pCnt').textContent = step.t === 'cover' ? `~${S.lesson.minutes} min`
+      : step.t === 'recap' ? 'fim'
+      : `${pos - 1}/${visible.length - 2}`;
+  }
+
+  function setDock(html) {
+    const dock = $('g4pDock');
+    dock.innerHTML = html;
+    return dock;
+  }
+
+  // Botões do dock não roubam o foco do campo: o teclado do celular não fecha.
+  function keepFocus(...ids) {
+    ids.forEach(id => { const el = $(id); if (el) el.addEventListener('pointerdown', e => e.preventDefault()); });
+  }
+
+  function renderStep(opts) {
+    const step = S.steps[S.idx];
+
+    // Telas de ponte ("Agora escreve.") viraram um selo de fase sobre o
+    // primeiro exercício — sem toque extra. O passo continua no roteiro
+    // (buildSteps / checkpoints não mudam), só não é desenhado.
+    if (step.t === 'bridge') {
+      S.toast = step.variant === 'write' ? '✍️ Agora você escreve' : '🎙 Agora você fala';
+      S.idx++;
+      return renderStep(opts);
+    }
 
     // Marca a posição ANTES de desenhar: se a máquina cair no meio do
     // passo, o aluno volta para o início deste passo — nunca para a capa.
-    saveCheckpoint(S.lesson, S.idx, S.steps.length);
+    if (!(opts && opts.keepCheckpoint)) saveCheckpoint(S.lesson, S.idx, S.steps.length);
 
-    $('g4pHeadTitle').textContent = S.lesson.title;
-    $('g4pHeadKicker').textContent = grp ? `Grupo ${grp.id} · ${grp.label}` : 'Sistema 4 pontas';
-    $('g4pProgressFill').style.width = `${Math.round((S.idx / (S.steps.length - 1)) * 100)}%`;
-    updateRail(phaseOfStep(step));
-
+    Shell.closeSheet(session());
+    updateTop();
     const stage = $('g4pStage');
     stage.scrollTop = 0;
 
     switch (step.t) {
-      case 'cover':        return renderCover(stage);
-      case 'theory':       return renderTheory(stage, step);
-      case 'check':        return renderCheck(stage, step);
-      case 'bridge':       return renderBridge(stage, step);
-      case 'write-word':   return renderWriteWord(stage, step);
-      case 'write-phrase': return renderWritePhrase(stage, step);
-      case 'listen-speak': return renderListenSpeak(stage, step);
-      case 'recap':        return renderRecap(stage);
+      case 'cover':        renderCover(stage); break;
+      case 'theory':       renderTheory(stage, step); break;
+      case 'check':        renderCheck(stage, step); break;
+      case 'write-word':   renderWriteWord(stage, step); break;
+      case 'write-phrase': renderWritePhrase(stage, step); break;
+      case 'listen-speak': renderListenSpeak(stage, step); break;
+      case 'recap':        renderRecap(stage); break;
     }
+
+    if (S && S.toast) { Shell.toast(session(), S.toast); S.toast = null; }
+  }
+
+  // Feedback padrão das telas de exercício: sheet + "Continuar" no lugar do dock.
+  function feedback(opts) {
+    return Shell.openSheet(session(), Object.assign({
+      actions: [{ label: 'Continuar', kind: 'pri', id: 'g4pNext', onClick: next }],
+    }, opts));
   }
 
   // ─── Telas ───────────────────────────────────────────────────
+  function lessonNumber(L) {
+    const p = lessonPlaces().find(x => x.lesson.slug === L.slug);
+    return p ? p.num : null;
+  }
+
   function renderCover(stage) {
     const L = S.lesson;
+    const grp = groupOf(L);
+    const num = lessonNumber(L);
     stage.innerHTML = `
-      <div class="g4p-screen g4p-screen--wide g4p-cover">
-        <span class="g4p-cover-icon">${escapeHtml(L.icon)}</span>
-        <h2 class="g4p-cover-title">${escapeHtml(L.title)}</h2>
-        <p class="g4p-cover-objective">${escapeHtml(L.objective)}</p>
-        <div class="g4p-cover-chips">
-          <span class="g4p-chip">${L.scope.words.length} palavras</span>
-          <span class="g4p-chip">${L.scope.phrases.length} frases</span>
-          <span class="g4p-chip">~${L.minutes} min</span>
+      <div class="gs-center g4p-cover">
+        <span class="g4p-tile" aria-hidden="true">${escapeHtml(L.icon)}</span>
+        <span class="gs-kick">${num ? `Aula ${String(num).padStart(2, '0')}` : 'Aula'}${grp ? ` · Grupo ${escapeHtml(grp.id)}` : ''}</span>
+        <h2 class="gs-h1">${escapeHtml(L.title)}</h2>
+        <p class="gs-p">${escapeHtml(L.objective)}</p>
+        <div class="g4p-meta">
+          <span>${L.scope.words.length} palavras</span><span>${L.scope.phrases.length} frases</span><span>4 pontas</span>
         </div>
-        <div class="g4p-cover-route" aria-hidden="true">
-          <span>📖 aprende</span><i>→</i>
-          <span>👁👂 checa</span><i>→</i>
-          <span>✍️ escreve</span><i>→</i>
-          <span>🎙 fala</span>
+        <div class="g4p-four" aria-label="As 4 pontas">
+          <span><i aria-hidden="true">👁</i>ver</span><span><i aria-hidden="true">👂</i>ouvir</span>
+          <span><i aria-hidden="true">✍️</i>escrever</span><span><i aria-hidden="true">🎙</i>falar</span>
         </div>
-        <p class="g4p-cover-note">Cada palavra e frase desta aula passa pelas 4 pontas. O que você escrever certo entra no seu vocabulário — o que você também ouvir e falar fica <b>dominado</b>.</p>
-        <button class="g4p-btn g4p-btn-primary g4p-btn-lg" id="g4pNext" type="button">Começar aula</button>
+        <p class="gs-p g4p-cover-rule">Escreveu certo → entra no vocabulário.<br>Ouviu e falou também → <b>dominada</b>.</p>
       </div>`;
+    setDock(`<button class="gs-btn is-pri" id="g4pNext" type="button">Começar aula</button>`);
     $('g4pNext').addEventListener('click', next);
+  }
+
+  // Teoria em cartões: o parágrafo vira cartões de até ~280 caracteres,
+  // quebrados por frase. A "pegadinha" sai do texto e vira um callout.
+  const CARD_CHARS = 280;
+  const TRAP_RE = /pegadinha|armadilha|cuidado/i;
+
+  function splitSentences(html) {
+    const parts = String(html || '').split(/(?<=[.!?…]["”']?(?:<\/[bi]>)?["”']?)\s+(?=["“(]?(?:<[bi]>)?["“]?[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/);
+    // Junta pedaços que deixaram uma tag <b>/<i> aberta (quebra dentro do negrito)
+    const out = [];
+    parts.forEach(p => {
+      const prev = out[out.length - 1];
+      const open = s => (s.match(/<[bi]>/g) || []).length - (s.match(/<\/[bi]>/g) || []).length;
+      if (prev && open(prev) > 0) out[out.length - 1] = prev + ' ' + p;
+      else out.push(p);
+    });
+    return out;
+  }
+
+  function theoryCards(html) {
+    const sentences = splitSentences(html);
+    const trap = sentences.filter(s => TRAP_RE.test(s));
+    const body = sentences.filter(s => !TRAP_RE.test(s));
+    const cards = [];
+    body.forEach(s => {
+      const cur = cards[cards.length - 1];
+      if (cur && (cur + ' ' + s).replace(/<[^>]+>/g, '').length <= CARD_CHARS) cards[cards.length - 1] = cur + ' ' + s;
+      else cards.push(s);
+    });
+    return { cards: cards.length ? cards : [html], trap: trap.join(' ') };
   }
 
   function renderTheory(stage, step) {
     const sec = S.lesson.sections[step.si];
+    const { cards, trap } = theoryCards(sec.explanation);
+    let ci = 0;
+
     stage.innerHTML = `
-      <div class="g4p-screen g4p-screen--wide g4p-theory">
-        <span class="g4p-step-kicker">📖 Seção ${step.si + 1} de ${S.lesson.sections.length}</span>
-        <h3 class="g4p-theory-title">${escapeHtml(sec.title)}</h3>
-        <div class="g4p-theory-cols">
-          <div class="g4p-theory-copy">
-            <p class="g4p-theory-text">${sec.explanation}</p>
-          </div>
-          <div class="g4p-theory-side">
-            <span class="g4p-side-label">Ouça e repita</span>
-            <div class="g4p-examples">
-              ${sec.examples.map((ex, i) => `
-                <button class="g4p-example" type="button" data-speak-idx="${i}">
-                  <span class="g4p-example-play" aria-hidden="true">▶</span>
-                  <span class="g4p-example-body">
-                    <span class="g4p-example-en">${escapeHtml(ex.en)}</span>
-                    <span class="g4p-example-pt">${escapeHtml(ex.pt)}</span>
-                  </span>
-                </button>`).join('')}
-            </div>
-          </div>
-        </div>
-        <div class="g4p-screen-foot">
-          <p class="g4p-tip">🔊 Toque nas frases para ouvir a pronúncia — quantas vezes quiser.</p>
-          <button class="g4p-btn g4p-btn-primary" id="g4pNext" type="button">Continuar</button>
-        </div>
+      <span class="gs-kick">📖 Aula · seção ${step.si + 1} de ${S.lesson.sections.length}</span>
+      <h2 class="gs-h2">${escapeHtml(sec.title)}</h2>
+      <div class="g4p-tcard" id="g4pCard" aria-live="polite">
+        <p class="g4p-tcard-text" id="g4pCardText"></p>
+        ${cards.length > 1 ? `<div class="g4p-dots" id="g4pDots" aria-hidden="true">${cards.map(() => '<i></i>').join('')}</div>` : ''}
+      </div>
+      ${trap ? `<div class="g4p-trap"><span aria-hidden="true">⚠️</span><p>${trap}</p></div>` : ''}
+      <span class="gs-lbl">Ouça e repita</span>
+      <div class="g4p-examples">
+        ${sec.examples.map((ex, i) => `
+          <button class="g4p-example" type="button" data-speak-idx="${i}">
+            <span class="g4p-example-play">${icon('play')}</span>
+            <span class="g4p-example-body"><b>${escapeHtml(ex.en)}</b><small>${escapeHtml(ex.pt)}</small></span>
+          </button>`).join('')}
       </div>`;
+
     stage.querySelectorAll('[data-speak-idx]').forEach(btn => {
       btn.addEventListener('click', () => speak(sec.examples[+btn.dataset.speakIdx].en, btn));
     });
-    $('g4pNext').addEventListener('click', next);
+
+    function paint() {
+      $('g4pCardText').innerHTML = cards[ci];
+      const dots = $('g4pDots');
+      if (dots) Array.from(dots.children).forEach((d, i) => d.classList.toggle('is-on', i <= ci));
+      const last = ci === cards.length - 1;
+      setDock(`
+        ${ci > 0 ? `<button class="gs-btn is-sec is-ic" id="g4pPrevCard" type="button" aria-label="Cartão anterior">${icon('back')}</button>` : ''}
+        <button class="gs-btn is-pri" id="g4pNext" type="button">${last ? 'Entendi' : 'Próximo cartão'}</button>`);
+      $('g4pNext').addEventListener('click', () => {
+        if (last) next();
+        else { ci++; paint(); }
+      });
+      const prev = $('g4pPrevCard');
+      if (prev) prev.addEventListener('click', () => { ci--; paint(); });
+    }
+    paint();
   }
 
   function optionsHtml(options) {
     const letters = 'ABCD';
     return options.map((opt, i) => `
-      <button class="g4p-option" type="button" data-opt="${i}">
-        <span class="g4p-option-letter" aria-hidden="true">${letters[i] || ''}</span>
-        <span class="g4p-option-text">${escapeHtml(opt)}</span>
-        <span class="g4p-option-mark" aria-hidden="true"></span>
+      <button class="gs-opt" type="button" data-opt="${i}">
+        <span class="gs-opt-l" aria-hidden="true">${letters[i] || ''}</span>
+        <span>${escapeHtml(opt)}</span>
       </button>`).join('');
+  }
+
+  function markOptions(container, correctIdx, chosenIdx) {
+    container.querySelectorAll('.gs-opt').forEach((b, i) => {
+      b.disabled = true;
+      if (i === correctIdx) b.classList.add('is-correct');
+      else if (i === chosenIdx) b.classList.add('is-wrong');
+      else b.classList.add('is-dim');
+    });
+  }
+
+  function audioHero(label) {
+    return `
+      <div class="gs-ah-wrap">
+        <button class="gs-ah" id="g4pPlayAudio" type="button" aria-label="Ouvir áudio">${icon('sound')}</button>
+        <span class="gs-ah-cap">${label}</span>
+      </div>`;
+  }
+
+  function waitingDock() {
+    setDock(`<button class="gs-btn is-pri" type="button" disabled>Continuar</button>`);
   }
 
   function renderCheck(stage, step) {
@@ -667,26 +761,17 @@
     return renderCheckChoice(stage, cp);
   }
 
-  // 👁/👂 ver e ouvir — múltipla escolha (idêntico ao A1)
+  // 👁/👂 ver e ouvir — múltipla escolha
   function renderCheckChoice(stage, cp) {
     const isOuvir = cp.kind === 'ouvir';
     const mix = shuffleWithCorrect(cp.options, cp.correct);
 
     stage.innerHTML = `
-      <div class="g4p-screen g4p-check">
-        <span class="g4p-step-kicker">${isOuvir ? '👂 Ouvir — sem ler, só de ouvido' : '👁 Identificar'}</span>
-        ${isOuvir ? `
-          <button class="g4p-audio-big" id="g4pPlayAudio" type="button" aria-label="Ouvir áudio">
-            <span class="g4p-audio-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-            Ouvir
-          </button>` : ''}
-        <h3 class="g4p-check-prompt">${escapeHtml(cp.prompt)}</h3>
-        <div class="g4p-options">${optionsHtml(mix.options)}</div>
-        <div class="g4p-feedback" id="g4pFeedback" hidden></div>
-        <div class="g4p-screen-foot g4p-screen-foot--end">
-          <button class="g4p-btn g4p-btn-primary" id="g4pNext" type="button" hidden>Continuar</button>
-        </div>
-      </div>`;
+      <span class="gs-kick">${isOuvir ? '👂 Ouvir — sem ler' : '👁 Identificar'}</span>
+      ${isOuvir ? audioHero('toque para ouvir de novo') : ''}
+      <h2 class="gs-h2">${escapeHtml(cp.prompt)}</h2>
+      <div class="gs-opts" id="g4pOpts">${optionsHtml(mix.options)}</div>`;
+    waitingDock();
 
     if (isOuvir) {
       const playBtn = $('g4pPlayAudio');
@@ -695,32 +780,31 @@
     }
 
     let answered = false;
-    stage.querySelectorAll('.g4p-option').forEach(btn => {
+    stage.querySelectorAll('.gs-opt').forEach(btn => {
       btn.addEventListener('click', () => {
         if (answered) return;
         answered = true;
         const chosen = +btn.dataset.opt;
         const ok = chosen === mix.correct;
-        const fb = $('g4pFeedback');
-        stage.querySelectorAll('.g4p-option').forEach((b, i) => {
-          b.disabled = true;
-          if (i === mix.correct) b.classList.add('is-correct');
-          else if (i === chosen && !ok) b.classList.add('is-wrong');
-        });
+        markOptions($('g4pOpts'), mix.correct, chosen);
+        const heard = isOuvir && cp.audio ? `Você ouviu <b>“${escapeHtml(cp.audio)}”</b>` : '';
         if (ok) {
           if (isOuvir) markSkill(S.lesson.slug, cp.item, 'heard');
-          setFeedback(fb, 'good',
-            isOuvir ? 'Entendeu de ouvido!' : 'Certo!',
-            isOuvir ? 'Compreensão registrada para esta palavra.' : '');
+          feedback({
+            tone: 'good',
+            title: isOuvir ? 'Entendeu de ouvido!' : 'Isso!',
+            html: heard ? `<p class="gs-sheet-text">${heard}</p>` : '',
+          });
         } else {
-          setFeedback(fb, 'bad', 'Não foi essa.',
-            `A resposta certa era: <b>${escapeHtml(cp.options[cp.correct])}</b>`);
+          feedback({
+            tone: 'bad',
+            title: 'Não foi essa',
+            html: `<p class="gs-sheet-text">${heard ? heard + ' — ' : 'A certa era '}<b>${escapeHtml(cp.options[cp.correct])}</b>.</p>`,
+            again: isOuvir ? { label: 'ouvir de novo', onClick: () => speak(cp.audio) } : null,
+          });
         }
-        $('g4pNext').hidden = false;
-        $('g4pNext').focus();
       });
     });
-    $('g4pNext').addEventListener('click', next);
   }
 
   // ⚖️ Contraste — escolher entre duas estruturas EN×EN (a/b).
@@ -729,50 +813,33 @@
     // Embaralha qual opção aparece em cima, preservando qual é a correta.
     const pair = [{ key: 'a', text: cp.a }, { key: 'b', text: cp.b }];
     if (Math.random() < 0.5) pair.reverse();
+    const correctIdx = pair.findIndex(p => p.key === cp.correct);
 
     stage.innerHTML = `
-      <div class="g4p-screen g4p-check g4p-contrast">
-        <span class="g4p-step-kicker">⚖️ Qual soa certo — as duas parecem quase iguais</span>
-        <h3 class="g4p-check-prompt">${escapeHtml(cp.prompt)}</h3>
-        <div class="g4p-options g4p-contrast-opts">
-          ${pair.map(p => `
-            <button class="g4p-option g4p-contrast-opt" type="button" data-key="${p.key}">
-              <span class="g4p-option-text">${escapeHtml(p.text)}</span>
-              <span class="g4p-option-mark" aria-hidden="true"></span>
-            </button>`).join('')}
-        </div>
-        <div class="g4p-feedback" id="g4pFeedback" hidden></div>
-        <div class="g4p-screen-foot g4p-screen-foot--end">
-          <button class="g4p-btn g4p-btn-primary" id="g4pNext" type="button" hidden>Continuar</button>
-        </div>
-      </div>`;
+      <span class="gs-kick">⚖️ Qual soa certo?</span>
+      <h2 class="gs-h2">${escapeHtml(cp.prompt)}</h2>
+      <div class="gs-opts" id="g4pOpts">${optionsHtml(pair.map(p => p.text))}</div>
+      <p class="gs-p">As duas parecem quase iguais — repare na diferença.</p>`;
+    waitingDock();
 
     let answered = false;
-    stage.querySelectorAll('.g4p-contrast-opt').forEach(btn => {
+    stage.querySelectorAll('.gs-opt').forEach(btn => {
       btn.addEventListener('click', () => {
         if (answered) return;
         answered = true;
-        const chosen = btn.dataset.key;
-        const ok = chosen === cp.correct;
-        const fb = $('g4pFeedback');
-        stage.querySelectorAll('.g4p-contrast-opt').forEach(b => {
-          b.disabled = true;
-          if (b.dataset.key === cp.correct) b.classList.add('is-correct');
-          else if (b.dataset.key === chosen && !ok) b.classList.add('is-wrong');
-        });
+        const chosen = +btn.dataset.opt;
+        const ok = chosen === correctIdx;
+        markOptions($('g4pOpts'), correctIdx, chosen);
+        const why = cp.why ? `<p class="gs-sheet-text">${escapeHtml(cp.why)}</p>` : '';
         if (ok) {
           if (cp.item) markSkill(S.lesson.slug, cp.item, 'heard');
-          setFeedback(fb, 'good', 'Isso!', escapeHtml(cp.why || ''));
+          feedback({ tone: 'good', title: 'Isso!', html: why });
         } else {
           const right = cp.correct === 'a' ? cp.a : cp.b;
-          setFeedback(fb, 'bad', 'A outra estava certa.',
-            `<b>${escapeHtml(right)}</b>${cp.why ? ' — ' + escapeHtml(cp.why) : ''}`);
+          feedback({ tone: 'bad', title: 'A outra estava certa', html: `<p class="gs-sheet-text"><b>${escapeHtml(right)}</b></p>${why}` });
         }
-        $('g4pNext').hidden = false;
-        $('g4pNext').focus();
       });
     });
-    $('g4pNext').addEventListener('click', next);
   }
 
   // 🧩 Ordenar — montar a frase a partir de tokens embaralhados.
@@ -781,20 +848,17 @@
     const bank = shuffleArray(cp.tokens.map((t, i) => ({ t, i })));
 
     stage.innerHTML = `
-      <div class="g4p-screen g4p-check g4p-order">
-        <span class="g4p-step-kicker">🧩 Monte a frase — toque nas palavras na ordem certa</span>
-        <h3 class="g4p-check-prompt">${escapeHtml(cp.prompt)}</h3>
-        <div class="g4p-order-slot" id="g4pOrderSlot" aria-label="Frase montada"></div>
-        <div class="g4p-order-bank" id="g4pOrderBank">
-          ${bank.map(b => `<button class="g4p-token" type="button" data-tid="${b.i}">${escapeHtml(b.t)}</button>`).join('')}
-        </div>
-        <div class="g4p-feedback" id="g4pFeedback" hidden></div>
-        <div class="g4p-screen-foot g4p-order-foot">
-          <button class="g4p-btn g4p-btn-ghost" id="g4pOrderClear" type="button">Limpar</button>
-          <button class="g4p-btn g4p-btn-primary" id="g4pOrderCheck" type="button" disabled>Conferir</button>
-          <button class="g4p-btn g4p-btn-primary" id="g4pNext" type="button" hidden>Continuar</button>
-        </div>
-      </div>`;
+      <span class="gs-kick">🧩 Monte a frase</span>
+      <h2 class="gs-h2">${escapeHtml(cp.prompt)}</h2>
+      <div class="g4p-build" aria-label="Frase montada">
+        <div class="g4p-build-row" id="g4pOrderSlot"></div>
+        <button class="g4p-build-reset" id="g4pOrderClear" type="button" aria-label="Limpar a frase">${icon('reset')}</button>
+      </div>
+      <div class="g4p-bank" id="g4pOrderBank">
+        ${bank.map(b => `<button class="g4p-token" type="button" data-tid="${b.i}">${escapeHtml(b.t)}</button>`).join('')}
+      </div>
+      <p class="gs-p g4p-order-tip">Toque numa palavra montada para devolvê-la.</p>`;
+    setDock(`<button class="gs-btn is-pri" id="g4pOrderCheck" type="button" disabled>Conferir</button>`);
 
     const slot = $('g4pOrderSlot');
     const bankEl = $('g4pOrderBank');
@@ -807,16 +871,16 @@
     }
     function renderSlot() {
       slot.innerHTML = built.map(b =>
-        `<button class="g4p-token g4p-token--placed" type="button" data-tid="${b.tid}">${escapeHtml(b.t)}</button>`).join('')
-        || '<span class="g4p-order-ph">toque nas palavras abaixo…</span>';
-      slot.querySelectorAll('.g4p-token--placed').forEach(tk => {
+        `<button class="g4p-token is-placed" type="button" data-tid="${b.tid}">${escapeHtml(b.t)}</button>`).join('')
+        || '<span class="g4p-build-ph">toque nas palavras abaixo…</span>';
+      slot.querySelectorAll('.is-placed').forEach(tk => {
         tk.addEventListener('click', () => {
           if (answered) return;
           const tid = +tk.dataset.tid;
           const pos = built.findIndex(b => b.tid === tid);
           if (pos >= 0) built.splice(pos, 1);
           const src = bankEl.querySelector(`[data-tid="${tid}"]`);
-          if (src) src.classList.remove('is-used');
+          if (src) { src.classList.remove('is-used'); src.disabled = false; }
           renderSlot(); syncCheckBtn();
         });
       });
@@ -826,6 +890,7 @@
       tk.addEventListener('click', () => {
         if (answered || tk.classList.contains('is-used')) return;
         tk.classList.add('is-used');
+        tk.disabled = true;
         built.push({ tid: +tk.dataset.tid, t: tk.textContent });
         renderSlot(); syncCheckBtn();
       });
@@ -834,7 +899,7 @@
     $('g4pOrderClear').addEventListener('click', () => {
       if (answered) return;
       built.length = 0;
-      bankEl.querySelectorAll('.g4p-token').forEach(t => t.classList.remove('is-used'));
+      bankEl.querySelectorAll('.g4p-token').forEach(t => { t.classList.remove('is-used'); t.disabled = false; });
       renderSlot(); syncCheckBtn();
     });
 
@@ -844,37 +909,48 @@
       const got = built.map(b => b.t).join(' ');
       const ok = norm(got.replace(/\s+/g, '')) === norm(cp.correct.replace(/\s+/g, ''))
         || tokenize(got).join(' ') === tokenize(cp.correct).join(' ');
-      const fb = $('g4pFeedback');
-      slot.querySelectorAll('.g4p-token--placed').forEach(t => t.classList.add(ok ? 'is-correct' : 'is-wrong'));
-      checkBtn.hidden = true;
+      slot.querySelectorAll('.is-placed').forEach(t => { t.classList.add(ok ? 'is-correct' : 'is-wrong'); t.disabled = true; });
       $('g4pOrderClear').hidden = true;
       if (ok) {
         if (cp.item) markSkill(S.lesson.slug, cp.item, 'written');
-        setFeedback(fb, 'good', 'Frase certa!', 'Produção registrada — isso é o que vira palavra dominada.');
+        feedback({ tone: 'good', title: 'Frase certa!', html: '<p class="gs-sheet-text">Produção registrada — isso é o que vira palavra dominada.</p>' });
       } else {
-        setFeedback(fb, 'bad', 'Quase — a ordem certa é:', `<b>${escapeHtml(cp.correct)}</b>`);
+        feedback({ tone: 'bad', title: 'A ordem certa é', html: `<p class="gs-sheet-text"><b>${escapeHtml(cp.correct)}</b></p>` });
       }
-      $('g4pNext').hidden = false;
-      $('g4pNext').focus();
     });
 
     renderSlot();
-    $('g4pNext').addEventListener('click', next);
   }
 
-  function renderBridge(stage, step) {
-    const isWrite = step.variant === 'write';
-    stage.innerHTML = `
-      <div class="g4p-screen g4p-bridge ${isWrite ? 'g4p-bridge--write' : 'g4p-bridge--speak'}">
-        <span class="g4p-bridge-icon">${isWrite ? '✍️' : '🎙'}</span>
-        <h3 class="g4p-bridge-title">${isWrite ? 'Agora escreve.' : 'Agora fala.'}</h3>
-        <p class="g4p-bridge-text">${isWrite
-          ? 'Você vai ouvir cada palavra e escrever o que ouviu — depois, escrever as frases da aula em inglês. O que você escrever certo entra no seu vocabulário.'
-          : 'Última ponta: ouvir cada frase, mostrar que entendeu e falar em voz alta. É isso que transforma palavra aprendida em palavra dominada.'}</p>
-        ${!isWrite && !speechSupported() ? '<p class="g4p-warn">Seu navegador não suporta reconhecimento de voz — esta etapa será mostrada, mas sem avaliação da fala. Tente o Chrome para a experiência completa.</p>' : ''}
-        <button class="g4p-btn g4p-btn-primary g4p-btn-lg" id="g4pNext" type="button">${isWrite ? 'Vamos lá' : 'Bora falar'}</button>
+  // Pontinhos de tentativa (escrever): mostram quanto falta antes de revelar.
+  function triesHtml(used) {
+    const left = MAX_WRITE_ATTEMPTS - used;
+    return `${Array.from({ length: MAX_WRITE_ATTEMPTS }, (_, i) => `<i class="${i < used ? 'is-used' : ''}"></i>`).join('')}
+      <span>${left > 1 ? `${left} tentativas` : left === 1 ? 'última tentativa' : 'sem tentativas'}</span>`;
+  }
+
+  function audioRow(id) {
+    return `
+      <div class="gs-arow">
+        <button class="gs-apill" id="${id}" type="button" aria-label="Ouvir">
+          <span class="gs-apill-pl">${icon('play')}</span><span>Ouvir</span>
+          <span class="gs-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </button>
+        <button class="gs-slow" id="g4pSlow" type="button" aria-pressed="${S.slow ? 'true' : 'false'}">🐢 Devagar</button>
       </div>`;
-    $('g4pNext').addEventListener('click', next);
+  }
+
+  function bindAudioRow(id, text, input) {
+    const playBtn = $(id);
+    const play = () => speak(text, playBtn, S.slow ? SLOW_RATE : null);
+    playBtn.addEventListener('click', play);
+    $('g4pSlow').addEventListener('click', () => {
+      S.slow = !S.slow;
+      $('g4pSlow').setAttribute('aria-pressed', String(S.slow));
+      play();
+      if (input && !input.disabled) input.focus({ preventScroll: true });
+    });
+    return play;
   }
 
   // ✍ Palavra — ditado: ouve o áudio (com dica em PT) e digita em inglês
@@ -883,71 +959,78 @@
     let attempts = 0;
 
     stage.innerHTML = `
-      <div class="g4p-screen g4p-write">
-        <span class="g4p-step-kicker">✍️ Escrever · palavra ${step.wi + 1} de ${S.lesson.scope.words.length}</span>
-        <div class="g4p-panel">
-          <button class="g4p-audio-big" id="g4pPlayAudio" type="button" aria-label="Ouvir palavra">
-            <span class="g4p-audio-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-            Ouvir
-          </button>
-          <p class="g4p-write-hint">Significa: <b>${escapeHtml(w.pt)}</b></p>
-          <input class="g4p-input" id="g4pInput" type="text" autocomplete="off" autocapitalize="off"
-                 spellcheck="false" placeholder="Escreva o que você ouviu" aria-label="Escreva a palavra em inglês">
-          <div class="g4p-feedback" id="g4pFeedback" hidden></div>
-        </div>
-        <div class="g4p-write-actions">
-          <button class="g4p-btn g4p-btn-primary" id="g4pSubmit" type="button">Verificar</button>
-          <button class="g4p-btn g4p-btn-ghost" id="g4pNext" type="button" hidden>Continuar</button>
-        </div>
-      </div>`;
-
-    const playBtn = $('g4pPlayAudio');
-    playBtn.addEventListener('click', () => speak(w.en, playBtn));
-    setTimeout(() => speak(w.en, playBtn), 350);
+      <span class="gs-kick">✍️ Escrever · palavra ${step.wi + 1} de ${S.lesson.scope.words.length}</span>
+      ${audioRow('g4pPlayAudio')}
+      <p class="gs-p g4p-means">Significa: <b>${escapeHtml(w.pt)}</b></p>
+      <input class="gs-input" id="g4pInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+             spellcheck="false" enterkeyhint="done" placeholder="Escreva o que você ouviu" aria-label="Escreva a palavra em inglês">
+      <div class="g4p-tries" id="g4pTries">${triesHtml(0)}</div>
+      <p class="g4p-inline" id="g4pInline" hidden></p>`;
+    setDock(`
+      <button class="gs-btn is-sec is-sm" id="g4pGiveUp" type="button">Não sei</button>
+      <button class="gs-btn is-pri is-sm" id="g4pSubmit" type="button">Verificar</button>`);
+    keepFocus('g4pGiveUp', 'g4pSubmit');
 
     const input = $('g4pInput');
-    const fb = $('g4pFeedback');
-    input.focus();
+    const play = bindAudioRow('g4pPlayAudio', w.en, input);
+    setTimeout(play, 350);
+    input.focus({ preventScroll: true });
+
+    function inline(kind, html) {
+      const el = $('g4pInline');
+      el.className = 'g4p-inline is-' + kind;
+      el.innerHTML = html;
+      el.hidden = false;
+    }
 
     function finish(pass) {
       input.disabled = true;
+      input.blur();
       input.classList.add(pass ? 'is-pass' : 'is-fail');
-      $('g4pSubmit').hidden = true;
-      $('g4pNext').hidden = false;
-      $('g4pNext').focus();
+      $('g4pInline').hidden = true;
       if (pass) {
         markSkill(S.lesson.slug, w.en, 'written');
         markSkill(S.lesson.slug, w.en, 'heard'); // ditado: escreveu o que ouviu
+        feedback({ tone: 'good', title: 'No vocabulário!',
+          html: `<p class="gs-sheet-text"><b>${escapeHtml(w.en)}</b> · ${escapeHtml(w.phonetic)} — ${escapeHtml(w.pt)}</p>` });
+      } else {
+        feedback({ tone: 'bad', title: `Era “${escapeHtml(w.en)}”`,
+          html: `<p class="gs-sheet-text">${escapeHtml(w.pt)} · <b>${escapeHtml(w.phonetic)}</b>. Ela volta numa próxima rodada — sem stress.</p>`,
+          again: { label: 'ouvir de novo', onClick: () => speak(w.en) } });
       }
     }
 
     function check() {
+      if (input.disabled) return;
       const res = compareWord(input.value, w.en);
-      if (res === 'empty') return;
+      if (res === 'empty') { input.focus(); return; }
       attempts++;
+      $('g4pTries').innerHTML = triesHtml(attempts);
       if (res === 'pass') {
-        setFeedback(fb, 'good', 'No vocabulário!',
-          `<b>${escapeHtml(w.en)}</b> · ${escapeHtml(w.phonetic)} — ${escapeHtml(w.pt)}`);
         finish(true);
-      } else if (res === 'almost' && attempts < MAX_WRITE_ATTEMPTS) {
-        setFeedback(fb, 'warn', 'Quase!',
-          'Uma letra fora do lugar — confira a grafia e tente de novo.');
-        input.select();
-      } else if (attempts < MAX_WRITE_ATTEMPTS) {
-        setFeedback(fb, 'bad', 'Ainda não.',
-          `Ouça de novo — dica de leitura: <b>${escapeHtml(w.phonetic)}</b>`);
-        speak(w.en, playBtn);
+      } else if (attempts >= MAX_WRITE_ATTEMPTS) {
+        finish(false);
+      } else if (res === 'almost') {
+        input.classList.add('is-warn');
+        inline('warn', '<b>Quase!</b> Uma letra fora do lugar — confira a grafia.');
         input.select();
       } else {
-        setFeedback(fb, 'bad', `Era "${w.en}".`,
-          `${escapeHtml(w.pt)} · ${escapeHtml(w.phonetic)} — ela volta em outra rodada, sem stress.`);
-        finish(false);
+        input.classList.add('is-warn');
+        inline('bad', `<b>Ainda não.</b> Ouça de novo — dica de leitura: <b>${escapeHtml(w.phonetic)}</b>`);
+        play();
+        input.select();
       }
     }
 
     $('g4pSubmit').addEventListener('click', check);
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
-    $('g4pNext').addEventListener('click', next);
+    $('g4pGiveUp').addEventListener('click', () => { if (!input.disabled) finish(false); });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); check(); } });
+    input.addEventListener('input', () => input.classList.remove('is-warn'));
+  }
+
+  function wordDiffHtml(tokens, flags) {
+    return `<div class="g4p-diff">${tokens.map((t, i) =>
+      `<span class="${flags[i] ? 'is-ok' : 'is-miss'}">${escapeHtml(t)}</span>`).join(' ')}</div>`;
   }
 
   // ✍ Frase — tradução digitada: PT na tela, digita em inglês
@@ -956,219 +1039,206 @@
     let attempts = 0;
 
     stage.innerHTML = `
-      <div class="g4p-screen g4p-write">
-        <span class="g4p-step-kicker">✍️ Escrever · frase ${step.pi + 1} de ${S.lesson.scope.phrases.length}</span>
-        <div class="g4p-panel">
-          <p class="g4p-write-pt">“${escapeHtml(p.pt)}”</p>
-          <p class="g4p-write-hint">Escreva em inglês. Precisa de ajuda? <button class="g4p-linkbtn" id="g4pPlayAudio" type="button">🔊 ouça a frase</button></p>
-          <input class="g4p-input" id="g4pInput" type="text" autocomplete="off" autocapitalize="off"
-                 spellcheck="false" placeholder="Digite a frase em inglês" aria-label="Escreva a frase em inglês">
-          <div class="g4p-worddiff" id="g4pWordDiff" hidden></div>
-          <div class="g4p-feedback" id="g4pFeedback" hidden></div>
-        </div>
-        <div class="g4p-write-actions">
-          <button class="g4p-btn g4p-btn-primary" id="g4pSubmit" type="button">Verificar</button>
-          <button class="g4p-btn g4p-btn-ghost" id="g4pNext" type="button" hidden>Continuar</button>
-        </div>
-      </div>`;
+      <span class="gs-kick">✍️ Escrever · frase ${step.pi + 1} de ${S.lesson.scope.phrases.length}</span>
+      <h2 class="gs-h2 g4p-pt">“${escapeHtml(p.pt)}”</h2>
+      <p class="gs-p">Escreva em inglês. Travou? <button class="g4p-linkbtn" id="g4pPlayAudio" type="button">${icon('sound')}ouça a frase</button></p>
+      <input class="gs-input" id="g4pInput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off"
+             spellcheck="false" enterkeyhint="done" placeholder="Digite a frase em inglês" aria-label="Escreva a frase em inglês">
+      <div class="g4p-tries" id="g4pTries">${triesHtml(0)}</div>
+      <div class="g4p-inline-diff" id="g4pInlineDiff" hidden></div>`;
+    setDock(`
+      <button class="gs-btn is-sec is-sm" id="g4pGiveUp" type="button">Não sei</button>
+      <button class="gs-btn is-pri is-sm" id="g4pSubmit" type="button">Verificar</button>`);
+    keepFocus('g4pGiveUp', 'g4pSubmit', 'g4pPlayAudio');
 
     $('g4pPlayAudio').addEventListener('click', function () { speak(p.en, this); });
 
     const input = $('g4pInput');
-    const fb = $('g4pFeedback');
-    const diffEl = $('g4pWordDiff');
-    input.focus();
-
-    function showDiff(res) {
-      diffEl.innerHTML = res.expTokens.map((t, i) =>
-        `<span class="g4p-wchip ${res.matchedFlags[i] ? 'is-ok' : 'is-miss'}">${escapeHtml(t)}</span>`
-      ).join('');
-      diffEl.hidden = false;
-    }
+    input.focus({ preventScroll: true });
 
     function finish(pass, res) {
       input.disabled = true;
+      input.blur();
       input.classList.add(pass ? 'is-pass' : 'is-fail');
-      $('g4pSubmit').hidden = true;
-      $('g4pNext').hidden = false;
-      $('g4pNext').focus();
+      $('g4pInlineDiff').hidden = true;
       if (pass) {
         markSkill(S.lesson.slug, p.en, 'written');
         // palavras do escopo digitadas certo dentro da frase também contam como escritas
         const okTokens = new Set(res.expTokens.filter((_, i) => res.matchedFlags[i]));
         creditWordsViaPhrase(S.lesson, p.en, 'written', okTokens);
+        feedback({ tone: 'good', title: 'Frase no vocabulário!',
+          html: `<p class="gs-sheet-text"><b>${escapeHtml(p.en)}</b> · ${escapeHtml(p.phonetic)}</p>` });
+      } else {
+        feedback({ tone: 'bad', title: 'Essa era difícil mesmo',
+          html: `${res ? wordDiffHtml(res.expTokens, res.matchedFlags) : ''}<p class="gs-sheet-text">A frase era <b>${escapeHtml(p.en)}</b> · ${escapeHtml(p.phonetic)}</p>`,
+          again: { label: 'ouvir a frase', onClick: () => speak(p.en) } });
       }
     }
 
     function check() {
-      if (!input.value.trim()) return;
+      if (input.disabled) return;
+      if (!input.value.trim()) { input.focus(); return; }
       attempts++;
+      $('g4pTries').innerHTML = triesHtml(attempts);
       const res = comparePhrase(input.value, p.en);
-      showDiff(res);
       if (res.pass) {
-        setFeedback(fb, 'good', 'Frase no vocabulário!',
-          `<b>${escapeHtml(p.en)}</b> · ${escapeHtml(p.phonetic)}`);
         finish(true, res);
-      } else if (attempts < MAX_WRITE_ATTEMPTS) {
-        setFeedback(fb, 'warn', `${res.correct} de ${res.expTokens.length} palavras no lugar.`,
-          'As vermelhas faltaram ou vieram diferentes — ajuste e tente de novo.');
-        input.select();
-      } else {
-        setFeedback(fb, 'bad', 'Essa era difícil mesmo.',
-          `A frase era: <b>${escapeHtml(p.en)}</b> · ${escapeHtml(p.phonetic)}`);
+      } else if (attempts >= MAX_WRITE_ATTEMPTS) {
         finish(false, res);
+      } else {
+        input.classList.add('is-warn');
+        const el = $('g4pInlineDiff');
+        el.innerHTML = `<b>${res.correct} de ${res.expTokens.length} palavras no lugar.</b> As vermelhas faltaram ou vieram diferentes. ${wordDiffHtml(res.expTokens, res.matchedFlags)}`;
+        el.hidden = false;
+        input.select();
       }
     }
 
     $('g4pSubmit').addEventListener('click', check);
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
-    $('g4pNext').addEventListener('click', next);
+    $('g4pGiveUp').addEventListener('click', () => {
+      if (input.disabled) return;
+      finish(false, input.value.trim() ? comparePhrase(input.value, p.en) : null);
+    });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); check(); } });
+    input.addEventListener('input', () => input.classList.remove('is-warn'));
   }
 
-  // 👂🎙 Frase — dois tempos: (1) ouve sem ler e mostra que entendeu;
-  // (2) fala a frase com reconhecimento de voz.
+  // 👂🎙 Frase — dois tempos na MESMA tela: (1) ouve sem ler e mostra que
+  // entendeu; (2) a tela se transforma na fala, com reconhecimento de voz.
   function renderListenSpeak(stage, step) {
     const L = S.lesson;
     const p = L.scope.phrases[step.pi];
+    const n = `frase ${step.pi + 1} de ${L.scope.phrases.length}`;
 
     // distratores: PT das outras frases da aula
     const others = L.scope.phrases.filter((_, i) => i !== step.pi).map(x => x.pt);
     const opts = [p.pt].concat(others.slice(0, 2));
     const mix = shuffleWithCorrect(opts, 0);
 
+    // ── Tempo 1: compreensão ──
     stage.innerHTML = `
-      <div class="g4p-screen g4p-speak">
-        <span class="g4p-step-kicker">👂🎙 Ouvir e falar · frase ${step.pi + 1} de ${L.scope.phrases.length}</span>
-
-        <div class="g4p-speak-stage1" id="g4pStage1">
-          <button class="g4p-audio-big" id="g4pPlayAudio" type="button" aria-label="Ouvir frase">
-            <span class="g4p-audio-wave" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-            Ouvir
-          </button>
-          <h3 class="g4p-check-prompt">O que essa frase quer dizer?</h3>
-          <div class="g4p-options">${optionsHtml(mix.options)}</div>
-          <div class="g4p-feedback" id="g4pFeedback1" hidden></div>
-        </div>
-
-        <div class="g4p-speak-stage2" id="g4pStage2" hidden>
-          <div class="g4p-panel g4p-panel--speak">
-            <p class="g4p-speak-phrase" id="g4pSpeakPhrase">${escapeHtml(p.en)}</p>
-            <p class="g4p-speak-phon">${escapeHtml(p.phonetic)}</p>
-            <div class="g4p-worddiff" id="g4pWordDiff" hidden></div>
-            <div class="g4p-feedback" id="g4pFeedback2" hidden></div>
-          </div>
-          <div class="g4p-speak-actions">
-            <button class="g4p-btn g4p-btn-mic" id="g4pMic" type="button">🎙 Falar agora</button>
-            <button class="g4p-btn g4p-btn-ghost" id="g4pReplay" type="button">🔊 Ouvir de novo</button>
-            <button class="g4p-btn g4p-btn-ghost" id="g4pSkip" type="button">Pular</button>
-          </div>
-          <div class="g4p-screen-foot g4p-screen-foot--end">
-            <button class="g4p-btn g4p-btn-primary" id="g4pNext" type="button" hidden>Continuar</button>
-          </div>
-        </div>
-      </div>`;
+      <span class="gs-kick">👂🎙 Ouvir e falar · ${n}</span>
+      ${audioHero('1º entenda, depois fale')}
+      <h2 class="gs-h2">O que essa frase quer dizer?</h2>
+      <div class="gs-opts" id="g4pOpts">${optionsHtml(mix.options)}</div>`;
+    waitingDock();
 
     const playBtn = $('g4pPlayAudio');
     playBtn.addEventListener('click', () => speak(p.en, playBtn));
     setTimeout(() => speak(p.en, playBtn), 350);
 
-    // ── Tempo 1: compreensão ──
     let answered = false;
-    stage.querySelectorAll('#g4pStage1 .g4p-option').forEach(btn => {
+    stage.querySelectorAll('.gs-opt').forEach(btn => {
       btn.addEventListener('click', () => {
         if (answered) return;
         answered = true;
         const chosen = +btn.dataset.opt;
         const ok = chosen === mix.correct;
-        const fb = $('g4pFeedback1');
-        stage.querySelectorAll('#g4pStage1 .g4p-option').forEach((b, i) => {
-          b.disabled = true;
-          if (i === mix.correct) b.classList.add('is-correct');
-          else if (i === chosen && !ok) b.classList.add('is-wrong');
-        });
+        markOptions($('g4pOpts'), mix.correct, chosen);
         if (ok) {
           markSkill(L.slug, p.en, 'heard');
           creditWordsViaPhrase(L, p.en, 'heard', null);
-          setFeedback(fb, 'good', 'Entendeu de ouvido!', 'Agora é a sua vez de falar.');
-        } else {
-          setFeedback(fb, 'bad', 'Não era essa.',
-            `Essa frase quer dizer: <b>${escapeHtml(p.pt)}</b>. Agora fala ela aí.`);
         }
-        setTimeout(() => {
-          $('g4pStage1').hidden = true;
-          $('g4pStage2').hidden = false;
-        }, 1500);
+        Shell.openSheet(session(), {
+          tone: ok ? 'good' : 'bad',
+          title: ok ? 'Isso! Agora fala ela.' : 'Não era essa',
+          html: `<p class="gs-sheet-text"><b>${escapeHtml(p.en)}</b><br>${ok ? '' : 'Ela quer dizer: '}${escapeHtml(p.pt)}</p>`,
+          actions: [{ label: 'Ir para a fala', kind: 'pri', icon: 'mic', id: 'g4pToSpeak', onClick: renderSpeak }],
+        });
       });
     });
 
     // ── Tempo 2: fala ──
     let speakAttempts = 0;
-    const micBtn = $('g4pMic');
-    const fb2 = $('g4pFeedback2');
-    const diffEl = $('g4pWordDiff');
+    const words = p.en.split(/\s+/);
 
-    $('g4pReplay').addEventListener('click', function () { speak(p.en, this); });
-
-    function showSpeakDiff(ev) {
-      diffEl.innerHTML = ev.expTokens.map((t, i) =>
-        `<span class="g4p-wchip ${ev.matched[i] ? 'is-ok' : 'is-miss'}">${escapeHtml(t)}</span>`
-      ).join('');
-      diffEl.hidden = false;
+    function renderSpeak() {
+      Shell.closeSheet(session());
+      stage.scrollTop = 0;
+      stage.innerHTML = `
+        <div class="g4p-speak">
+          <span class="gs-kick">🎙 Falar · ${n}</span>
+          <p class="g4p-phrase" id="g4pPhrase">${words.map(wd => `<span>${escapeHtml(wd)}</span>`).join(' ')}</p>
+          <p class="g4p-phon">${escapeHtml(p.phonetic)}</p>
+          <p class="g4p-listen" id="g4pListen">Toque em <b>Falar</b> e diga a frase no seu ritmo.</p>
+          ${speechSupported() ? '' : '<p class="g4p-inline is-warn">Este navegador não reconhece voz — a fala não será avaliada. No Chrome a experiência é completa.</p>'}
+        </div>`;
+      setDock(`
+        <button class="gs-btn is-sec is-ic" id="g4pReplay" type="button" aria-label="Ouvir de novo">${icon('sound')}</button>
+        <button class="gs-btn is-pri" id="g4pMic" type="button">${icon('mic')}Falar</button>
+        <button class="gs-btn is-txt" id="g4pSkip" type="button">Pular</button>`);
+      $('g4pReplay').addEventListener('click', function () { speak(p.en, this); });
+      $('g4pSkip').addEventListener('click', next);
+      $('g4pMic').addEventListener('click', listen);
     }
 
-    function finishSpeak() {
-      micBtn.disabled = true;
-      $('g4pSkip').hidden = true;
-      $('g4pNext').hidden = false;
-      $('g4pNext').focus();
+    function paintWords(ev) {
+      const spans = Array.from(document.querySelectorAll('#g4pPhrase span'));
+      if (!ev || spans.length !== ev.expTokens.length) return false;
+      spans.forEach((s, i) => { s.className = ev.matched[i] ? 'is-ok' : 'is-miss'; });
+      return true;
     }
 
-    micBtn.addEventListener('click', () => {
+    function setListening(on) {
+      const mic = $('g4pMic');
+      const status = $('g4pListen');
+      if (!mic) return;
+      mic.className = on ? 'gs-btn is-rec' : 'gs-btn is-pri';
+      mic.innerHTML = on
+        ? '<span class="gs-wave" aria-hidden="true" style="margin:0"><i></i><i></i><i></i><i></i><i></i></span>Ouvindo…'
+        : `${icon('mic')}Falar`;
+      mic.classList.toggle('is-playing', on);
+      if (status) status.innerHTML = on ? '<span class="g4p-rec-dot"></span>Ouvindo… fale no seu ritmo' : 'Toque em <b>Falar</b> e diga a frase no seu ritmo.';
+    }
+
+    function retrySheet(tone, title, text) {
+      Shell.openSheet(session(), {
+        tone, title,
+        html: `<p class="gs-sheet-text">${text}</p>`,
+        again: { label: 'ouvir a frase', onClick: () => speak(p.en) },
+        actions: [
+          { label: 'Tentar de novo', kind: 'pri', icon: 'mic', onClick: () => { Shell.closeSheet(session()); listen(); } },
+          { label: 'Pular', kind: 'txt', onClick: next },
+        ],
+      });
+    }
+
+    function listen() {
       if (!speechSupported()) {
-        setFeedback(fb2, 'warn', 'Sem reconhecimento de voz.',
-          'Este navegador não suporta — tente o Chrome para a experiência completa.');
-        finishSpeak();
+        feedback({ tone: 'warn', title: 'Sem reconhecimento de voz',
+          html: '<p class="gs-sheet-text">Este navegador não suporta — tente o Chrome para a experiência completa.</p>' });
         return;
       }
-      micBtn.classList.add('is-listening');
-      micBtn.textContent = '👂 Ouvindo…';
-      fb2.hidden = true;
+      setListening(true);
 
       startListening(alts => {
-        micBtn.classList.remove('is-listening');
-        micBtn.textContent = '🎙 Falar agora';
+        setListening(false);
         speakAttempts++;
         const vr = VR();
         const ev = vr && vr.evaluate ? vr.evaluate(p.en, alts) : null;
-        if (!ev) { finishSpeak(); return; }
-        showSpeakDiff(ev);
+        if (!ev) { next(); return; }
+        const painted = paintWords(ev);
+        const diff = painted ? '' : wordDiffHtml(ev.expTokens, ev.matched);
         if (ev.passed) {
           markSkill(L.slug, p.en, 'spoken');
           const matchedTokens = new Set(ev.expTokens.filter((_, i) => ev.matched[i]));
           creditWordsViaPhrase(L, p.en, 'spoken', matchedTokens);
-          setFeedback(fb2, 'good', 'Mandou bem!', 'Frase falada e registrada.');
-          finishSpeak();
+          feedback({ tone: 'good', title: 'Mandou bem!', html: `${diff}<p class="gs-sheet-text">Frase falada e registrada.</p>` });
         } else if (speakAttempts < MAX_SPEAK_ATTEMPTS) {
-          setFeedback(fb2, 'warn', `Ouvi: “${escapeHtml(ev.bestTranscript || '…')}”`,
-            'As palavras vermelhas escaparam — ouça de novo e repita.');
+          retrySheet('warn', `Ouvi: “${escapeHtml(ev.bestTranscript || '…')}”`,
+            `${diff}As palavras em cinza escaparam — ouça de novo e repita.`);
         } else {
-          setFeedback(fb2, 'bad', 'Essa ainda tá crua.',
-            'Ela volta na revisão — segue o jogo.');
-          finishSpeak();
+          feedback({ tone: 'bad', title: 'Essa ainda tá crua', html: `${diff}<p class="gs-sheet-text">Ela volta na revisão — segue o jogo.</p>` });
         }
       }, errCode => {
-        micBtn.classList.remove('is-listening');
-        micBtn.textContent = '🎙 Falar agora';
-        setFeedback(fb2, 'warn',
-          errCode === 'not-allowed' ? 'Sem acesso ao microfone.' : 'Não consegui te ouvir.',
+        setListening(false);
+        retrySheet('warn',
+          errCode === 'not-allowed' ? 'Sem acesso ao microfone' : 'Não consegui te ouvir',
           errCode === 'not-allowed'
-            ? 'Libere a permissão do microfone no navegador.'
-            : 'Fala um pouco mais perto do microfone.');
+            ? 'Libere a permissão do microfone no navegador e tente de novo.'
+            : 'Fale um pouco mais perto do microfone.');
       });
-    });
-
-    $('g4pSkip').addEventListener('click', next);
-    $('g4pNext').addEventListener('click', next);
+    }
   }
 
   function renderRecap(stage) {
@@ -1182,6 +1252,10 @@
     syncLessonToBackend(L, { completed: true });
 
     const sum = lessonSummary(L);
+    const place = lessonPlaces().find(x => x.lesson.slug === L.slug);
+    const firstLap = sum.aprendidas === 0;
+    const all = L.scope.words.concat(L.scope.phrases);
+    const toTake = all.filter(it => itemStatus(itemState(L.slug, it.en)) !== 'dominada').slice(0, 6);
 
     function chipRow(items) {
       return items.map(it => {
@@ -1191,84 +1265,60 @@
     }
 
     stage.innerHTML = `
-      <div class="g4p-screen g4p-screen--wide g4p-recap">
-        <span class="g4p-bridge-icon">🏁</span>
-        <h3 class="g4p-recap-title">Aula concluída!</h3>
-        <p class="g4p-recap-lead">Isso conta para o seu bloco A1 — e o que você conquistou fica registrado:</p>
-
-        <div class="g4p-recap-stats">
-          <div class="g4p-stat">
-            <b>${sum.aprendidas}</b>
-            <span>no vocabulário</span>
-          </div>
-          <div class="g4p-stat is-hero">
-            <b>${sum.dominadas}</b>
-            <span>dominadas<br>(escreveu + ouviu + falou)</span>
-          </div>
-          <div class="g4p-stat">
-            <b>${sum.total}</b>
-            <span>itens da aula</span>
-          </div>
+      <div class="gs-center">
+        <span class="g4p-flag" aria-hidden="true">${icon('flag')}</span>
+        <h2 class="gs-h1">${firstLap ? 'Primeira volta feita' : 'Aula concluída!'}</h2>
+        <p class="gs-p">${firstLap
+          ? `As ${sum.total} palavras e frases voltam numa próxima rodada — agora você já conhece o caminho.`
+          : `${escapeHtml(L.title)} · conta para o bloco ${place ? place.level : 'A1'}.`}</p>
+        <div class="gs-mets">
+          <div><b>${sum.aprendidas}</b><small>no vocabulário</small></div>
+          <div><b class="is-green">${sum.dominadas}</b><small>dominadas</small></div>
+          <div><b>${sum.total}</b><small>itens da aula</small></div>
         </div>
-
-        <div class="g4p-recap-cols">
-          <div class="g4p-recap-group">
-            <span class="g4p-recap-label">Palavras</span>
-            <div class="g4p-recap-chips">${chipRow(L.scope.words)}</div>
-          </div>
-          <div class="g4p-recap-group">
-            <span class="g4p-recap-label">Frases</span>
-            <div class="g4p-recap-chips">${chipRow(L.scope.phrases)}</div>
-          </div>
-        </div>
-
+        ${toTake.length ? `
+          <div class="gs-take">
+            <span class="gs-lbl">O que levar desta aula</span>
+            <div class="gs-take-list">${toTake.map((it, i) => `<button class="gs-chipbtn" type="button" data-take="${i}">${icon('play')}${escapeHtml(it.en)}</button>`).join('')}</div>
+          </div>` : ''}
+      </div>
+      <div class="g4p-recap-groups">
+        <span class="gs-lbl">Palavras</span>
+        <div class="g4p-recap-chips">${chipRow(L.scope.words)}</div>
+        <span class="gs-lbl">Frases</span>
+        <div class="g4p-recap-chips">${chipRow(L.scope.phrases)}</div>
         <div class="g4p-recap-legend">
-          <span><i class="g4p-dot is-dominada"></i> dominada</span>
-          <span><i class="g4p-dot is-aprendida"></i> aprendida (falta ouvir/falar)</span>
-          <span><i class="g4p-dot is-nova"></i> a revisar</span>
+          <span><i class="is-dominada"></i>dominada</span>
+          <span><i class="is-aprendida"></i>aprendida (falta ouvir/falar)</span>
+          <span><i class="is-nova"></i>a revisar</span>
         </div>
-
-        <button class="g4p-btn g4p-btn-primary g4p-btn-lg" id="g4pFinish" type="button">Voltar às aulas</button>
       </div>`;
-    $('g4pFinish').addEventListener('click', closePlayer);
+
+    stage.querySelectorAll('[data-take]').forEach(b => {
+      b.addEventListener('click', () => speak(toTake[+b.dataset.take].en, b));
+    });
+
+    const nextL = window.Grilo4P.getNextLesson();
+    const hasNext = nextL && nextL.slug !== L.slug;
+    setDock(`
+      <button class="gs-btn is-sec" id="g4pReview" type="button">${hasNext ? 'Revisar' : 'Aulas'}</button>
+      <button class="gs-btn is-pri" id="g4pFinish" type="button">${hasNext ? 'Próxima aula' : 'Voltar às aulas'}</button>`);
+    $('g4pReview').addEventListener('click', () => {
+      if (!hasNext) { closePlayer(); return; }
+      const slug = L.slug;
+      clearCheckpoint(slug);
+      openLesson(slug);
+    });
+    $('g4pFinish').addEventListener('click', () => {
+      if (!hasNext) { closePlayer(); return; }
+      openLesson(nextL.slug);
+    });
   }
 
-  // ─── Grid de cards (visão "Novo sistema") ───────────────────
-  function cardHtml(L, num, isNext) {
-    const sum = lessonSummary(L);
-    const pct = sum.total ? Math.round((sum.aprendidas / sum.total) * 100) : 0;
-    const done = !!sum.completedAt;
-    const resume = done ? null : readCheckpoint(L, buildSteps(L).length);
-    const cta = done ? 'Revisar' : (resume || sum.aprendidas > 0 ? 'Continuar' : 'Começar');
-    const flag = done
-      ? '<span class="g4p-card-flag is-done">✓ concluída</span>'
-      : resume
-        ? `<span class="g4p-card-flag is-resume">↩️ parou em ${Math.round((resume.idx / (resume.total - 1)) * 100)}%</span>`
-        : (isNext ? '<span class="g4p-card-flag is-next">▶ comece aqui</span>' : '');
-    return `
-      <article class="g4p-card ${done ? 'is-completed' : ''} ${isNext ? 'is-next' : ''} ${resume ? 'is-resume' : ''}" data-slug="${escapeHtml(L.slug)}" tabindex="0" role="button"
-               aria-label="${resume ? 'Continuar aula' : 'Abrir aula'} ${escapeHtml(L.title)}">
-        ${flag}
-        <div class="g4p-card-top">
-          <span class="g4p-card-icon">${escapeHtml(L.icon)}</span>
-          <span class="g4p-card-order">Aula ${String(num).padStart(2, '0')}</span>
-        </div>
-        <h3 class="g4p-card-title">${escapeHtml(L.title)}</h3>
-        <p class="g4p-card-meta">${L.scope.words.length} palavras · ${L.scope.phrases.length} frases · ~${L.minutes} min</p>
-        <p class="g4p-card-objective">${escapeHtml(L.objective)}</p>
-        <div class="g4p-card-foot">
-          <span class="g4p-card-track"><span class="g4p-card-fill" style="width:${pct}%"></span></span>
-          <div class="g4p-card-foot-row">
-            <span class="g4p-card-stats">${sum.aprendidas}/${sum.total} no vocabulário · ${sum.dominadas} dominadas</span>
-            <span class="g4p-card-cta">${cta} <i aria-hidden="true">→</i></span>
-          </div>
-        </div>
-      </article>`;
-  }
-
+  // ─── Hub: lista compacta ─────────────────────────────────────
   // Metadados dos blocos de nível CEFR. Um grupo pertence ao bloco pelo seu
   // campo `level` ('A2', …); sem `level` = A1 (bloco original). A ordem aqui é
-  // a ordem de exibição na grade.
+  // a ordem de exibição.
   const LEVEL_BLOCKS = [
     { level: 'A1', label: 'Bloco A1 · Fundamentos',
       tagline: 'O inglês do dia a dia — de cumprimentar a contar o que você fez.' },
@@ -1278,10 +1328,10 @@
 
   function levelOfGroup(g) { return g.level || 'A1'; }
 
-  // ─── Colapso dos blocos de nível (A1/A2) ─────────────────────
-  // Estado persistido: { [level]: true }  → true = colapsado.
-  // Sem entrada = usa o padrão inteligente (bloco do gate aberto,
-  // blocos já 100% concluídos recolhem).
+  // ─── Colapso de blocos (A1/A2) e grupos ──────────────────────
+  // Estado persistido: { [level]: bool, ['g:' + groupId]: bool } → true = recolhido.
+  // Sem entrada = padrão inteligente: bloco do gate aberto, blocos 100%
+  // concluídos recolhidos; dentro do bloco, só o grupo da próxima aula aberto.
   const COLLAPSE_KEY = 'grilo4p_blocks_collapsed_v1';
 
   function loadCollapsed() {
@@ -1295,6 +1345,50 @@
     try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(map)); } catch (e) {}
   }
 
+  function rowHtml(L, num, nextSlug) {
+    const sum = lessonSummary(L);
+    const done = !!sum.completedAt;
+    const resume = done ? null : readCheckpoint(L, buildSteps(L).length);
+    const isCur = L.slug === nextSlug;
+    const state = done ? 'is-done' : isCur ? 'is-cur' : '';
+    const sub = done
+      ? `${sum.aprendidas}/${sum.total} no vocabulário · ${sum.dominadas} dominadas`
+      : resume
+        ? `parou em ${Math.round((resume.idx / (resume.total - 1)) * 100)}% · ${sum.aprendidas}/${sum.total} no vocabulário`
+        : `${L.scope.words.length} palavras · ${L.scope.phrases.length} frases · ~${L.minutes} min`;
+    const right = isCur ? '<span class="gs-row-r">agora</span>' : resume ? '<span class="gs-row-r">↩</span>' : '';
+    return `
+      <div class="gs-row ${state}" data-slug="${escapeHtml(L.slug)}" role="button" tabindex="0"
+           aria-label="${resume ? 'Continuar' : 'Abrir'} aula ${num}: ${escapeHtml(L.title)}">
+        <span class="gs-rs">${done ? icon('check') : String(num).padStart(2, '0')}</span>
+        <span class="gs-row-t"><b>${escapeHtml(L.title)}</b><small>${sub}</small></span>
+        ${right}
+      </div>`;
+  }
+
+  function renderContinue(heroBlock) {
+    const box = $('g4pContinue');
+    if (!box) return;
+    const resumable = window.Grilo4P.getResumable()[0];
+    const target = resumable ? window.Grilo4P.describeLesson(resumable.slug) : window.Grilo4P.getNextLesson();
+    if (!target) { box.innerHTML = ''; return; }
+    const L = (window.Grilo4P.LESSONS || []).find(l => l.slug === target.slug);
+    const sum = lessonSummary(L);
+    const pct = sum.total ? Math.round((sum.aprendidas / sum.total) * 100) : 0;
+    const kicker = resumable
+      ? `Continuar · ${resumable.percent}% feito`
+      : `${sum.aprendidas > 0 ? 'Continuar' : 'Próxima'} · Aula ${String(target.num).padStart(2, '0')}`;
+    box.innerHTML = `
+      <div class="gs-cont" data-slug="${escapeHtml(L.slug)}">
+        <span class="gs-cont-k">${kicker}${heroBlock && target.level !== heroBlock.level ? ` · ${target.level}` : ''}</span>
+        <h2 class="gs-cont-t">${escapeHtml(L.title)}</h2>
+        <span class="gs-cont-m">${L.scope.words.length} palavras · ${L.scope.phrases.length} frases · ~${L.minutes} min</span>
+        <div class="gs-cont-ladder"><span><i style="width:${pct}%"></i></span>${sum.aprendidas}/${sum.total} no vocabulário</div>
+        <button class="gs-cont-go" type="button">${resumable ? 'Continuar' : 'Começar'} ${icon('play')}</button>
+      </div>`;
+    box.querySelector('.gs-cont').addEventListener('click', () => openLesson(L.slug));
+  }
+
   function renderGrid() {
     const grid = $('g4pGrid');
     if (!grid) return;
@@ -1304,7 +1398,7 @@
     const builtIn = g => lessons.filter(l => l.group === g.id);
     const doneIn = arr => arr.filter(l => lessonProg(l.slug).completedAt).length;
 
-    // Hero (anel + pill): reflete o GATE VIGENTE, não a soma de todos os blocos.
+    // Anel + chip: refletem o GATE VIGENTE, não a soma de todos os blocos.
     // O gate vigente é o primeiro bloco ainda não 100% concluído (A1 até fechar,
     // depois A2…). Assim "X de 20" continua verdadeiro para quem está no A1.
     let heroBlock = LEVEL_BLOCKS[0];
@@ -1316,126 +1410,106 @@
     const heroLessons = groups.filter(g => levelOfGroup(g) === heroBlock.level).flatMap(builtIn);
     const heroTotal = heroLessons.length;
     const heroDone = doneIn(heroLessons);
-    const ringFill = $('g4pRingFill');
-    if (ringFill) {
-      const CIRC = 2 * Math.PI * 40; // r=40 do SVG
-      ringFill.style.strokeDasharray = String(CIRC);
-      ringFill.style.strokeDashoffset = String(CIRC * (1 - (heroTotal ? heroDone / heroTotal : 0)));
-    }
-    const ringNum = $('g4pRingNum');
-    if (ringNum) ringNum.textContent = heroDone;
-    const ringTotal = $('g4pRingTotal');
-    if (ringTotal) ringTotal.textContent = `de ${heroTotal}`;
+    Shell.hubRing($('g4pRing'), heroDone, heroTotal);
     const topbarPill = $('lessonsTopbarProgress');
-    if (topbarPill) topbarPill.textContent = `${heroBlock.level} · ${heroDone} de ${heroTotal} concluídas`;
+    if (topbarPill) topbarPill.textContent = `${heroBlock.level} · ${heroDone} de ${heroTotal}`;
+    const heroKicker = $('g4pHeroKicker');
+    if (heroKicker) heroKicker.textContent = `Bloco ${heroBlock.level} · 4 pontas`;
 
-    // "Comece aqui": a 1ª aula não concluída do produto inteiro (atravessa blocos).
-    let nextAssigned = false;
+    renderContinue(heroBlock);
 
-    // Estado de colapso: usa a preferência salva do usuário quando existir;
-    // senão cai no padrão inteligente — recolhe blocos 100% concluídos e
-    // mantém aberto o bloco do gate vigente (aquele em progresso).
-    const savedCollapsed = loadCollapsed();
+    // "Agora": a 1ª aula não concluída do produto inteiro (atravessa blocos).
+    const nextP = window.Grilo4P.getNextLesson();
+    const nextSlug = nextP ? nextP.slug : null;
+    const nextGroup = nextP ? nextP.groupId : null;
 
-    const blocksHtml = LEVEL_BLOCKS.map(blk => {
+    const saved = loadCollapsed() || {};
+    const isCollapsed = (key, dflt) => (key in saved ? !!saved[key] : dflt);
+
+    grid.innerHTML = LEVEL_BLOCKS.map(blk => {
       const blkGroups = groups.filter(g => levelOfGroup(g) === blk.level);
       if (!blkGroups.length) return '';
 
       const blkLessons = blkGroups.flatMap(builtIn);
       const blkDone = doneIn(blkLessons);
       const blkTotal = blkLessons.length;
-
       const isComplete = blkTotal > 0 && blkDone === blkTotal;
-      const collapsed = savedCollapsed && (blk.level in savedCollapsed)
-        ? !!savedCollapsed[blk.level]
-        : (isComplete && blk.level !== heroBlock.level);
+      const blkCollapsed = isCollapsed(blk.level, isComplete && blk.level !== heroBlock.level);
 
       // Numeração REINICIA a cada bloco (A2 começa em "Aula 01").
       let counter = 1;
 
       const groupsHtml = blkGroups.map(g => {
         const ls = builtIn(g);
-        const doneInGroup = doneIn(ls);
-        const countLabel = ls.length
-          ? `${doneInGroup}/${ls.length} concluídas`
-          : `${(g.planned || []).length} aulas · em construção`;
+        const key = 'g:' + g.id;
+        const gDone = doneIn(ls);
+        const hasNext = ls.some(l => l.slug === nextSlug);
+        const gCollapsed = isCollapsed(key, !hasNext && !(nextGroup == null && g === blkGroups[0]));
+        const listId = `g4pGroup-${escapeHtml(g.id)}`;
 
-        let inner;
+        let rows;
         if (ls.length) {
-          inner = `<div class="g4p-group-cards">${ls.map(L => {
-            const num = counter++;
-            const done = !!lessonProg(L.slug).completedAt;
-            let isNext = false;
-            if (!done && !nextAssigned) { isNext = true; nextAssigned = true; }
-            return cardHtml(L, num, isNext);
-          }).join('')}</div>`;
+          rows = ls.map(L => rowHtml(L, counter++, nextSlug)).join('');
         } else {
-          inner = `<div class="g4p-group-soon">
-            ${(g.planned || []).map(t =>
-              `<span class="g4p-soon-item"><i>${String(counter++).padStart(2, '0')}</i>${escapeHtml(t)}<em aria-hidden="true">🔒</em></span>`
-            ).join('')}
-          </div>`;
+          rows = (g.planned || []).map(t => `
+            <div class="gs-row is-locked" aria-disabled="true">
+              <span class="gs-rs">${icon('lock')}</span>
+              <span class="gs-row-t"><b>${escapeHtml(t)}</b><small>Aula ${String(counter++).padStart(2, '0')} · em construção</small></span>
+            </div>`).join('');
         }
 
         return `
-          <section class="g4p-group ${ls.length ? '' : 'is-soon'}" data-group="${escapeHtml(g.id)}">
-            <header class="g4p-group-head">
-              <div class="g4p-group-id" aria-hidden="true">${escapeHtml(g.id)}</div>
-              <div class="g4p-group-copy">
-                <h2 class="g4p-group-title">${escapeHtml(g.label)}</h2>
-                <p class="g4p-group-desc">${escapeHtml(g.desc)}</p>
-              </div>
-              <span class="g4p-group-count">${countLabel}</span>
-            </header>
-            ${inner}
-          </section>`;
+          <div class="g4p-group" role="group" aria-label="Grupo ${escapeHtml(g.id)}" data-group="${escapeHtml(g.id)}">
+            <button class="gs-secth g4p-group-head" type="button" data-collapse="${key}" aria-expanded="${gCollapsed ? 'false' : 'true'}" aria-controls="${listId}">
+              <span>Grupo ${escapeHtml(g.id)} · ${escapeHtml(g.label)}</span>
+              <small>${ls.length ? `${gDone} de ${ls.length}` : 'em breve'} ${icon('down')}</small>
+            </button>
+            <div class="gs-list" id="${listId}"${gCollapsed ? ' hidden' : ''}>${rows}</div>
+          </div>`;
       }).join('');
 
       const bodyId = `g4pBlockBody-${escapeHtml(blk.level)}`;
       return `
-        <div class="g4p-block ${collapsed ? 'is-collapsed' : ''} ${isComplete ? 'is-complete' : ''}" data-level="${escapeHtml(blk.level)}">
-          <button class="g4p-block-head" type="button" data-block-toggle="${escapeHtml(blk.level)}"
-                  aria-expanded="${collapsed ? 'false' : 'true'}" aria-controls="${bodyId}">
+        <div class="g4p-block${isComplete ? ' is-complete' : ''}" data-level="${escapeHtml(blk.level)}">
+          <button class="g4p-block-head" type="button" data-collapse="${escapeHtml(blk.level)}" aria-expanded="${blkCollapsed ? 'false' : 'true'}" aria-controls="${bodyId}">
             <span class="g4p-block-badge">${escapeHtml(blk.level)}</span>
-            <div class="g4p-block-copy">
-              <h2 class="g4p-block-title">${escapeHtml(blk.label)}</h2>
-              <p class="g4p-block-tagline">${escapeHtml(blk.tagline)}</p>
-            </div>
-            <span class="g4p-block-progress">${blkDone}/${blkTotal} concluídas</span>
-            <span class="g4p-block-chevron" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </span>
+            <span class="g4p-block-copy"><b>${escapeHtml(blk.label)}</b><small>${escapeHtml(blk.tagline)}</small></span>
+            <span class="g4p-block-count">${blkDone}/${blkTotal}</span>
+            ${icon('down')}
           </button>
-          <div class="g4p-block-body" id="${bodyId}">
-            <div class="g4p-block-body-inner">
-              ${groupsHtml}
-            </div>
-          </div>
+          <div class="g4p-block-body" id="${bodyId}"${blkCollapsed ? ' hidden' : ''}>${groupsHtml}</div>
         </div>`;
     }).join('');
 
-    grid.innerHTML = blocksHtml;
-
-    grid.querySelectorAll('.g4p-card').forEach(card => {
-      const open = () => openLesson(card.dataset.slug);
-      card.addEventListener('click', open);
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    grid.querySelectorAll('.gs-row[role="button"]').forEach(row => {
+      const open = () => openLesson(row.dataset.slug);
+      row.addEventListener('click', open);
+      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
     });
 
-    // ── Colapsar / expandir blocos de nível ──
-    grid.querySelectorAll('[data-block-toggle]').forEach(head => {
+    // ── Recolher / expandir blocos e grupos ──
+    grid.querySelectorAll('[data-collapse]').forEach(head => {
       head.addEventListener('click', () => {
-        const block = head.closest('.g4p-block');
-        if (!block) return;
-        const level = head.dataset.blockToggle;
-        const willCollapse = !block.classList.contains('is-collapsed');
-        block.classList.toggle('is-collapsed', willCollapse);
+        const target = $(head.getAttribute('aria-controls'));
+        if (!target) return;
+        const willCollapse = !target.hidden;
+        target.hidden = willCollapse;
         head.setAttribute('aria-expanded', willCollapse ? 'false' : 'true');
         const map = loadCollapsed() || {};
-        map[level] = willCollapse;
+        map[head.dataset.collapse] = willCollapse;
         saveCollapsed(map);
       });
     });
+  }
+
+  function bindHowModal() {
+    const modal = $('g4pHowModal');
+    if (!modal) return;
+    const set = open => { modal.hidden = !open; };
+    const btn = $('g4pHowBtn');
+    if (btn) btn.addEventListener('click', () => set(true));
+    modal.querySelectorAll('[data-how-close]').forEach(b => b.addEventListener('click', () => set(false)));
+    modal.addEventListener('click', e => { if (e.target === modal) set(false); });
   }
 
   // Reenvia ao backend aulas concluídas que ficaram só no localStorage —
@@ -1590,6 +1664,7 @@
 
   function init() {
     renderGrid();
+    bindHowModal();
     // `ready`: resolve quando o progresso remoto já foi mesclado — a home
     // espera isso para mostrar a aula certa em outro navegador.
     window.Grilo4P.ready = hydrateFromBackend().then(openFromUrl);

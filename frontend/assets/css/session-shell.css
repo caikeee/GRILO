@@ -1,0 +1,955 @@
+/* ============================================================
+ *  Session Shell — casco comum das práticas (Aulas, Shadowing, Ditação)
+ *  ============================================================
+ *  Peças compartilhadas do redesenho mobile (docs/ux-mobile/PROMPT-redesign.md):
+ *
+ *    .gs-overlay / .gs-session   tela de sessão (cheia no celular, card no desktop)
+ *    .gs-top                     topbar de 1 linha: X · progresso · contador/HUD
+ *    .gs-body                    conteúdo rolável
+ *    .gs-dock                    ação principal fixa no rodapé (sobe com o teclado)
+ *    .gs-sheet                   feedback que sobe do dock (bom / quase / erro)
+ *    .gs-ah / .gs-apill          áudio herói
+ *    .gs-result                  tela de resultado (anel verde / âmbar / neutro)
+ *    .gs-hub-*                   cabeçalho compacto + "Continuar" + lista dos hubs
+ *
+ *  Os sage-*.css globais forçam tamanho de h1/h2/h3, fonte de <p> e padding
+ *  de <button> com !important (inclusive num @media ≤768px). Por isso as
+ *  propriedades tipográficas das peças abaixo também usam !important — é a
+ *  única forma de o casco se manter igual em qualquer página que o carregue.
+ *
+ *  Regra de cor: lima = "agora" (item atual, palavra tocando, combo).
+ *  Vermelho é só para erro de resposta — nunca para nota.
+ * ============================================================ */
+
+:root {
+  --gs-bg: #f4f7f5;
+  --gs-surface: #ffffff;
+  --gs-ink: #1f3b2d;
+  --gs-muted: #6a7b71;
+  --gs-faint: #7d8c83;
+  --gs-border: #d9e7dc;
+  --gs-track: #e1eae3;
+
+  --gs-green: #4a7c5e;
+  --gs-green-d: #3a5e47;
+  --gs-btn: #4a7c5e;
+  --gs-good-ink: #2c6643;
+
+  --gs-lime: #c9e86a;
+  --gs-lime-ink: #2c3d0c;
+
+  --gs-warm: #d9832e;
+  --gs-warm-ink: #9b5510;
+  --gs-bad: #c0554d;
+  --gs-bad-ink: #a3413a;
+
+  --gs-shadow: 0 24px 64px -20px rgba(31, 59, 45, 0.34);
+  --gs-sheet-shadow: 0 -14px 34px -14px rgba(31, 59, 45, 0.32);
+  --gs-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme="dark"] {
+  --gs-bg: #111b16;
+  --gs-surface: #19251f;
+  --gs-ink: #e6eee8;
+  --gs-muted: #a3b4a9;
+  --gs-faint: #93a59a;
+  --gs-border: #2b3a32;
+  --gs-track: #25342c;
+
+  --gs-green: #7fc29a;
+  --gs-green-d: #a8d6b9;
+  --gs-btn: #4a7c5e;
+  --gs-good-ink: #9fd8b4;
+
+  --gs-warm: #e6a05c;
+  --gs-warm-ink: #f2bf8a;
+  --gs-bad: #e07f77;
+  --gs-bad-ink: #f2a8a1;
+
+  --gs-shadow: 0 26px 70px -20px rgba(0, 0, 0, 0.6);
+  --gs-sheet-shadow: 0 -14px 34px -14px rgba(0, 0, 0, 0.6);
+}
+
+.gs-overlay, .gs-overlay *, .gs-overlay *::before, .gs-overlay *::after,
+.gs-hub *, .gs-hub *::before, .gs-hub *::after { box-sizing: border-box; }
+.gs-session [hidden], .gs-hub [hidden] { display: none !important; }
+
+/* ─── Overlay + sessão ─────────────────────────────────────────── */
+/* --gs-vh / --gs-vt vêm do GriloShell.fitViewport(): seguem o
+   visualViewport para a sessão inteira caber acima do teclado. */
+.gs-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--gs-vt, 0px);
+  height: var(--gs-vh, 100dvh);
+  z-index: 300;
+  display: flex;
+  background: var(--gs-bg);
+}
+.gs-overlay[hidden] { display: none; }
+
+.gs-session {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--gs-bg);
+  color: var(--gs-ink);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  padding-top: env(safe-area-inset-top);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 720px) {
+  .gs-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: color-mix(in srgb, var(--gs-bg) 92%, #000 8%);
+  }
+  .gs-session {
+    flex: none;
+    width: min(600px, 100%);
+    height: min(860px, 100%);
+    border-radius: 28px;
+    border: 1px solid var(--gs-border);
+    box-shadow: var(--gs-shadow);
+    padding-top: 0;
+  }
+}
+
+/* ─── Topbar ───────────────────────────────────────────────────── */
+.gs-top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 60px;
+  padding: 0 16px 0 8px;
+}
+
+.gs-session .gs-x {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  min-height: 44px !important;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gs-muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.gs-session .gs-x:hover { background: var(--gs-track); color: var(--gs-ink); }
+.gs-x svg { width: 22px; height: 22px; }
+
+.gs-prog { flex: 1; min-width: 0; display: flex; gap: 4px; }
+.gs-prog i {
+  position: relative;
+  flex: 1;
+  height: 8px;
+  border-radius: 9px;
+  background: var(--gs-track);
+  overflow: hidden;
+}
+.gs-prog i b {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  border-radius: 9px;
+  background: var(--gs-green);
+  transition: width 0.35s var(--gs-ease-out);
+}
+
+.gs-cnt {
+  flex: none;
+  font: 700 14px/1 'Manrope', sans-serif;
+  color: var(--gs-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.gs-hud { flex: none; display: flex; gap: 6px; }
+.gs-hud span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--gs-border);
+  background: var(--gs-surface);
+  font: 800 13px/1 'Manrope', sans-serif;
+  color: var(--gs-ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.gs-hud span.is-hot { background: var(--gs-lime); border-color: var(--gs-lime); color: var(--gs-lime-ink); }
+.gs-hud span.is-bump { animation: gsBump 0.45s ease; }
+
+/* ─── Corpo ────────────────────────────────────────────────────── */
+.gs-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 20px 24px;
+}
+.gs-session.has-sheet > .gs-body { padding-bottom: calc(var(--gs-sheet-h, 0px) + 16px); }
+
+/* Bloco centralizado verticalmente que não corta quando o conteúdo cresce */
+.gs-center {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+
+.gs-kick {
+  display: block;
+  margin: 0;
+  font: 700 12px/1.3 'Manrope', sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gs-warm);
+}
+
+.gs-session .gs-h1, .gs-hub .gs-h1 {
+  margin: 0;
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--gs-ink);
+}
+.gs-session .gs-h2 {
+  margin: 0;
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 23px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--gs-ink);
+}
+.gs-session .gs-p, .gs-hub .gs-p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5 !important;
+  color: var(--gs-muted);
+}
+.gs-p b { color: var(--gs-ink); }
+
+/* ─── Botões + dock ────────────────────────────────────────────── */
+.gs-dock {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px calc(14px + env(safe-area-inset-bottom));
+  background: var(--gs-bg);
+}
+.gs-session.has-sheet > .gs-dock { visibility: hidden; }
+
+.gs-session .gs-btn, .gs-hub .gs-btn {
+  height: 52px;
+  min-height: 52px !important;
+  padding: 0 20px !important;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: 700 17px/1 'Manrope', sans-serif !important;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+.gs-btn svg { width: 20px; height: 20px; flex: none; }
+.gs-btn:active { transform: scale(0.98); }
+.gs-session .gs-btn:disabled { opacity: 0.42; box-shadow: none; cursor: not-allowed; transform: none; }
+
+.gs-btn.is-pri {
+  flex: 1;
+  background: var(--gs-btn);
+  color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(74, 124, 94, 0.7);
+}
+.gs-btn.is-pri:hover { background: #3f6c51; }
+.gs-btn.is-sec {
+  background: var(--gs-surface);
+  border: 1.5px solid var(--gs-border);
+  color: var(--gs-green-d);
+}
+.gs-btn.is-txt { background: transparent; color: var(--gs-muted); font-weight: 600 !important; padding: 0 12px !important; }
+.gs-btn.is-ic { width: 52px; padding: 0 !important; }
+.gs-btn.is-rec { flex: 1; background: var(--gs-bad); color: #fff; }
+.gs-btn.is-lime { background: var(--gs-lime); color: var(--gs-lime-ink); }
+.gs-btn.is-sm { height: 46px; min-height: 46px !important; font-size: 16px !important; }
+
+/* ─── Sheet de feedback ────────────────────────────────────────── */
+.gs-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  max-height: 78%;
+  overflow-y: auto;
+  padding: 24px 20px 0;
+  border-radius: 26px 26px 0 0;
+  background: var(--gs-surface);
+  box-shadow: var(--gs-sheet-shadow);
+  animation: gsSheetIn 0.24s var(--gs-ease-out);
+}
+.gs-sheet::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 38px;
+  height: 4px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--gs-ink) 16%, transparent);
+  transform: translateX(-50%);
+}
+.gs-sheet.is-good { background: color-mix(in srgb, var(--gs-green) 15%, var(--gs-surface)); }
+.gs-sheet.is-warn { background: color-mix(in srgb, var(--gs-warm) 14%, var(--gs-surface)); }
+.gs-sheet.is-bad  { background: color-mix(in srgb, var(--gs-bad) 11%, var(--gs-surface)); }
+.gs-sheet.is-center { text-align: center; }
+.gs-sheet .gs-dock { padding: 16px 0 calc(16px + env(safe-area-inset-bottom)); background: transparent; }
+.gs-sheet .gs-dock.is-stack { flex-direction: column; align-items: stretch; gap: 6px; }
+.gs-sheet .gs-dock.is-stack .gs-btn { flex: none; }
+
+.gs-sheet-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font: 800 21px/1.2 'Manrope', sans-serif;
+  color: var(--gs-ink);
+}
+.gs-sheet.is-center .gs-sheet-title { justify-content: center; }
+.gs-sheet-ico {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.gs-sheet-ico svg { width: 18px; height: 18px; }
+.gs-sheet.is-good .gs-sheet-title { color: var(--gs-good-ink); }
+.gs-sheet.is-good .gs-sheet-ico { background: var(--gs-btn); }
+.gs-sheet.is-warn .gs-sheet-title { color: var(--gs-warm-ink); }
+.gs-sheet.is-warn .gs-sheet-ico { background: var(--gs-warm); }
+.gs-sheet.is-bad .gs-sheet-title { color: var(--gs-bad-ink); }
+.gs-sheet.is-bad .gs-sheet-ico { background: var(--gs-bad); }
+
+.gs-sheet-pts {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gs-surface) 75%, transparent);
+  font: 800 15px/1 'Manrope', sans-serif;
+  color: var(--gs-ink);
+}
+
+.gs-session .gs-sheet-text {
+  margin: 10px 0 0;
+  font-size: 16px;
+  line-height: 1.5 !important;
+  color: var(--gs-ink);
+}
+.gs-sheet-text .gs-muted { color: var(--gs-muted); }
+
+.gs-session .gs-sheet-again {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px !important;
+  margin-top: 8px;
+  padding: 0 !important;
+  border: 0;
+  background: none;
+  font: 700 14px/1 'Manrope', sans-serif !important;
+  color: var(--gs-green-d);
+  cursor: pointer;
+}
+.gs-sheet-again svg { width: 18px; height: 18px; }
+
+.gs-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(20, 32, 25, 0.34);
+  animation: gsFade 0.2s ease;
+}
+
+/* ─── Áudio ────────────────────────────────────────────────────── */
+.gs-ah-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 4px 0; }
+.gs-session .gs-ah {
+  width: 92px;
+  height: 92px;
+  min-height: 92px !important;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gs-btn);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 0 12px color-mix(in srgb, var(--gs-btn) 14%, transparent), 0 14px 28px -10px rgba(74, 124, 94, 0.7);
+}
+.gs-ah svg { width: 36px; height: 36px; }
+.gs-ah.is-playing { animation: gsRing 1.2s ease-in-out infinite; }
+.gs-ah-cap { font: 600 14px/1.2 'Manrope', sans-serif; color: var(--gs-muted); }
+
+.gs-arow { display: flex; align-items: center; gap: 10px; }
+.gs-session .gs-apill {
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  min-height: 56px !important;
+  padding: 0 18px 0 7px !important;
+  border: 1.5px solid var(--gs-border);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--gs-surface);
+  color: var(--gs-green-d);
+  font: 700 17px/1 'Manrope', sans-serif !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.gs-apill-pl {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gs-btn);
+  color: #fff;
+}
+.gs-apill-pl svg { width: 18px; height: 18px; }
+.gs-apill > span:not(.gs-apill-pl):not(.gs-wave) { overflow: hidden; text-overflow: ellipsis; }
+
+.gs-wave { display: inline-flex; align-items: center; gap: 3px; height: 22px; margin-left: auto; flex: none; }
+.gs-wave i { display: block; width: 3px; height: 6px; border-radius: 2px; background: currentColor; opacity: 0.7; }
+.is-playing .gs-wave i { animation: gsWave 0.9s ease-in-out infinite; }
+.is-playing .gs-wave i:nth-child(2) { animation-delay: 0.12s; }
+.is-playing .gs-wave i:nth-child(3) { animation-delay: 0.24s; }
+.is-playing .gs-wave i:nth-child(4) { animation-delay: 0.36s; }
+.is-playing .gs-wave i:nth-child(5) { animation-delay: 0.48s; }
+
+.gs-session .gs-slow {
+  flex: none;
+  height: 56px;
+  min-height: 56px !important;
+  padding: 0 16px !important;
+  border: 1.5px solid var(--gs-border);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gs-surface);
+  color: var(--gs-muted);
+  font: 700 15px/1 'Manrope', sans-serif !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.gs-session .gs-slow[aria-pressed="true"] {
+  border-color: var(--gs-green);
+  color: var(--gs-green-d);
+  background: color-mix(in srgb, var(--gs-green) 12%, var(--gs-surface));
+}
+
+/* ─── Campo de texto ───────────────────────────────────────────── */
+/* sage-color-system força borda/fundo/cor de todo input com !important */
+.gs-session input.gs-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 58px;
+  padding: 0 16px;
+  border: 2px solid var(--gs-border) !important;
+  border-radius: 14px !important;
+  background: var(--gs-surface) !important;
+  color: var(--gs-ink) !important;
+  font: 500 20px 'Space Grotesk', sans-serif;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease !important;
+}
+.gs-session input.gs-input::placeholder { color: var(--gs-faint) !important; font-weight: 400; }
+/* sage-color-system pinta o texto de todo input de verde-escuro no dark
+   (especificidade 0,4,1); aqui o campo tem fundo escuro, então volta à tinta. */
+:root[data-theme] .gs-session input.gs-input.gs-input { color: var(--gs-ink) !important; }
+:root[data-theme] .gs-session input.gs-input.gs-input::placeholder { color: var(--gs-faint) !important; }
+.gs-session input.gs-input:focus {
+  border-color: var(--gs-green) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--gs-green) 16%, transparent) !important;
+}
+.gs-session input.gs-input.is-pass {
+  border-color: var(--gs-green) !important;
+  background: color-mix(in srgb, var(--gs-green) 12%, var(--gs-surface)) !important;
+}
+.gs-session input.gs-input.is-fail {
+  border-color: color-mix(in srgb, var(--gs-bad) 45%, var(--gs-surface)) !important;
+  background: color-mix(in srgb, var(--gs-bad) 8%, var(--gs-surface)) !important;
+}
+.gs-session input.gs-input.is-warn {
+  border-color: color-mix(in srgb, var(--gs-warm) 55%, var(--gs-surface)) !important;
+  background: color-mix(in srgb, var(--gs-warm) 9%, var(--gs-surface)) !important;
+}
+.gs-input.is-shake { animation: gsShake 0.35s ease; }
+
+/* ─── Opções de resposta ───────────────────────────────────────── */
+.gs-opts { display: flex; flex-direction: column; gap: 10px; }
+.gs-session .gs-opt {
+  width: 100%;
+  min-height: 58px !important;
+  padding: 10px 16px !important;
+  border: 1.5px solid var(--gs-border);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--gs-surface);
+  color: var(--gs-ink);
+  font: 500 17px/1.3 'Space Grotesk', sans-serif !important;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+.gs-session .gs-opt:hover:not(:disabled) { border-color: var(--gs-green); }
+.gs-opt-l {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--gs-track);
+  color: var(--gs-muted);
+  font: 700 14px/1 'Manrope', sans-serif;
+}
+.gs-session .gs-opt:disabled { cursor: default; }
+.gs-opt.is-correct { border-color: var(--gs-green); background: color-mix(in srgb, var(--gs-green) 12%, var(--gs-surface)); }
+.gs-opt.is-correct .gs-opt-l { background: var(--gs-btn); color: #fff; }
+.gs-opt.is-wrong { border-color: color-mix(in srgb, var(--gs-bad) 50%, var(--gs-surface)); background: color-mix(in srgb, var(--gs-bad) 8%, var(--gs-surface)); }
+.gs-opt.is-wrong .gs-opt-l { background: var(--gs-bad); color: #fff; }
+.gs-opt.is-dim { opacity: 0.5; }
+
+/* ─── Toast de fase ────────────────────────────────────────────── */
+/* Mora logo acima do dock: com o teclado aberto continua visível e não
+   cobre o título do exercício. */
+.gs-toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  z-index: 6;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--gs-ink);
+  color: var(--gs-bg);
+  font: 700 15px/1 'Manrope', sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  animation: gsToast 1.9s ease forwards;
+}
+
+/* ─── Resultado ────────────────────────────────────────────────── */
+.gs-rring { position: relative; width: 150px; height: 150px; flex: none; }
+.gs-rring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.gs-rring circle { fill: none; stroke-width: 12; }
+.gs-rring .gs-rring-track { stroke: var(--gs-track); }
+.gs-rring .gs-rring-fill { stroke-linecap: round; transition: stroke-dashoffset 0.8s var(--gs-ease-out); }
+.gs-rring.is-good .gs-rring-fill { stroke: var(--gs-btn); }
+.gs-rring.is-warn .gs-rring-fill { stroke: var(--gs-warm); }
+.gs-rring.is-neutral .gs-rring-fill { stroke: #9fb0a5; }
+.gs-rring b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font: 800 40px/1 'Manrope', sans-serif;
+  color: var(--gs-ink);
+}
+.gs-rring b small { margin-top: 6px; font: 600 13px/1 'Manrope', sans-serif; color: var(--gs-muted); }
+
+.gs-xp {
+  display: inline-block;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gs-lime) 40%, transparent);
+  color: var(--gs-lime-ink);
+  font: 800 14px/1 'Manrope', sans-serif;
+}
+:root[data-theme="dark"] .gs-xp { color: var(--gs-lime); }
+
+.gs-mets { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.gs-mets.is-4 { grid-template-columns: repeat(2, 1fr); }
+.gs-mets > div {
+  padding: 10px 6px;
+  border-radius: 14px;
+  border: 1px solid var(--gs-border);
+  background: var(--gs-surface);
+  text-align: center;
+}
+.gs-mets b { display: block; font: 800 22px/1.1 'Manrope', sans-serif; color: var(--gs-ink); font-variant-numeric: tabular-nums; }
+.gs-mets b.is-green { color: var(--gs-green); }
+.gs-mets small { display: block; margin-top: 3px; font-size: 12px; line-height: 1.25; color: var(--gs-muted); }
+
+.gs-take {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--gs-border);
+  background: var(--gs-surface);
+  text-align: left;
+}
+.gs-lbl {
+  display: block;
+  margin: 0 0 8px;
+  font: 700 11.5px/1.2 'Manrope', sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gs-muted);
+}
+.gs-take-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.gs-session .gs-chipbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px !important;
+  padding: 6px 11px !important;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gs-track);
+  color: var(--gs-ink);
+  font: 600 14px/1.2 'Manrope', sans-serif !important;
+  text-align: left;
+  cursor: pointer;
+}
+.gs-chipbtn svg { width: 12px; height: 12px; color: var(--gs-green); flex: none; }
+
+/* ─── Hub compacto ─────────────────────────────────────────────── */
+.gs-hub {
+  width: min(680px, 100%);
+  margin: 0 auto;
+  padding: 0 0 48px;
+  color: var(--gs-ink);
+}
+.gs-hub-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: calc(8px + env(safe-area-inset-top)) 14px 0;
+}
+.gs-hub .gs-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  padding: 0 10px 0 4px;
+  border-radius: 999px;
+  color: var(--gs-muted) !important;
+  text-decoration: none !important;
+  font: 600 15px/1 'Manrope', sans-serif;
+}
+.gs-hub .gs-back:hover { color: var(--gs-ink) !important; background: var(--gs-track); }
+.gs-back svg { width: 20px; height: 20px; }
+
+.gs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--gs-border);
+  background: var(--gs-surface);
+  font: 700 13px/1 'Manrope', sans-serif;
+  color: var(--gs-ink);
+  white-space: nowrap;
+}
+
+.gs-hub-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 20px 0;
+}
+.gs-hub-head .gs-kick { margin-bottom: 8px; }
+
+.gs-ring { position: relative; width: 58px; height: 58px; flex: none; }
+.gs-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.gs-ring circle { fill: none; stroke-width: 6; }
+.gs-ring .gs-ring-track { stroke: var(--gs-track); }
+.gs-ring .gs-ring-fill { stroke: var(--gs-green); stroke-linecap: round; transition: stroke-dashoffset 0.6s var(--gs-ease-out); }
+.gs-ring b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font: 800 15px/1 'Manrope', sans-serif;
+  color: var(--gs-ink);
+}
+.gs-ring b small { margin-top: 2px; font: 600 10px/1 'Manrope', sans-serif; color: var(--gs-muted); }
+
+.gs-hub .gs-how {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px !important;
+  margin: 2px 20px 0;
+  padding: 0 !important;
+  border: 0;
+  background: none;
+  color: var(--gs-green-d);
+  font: 600 14px/1 'Manrope', sans-serif !important;
+  cursor: pointer;
+}
+.gs-how svg { width: 17px; height: 17px; }
+
+.gs-cont {
+  margin: 12px 16px 0;
+  padding: 18px 18px 16px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: linear-gradient(155deg, #3f664e, #21392b);
+  color: #fff;
+  box-shadow: 0 18px 30px -18px rgba(31, 59, 45, 0.8);
+  cursor: pointer;
+}
+.gs-cont-k { font: 700 11px/1.2 'Manrope', sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gs-lime); }
+.gs-hub .gs-cont-t {
+  margin: 0;
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.01em !important;
+  color: #fff !important;
+}
+.gs-cont-m { font-size: 14px; line-height: 1.4; color: #c4d6ca; }
+.gs-cont-ladder { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #c4d6ca; }
+.gs-cont-ladder span { flex: 1; height: 6px; border-radius: 9px; background: rgba(255, 255, 255, 0.16); overflow: hidden; }
+.gs-cont-ladder span i { display: block; height: 100%; background: var(--gs-lime); }
+.gs-hub .gs-cont-go {
+  margin-top: 8px;
+  height: 50px;
+  min-height: 50px !important;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--gs-lime);
+  color: var(--gs-lime-ink);
+  font: 800 16px/1 'Manrope', sans-serif !important;
+  cursor: pointer;
+}
+.gs-cont-go svg { width: 16px; height: 16px; }
+.gs-cont-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.gs-cont-chips span {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.1);
+  font: 700 12px/1 'Manrope', sans-serif;
+}
+
+.gs-secth {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 22px 20px 8px;
+  font: 800 15px/1.2 'Manrope', sans-serif;
+  color: var(--gs-ink);
+}
+.gs-secth small { display: inline-flex; align-items: center; gap: 4px; font: 600 13px/1 'Manrope', sans-serif; color: var(--gs-muted); }
+.gs-hub button.gs-secth {
+  width: 100%;
+  min-height: 44px !important;
+  padding: 22px 20px 8px !important;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: 800 15px/1.2 'Manrope', sans-serif !important;
+  cursor: pointer;
+}
+.gs-secth svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.gs-secth[aria-expanded="false"] svg { transform: rotate(-90deg); }
+
+.gs-list { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+.gs-list[hidden] { display: none; }
+.gs-row {
+  min-height: 68px !important;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--gs-border);
+  background: var(--gs-surface);
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--gs-ink);
+  text-align: left;
+}
+.gs-row[role="button"] { cursor: pointer; }
+.gs-row[role="button"]:hover { border-color: color-mix(in srgb, var(--gs-green) 45%, var(--gs-border)); }
+.gs-row.is-cur { border-color: #b9d65a; box-shadow: 0 0 0 3px color-mix(in srgb, var(--gs-lime) 35%, transparent); }
+.gs-row.is-locked { opacity: 0.62; }
+.gs-rs {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gs-track);
+  color: var(--gs-muted);
+  font: 800 13px/1 'Manrope', sans-serif;
+}
+.gs-rs svg { width: 17px; height: 17px; }
+.gs-row.is-done .gs-rs { background: var(--gs-btn); color: #fff; }
+.gs-row.is-cur .gs-rs { background: var(--gs-lime); color: var(--gs-lime-ink); }
+.gs-row-t { flex: 1; min-width: 0; }
+.gs-row-t b { display: block; font: 700 15.5px/1.3 'Manrope', sans-serif; }
+.gs-row-t small { display: block; font-size: 13px; line-height: 1.35; color: var(--gs-muted); }
+.gs-row-r { flex: none; text-align: right; font: 700 13px/1.2 'Manrope', sans-serif; color: var(--gs-muted); white-space: nowrap; }
+.gs-row-r em { display: block; font-style: normal; font-size: 16px; color: var(--gs-ink); }
+
+/* ─── Modal "Como funciona" (sheet no celular, card no desktop) ── */
+.gs-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 320;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(20, 31, 26, 0.5);
+  animation: gsFade 0.2s ease;
+}
+.gs-modal[hidden] { display: none; }
+.gs-modal-card {
+  position: relative;
+  width: min(540px, 100%);
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 30px 24px 22px;
+  border-radius: 26px;
+  background: var(--gs-surface);
+  color: var(--gs-ink);
+  box-shadow: var(--gs-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gs-modal .gs-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border: 1px solid var(--gs-border);
+  border-radius: 50%;
+  background: var(--gs-surface);
+  color: var(--gs-muted);
+  font-size: 15px !important;
+  cursor: pointer;
+}
+.gs-modal .gs-modal-title {
+  margin: 0;
+  padding-right: 40px;
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  line-height: 1.22 !important;
+  color: var(--gs-ink);
+}
+.gs-modal .gs-modal-text { margin: 0; font-size: 16px; line-height: 1.5 !important; color: var(--gs-ink); }
+.gs-modal .gs-modal-cta { margin-top: 8px; width: 100%; flex: none; }
+
+/* "Como funciona" vira bottom-sheet no celular (modais .shadow-how-modal) */
+@media (max-width: 719px) {
+  .gs-modal { align-items: flex-end; padding: 0; }
+  .gs-modal-card {
+    width: 100%;
+    max-height: 88dvh;
+    border-radius: 26px 26px 0 0;
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
+    animation: gsSheetIn 0.26s var(--gs-ease-out);
+  }
+  .shadow-how-modal { align-items: flex-end !important; padding: 0 !important; }
+  .shadow-how-modal .shadow-how-card {
+    width: 100% !important;
+    max-height: 88dvh !important;
+    border-radius: 26px 26px 0 0 !important;
+    padding-bottom: calc(22px + env(safe-area-inset-bottom)) !important;
+    animation: gsSheetIn 0.26s var(--gs-ease-out) !important;
+  }
+}
+
+/* ─── Animações ────────────────────────────────────────────────── */
+@keyframes gsSheetIn { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes gsFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gsWave { 0%, 100% { height: 5px; } 50% { height: 20px; } }
+@keyframes gsRing {
+  0%, 100% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--gs-btn) 14%, transparent), 0 14px 28px -10px rgba(74, 124, 94, 0.7); }
+  50% { box-shadow: 0 0 0 20px color-mix(in srgb, var(--gs-btn) 8%, transparent), 0 14px 28px -10px rgba(74, 124, 94, 0.7); }
+}
+@keyframes gsBump { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes gsShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes gsToast {
+  0% { opacity: 0; transform: translate(-50%, -8px); }
+  12%, 80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+@keyframes gsBlink { 50% { opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-sheet, .gs-scrim, .gs-toast, .gs-ah.is-playing, .is-playing .gs-wave i,
+  .gs-hud span.is-bump, .gs-input.is-shake { animation: none !important; }
+  .gs-toast { opacity: 1; }
+}
