@@ -39,7 +39,7 @@
       })();
     </script>
 
-    <link rel="stylesheet" href="assets/css/home.css?v=10">
+    <link rel="stylesheet" href="assets/css/home.css?v=16">
     <link rel="stylesheet" href="assets/css/theme-toggle.css?v=4">
 </head>
 <body>
@@ -217,17 +217,24 @@
                 <div class="tab-content active" id="painelTab">
                     <div class="painel-container">
 
-                      <div class="painel-main">
-
-                        <!-- ── Saudação ── -->
-                        <div class="pl2-greet-block">
-                            <div class="pl2-hero-kicker" id="pl2HeroKicker">&nbsp;</div>
+                      <!-- ── Hero do painel ──
+                           A saudação faz a "Ponte" (pt → en) e a próxima aula vira a
+                           missão do dia. Os IDs pl2Hero* vêm de lessons-controller.js. -->
+                      <section class="home-stage" aria-labelledby="pl2HeroGreet">
+                        <div class="home-stage-copy">
+                            <div class="home-topline">
+                                <p class="home-kicker"><span aria-hidden="true"></span><span id="pl2HeroKicker">&nbsp;</span></p>
+                                <button type="button" class="home-say" id="homeSay" hidden>
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+                                    Ouvir em inglês
+                                </button>
+                            </div>
                             <h2 class="pl2-hero-greet" id="pl2HeroGreet">Bom dia.</h2>
                             <p class="pl2-hero-sub" id="pl2HeroSub">Carregando seu progresso...</p>
                         </div>
 
-                        <!-- ── Herói: continue de onde parou ── -->
-                        <section class="pl2-hero" aria-labelledby="pl2HeroTitle">
+                        <!-- ── Missão do dia: a próxima aula ── -->
+                        <div class="pl2-hero" role="group" aria-labelledby="pl2HeroTitle">
                             <div class="pl2-hero-eyebrow" id="pl2HeroEyebrow">Sua próxima aula</div>
                             <h3 class="pl2-hero-title" id="pl2HeroTitle">Carregando aula…</h3>
                             <p class="pl2-hero-meta" id="pl2HeroResumeMeta">&nbsp;</p>
@@ -237,15 +244,18 @@
                                 <span class="pl2-hero-prog-label" id="pl2HeroProgLabel"></span>
                             </div>
                             <a class="pl2-hero-btn" id="pl2HeroResume" href="lessons.html">
-                                <span class="pl2-hero-btn-play" aria-hidden="true"></span>
                                 <span id="pl2HeroBtnLabel">Continuar agora</span>
+                                <span class="pl2-hero-btn-play" aria-hidden="true"></span>
                             </a>
-                        </section>
+                        </div>
+                      </section>
+
+                      <div class="painel-main">
 
                         <!-- ── Treino de hoje: aula → ditação → shadowing (as 4 pontas no dia) ── -->
                         <div class="today" id="todayPlan" role="region" aria-labelledby="todayTitle" hidden>
                             <div class="today-head">
-                                <span class="today-title" id="todayTitle">Treino de hoje</span>
+                                <span class="today-title" id="todayTitle"><span class="home-sec-num" aria-hidden="true">01</span>Treino de hoje</span>
                                 <span class="today-count" id="todayCount"></span>
                             </div>
                             <div class="today-bar" aria-hidden="true"><div class="today-bar-fill" id="todayFill"></div></div>
@@ -265,7 +275,7 @@
 
                         <!-- ── Use o que aprendeu: frentes abertas ── -->
                         <div class="use" role="region" aria-labelledby="useTitle">
-                            <div class="use-head" id="useTitle">Use o que aprendeu</div>
+                            <div class="use-head" id="useTitle"><span class="home-sec-num" aria-hidden="true">02</span>Use o que aprendeu</div>
                             <div class="use-grid">
                                 <a class="use-card use-card-voice" href="voice.html">
                                     <span class="use-ico" aria-hidden="true">◍</span>
@@ -301,42 +311,53 @@
 
                       <!-- ── Lateral: seu progresso (read-only) ── -->
                       <aside class="painel-side" aria-label="Seu progresso">
-                          <div class="side-label">Seu progresso</div>
+                          <div class="side-label"><span class="home-sec-num" aria-hidden="true">03</span>Seu progresso</div>
+
+                          <!-- Painel de instrumentos: cada medida com um mostrador próprio.
+                               IDs preenchidos por lessons-controller.js (e cefr-modal.js). -->
+                          <section class="side-card side-track" id="sideCefr">
+                              <div class="side-card-label">Seu nível</div>
+                              <div class="track-head">
+                                  <span class="track-now" id="sideCefrCurrent">A1</span>
+                                  <span class="track-arrow" aria-hidden="true">→</span>
+                                  <span class="track-next" id="sideCefrNext">A2</span>
+                                  <span class="track-pct"><b><span id="sideCefrPct">0</span>%</b> do caminho</span>
+                              </div>
+                              <!-- trilha: blocos por nível + trilho que enche até o ponto atual -->
+                              <ol class="lvl-track" aria-hidden="true">
+                                  <li data-l="A0">A0</li><li data-l="A1">A1</li><li data-l="A2">A2</li><li data-l="B1">B1</li>
+                              </ol>
+                              <div class="side-cefr-fill" id="sideCefrFill" hidden></div>
+                          </section>
+
+                          <section class="side-card side-counter" id="sideVocab">
+                              <div class="side-card-label">Seu vocabulário</div>
+                              <div class="side-vocab-num" id="sideVocabNum">--</div>
+                              <div class="counter-foot">
+                                  <span class="side-vocab-label">palavras usadas</span>
+                                  <span class="side-vocab-delta" id="sideVocabDelta" hidden></span>
+                              </div>
+                          </section>
 
                           <section class="side-card side-phoneme" id="sidePhoneme" hidden>
                               <div class="side-phoneme-glyph" id="sidePhonemeGlyph">—</div>
                               <div class="side-phoneme-txt">
-                                  <div class="side-card-label">Pronúncia · insight da semana</div>
+                                  <div class="side-card-label">Pronúncia · som da semana</div>
                                   <p id="sidePhonemeBody"></p>
                               </div>
                           </section>
 
-                          <section class="side-card" id="sideCefr">
-                              <div class="side-cefr-track">
-                                  <span id="sideCefrCurrent">A1</span>
-                                  <span class="side-cefr-arrow">→</span>
-                                  <span id="sideCefrNext">A2</span>
-                              </div>
-                              <div class="side-cefr-bar"><div class="side-cefr-fill" id="sideCefrFill" style="width:0%"></div></div>
-                              <div class="side-cefr-pct"><span id="sideCefrPct">0</span>% até o próximo nível</div>
-                          </section>
-
-                          <section class="side-card" id="sideVocab">
-                              <div class="side-card-label">Seu vocabulário</div>
-                              <div class="side-vocab-num" id="sideVocabNum">--</div>
-                              <div class="side-vocab-label">palavras usadas</div>
-                              <span class="side-vocab-delta" id="sideVocabDelta" hidden></span>
-                          </section>
-
-                          <section class="side-card" id="sideBadge">
-                              <div class="side-badge-row">
+                          <section class="side-card side-medal" id="sideBadge">
+                              <div class="side-card-label">Próxima conquista</div>
+                              <div class="side-medal-row">
                                   <div class="side-badge-medal" id="sideBadgeIcon">🪶</div>
-                                  <div>
+                                  <div class="side-medal-txt">
                                       <div class="side-badge-name" id="sideBadgeName">Próxima conquista</div>
                                       <div class="side-badge-desc" id="sideBadgeDesc"></div>
                                   </div>
                               </div>
-                              <div class="side-badge-track"><div class="side-badge-fill" id="sideBadgeFill" style="width:0%"></div></div>
+                              <!-- barra em segmentos: cada bloco é um pedaço do caminho -->
+                              <div class="seg-bar" aria-hidden="true"><div class="side-badge-fill" id="sideBadgeFill"></div></div>
                               <div class="side-badge-label" id="sideBadgeLabel"></div>
                           </section>
                       </aside>
@@ -553,10 +574,10 @@
     <script src="assets/js/utils.js"></script>
     <!-- Cápsula de comando: ícone único que expande no painel de navegação -->
     <script src="controllers/home/command-panel.js?v=1"></script>
-    <script src="controllers/lessons/lessons-controller.js?v=11"></script>
+    <script src="controllers/lessons/lessons-controller.js?v=13"></script>
     <script src="controllers/home/home-today.js?v=1"></script>
     <!-- Painel "Seu progresso" clicável → modal de requisitos do próximo nível CEFR -->
-    <script src="controllers/home/cefr-modal.js?v=7"></script>
+    <script src="controllers/home/cefr-modal.js?v=8"></script>
     <!-- Caixa de vocabulário clicável → modal de review das palavras faladas na voz -->
     <script src="controllers/home/vocab-modal.js?v=2"></script>
     <script src="controllers/chat/chat-text-controller.js?v=21"></script>

@@ -569,6 +569,8 @@
             if (pctEl) pctEl.textContent = overall;
             var fillEl = document.getElementById('sideCefrFill');
             if (fillEl) fillEl.style.width = overall + '%';
+            var card = document.getElementById('sideCefr');
+            if (card) card.style.setProperty('--p', overall);
         };
         window._renderCefrCard.__cefrSynced = true;
     }

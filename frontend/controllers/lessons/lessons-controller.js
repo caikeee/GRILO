@@ -228,10 +228,22 @@ function _renderCefrCard(cefr) {
     _pd('sideCefrPct', info.progress_percent || 0);
     const fillEl = document.getElementById('sideCefrFill');
     if (fillEl) fillEl.style.width = `${info.progress_percent || 0}%`;
+    // anel medidor e mini-escada leem o % e o nível direto do cartão
+    const card = document.getElementById('sideCefr');
+    if (card) {
+        card.style.setProperty('--p', info.progress_percent || 0);
+        card.dataset.level = info.current || 'A1';
+    }
 }
 
 function _renderVocabCard(total, week) {
-    _pd('sideVocabNum', total || 0);
+    // contador em placas: cada dígito num bloco (placar)
+    const numEl = document.getElementById('sideVocabNum');
+    if (numEl) {
+        const n = String(total || 0);
+        numEl.innerHTML = n.split('').map(d => `<span class="vd">${d}</span>`).join('');
+        numEl.setAttribute('aria-label', `${n} palavras`);
+    }
     const deltaEl = document.getElementById('sideVocabDelta');
     if (deltaEl) {
         if (week > 0) {
@@ -257,6 +269,8 @@ function _renderBadgeCard(nextBadge, earnedCount) {
         if (descEl) descEl.textContent = nextBadge.description || '';
         if (fillEl) fillEl.style.width = `${nextBadge.progress_percent || 0}%`;
         if (labelEl) labelEl.textContent = `${nextBadge.xp_current || 0} / ${nextBadge.xp_required || 0} XP`;
+        const badgeCard = document.getElementById('sideBadge');
+        if (badgeCard) badgeCard.style.setProperty('--p', nextBadge.progress_percent || 0);
         return;
     }
 
@@ -269,6 +283,8 @@ function _renderBadgeCard(nextBadge, earnedCount) {
     }
     if (fillEl) fillEl.style.width = earned > 0 ? '100%' : '0%';
     if (labelEl) labelEl.textContent = '';
+    const badgeCard = document.getElementById('sideBadge');
+    if (badgeCard) badgeCard.style.setProperty('--p', earned > 0 ? 100 : 0);
 }
 
 function _greetByHour() {
@@ -277,6 +293,15 @@ function _greetByHour() {
     if (h < 12) return 'Bom dia';
     if (h < 18) return 'Boa tarde';
     return 'Boa noite';
+}
+
+// A mesma saudação em inglês: o hero da home faz a "Ponte" pt → en nela.
+function _greetEnByHour() {
+    const h = new Date().getHours();
+    if (h < 5)  return 'Up late';
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
 }
 
 function _kickerDate() {
@@ -296,9 +321,30 @@ function _renderHero(stats) {
     const greetEl = document.getElementById('pl2HeroGreet');
     if (greetEl) {
         const greet = _greetByHour();
+        const greetEn = _greetEnByHour();
+        // pt e en empilhados no mesmo lugar; o CSS alterna entre os dois.
+        // A pontuação vai dentro de cada versão (larguras diferentes).
+        const end = username ? ',' : '.';
+        const swap = `<span class="hg-swap"><span class="hg-pt">${greet}${end}</span>`
+                   + `<span class="hg-en" lang="en">${greetEn}${end}</span></span>`;
         greetEl.innerHTML = username
-            ? `${greet}, <span class="pl2-italic">${_escape(username)}</span>.`
-            : `${greet}.`;
+            ? `${swap} <span class="pl2-italic">${_escape(username)}.</span>`
+            : swap;
+        greetEl.setAttribute('aria-label', username ? `${greet}, ${username}.` : `${greet}.`);
+    }
+
+    // Alto-falante: ouvir a saudação em inglês (pronúncia nativa do navegador)
+    const sayBtn = document.getElementById('homeSay');
+    if (sayBtn && !sayBtn.dataset.ready && 'speechSynthesis' in window) {
+        sayBtn.dataset.ready = '1';
+        sayBtn.hidden = false;
+        sayBtn.addEventListener('click', () => {
+            const u = new SpeechSynthesisUtterance(username ? `${_greetEnByHour()}, ${username}!` : `${_greetEnByHour()}!`);
+            u.lang = 'en-US';
+            u.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(u);
+        });
     }
 
     const subEl = document.getElementById('pl2HeroSub');
