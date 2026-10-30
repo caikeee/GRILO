@@ -345,7 +345,7 @@
     stopListening();
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { onError('unsupported'); return; }
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+    try { window.GriloTTS ? window.GriloTTS.stop() : window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
     const rec = new SR();
     _rec = rec;
     rec.lang = 'en-US';
@@ -453,7 +453,7 @@
 
   function closePlayer() {
     stopListening();
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+    try { window.GriloTTS ? window.GriloTTS.stop() : window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
     flushPartialProgress();
     const overlay = $('g4pPlayer');
     if (overlay) overlay.hidden = true;

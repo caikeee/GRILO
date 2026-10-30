@@ -88,12 +88,17 @@
   function speak(text, rate) {
     const btn = document.getElementById('dtPlay');
     try {
+      if (btn) btn.classList.add('is-playing');
+      const off = function () { if (btn) btn.classList.remove('is-playing'); };
+      if (window.GriloTTS) {
+        window.GriloTTS.speak(text, { rate: rate || NORMAL_RATE, onend: off });
+        return;
+      }
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'en-US';
       u.rate = rate || NORMAL_RATE;
-      u.onend = u.onerror = function () { if (btn) btn.classList.remove('is-playing'); };
-      if (btn) btn.classList.add('is-playing');
+      u.onend = u.onerror = off;
       window.speechSynthesis.speak(u);
     } catch (e) {
       if (btn) btn.classList.remove('is-playing');

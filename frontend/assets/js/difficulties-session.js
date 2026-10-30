@@ -48,6 +48,7 @@
 
   // ── TTS ──────────────────────────────────────────────────────
   function speak(text) {
+    if (window.GriloTTS) { window.GriloTTS.speak(text, { rate: 1 }); return; }
     if (!('speechSynthesis' in window)) return;
     try { window.speechSynthesis.cancel(); } catch (_) {}
     const u = new SpeechSynthesisUtterance(text);
@@ -57,6 +58,7 @@
   }
 
   function stopSpeak() {
+    if (window.GriloTTS) { window.GriloTTS.stop(); return; }
     if ('speechSynthesis' in window) {
       try { window.speechSynthesis.cancel(); } catch (_) {}
     }
