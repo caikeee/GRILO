@@ -1,52 +1,67 @@
 /* ============================================================
- *  Shadowing Lab — ENGINE
+ *  Eco — ENGINE (ouvir a frase → repetir em voz alta)
  *  ============================================================
- *  Trilha linear de shadowing SIMULTÂNEO real (o áudio nativo
- *  toca e o aluno fala por cima, sem pausar).
+ *  Sucessor do Laboratório de Shadowing. O aluno não fala mais por
+ *  cima do áudio: cada frase é um turno.
  *
- *  Fluxo: hub → "Primeiro, ouça" (preview frase a frase) → ao vivo
- *  (karaokê por frase) → resultado. A escolha de modo não é mais a
- *  porta de entrada: é o interruptor "Valer nota" no preview.
+ *    OUVIR    a voz do app fala a frase (GriloTTS → /api/tts)
+ *    SUA VEZ  o microfone abre sozinho e fecha no silêncio (~1,5 s),
+ *             ou no "Terminei"
+ *    ANALISAR a gravação vai para /api/voice/transcribe (Whisper) e
+ *             a transcrição é alinhada com a frase (GriloVR)
+ *    RETORNO  palavra por palavra, com 🔊 nativo × ▶ você
  *
- *    TREINO LIVRE — sem fone, sem reconhecimento: o aluno fala junto
- *                   e o resultado NÃO tem nota (antes: "0" vermelho).
- *    VALER NOTA   — fone confirmado por calibração ativa de eco (sheet,
- *                   lembrada por aparelho), feedback palavra-a-palavra
- *                   ao vivo: alinhador guloso com resync sobre o fluxo
- *                   contínuo do reconhecedor (finais + parciais),
- *                   limitado pelo cursor do áudio nativo (nada fica
- *                   marcado antes de o TTS ter falado a palavra). Único
- *                   modo que avança a trilha. Se nenhuma fala chegar,
- *                   o resultado é uma tela de ajuda — não uma nota.
+ *  Quem está começando não acerta de primeira, então cada frase tem
+ *  uma escada de ajuda:
+ *    1ª tentativa  normal
+ *    2ª tentativa  mais devagar + leitura em português (ph)
+ *    3ª tentativa  por partes, de trás pra frente (backchaining):
+ *                  "day" → "single day" → frase inteira
+ *    depois disso  a frase entra na rodada de revisão do fim da faixa
+ *  "Não te ouvi" (microfone/silêncio) não gasta tentativa.
  *
- *  Reusa GriloVR (voice-recognition-utils.js): normalização, fuzzy
- *  match e MicLevelMonitor para waveform/nível de áudio. Casco da
- *  sessão: session-shell.js/.css.
+ *  Pontuação: palavras de conteúdo valem mais que as de ligação (o
+ *  reconhecedor engole "the", "a"); passa com 70% do peso.
+ *
+ *  Separar ouvir de falar acaba com o eco do alto-falante no
+ *  microfone, então não há mais calibração nem modo "valendo nota".
+ *
+ *  A gravação fica só no aparelho (para o ▶ você); ao backend sobem
+ *  só a transcrição e o resultado por palavra.
  * ============================================================ */
 (function () {
   'use strict';
 
   const LS_KEY = 'grilo_shadow_progress_v1';
-  const LS_CALIB = 'grilo_shadow_calibrated_v1';   // { at: ISO } — fone confirmado neste aparelho
-  const CALIB_TTL_MS = 7 * 24 * 3600 * 1000;
-  const MIN_SCORE_FLOOR = 50;      // piso da régua adaptativa (cuidado #3 do plano)
-  const RELAX_AFTER_ATTEMPT = 2;   // a partir da 3ª tentativa passa a relaxar
-  const RELAX_STEP = 5;
-  const RELAX_TRIES_BEFORE_CASUAL_CTA = 5;
+  const MAX_TRIES = 3;
+  const PASS_WEIGHT = 0.7;
+  const FUNCTION_WEIGHT = 0.4;
+  const SLOW_RATE = 0.8;          // menor velocidade que a voz neural aceita bem
 
-  // ── Alinhador ao vivo ──
-  const ALIGN_LOOKAHEAD = 8;       // até quantas palavras à frente o resync procura âncora
-  const ANCHOR_NEAR_DIST = 2;      // salto curto: qualquer match serve
-  const ANCHOR_MIN_LEN = 4;        // salto longo: só palavra "forte" (≥4 letras) ancora
-  const AUDIO_AHEAD_MARGIN = 2;    // usuário pode estar no máx N palavras à frente do áudio
-  const WORD_MS_FALLBACK = 380;    // estimativa de ritmo do TTS sem eventos onboundary
-  const TAIL_MIN_MS = 2500;        // espera mínima após o áudio acabar (delay do shadowing)
-  const TAIL_MAX_MS = 7000;        // teto da espera pela cauda da fala do usuário
-  const TAIL_IDLE_MS = 1800;       // silêncio necessário (sem novo resultado do SR) pra considerar que a pessoa parou
-  const PAINT_MS = 150;            // repintura do karaokê
+  // Microfone: detecção de fala e de fim de fala
+  const VOICE_FRAMES_TO_START = 4;  // quadros audíveis seguidos para contar como fala
+  const SILENCE_END_MS = 1500;      // silêncio depois da fala que encerra a vez
+  const NO_SPEECH_MS = 7000;        // ninguém falou: encerra sem gastar tentativa
+  const MAX_TURN_MS = 12000;        // teto de uma gravação
+
+  // Palavras de ligação: valem menos na nota (FUNCTION_WEIGHT)
+  const FUNCTION_WORDS = new Set([
+    'a', 'an', 'the', 'of', 'to', 'in', 'on', 'at', 'for', 'with', 'and', 'or', 'but',
+    'is', 'am', 'are', 'was', 'were', 'be', 'it', 'its', 'my', 'your', 'i', 'you',
+    'he', 'she', 'we', 'they', 'this', 'that', 'do', 'does', 'did', 'has', 'have',
+  ]);
+
+  const KIND_LABEL = {
+    aula: n => `Da aula ${String(n).padStart(2, '0')}`,
+    novo: () => 'Nova',
+    ciencia: () => 'Ciência',
+    literatura: (_, src) => `Literatura · ${src}`,
+    ditado: () => 'Ditado popular',
+  };
 
   const Shell = window.GriloShell;
   const icon = Shell.icon;
+  const escapeHtml = Shell.escapeHtml;
 
   // ─── Estado / storage ─────────────────────────────────────────
   function loadProgress() {
@@ -62,21 +77,20 @@
 
   let PROGRESS = loadProgress();
 
+  // `rankedDone` mantém o nome antigo: a home (home-today.js) lê esse campo
+  // para saber se a faixa foi concluída.
   function trackState(slug) {
-    return PROGRESS.tracks[slug] || { bestScore: 0, attempts: 0, rankedDone: false, firstTakeSaved: false };
+    return PROGRESS.tracks[slug] || { bestDominated: 0, attempts: 0, rankedDone: false };
   }
 
   function setTrackState(slug, patch) {
-    const cur = trackState(slug);
-    PROGRESS.tracks[slug] = Object.assign({}, cur, patch);
+    PROGRESS.tracks[slug] = Object.assign({}, trackState(slug), patch);
     saveProgress(PROGRESS);
   }
 
   function isUnlocked(track, order) {
-    if (track.order === 1) return true;
-    const prev = order[track.order - 2]; // order é 1-based, array 0-based
-    if (!prev) return true;
-    return !!trackState(prev.slug).rankedDone;
+    const i = order.indexOf(track);
+    return i <= 0 || !!trackState(order[i - 1].slug).rankedDone;
   }
 
   function todayKey() { return new Date().toISOString().slice(0, 10); }
@@ -90,59 +104,125 @@
       if (window.GriloStreak && typeof window.GriloStreak.markToday === 'function') {
         window.GriloStreak.markToday('shadowing');
       }
-    } catch (e) { /* streak global é opcional nesta fase */ }
+    } catch (e) {}
   }
 
-  function calibratedRecently() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(LS_CALIB) || 'null');
-      return !!(raw && raw.at && Date.now() - Date.parse(raw.at) < CALIB_TTL_MS);
-    } catch (e) { return false; }
+  function getAuthToken() {
+    try { return sessionStorage.getItem('grilo_token'); } catch (e) { return null; }
   }
-
-  function rememberCalibration() {
-    try { localStorage.setItem(LS_CALIB, JSON.stringify({ at: new Date().toISOString() })); } catch (e) {}
-  }
-
-  // ─── Utilidades ────────────────────────────────────────────────
-  const escapeHtml = Shell.escapeHtml;
 
   function VR() { return window.GriloVR || null; }
 
-  function speechSupported() {
-    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-  }
+  // ─── Áudio do app ─────────────────────────────────────────────
+  // GriloTTS procura o MP3 pré-gerado e, sem ele, chama /api/tts (voz
+  // Orpheus). Resolve quando a fala termina; o teto de segurança cobre
+  // o caso de o navegador nunca disparar o fim (voz nativa sem vozes).
+  let speakSeq = 0;
 
-  // onboundary DEVE ser anexado antes de .speak() — no browser real os
-  // eventos de palavra podem disparar imediatamente, e anexar depois
-  // perderia os primeiros (o cursor de áudio nasceria atrasado).
-  function speak(text, onend, onboundary) {
-    try {
-      window.speechSynthesis && window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      u.rate = 0.95;
-      if (onend) u.onend = onend;
-      if (onboundary) u.onboundary = onboundary;
-      window.speechSynthesis.speak(u);
-      return u;
-    } catch (e) {
-      if (onend) onend();
-      return null;
-    }
+  function speak(text, rate, el) {
+    const my = ++speakSeq;
+    const words = String(text).split(/\s+/).length;
+    const ceiling = (words * 0.6 + 3) * 1000 / (rate || 1);
+    if (el) el.classList.add('is-playing');
+    return new Promise(resolve => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        if (el) el.classList.remove('is-playing');
+        resolve(my === speakSeq);
+      };
+      setTimeout(finish, ceiling);
+      try {
+        if (window.GriloTTS) {
+          window.GriloTTS.speak(text, { rate: rate || 1, onend: finish }).then(finish, finish);
+        } else {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'en-US';
+          u.rate = rate || 1;
+          u.onend = u.onerror = finish;
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(u);
+        }
+      } catch (e) { finish(); }
+    });
   }
 
   function stopSpeech() {
-    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+    speakSeq++;
+    try { window.GriloTTS ? window.GriloTTS.stop() : window.speechSynthesis.cancel(); } catch (e) {}
   }
 
-  function relaxedMin(track, attempts) {
-    return Math.max(MIN_SCORE_FLOOR, track.minScoreToUnlock - Math.max(0, attempts - RELAX_AFTER_ATTEMPT) * RELAX_STEP);
+  // ─── Avaliação ────────────────────────────────────────────────
+  // Palavras como aparecem na tela + quais tokens do avaliador cada uma
+  // cobre (contrações viram 2 tokens: "I'm" → "i am").
+  function displayMap(text) {
+    const vr = VR();
+    const words = String(text).split(/\s+/).filter(Boolean);
+    let k = 0;
+    const map = words.map(w => {
+      const n = vr.tokenize(w).length;
+      const range = [k, k + n];
+      k += n;
+      return { w, range };
+    });
+    return { words: map, tokenCount: k };
+  }
+
+  function judge(expected, transcript) {
+    const vr = VR();
+    const ev = vr.evaluate(expected, [{ transcript, confidence: 0.9 }]);
+    let total = 0, got = 0;
+    ev.expTokens.forEach((t, i) => {
+      const w = FUNCTION_WORDS.has(t) ? FUNCTION_WEIGHT : 1;
+      total += w;
+      if (ev.matched[i]) got += w;
+    });
+    const weighted = total ? got / total : 0;
+    const okCount = ev.matched.filter(Boolean).length;
+    return {
+      ev,
+      weighted,
+      passed: weighted >= PASS_WEIGHT,
+      okCount,
+      total: ev.expTokens.length,
+      heardNothing: !ev.heardTokens.length,
+    };
+  }
+
+  // Estado de cada palavra da tela a partir do alinhamento por token
+  function wordStates(text, result) {
+    const dm = displayMap(text);
+    if (!result || dm.tokenCount !== result.ev.expTokens.length) {
+      return dm.words.map(() => (result ? (result.passed ? 'ok' : '') : ''));
+    }
+    return dm.words.map(({ range }) => {
+      const flags = result.ev.matched.slice(range[0], range[1]);
+      if (!flags.length) return 'ok';
+      if (flags.every(Boolean)) return 'ok';
+      return flags.some(Boolean) ? 'almost' : 'miss';
+    });
+  }
+
+  // Partes para a 3ª tentativa: blocos de ~3 palavras, praticados do fim
+  // para o começo, cada um somando o anterior (backchaining).
+  function backchainSteps(text) {
+    const words = String(text).split(/\s+/).filter(Boolean);
+    if (words.length < 5) return [text];
+    const k = Math.ceil(words.length / 3);
+    const size = Math.ceil(words.length / k);
+    const starts = [];
+    for (let i = 0; i < words.length; i += size) starts.push(i);
+    return starts.slice().reverse().map(s => words.slice(s).join(' '));
   }
 
   // ============================================================
-  //  HUB — trilha linear
+  //  HUB
   // ============================================================
+  function lessonLabel(t) {
+    return t.lesson ? `Aula ${String(t.lesson.num).padStart(2, '0')} · ${t.theme}` : t.theme;
+  }
+
   function renderHub() {
     const order = window.GriloShadow.getTrackOrder();
     const root = document.getElementById('shadowHubBody');
@@ -155,32 +235,34 @@
     const chip = document.getElementById('shadowStreakChip');
     if (chip) chip.textContent = PROGRESS.streakDate === todayKey() ? '✓ treino de hoje feito' : '🔥 treino do dia';
 
-    // Próxima faixa: a primeira ainda não concluída valendo nota
     const next = order.find(t => !trackState(t.slug).rankedDone) || order[0];
     const cont = document.getElementById('shadowContinue');
     if (cont && next) {
       const allDone = doneCount === order.length;
+      const kinds = [...new Set(next.sentences.map(s => s.kind))].filter(k => k !== 'aula');
+      const chips = [`${next.sentences.filter(s => s.kind === 'aula').length} da aula ${String(next.lesson.num).padStart(2, '0')}`]
+        .concat(kinds.map(k => ({ novo: 'novas', ciencia: 'ciência', literatura: 'literatura', ditado: 'ditado' }[k])));
       cont.innerHTML = `
         <div class="gs-cont" data-slug="${next.slug}">
           <span class="gs-cont-k">${allDone ? 'Trilha concluída · repetir' : 'Próxima faixa'} · ${escapeHtml(next.level)}</span>
           <h2 class="gs-cont-t">${escapeHtml(next.title)}</h2>
-          <span class="gs-cont-m">${next.sentences.length} frases · ${escapeHtml(next.theme)}</span>
-          <button class="gs-cont-go" type="button">Ouvir e treinar ${icon('play')}</button>
+          <span class="gs-cont-m">${next.sentences.length} frases · ${escapeHtml(lessonLabel(next))}</span>
+          <div class="gs-cont-chips" aria-hidden="true">${chips.map(c => `<span>${escapeHtml(c)}</span>`).join('')}</div>
+          <button class="gs-cont-go" type="button">Ouvir e repetir ${icon('play')}</button>
         </div>`;
       cont.querySelector('.gs-cont').addEventListener('click', () => openTrack(next.slug));
     }
 
-    root.innerHTML = order.map(t => {
+    root.innerHTML = order.map((t, i) => {
       const st = trackState(t.slug);
-      const unlocked = isUnlocked(t, order);
-      const state = st.rankedDone ? 'done' : (unlocked ? 'available' : 'locked');
+      const state = st.rankedDone ? 'done' : (isUnlocked(t, order) ? 'available' : 'locked');
       const isCur = t === next && state !== 'done';
-      const prev = order[t.order - 2];
+      const prev = order[i - 1];
       const sub = state === 'locked' && prev
-        ? `faça ${prev.minScoreToUnlock} valendo nota em ${escapeHtml(prev.title)}`
-        : `${t.sentences.length} frases · ${escapeHtml(t.theme)}`;
-      const right = st.bestScore > 0
-        ? `<span class="gs-row-r">melhor<em>${st.bestScore}</em></span>`
+        ? `domine ${prev.minDominated} frases de ${escapeHtml(prev.title)}`
+        : `${t.sentences.length} frases · ${escapeHtml(lessonLabel(t))}`;
+      const right = st.bestDominated > 0
+        ? `<span class="gs-row-r">melhor<em>${st.bestDominated}/${t.sentences.length}</em></span>`
         : (state === 'locked' ? '' : `<span class="gs-row-r">${isCur ? 'agora' : 'novo'}</span>`);
       const badge = state === 'done' ? icon('check') : state === 'locked' ? icon('lock') : String(t.order).padStart(2, '0');
       const open = state !== 'locked';
@@ -200,22 +282,32 @@
   }
 
   // ============================================================
-  //  PLAYER — máquina de estados de uma sessão
+  //  SESSÃO
   // ============================================================
-  let P = null; // { track, ranked, phase, sentenceResults[], mic, _live, _audio, _rec }
+  let P = null;
   let unfitViewport = null;
 
   function session() { return document.querySelector('#shadowPlayerOverlay .gs-session'); }
+  function $(id) { return document.getElementById(id); }
 
   function openTrack(slug) {
     const track = window.GriloShadow.getTrackBySlug(slug);
     if (!track) return;
-    // "Valer nota" já vem ligado se o fone foi confirmado neste aparelho há pouco
-    P = { track, ranked: calibratedRecently() && speechSupported(), phase: 'preview', sentenceResults: [], _previewSeq: 0 };
-    const overlay = document.getElementById('shadowPlayerOverlay');
+    P = {
+      track,
+      phase: 'intro',
+      slow: false,
+      queue: [],            // índices das frases a fazer nesta rodada
+      review: [],           // frases que vão para a revisão do fim
+      inReview: false,
+      results: track.sentences.map(() => ({ tries: 0, dominated: false, best: null })),
+      mic: null,
+      blobUrl: null,
+    };
+    const overlay = $('shadowPlayerOverlay');
     overlay.hidden = false;
     overlay.innerHTML = `
-      <div class="gs-session" role="dialog" aria-modal="true" aria-label="Shadowing — ${escapeHtml(track.title)}">
+      <div class="gs-session" role="dialog" aria-modal="true" aria-label="Eco — ${escapeHtml(track.title)}">
         <div class="gs-top">
           <button class="gs-x" id="shadowPlayerClose" type="button" aria-label="Fechar">${icon('x')}</button>
           <div class="gs-prog" id="shadowProg" aria-hidden="true">${Shell.progHtml(track.sentences.map(() => 0))}</div>
@@ -224,868 +316,630 @@
         <div class="gs-body" id="shadowPlayerBody"></div>
         <div class="gs-dock" id="shadowDock"></div>
       </div>`;
-    document.getElementById('shadowPlayerClose').addEventListener('click', closePlayer);
+    $('shadowPlayerClose').addEventListener('click', requestClose);
     Shell.lockScroll(true);
     unfitViewport = Shell.fitViewport(overlay);
-    renderPreview();
+    renderIntro();
   }
 
-  function stopEverything() {
+  function releaseMic() {
     if (!P) return;
-    if (P._live) {
-      P._live.active = false;
-      if (P._live.paintTimer) clearInterval(P._live.paintTimer);
-    }
+    if (P.recorder && P.recorder.state !== 'inactive') { try { P.recorder.stop(); } catch (e) {} }
+    P.recorder = null;
     if (P.mic) { try { P.mic.stop(); } catch (e) {} P.mic = null; }
-    if (P._calibMic) { try { P._calibMic.stop(); } catch (e) {} P._calibMic = null; }
-    if (P._rec) { try { P._rec.abort(); } catch (e) {} P._rec = null; }
-    P._audio = null;
-    P._previewSeq = (P._previewSeq || 0) + 1;
-    stopSpeech();
   }
 
   function closePlayer() {
-    stopEverything();
+    stopSpeech();
+    if (P) {
+      P.closed = true;
+      releaseMic();
+      if (P.blobUrl) URL.revokeObjectURL(P.blobUrl);
+    }
     if (unfitViewport) { unfitViewport(); unfitViewport = null; }
     Shell.lockScroll(false);
     P = null;
-    const overlay = document.getElementById('shadowPlayerOverlay');
+    const overlay = $('shadowPlayerOverlay');
     overlay.hidden = true;
     overlay.innerHTML = '';
     renderHub();
   }
 
-  function setDock(html) {
-    const dock = document.getElementById('shadowDock');
-    if (dock) dock.innerHTML = html;
-  }
-
-  function setCount(text) {
-    const el = document.getElementById('shadowCnt');
-    if (el) el.textContent = text;
-  }
-
-  function setProg(fracs) {
-    Shell.setProg(document.getElementById('shadowProg'), fracs);
-  }
-
-  // ─── Tela 1: "Primeiro, ouça" + interruptor "Valer nota" ───────
-  function renderPreview() {
-    stopEverything();
-    P.phase = 'preview';
-    Shell.closeSheet(session());
-    setCount(`${P.track.sentences.length} frases`);
-    setProg(P.track.sentences.map(() => 0));
-
-    const body = document.getElementById('shadowPlayerBody');
-    body.scrollTop = 0;
-    body.innerHTML = `
-      <span class="gs-kick">Primeiro, ouça</span>
-      <h2 class="gs-h2">${escapeHtml(P.track.title)}</h2>
-      <div class="gs-arow">
-        <button class="gs-apill" id="shadowPreviewPlay" type="button">
-          <span class="gs-apill-pl">${icon('play')}</span><span id="shadowPreviewLabel">Ouvir a faixa</span>
-          <span class="gs-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-        </button>
-      </div>
-      <div class="sh-sents" id="shadowSents">
-        ${P.track.sentences.map((s, i) => `
-          <button class="sh-sent" type="button" data-i="${i}">
-            <span class="sh-sent-pp">${icon('play')}</span>
-            <span class="sh-sent-t"><b>${escapeHtml(s.en)}</b>${s.pt ? `<small>${escapeHtml(s.pt)}</small>` : ''}</span>
-          </button>`).join('')}
-      </div>
-      <label class="sh-toggle">
-        <span class="sh-toggle-t"><b>🏆 Valer nota</b><small>${speechSupported() ? 'Conta para a trilha · precisa de fone' : 'Indisponível neste navegador — use o Chrome'}</small></span>
-        <input type="checkbox" id="shadowRanked" role="switch" ${P.ranked ? 'checked' : ''} ${speechSupported() ? '' : 'disabled'}>
-        <span class="sh-switch" aria-hidden="true"></span>
-      </label>`;
-    setDock(`<button class="gs-btn is-pri" id="shadowStart" type="button">Começar a falar junto</button>`);
-
-    document.getElementById('shadowPreviewPlay').addEventListener('click', togglePreview);
-    body.querySelectorAll('.sh-sent').forEach(btn => {
-      btn.addEventListener('click', () => playPreviewFrom(+btn.dataset.i, true));
-    });
-    document.getElementById('shadowRanked').addEventListener('change', e => { P.ranked = e.target.checked; });
-    document.getElementById('shadowStart').addEventListener('click', startFromPreview);
-  }
-
-  function markPreview(active) {
-    document.querySelectorAll('#shadowSents .sh-sent').forEach((el, i) => el.classList.toggle('is-playing', i === active));
-    const btn = document.getElementById('shadowPreviewPlay');
-    const label = document.getElementById('shadowPreviewLabel');
-    const playing = active >= 0;
-    if (btn) {
-      btn.classList.toggle('is-playing', playing);
-      btn.querySelector('.gs-apill-pl').innerHTML = icon(playing ? 'pause' : 'play');
-    }
-    if (label) label.textContent = playing ? 'Tocando a faixa…' : 'Ouvir a faixa';
-  }
-
-  function togglePreview() {
-    if (P && P._previewPlaying) { P._previewSeq++; P._previewPlaying = false; stopSpeech(); markPreview(-1); return; }
-    playPreviewFrom(0, false);
-  }
-
-  // Toca a partir de uma frase. `only` = só aquela frase (toque na linha);
-  // senão segue até o fim da faixa, destacando a frase da vez (lima = agora).
-  function playPreviewFrom(i, only) {
-    if (!P) return;
-    const seq = ++P._previewSeq;
-    P._previewPlaying = true;
-    const sents = P.track.sentences;
-    (function step(k) {
-      if (!P || P._previewSeq !== seq) return;
-      if (k >= sents.length || (only && k > i)) { P._previewPlaying = false; markPreview(-1); return; }
-      markPreview(k);
-      const row = document.querySelector(`#shadowSents .sh-sent[data-i="${k}"]`);
-      if (row) row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      speak(sents[k].en, () => step(k + 1));
-    })(i);
-  }
-
-  function startFromPreview() {
-    P._previewSeq++;
-    P._previewPlaying = false;
+  // No meio da faixa o resultado ainda não foi salvo: confirma antes de sair.
+  function requestClose() {
+    if (!P || P.phase === 'intro' || P.phase === 'result') { closePlayer(); return; }
     stopSpeech();
-    if (!P.ranked) { startLiveSession(); return; }
-    if (calibratedRecently()) { startLiveSession(); return; }
-    openCalibration();
-  }
-
-  // ─── Calibração de eco/ruído (sheet, só quando "Valer nota") ───
-  function openCalibration() {
+    abortTurn();
     Shell.openSheet(session(), {
       tone: 'plain',
       icon: null,
       scrim: true,
-      center: true,
-      top: `<div class="sh-calib-ico">${icon('headphones')}</div>`,
-      title: 'Calibrando seu áudio',
-      html: `
-        <p class="gs-sheet-text gs-muted">Vamos tocar um som de teste. Fique em silêncio por um instante — isso confirma que o fone isola o som.</p>
-        <div class="sh-meter"><i id="shadowCalibFill"></i></div>
-        <p class="sh-calib-status" id="shadowCalibStatus">verificando…</p>`,
-      actions: [{ label: 'Cancelar', kind: 'txt', onClick: () => { if (P._calibMic) { try { P._calibMic.stop(); } catch (e) {} } renderPreview(); } }],
-    });
-    runCalibration();
-  }
-
-  function calibrationFailed(reason) {
-    const noMic = reason === 'mic';
-    Shell.openSheet(session(), {
-      tone: 'plain',
-      icon: null,
-      scrim: true,
-      center: true,
       stack: true,
-      top: `<div class="sh-calib-ico is-warn">${icon(noMic ? 'micoff' : 'headphones')}</div>`,
-      title: noMic ? 'Sem acesso ao microfone' : 'Pra valer nota, use fone',
-      html: `<p class="gs-sheet-text gs-muted">${noMic
-        ? 'Libere o microfone no navegador para valer nota. Enquanto isso, dá para treinar livre.'
-        : 'Sem fone, sua voz se mistura ao áudio e a nota sai errada. Treine livre agora e ligue a nota quando estiver de fone.'}</p>`,
+      title: 'Sair desta faixa?',
+      html: '<p class="gs-sheet-text gs-muted">O que você treinou nesta rodada ainda não foi salvo.</p>',
       actions: [
-        { label: 'Treinar livre agora', kind: 'pri', onClick: () => { P.ranked = false; Shell.closeSheet(session()); startLiveSession(); } },
-        { label: noMic ? 'Tentar de novo' : 'Já coloquei o fone — testar de novo', kind: 'txt', onClick: openCalibration },
+        { label: 'Continuar treinando', kind: 'pri', onClick: () => { Shell.closeSheet(session()); runTurn(); } },
+        { label: 'Sair da faixa', kind: 'txt', onClick: closePlayer },
       ],
     });
   }
 
-  function runCalibration() {
-    const vr = VR();
-    if (!vr || !vr.MicLevelMonitor) { calibrationFailed('mic'); return; }
+  function setDock(html) { const d = $('shadowDock'); if (d) d.innerHTML = html; }
+  function setCount(text) { const el = $('shadowCnt'); if (el) el.textContent = text; }
 
-    const mic = new vr.MicLevelMonitor();
-    P._calibMic = mic;
-    let maxDuringPlayback = 0;
-    let noiseFloor = 0;
-    let samples = 0;
-    const DURATION_MS = 3200;
-    const startedAt = Date.now();
-
-    mic.onLevel = function (rms) {
-      const t = Date.now() - startedAt;
-      const fill = document.getElementById('shadowCalibFill');
-      if (fill) fill.style.width = Math.min(100, (t / DURATION_MS) * 100).toFixed(0) + '%';
-      // primeiros ~600ms: silêncio, mede o piso de ruído ambiente
-      if (t < 600) {
-        noiseFloor = Math.max(noiseFloor, rms);
-      } else {
-        // depois disso o bipe de teste está tocando: se o mic captar
-        // energia correlata (forte) durante o playback, é vazamento/eco
-        maxDuringPlayback = Math.max(maxDuringPlayback, rms);
-        samples++;
-      }
-    };
-
-    mic.start().then(function () {
-      // toca um bipe curto de teste ~600ms após iniciar a escuta
-      setTimeout(function () {
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.frequency.value = 880;
-          gain.gain.value = 0.25;
-          osc.connect(gain).connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 1.6);
-        } catch (e) { /* segue sem o bipe — a leitura de ruído ainda vale */ }
-      }, 600);
-
-      setTimeout(function () {
-        mic.stop();
-        if (!P || P._calibMic !== mic) return; // cancelado
-        P._calibMic = null;
-        // eco/vazamento: energia alta e sustentada durante o playback do bipe
-        const echoDetected = maxDuringPlayback > 0.5 && samples > 3;
-        if (echoDetected) { calibrationFailed('echo'); return; }
-        // ruído alto de ambiente não bloqueia, só avisa
-        const noisy = noiseFloor > 0.12;
-        const status = document.getElementById('shadowCalibStatus');
-        if (status) {
-          status.className = 'sh-calib-status is-good';
-          status.textContent = noisy ? 'Fone ok — ambiente um pouco barulhento' : 'Sinal limpo — fone confirmado';
-        }
-        rememberCalibration();
-        setTimeout(function () { if (P) { Shell.closeSheet(session()); startLiveSession(); } }, 800);
-      }, DURATION_MS);
-    }).catch(function () {
-      if (P && P._calibMic === mic) { P._calibMic = null; calibrationFailed('mic'); }
+  function updateProgress() {
+    const fracs = P.track.sentences.map((_, i) => {
+      const r = P.results[i];
+      if (r.dominated) return 1;
+      if (r.finished) return 0.5;
+      return 0;
     });
+    Shell.setProg($('shadowProg'), fracs);
   }
 
-  // ─── Tela 2: sessão AO VIVO — karaokê por frase ────────────────
-  function startLiveSession() {
-    stopEverything();
-    P.phase = 'live';
-    P.sentenceResults = P.track.sentences.map(() => null);
-    P.heardAny = false;
-    Shell.closeSheet(session());
+  // ─── Intro da faixa ───────────────────────────────────────────
+  function tagHtml(s) {
+    const lbl = (KIND_LABEL[s.kind] || KIND_LABEL.novo)(P.track.lesson ? P.track.lesson.num : 0, s.src || '');
+    return `<span class="eco-tag is-${s.kind}">${escapeHtml(lbl)}</span>`;
+  }
 
-    const body = document.getElementById('shadowPlayerBody');
+  function renderIntro() {
+    P.phase = 'intro';
+    const t = P.track;
+    const body = $('shadowPlayerBody');
     body.scrollTop = 0;
-    const sentsHtml = P.track.sentences.map((s, si) =>
-      `<p class="sh-kara" data-si="${si}" hidden>${s.en.split(/\s+/).map((w, wi) =>
-        `<span class="sh-w" data-si="${si}" data-wi="${wi}">${escapeHtml(w)}</span>`).join(' ')}</p>`
-    ).join('');
-
     body.innerHTML = `
-      <div class="sh-live">
-        <span class="sh-livetag${P.ranked ? ' is-ranked' : ''}"><i></i>${P.ranked ? 'Valendo nota · fale junto' : 'Treino livre · fale junto'}</span>
-        <div class="sh-kara-box" id="shadowKara" aria-live="off">${sentsHtml}</div>
-        <p class="sh-next" id="shadowNext"></p>
-        ${P.ranked ? `
-          <div class="sh-waves">
-            <span>você</span><canvas class="sh-wave" id="shadowWaveUser"></canvas>
-          </div>` : ''}
-      </div>`;
-
-    setDock(`
-      <div class="sh-ctl">
-        <button class="sh-ctl-b" id="shadowRepeat" type="button" aria-label="Repetir frase">${icon('replay')}<small>repetir</small></button>
-        <button class="sh-ctl-b is-big" id="shadowPause" type="button" aria-label="Pausar">${icon('pause')}<small>pausar</small></button>
-        <button class="sh-ctl-b" id="shadowSkip" type="button" aria-label="Próxima frase">${icon('next')}<small>próxima</small></button>
-      </div>`);
-    document.getElementById('shadowRepeat').addEventListener('click', () => jumpTo(currentSentence()));
-    document.getElementById('shadowSkip').addEventListener('click', () => {
-      const si = currentSentence();
-      if (si >= P.track.sentences.length - 1) finishLiveSession();
-      else jumpTo(si + 1);
+      <span class="gs-kick">Eco · ${escapeHtml(lessonLabel(t))}</span>
+      <h2 class="gs-h1">${escapeHtml(t.title)}</h2>
+      <p class="gs-p">Ouça cada frase e repita em voz alta. Domine <b>${t.minDominated} de ${t.sentences.length}</b> para liberar a próxima faixa.</p>
+      <ol class="eco-loop" aria-label="Como funciona">
+        <li><span>${icon('sound')}</span>Ouça</li>
+        <li><span>${icon('mic')}</span>Repita</li>
+        <li><span>${icon('play')}</span>Compare</li>
+      </ol>
+      <div class="sh-sents" id="shadowSents">
+        ${t.sentences.map((s, i) => `
+          <button class="sh-sent" type="button" data-i="${i}">
+            <span class="sh-sent-pp">${icon('play')}</span>
+            <span class="sh-sent-t"><b>${escapeHtml(s.en)}</b><small>${escapeHtml(s.pt)}</small>${tagHtml(s)}</span>
+          </button>`).join('')}
+      </div>
+      <p class="gs-p eco-note">Errou? Tudo bem: na 2ª tentativa a frase vem mais devagar e com a leitura; na 3ª, por partes.</p>`;
+    body.querySelectorAll('.sh-sent').forEach(b => {
+      b.addEventListener('click', () => {
+        body.querySelectorAll('.sh-sent').forEach(x => x.classList.remove('is-playing'));
+        b.classList.add('is-playing');
+        speak(t.sentences[+b.dataset.i].en, 1).then(() => b.classList.remove('is-playing'));
+      });
     });
-    document.getElementById('shadowPause').addEventListener('click', togglePause);
-
-    runLiveSession();
+    setDock(`<button class="gs-btn is-pri" id="shadowStart" type="button">Começar</button>`);
+    $('shadowStart').addEventListener('click', startSession);
   }
 
-  function runLiveSession() {
+  async function ensureMic() {
+    if (P.mic && P.mic.running) return true;
     const vr = VR();
-
-    const els = Array.from(document.querySelectorAll('#shadowKara .sh-w'));
-    P._live = {
-      active: true,
-      paused: false,
-      words: els.map(function (el, gi) {
-        return { gi, si: +el.dataset.si, wi: +el.dataset.wi, tok: vr.normalizeWord(el.textContent), el };
-      }),
-      base: 0,          // 1ª palavra do trecho atual (muda ao repetir/pular frase)
-      frozen: [],       // status congelado das palavras antes de `base`
-      committed: '',
-      interim: '',
-      status: [],
-      alignCursor: 0,
-      lastResultAt: 0,
-      paintTimer: null,
-    };
-    P._live.paintTimer = setInterval(paintLiveWords, PAINT_MS);
-
-    if (P.ranked) {
-      if (vr && vr.MicLevelMonitor) {
-        P.mic = new vr.MicLevelMonitor();
-        const canvas = document.getElementById('shadowWaveUser');
-        P.mic.onWaveform = function (buf) { drawWave(canvas, buf); };
-        P.mic.start().catch(function () {});
-      }
-      startRecognition();
-    }
-    playFrom(0);
+    if (!vr || !vr.MicLevelMonitor || !window.MediaRecorder) return false;
+    const mic = new vr.MicLevelMonitor();
+    try { await mic.start(); } catch (e) { return false; }
+    if (!P || P.closed) { mic.stop(); return false; }
+    P.mic = mic;
+    return true;
   }
 
-  // === Reconhecimento contínuo (só valendo nota) ===
-  function startRecognition() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR || !P || !P._live) return;
-    const rec = new SR();
-    P._rec = rec;
-    rec.lang = 'en-US';
-    rec.continuous = true;
-    rec.interimResults = true;
-    rec.maxAlternatives = 1;
-
-    let lastFinalIndex = 0;
-
-    rec.onresult = function (event) {
-      const live = P && P._live;
-      if (!live || !live.active || P._rec !== rec) return;
-      let interim = '';
-      for (let i = 0; i < event.results.length; i++) {
-        const res = event.results[i];
-        const transcript = res[0] ? res[0].transcript : '';
-        if (res.isFinal) {
-          if (i >= lastFinalIndex) {
-            live.committed += ' ' + transcript;
-            lastFinalIndex = i + 1;
-          }
-        } else {
-          interim += ' ' + transcript;
-        }
-      }
-      live.interim = interim;
-      live.lastResultAt = Date.now();
-      if ((live.committed + interim).trim()) P.heardAny = true;
-      paintLiveWords();
-    };
-    rec.onerror = function () { /* segue tentando — não interrompe a sessão */ };
-    rec.onend = function () {
-      if (P && P._rec === rec && P._live && P._live.active && !P._live.paused) {
-        lastFinalIndex = 0;
-        try { rec.start(); } catch (e) {}
-      }
-    };
-
-    try { rec.start(); } catch (e) {}
-  }
-
-  function stopRecognition() {
-    if (P && P._rec) { const r = P._rec; P._rec = null; try { r.abort(); } catch (e) {} }
-  }
-
-  const FUZZY_MIN_LEN = 4; // fuzzy por edit-distance só vale para palavras com >= 4 letras
-
-  // wordMatches aceita edit-distance<=1 (ex: "i"~"is", "a"~"as") — ótimo pra
-  // erro de pronúncia numa palavra longa, mas em palavras curtíssimas essa
-  // tolerância de 1 letra é proporcionalmente enorme e gera falso-positivo
-  // (bug real: quando o SR reenvia a frase do zero, o "I" que abre a nova
-  // cópia "engolia" um "is" real do alvo, pulando a palavra ANTES dele —
-  // ex: "cup" virava vermelho porque "i" ancorou em "is" ignorando "cup").
-  // Aqui só igualdade exata ou equivalência semântica (contrações/homófonos,
-  // que expandEquivalents já resolve dentro de wordMatches) valem pra
-  // palavras curtas — fuzzy por distância de edição exige tamanho mínimo.
-  function reliableMatch(vr, expected, heard) {
-    if (expected === heard) return true;
-    if (expected.length < FUZZY_MIN_LEN && heard.length < FUZZY_MIN_LEN) {
-      const equivs = vr.expandEquivalents(expected);
-      return equivs.has(heard);
-    }
-    return vr.wordMatches(expected, heard);
-  }
-
-  // Alinhamento guloso com resync: para cada palavra ouvida, procura âncora
-  // do cursor até LOOKAHEAD à frente (limitado pelo cursor do áudio — o
-  // usuário não pode legitimamente estar além do que o TTS já falou).
-  // Palavras entre o cursor e a âncora viram 'skip' (puladas de verdade,
-  // com evidência: algo DEPOIS delas foi reconhecido).
-  function computeAlignment(vr, tokens, heard, cap) {
-    const n = tokens.length;
-    const status = new Array(n).fill('pending');
-    let cursor = 0;
-    for (let h = 0; h < heard.length; h++) {
-      while (cursor < n && !tokens[cursor]) { status[cursor] = 'good'; cursor++; }
-      if (cursor >= cap) break;
-      const end = Math.min(cursor + ALIGN_LOOKAHEAD, cap);
-      let found = -1;
-      for (let j = cursor; j < end; j++) {
-        if (!tokens[j]) continue;
-        if (!reliableMatch(vr, tokens[j], heard[h])) continue;
-        // salto longo só com palavra forte — evita "a/i/the" ancorar longe
-        if (j - cursor > ANCHOR_NEAR_DIST &&
-            (heard[h].length < ANCHOR_MIN_LEN || tokens[j].length < ANCHOR_MIN_LEN)) continue;
-        found = j;
-        break;
-      }
-      if (found >= 0) {
-        for (let k = cursor; k < found; k++) status[k] = tokens[k] ? 'skip' : 'good';
-        status[found] = 'good';
-        cursor = found + 1;
-      }
-      // não achou: palavra extra/errada — ignora e espera a próxima ancorar
-    }
-    return { status, cursor };
-  }
-
-  // Índice GLOBAL da palavra que o áudio nativo está dizendo agora.
-  function audioWordCursor() {
-    const a = P && P._audio;
-    if (!a) return P && P._live ? P._live.base : 0;
-    if (a.ended) return a.offset + a.totalWords;
-    if (a.sawBoundary) return a.offset + a.boundaryWordIdx;
-    const elapsed = Date.now() - a.startedAt;
-    return a.offset + Math.min(a.totalWords, Math.floor(elapsed / WORD_MS_FALLBACK));
-  }
-
-  // Alinha só o trecho a partir de `base` (o que foi dito desde o último
-  // repetir/pular); antes disso vale o status congelado.
-  function alignLive() {
-    const vr = VR();
-    const live = P._live;
-    const base = live.base;
-    const heardText = (live.committed + ' ' + live.interim).trim();
-    const heard = heardText ? vr.tokenize(heardText) : [];
-    const audioCur = audioWordCursor();
-    const cap = Math.min(live.words.length, audioCur + 1 + AUDIO_AHEAD_MARGIN) - base;
-    const r = computeAlignment(vr, live.words.slice(base).map(w => w.tok), heard, Math.max(0, cap));
-    live.status = live.frozen.slice(0, base).concat(r.status);
-    live.alignCursor = base + r.cursor;
-    return { status: live.status, cursor: live.alignCursor, audioCur };
-  }
-
-  function sentenceOfWord(gi) {
-    const live = P._live;
-    if (!live || !live.words.length) return 0;
-    const w = live.words[Math.min(gi, live.words.length - 1)];
-    return w ? w.si : 0;
-  }
-
-  function currentSentence() {
-    if (!P || !P._live) return 0;
-    return P._live.shownSi != null ? P._live.shownSi : sentenceOfWord(audioWordCursor());
-  }
-
-  // Karaokê: mostra só a frase da vez. Palavra que o nativo diz agora = lima;
-  // reconhecida = verde; pulada (valendo nota) = cinza sublinhado; já tocada
-  // sem reconhecimento (treino livre) = tinta; futura = cinza legível.
-  function paintLiveWords() {
-    if (!P || !P._live) return;
-    const live = P._live;
-    const r = P.ranked ? alignLive() : { status: [], audioCur: audioWordCursor() };
-    const total = P.track.sentences.length;
-    const si = live.paused && live.shownSi != null ? live.shownSi : sentenceOfWord(r.audioCur);
-    live.words.forEach(function (w, idx) {
-      const st = r.status[idx];
-      let cls = 'sh-w';
-      if (st === 'good') cls += ' is-good';
-      else if (st === 'skip' && idx <= r.audioCur) cls += ' is-miss';
-      else if (idx === r.audioCur && live.active && !live.paused && P._audio && !P._audio.ended) cls += ' is-now';
-      else if (idx < r.audioCur) cls += ' is-said';
-      if (w.el.className !== cls) w.el.className = cls;
-    });
-
-    if (live.shownSi !== si || live._paintedPause !== live.paused) {
-      live.shownSi = si;
-      live._paintedPause = live.paused;
-      document.querySelectorAll('#shadowKara .sh-kara').forEach(p => { p.hidden = +p.dataset.si !== si; });
-      const nextEl = document.getElementById('shadowNext');
-      if (nextEl) nextEl.innerHTML = si + 1 < total ? `próxima: <b>${escapeHtml(P.track.sentences[si + 1].en)}</b>` : 'última frase';
-      setCount(`${si + 1}/${total}`);
-    }
-
-    // barra da topbar: um segmento por frase
-    const fracs = P.track.sentences.map((_, k) => {
-      if (k < si) return 1;
-      if (k > si) return 0;
-      const ws = live.words.filter(w => w.si === k);
-      const first = ws.length ? ws[0].gi : 0;
-      return ws.length ? Math.max(0, Math.min(1, (r.audioCur - first) / ws.length)) : 0;
-    });
-    setProg(fracs);
-  }
-
-  // Toca a faixa a partir da frase `si`, texto corrido, sem pausar entre
-  // frases — é o que torna isto shadowing simultâneo de verdade. Cada
-  // reprodução tem um id: o onend de uma fala cancelada (repetir/pular/
-  // pausar) não pode encerrar a sessão.
-  function playFrom(si) {
-    const live = P._live;
-    const sents = P.track.sentences;
-    const offset = live.words.findIndex(w => w.si === si);
-    const text = sents.slice(si).map(s => s.en).join(' ');
-
-    // offset de char → índice de palavra, pro onboundary do TTS
-    const starts = [];
-    const re = /\S+/g;
-    let m;
-    while ((m = re.exec(text))) starts.push(m.index);
-
-    const audio = {
-      id: (P._audio ? P._audio.id : 0) + 1,
-      offset: Math.max(0, offset),
-      startedAt: Date.now(),
-      totalWords: starts.length,
-      boundaryWordIdx: 0,
-      sawBoundary: false,
-      ended: false,
-    };
-    P._audio = audio;
-
-    speak(text, function () {
-      if (!P || P._audio !== audio || !P._live || P._live.paused) return;
-      audio.ended = true;
-      if (P.ranked) waitTailThenFinish(); else setTimeout(() => { if (P && P._audio === audio) finishLiveSession(); }, 600);
-    }, function (e) {
-      // Chrome dispara onboundary por palavra: cursor de áudio exato.
-      // Sem esses eventos, audioWordCursor() cai na estimativa por tempo.
-      if (!P || P._audio !== audio || typeof e.charIndex !== 'number') return;
-      let idx = 0;
-      while (idx + 1 < starts.length && starts[idx + 1] <= e.charIndex) idx++;
-      audio.boundaryWordIdx = idx;
-      audio.sawBoundary = true;
-    });
-  }
-
-  // Repetir / pular / retomar: congela o que já foi julgado antes da frase,
-  // zera o reconhecimento e toca de novo a partir dela.
-  function jumpTo(si) {
-    if (!P || !P._live) return;
-    const live = P._live;
-    if (P.ranked) {
-      const cur = alignLive();
-      live.frozen = cur.status.slice();
-    }
-    live.base = Math.max(0, live.words.findIndex(w => w.si === si));
-    for (let k = live.base; k < live.words.length; k++) live.frozen[k] = 'pending';
-    live.committed = '';
-    live.interim = '';
-    live.paused = false;
-    live.shownSi = null;
-    setPauseButton(false);
-    if (P.ranked) { stopRecognition(); startRecognition(); }
-    playFrom(si);
-    paintLiveWords();
-  }
-
-  function setPauseButton(paused) {
-    const btn = document.getElementById('shadowPause');
-    if (!btn) return;
-    btn.innerHTML = paused ? `${icon('play')}<small>continuar</small>` : `${icon('pause')}<small>pausar</small>`;
-    btn.setAttribute('aria-label', paused ? 'Continuar' : 'Pausar');
-  }
-
-  // Pausar = parar o áudio e o reconhecimento; continuar = retomar do
-  // começo da frase em que parou (pause() do speechSynthesis não é
-  // confiável no Android, então não dependemos dele).
-  function togglePause() {
-    if (!P || !P._live) return;
-    const live = P._live;
-    if (live.paused) { jumpTo(live.shownSi || 0); return; }
-    const si = currentSentence();
-    live.paused = true;
-    live.shownSi = si;
-    P._audio = null;
+  function startSession() {
     stopSpeech();
-    stopRecognition();
-    setPauseButton(true);
-    paintLiveWords();
+    P.queue = P.track.sentences.map((_, i) => i);
+    P.review = [];
+    P.inReview = false;
+    P.results = P.track.sentences.map(() => ({ tries: 0, dominated: false, best: null, finished: false }));
+    nextSentence();
   }
 
-  // O usuário fala com 1–2s de atraso natural — a sessão não pode cortar
-  // junto com o áudio. Espera a cauda: fecha quando o aluno alinhou tudo,
-  // quando ficar quieto, ou no teto de segurança.
-  //
-  // lastResultAt é resetado aqui: o relógio de silêncio só conta a partir
-  // de quando a cauda de fato começa a ser observada (o reconhecimento tem
-  // latência; sem isso a sessão cortava antes do onresult da fala final).
-  function waitTailThenFinish() {
-    const startedWait = Date.now();
-    if (P && P._live) P._live.lastResultAt = startedWait;
-    const audio = P._audio;
-    (function check() {
-      if (!P || !P._live || !P._live.active || P._audio !== audio) return;
-      const idleMs = Date.now() - (P._live.lastResultAt || startedWait);
-      const waited = Date.now() - startedWait;
-      const allDone = P._live.alignCursor >= P._live.words.length;
-      if (allDone || waited >= TAIL_MAX_MS || (waited >= TAIL_MIN_MS && idleMs > TAIL_IDLE_MS)) {
-        finishLiveSession();
-      } else {
-        setTimeout(check, 350);
-      }
-    })();
-  }
-
-  function drawWave(canvas, buf) {
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width = canvas.clientWidth || 300;
-    const h = canvas.height = 28;
-    ctx.clearRect(0, 0, w, h);
-    ctx.beginPath();
-    const slice = w / buf.length;
-    for (let i = 0; i < buf.length; i++) {
-      const v = (buf[i] - 128) / 128;
-      const y = h / 2 + v * (h / 2 - 2);
-      if (i === 0) ctx.moveTo(0, y); else ctx.lineTo(i * slice, y);
+  function nextSentence() {
+    Shell.closeSheet(session());
+    updateProgress();
+    if (!P.queue.length) {
+      if (!P.inReview && P.review.length) { startReview(); return; }
+      finishSession();
+      return;
     }
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--gs-warm') || '#d9832e';
-    ctx.lineWidth = 1.6;
-    ctx.stroke();
+    P.idx = P.queue.shift();
+    P.steps = null;
+    P.stepIdx = 0;
+    runTurn();
   }
 
-  // ─── Tela 3: resultado ─────────────────────────────────────────
-  function finishLiveSession() {
-    if (!P || P.phase !== 'live') return;
-    P.phase = 'result';
+  // Rodada de revisão: as frases que não passaram voltam uma vez, devagar.
+  function startReview() {
+    P.inReview = true;
+    P.queue = P.review.slice();
+    P.review = [];
+    const body = $('shadowPlayerBody');
+    body.innerHTML = `
+      <div class="gs-center">
+        <span class="eco-review-ico" aria-hidden="true">${icon('replay')}</span>
+        <h2 class="gs-h2">Rodada de revisão</h2>
+        <p class="gs-p">${P.queue.length === 1 ? 'Uma frase volta' : `${P.queue.length} frases voltam`} para mais uma chance — agora mais devagar e com a leitura.</p>
+      </div>`;
+    setCount('revisão');
+    setDock(`<button class="gs-btn is-pri" id="shadowGoReview" type="button">Bora</button>`);
+    $('shadowGoReview').addEventListener('click', nextSentence);
+  }
 
-    // consolida o resultado por frase a partir do status por palavra do
-    // alinhador (o áudio já acabou → o cap libera o texto inteiro)
-    if (P.ranked && P._live && P._live.words.length) {
-      if (P._audio) P._audio.ended = true;
-      const fin = alignLive();
-      P.sentenceResults = P.track.sentences.map(() => null);
-      P._live.words.forEach(function (w) {
-        if (!P.sentenceResults[w.si]) P.sentenceResults[w.si] = { matched: [] };
-        P.sentenceResults[w.si].matched[w.wi] = fin.status[w.gi] === 'good';
+  // ─── Turno de uma frase ───────────────────────────────────────
+  function currentText() {
+    const s = P.track.sentences[P.idx];
+    return P.steps ? P.steps[P.stepIdx] : s.en;
+  }
+
+  function tryNumber() { return P.results[P.idx].tries + 1; }
+
+  function renderTurnScreen(text) {
+    const s = P.track.sentences[P.idx];
+    const n = P.track.sentences.length;
+    const helping = P.inReview || tryNumber() >= 2;
+    const partial = P.steps && P.stepIdx < P.steps.length - 1;
+    setCount(P.inReview ? 'revisão' : `${P.idx + 1}/${n}`);
+
+    const body = $('shadowPlayerBody');
+    body.scrollTop = 0;
+    body.innerHTML = `
+      <div class="eco-head">
+        <span class="gs-kick">${P.inReview ? 'Revisão' : `Frase ${P.idx + 1} de ${n}`}${partial ? ' · por partes' : ''}</span>
+        ${tagHtml(s)}
+      </div>
+      <div class="eco-card">
+        <p class="eco-phrase" id="ecoPhrase">${renderPhraseHtml(s.en, text)}</p>
+        <p class="eco-pt">${escapeHtml(s.pt)}</p>
+        ${helping && s.ph ? `<p class="eco-ph">${escapeHtml(s.ph)}</p>` : ''}
+      </div>
+      <div class="eco-stage" id="ecoStage"></div>
+      <div class="eco-tries" aria-label="Tentativas">${Array.from({ length: MAX_TRIES }, (_, i) =>
+        `<i class="${i < P.results[P.idx].tries ? 'is-used' : ''}"></i>`).join('')}<span>${P.inReview ? 'última chance' : `tentativa ${Math.min(tryNumber(), MAX_TRIES)} de ${MAX_TRIES}`}</span></div>`;
+  }
+
+  // Na prática por partes, só o trecho da vez fica aceso.
+  function renderPhraseHtml(full, focus) {
+    const words = full.split(/\s+/);
+    const focusWords = focus.split(/\s+/).length;
+    const from = words.length - focusWords;
+    return words.map((w, i) => `<span class="${i < from ? 'is-off' : ''}">${escapeHtml(w)}</span>`).join(' ');
+  }
+
+  function paintPhrase(states, focusFrom) {
+    const spans = document.querySelectorAll('#ecoPhrase span');
+    spans.forEach((sp, i) => {
+      if (i < focusFrom) return;
+      const st = states[i - focusFrom];
+      sp.className = st ? `is-${st}` : '';
+    });
+  }
+
+  function setStage(kind, extra) {
+    const st = $('ecoStage');
+    if (!st) return;
+    if (kind === 'listen') {
+      st.innerHTML = `
+        <button class="gs-ah eco-ah" id="ecoPlay" type="button" aria-label="Ouvir de novo">${icon('sound')}</button>
+        <span class="eco-stage-cap">Ouça${P.slow || tryNumber() >= 2 || P.inReview ? ' · mais devagar' : ''}</span>`;
+    } else if (kind === 'turn') {
+      st.innerHTML = `
+        <span class="eco-mic" id="ecoMic"><i id="ecoMicLevel"></i>${icon('mic')}</span>
+        <span class="eco-stage-cap is-turn">Sua vez — fale a frase</span>`;
+    } else if (kind === 'eval') {
+      st.innerHTML = `<span class="eco-spinner" aria-hidden="true"></span><span class="eco-stage-cap">Analisando…</span>`;
+    } else if (kind === 'error') {
+      st.innerHTML = `<span class="eco-stage-cap">${extra || ''}</span>`;
+    }
+  }
+
+  function rateForTurn() {
+    return (P.slow || tryNumber() >= 2 || P.inReview) ? SLOW_RATE : 1;
+  }
+
+  async function runTurn() {
+    if (!P || P.closed) return;
+    P.phase = 'listen';
+    const text = currentText();
+    renderTurnScreen(text);
+    setStage('listen');
+    setDock(`
+      <button class="gs-btn is-sec is-ic" id="ecoSlow" type="button" aria-pressed="${P.slow}" aria-label="Mais devagar">🐢</button>
+      <button class="gs-btn is-pri" type="button" disabled>${icon('sound')}Ouvindo…</button>`);
+    $('ecoSlow').addEventListener('click', () => { P.slow = !P.slow; runTurn(); });
+    $('ecoPlay').addEventListener('click', () => runTurn());
+
+    const turnId = (P.turnId = (P.turnId || 0) + 1);
+    const finished = await speak(text, rateForTurn(), $('ecoPlay'));
+    if (!P || P.closed || P.turnId !== turnId || !finished) return;
+    startListening(turnId);
+  }
+
+  function abortTurn() {
+    if (!P) return;
+    P.turnId = (P.turnId || 0) + 1;
+    if (P.recorder && P.recorder.state !== 'inactive') {
+      P.recorder.onstop = null;
+      try { P.recorder.stop(); } catch (e) {}
+    }
+    P.recorder = null;
+    if (P.mic) P.mic.onLevel = null;
+  }
+
+  function pickMime() {
+    const c = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
+    return c.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
+  }
+
+  async function startListening(turnId) {
+    const ok = await ensureMic();
+    if (!P || P.closed || P.turnId !== turnId) return;
+    if (!ok) { micUnavailable(); return; }
+
+    P.phase = 'turn';
+    setStage('turn');
+    setDock(`
+      <button class="gs-btn is-sec is-ic" id="ecoReplay" type="button" aria-label="Ouvir de novo">${icon('sound')}</button>
+      <button class="gs-btn is-rec is-playing" id="ecoDone" type="button"><span class="gs-wave" aria-hidden="true" style="margin:0"><i></i><i></i><i></i><i></i><i></i></span>Terminei</button>`);
+
+    const mime = pickMime();
+    let recorder;
+    try { recorder = mime ? new MediaRecorder(P.mic.stream, { mimeType: mime }) : new MediaRecorder(P.mic.stream); }
+    catch (e) { micUnavailable(); return; }
+    P.recorder = recorder;
+    const chunks = [];
+    recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+
+    const startedAt = Date.now();
+    let voiced = 0, speechStarted = false, lastVoiceAt = 0, stopped = false;
+    const levelEl = $('ecoMicLevel');
+
+    const stop = (reason) => {
+      if (stopped) return;
+      stopped = true;
+      if (P && P.mic) P.mic.onLevel = null;
+      recorder.onstop = () => {
+        if (!P || P.closed || P.turnId !== turnId) return;
+        const type = (recorder.mimeType || mime || 'audio/webm').split(';')[0];
+        const blob = new Blob(chunks, { type });
+        if (P.blobUrl) URL.revokeObjectURL(P.blobUrl);
+        P.blobUrl = URL.createObjectURL(blob);
+        if (reason === 'no-speech' || !speechStarted) { noSpeech(); return; }
+        evaluateTurn(blob, type, turnId);
+      };
+      try { recorder.stop(); } catch (e) { noSpeech(); }
+    };
+
+    P.mic.onLevel = (level, audible) => {
+      if (levelEl) levelEl.style.transform = `scale(${1 + Math.min(1, level) * 0.9})`;
+      const now = Date.now();
+      if (audible) {
+        voiced++;
+        if (voiced >= VOICE_FRAMES_TO_START) { speechStarted = true; lastVoiceAt = now; }
+      } else {
+        voiced = 0;
+      }
+      if (speechStarted && now - lastVoiceAt > SILENCE_END_MS) stop('silence');
+      else if (!speechStarted && now - startedAt > NO_SPEECH_MS) stop('no-speech');
+      else if (now - startedAt > MAX_TURN_MS) stop('max');
+    };
+
+    $('ecoDone').addEventListener('click', () => { speechStarted = speechStarted || Date.now() - startedAt > 600; stop('button'); });
+    $('ecoReplay').addEventListener('click', () => { abortTurn(); runTurn(); });
+    recorder.start(100);
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result).split(',')[1] || '');
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  async function transcribe(blob, type) {
+    const token = getAuthToken();
+    if (!token) return { error: 'auth' };
+    try {
+      const audio_base64 = await blobToBase64(blob);
+      const r = await fetch('/api/voice/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        // Sem a frase esperada no contexto: dar a resposta ao Whisper o
+        // faria "ouvir" a frase certa mesmo quando ela não foi dita.
+        body: JSON.stringify({ audio_base64, mime_type: type }),
+      });
+      if (!r.ok) return { error: 'http' };
+      const d = await r.json();
+      if (d.fallback) return { error: d.reason || 'fallback' };
+      return { transcript: d.transcript || '' };
+    } catch (e) {
+      return { error: 'network' };
+    }
+  }
+
+  async function evaluateTurn(blob, type, turnId) {
+    P.phase = 'eval';
+    setStage('eval');
+    setDock(`<button class="gs-btn is-pri" type="button" disabled>Analisando…</button>`);
+    const res = await transcribe(blob, type);
+    if (!P || P.closed || P.turnId !== turnId) return;
+    if (res.error) { transcribeFailed(); return; }
+
+    const text = currentText();
+    const result = judge(text, res.transcript);
+    if (result.heardNothing) { noSpeech(); return; }
+
+    const s = P.track.sentences[P.idx];
+    const full = !P.steps || P.stepIdx === P.steps.length - 1;
+    const focusFrom = s.en.split(/\s+/).length - text.split(/\s+/).length;
+    paintPhrase(wordStates(text, result), focusFrom);
+
+    if (!full) {
+      // Prática por partes: não gasta tentativa — mostra o resultado e segue.
+      setStage('error', result.passed ? 'Isso! Agora um pedaço maior.' : 'Boa. Agora um pedaço maior.');
+      setTimeout(() => { if (P && P.turnId === turnId) { P.stepIdx++; runTurn(); } }, 1400);
+      return;
+    }
+
+    const r = P.results[P.idx];
+    r.tries++;
+    if (!r.best || result.weighted > r.best.weighted) r.best = result;
+    if (result.passed) {
+      r.dominated = true;
+      r.finished = true;
+      updateProgress();
+      showFeedback('pass', result);
+    } else if (!P.inReview && r.tries < MAX_TRIES) {
+      showFeedback('retry', result);
+    } else {
+      r.finished = true;
+      if (!P.inReview) P.review.push(P.idx);
+      updateProgress();
+      showFeedback('later', result);
+    }
+  }
+
+  function compareButtons() {
+    return `
+      <div class="eco-compare">
+        <button class="gs-chipbtn" type="button" data-cmp="native">${icon('sound')}Nativo</button>
+        <button class="gs-chipbtn" type="button" data-cmp="you"${P.blobUrl ? '' : ' disabled'}>${icon('play')}Você</button>
+      </div>`;
+  }
+
+  function bindCompare(sheet) {
+    const s = P.track.sentences[P.idx];
+    const nat = sheet.querySelector('[data-cmp="native"]');
+    const you = sheet.querySelector('[data-cmp="you"]');
+    if (nat) nat.addEventListener('click', () => speak(s.en, rateForTurn()));
+    if (you && P.blobUrl) {
+      you.addEventListener('click', () => {
+        stopSpeech();
+        try { new Audio(P.blobUrl).play(); } catch (e) {}
       });
     }
-    stopEverything();
-    P._live = null;
-    setProg(P.track.sentences.map(() => 1));
-    setCount('fim');
+  }
 
-    if (!P.ranked) { renderFreeResult(); return; }
-    if (!P.heardAny) { renderNoVoice(); return; }
+  function missedWordsHtml(text, result) {
+    const words = text.split(/\s+/);
+    const states = wordStates(text, result);
+    const missed = words.filter((_, i) => states[i] && states[i] !== 'ok').slice(0, 2);
+    return missed.map(w => `<b>${escapeHtml(w.replace(/[.,!?;:]+$/, ''))}</b>`).join(' e ');
+  }
 
-    const results = P.sentenceResults.filter(Boolean);
-    const totalWords = P.track.sentences.reduce((s, sent) => s + sent.en.split(/\s+/).length, 0);
-    const correctWords = results.reduce((s, r) => s + (r.matched ? r.matched.filter(Boolean).length : 0), 0);
-    const score = totalWords ? Math.round((correctWords / totalWords) * 100) : 0;
+  function showFeedback(kind, result) {
+    const s = P.track.sentences[P.idx];
+    const count = `${result.okCount} de ${result.total} palavras claras`;
+    const tip = result.ev.brPatterns && result.ev.brPatterns[0];
+    const tipHtml = tip ? `<p class="gs-sheet-text gs-muted eco-tip">💡 ${escapeHtml(tip.tip)}</p>` : '';
+    const missed = missedWordsHtml(s.en, result);
+    const nextTry = P.results[P.idx].tries + 1;
+    const willChunk = nextTry === MAX_TRIES && backchainSteps(s.en).length > 1;
 
-    const st = trackState(P.track.slug);
-    const attempts = st.attempts + 1;
-    const isNewRecord = score > st.bestScore && st.attempts > 0;
-    const goal = relaxedMin(P.track, attempts);
-    const passed = score >= goal;
-    setTrackState(P.track.slug, {
-      bestScore: Math.max(st.bestScore, score),
-      attempts,
+    let opts;
+    if (kind === 'pass') {
+      opts = {
+        tone: 'good',
+        title: P.results[P.idx].tries === 1 && !P.inReview ? 'Isso! De primeira.' : 'Isso! Frase dominada.',
+        html: `<p class="gs-sheet-text">${count}.</p>${compareButtons()}`,
+        actions: [{ label: P.queue.length ? 'Próxima frase' : 'Continuar', kind: 'pri', id: 'ecoNext', onClick: nextSentence }],
+      };
+    } else if (kind === 'retry') {
+      opts = {
+        tone: 'warn',
+        title: 'Quase lá',
+        html: `<p class="gs-sheet-text">${count}.${missed ? ` Repare em ${missed}.` : ''}</p>${tipHtml}
+          <p class="gs-sheet-text gs-muted">${willChunk ? 'Na próxima, vamos por partes.' : 'Na próxima, mais devagar e com a leitura.'}</p>${compareButtons()}`,
+        actions: [
+          { label: 'Tentar de novo', kind: 'pri', icon: 'mic', id: 'ecoRetry', onClick: () => {
+            Shell.closeSheet(session());
+            if (willChunk) { P.steps = backchainSteps(s.en); P.stepIdx = 0; }
+            runTurn();
+          } },
+          { label: 'Pular', kind: 'txt', onClick: () => {
+            const r = P.results[P.idx];
+            r.finished = true;
+            if (!P.inReview) P.review.push(P.idx);
+            nextSentence();
+          } },
+        ],
+      };
+    } else {
+      opts = {
+        tone: 'plain',
+        icon: null,
+        title: P.inReview ? 'Fica para a próxima rodada' : 'Essa volta no fim',
+        html: `<p class="gs-sheet-text">${count}. ${P.inReview ? 'Ela continua na sua trilha para treinar de novo.' : 'Sem stress — ela entra na rodada de revisão.'}</p>${tipHtml}${compareButtons()}`,
+        actions: [{ label: 'Seguir', kind: 'pri', id: 'ecoNext', onClick: nextSentence }],
+      };
+    }
+    P.phase = 'feedback';
+    const sheet = Shell.openSheet(session(), opts);
+    bindCompare(sheet);
+  }
+
+  function noSpeech() {
+    if (!P || P.closed) return;
+    P.phase = 'feedback';
+    const sheet = Shell.openSheet(session(), {
+      tone: 'warn',
+      title: 'Não te ouvi',
+      html: '<p class="gs-sheet-text">Fale um pouco mais perto do microfone. Essa não contou como tentativa.</p>',
+      actions: [{ label: 'Tentar de novo', kind: 'pri', icon: 'mic', id: 'ecoRetry', onClick: () => { Shell.closeSheet(session()); runTurn(); } }],
+    });
+    return sheet;
+  }
+
+  function micUnavailable() {
+    if (!P || P.closed) return;
+    P.phase = 'feedback';
+    Shell.openSheet(session(), {
+      tone: 'warn',
+      title: 'Sem acesso ao microfone',
+      html: '<p class="gs-sheet-text">Libere o microfone para este site nas configurações do navegador e tente de novo.</p>',
+      actions: [
+        { label: 'Tentar de novo', kind: 'pri', onClick: () => { Shell.closeSheet(session()); runTurn(); } },
+        { label: 'Sair', kind: 'txt', onClick: closePlayer },
+      ],
+    });
+  }
+
+  function transcribeFailed() {
+    if (!P || P.closed) return;
+    P.phase = 'feedback';
+    Shell.openSheet(session(), {
+      tone: 'warn',
+      title: 'Não consegui analisar agora',
+      html: '<p class="gs-sheet-text">A conexão falhou no meio do caminho. Essa não contou como tentativa.</p>',
+      actions: [{ label: 'Tentar de novo', kind: 'pri', onClick: () => { Shell.closeSheet(session()); runTurn(); } }],
+    });
+  }
+
+  // ─── Resultado ────────────────────────────────────────────────
+  function countRing(done, total, goal) {
+    const R = 64, C = 2 * Math.PI * R;
+    const tone = Shell.tone(done, goal);
+    return `
+      <div class="gs-rring is-${tone}" role="img" aria-label="${done} de ${total} frases dominadas">
+        <svg viewBox="0 0 150 150" aria-hidden="true">
+          <circle class="gs-rring-track" cx="75" cy="75" r="${R}"/>
+          <circle class="gs-rring-fill" cx="75" cy="75" r="${R}" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - done / total)).toFixed(1)}"/>
+        </svg>
+        <b>${done}/${total}<small>dominadas</small></b>
+      </div>`;
+  }
+
+  function finishSession() {
+    stopSpeech();
+    releaseMic();
+    P.phase = 'result';
+    const t = P.track;
+    const n = t.sentences.length;
+    const dominated = P.results.filter(r => r.dominated).length;
+    const st = trackState(t.slug);
+    const passed = dominated >= t.minDominated;
+    const order = window.GriloShadow.getTrackOrder();
+    const nextT = order[order.indexOf(t) + 1] || null;
+    const unlocked = passed && !st.rankedDone && !!nextT;
+    setTrackState(t.slug, {
+      bestDominated: Math.max(st.bestDominated || 0, dominated),
+      attempts: (st.attempts || 0) + 1,
       rankedDone: st.rankedDone || passed,
     });
-    const unlocked = passed && !st.rankedDone;
-    if (passed) markDailyDone();
+    markDailyDone();
+    Shell.setProg($('shadowProg'), t.sentences.map(() => 1));
+    setCount('fim');
 
-    // credita o vocabulário falado certo no MESMO pool da home (WordProfile)
-    // — decisão de produto: um histórico só por palavra, não importa a fonte.
-    // Só sessões valendo nota enviam; o treino livre não tem prova de áudio.
-    syncWordsToBackend(P.track, P.sentenceResults, score, unlocked);
-
-    renderResult(score, goal, isNewRecord, unlocked, attempts);
-  }
-
-  function getAuthToken() {
-    try { return sessionStorage.getItem('grilo_token'); } catch (e) { return null; }
-  }
-
-  function syncWordsToBackend(track, sentenceResults, score, unlockedNext) {
-    const token = getAuthToken();
-    if (!token) return; // deslogado — só progresso local, como no piloto lessons-4p
-
-    const words = [];
-    // frases: uma sentença conta como "acerto" quando a PRÓPRIA proporção de
-    // palavras certas bate o limiar de aceitação da faixa (minScoreToUnlock —
-    // o mesmo "score aceitável pra concluir" já usado pra liberar a próxima
-    // faixa). Não exige 100%: o reconhecimento ainda está em ajuste, então
-    // uma frase quase toda certa não deveria ficar de fora só por 1 palavra
-    // capturada errado. Cada frase julgada pelo próprio desempenho — uma
-    // frase ruim não é carregada pela média boa das outras na mesma sessão.
-    const passThreshold = (track.minScoreToUnlock || 70) / 100;
-    const sentences = [];
-    track.sentences.forEach(function (sent, si) {
-      const r = sentenceResults[si];
-      if (!r || !r.matched) return;
-      const tokens = sent.en.split(/\s+/);
-      tokens.forEach(function (raw, wi) {
-        const word = raw.toLowerCase().replace(/[^\p{L}\p{N}'-]/gu, '');
-        if (!word || word.length < 2) return;
-        words.push({ word, correct: !!r.matched[wi] });
-      });
-      const correctCount = tokens.reduce(function (n, _, wi) { return n + (r.matched[wi] ? 1 : 0); }, 0);
-      const passedThreshold = tokens.length > 0 && (correctCount / tokens.length) >= passThreshold;
-      sentences.push({ index: si, en: sent.en, all_correct: passedThreshold });
-    });
-    if (!words.length) return;
-
-    fetch(`/api/shadowing/tracks/${encodeURIComponent(track.slug)}/result`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ score, words, sentences, unlocked_next: !!unlockedNext }),
-    }).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    }).then(function (res) {
-      const xp = document.getElementById('shadowXp');
-      if (xp && res && res.xp_earned) { xp.textContent = `ganhou +${res.xp_earned} XP`; xp.hidden = false; }
-      console.log('[SHADOW] vocabulário sincronizado:', track.slug, res);
-    }).catch(function (err) {
-      console.warn('[SHADOW] sync falhou (progresso local preservado):', err.message);
-    });
-  }
-
-  function nextTrackOf(track) {
-    const order = window.GriloShadow.getTrackOrder();
-    return order[track.order] || null; // order é 1-based
-  }
-
-  function sentenceListHtml(withScores) {
-    return `<div class="sh-frs">${P.track.sentences.map((s, si) => {
-      const r = P.sentenceResults[si];
-      let chip = '';
-      if (withScores) {
-        const n = s.en.split(/\s+/).length;
-        const pct = r && r.matched ? Math.round((r.matched.filter(Boolean).length / n) * 100) : 0;
-        chip = `<span class="sh-fr-sc is-${Shell.tone(pct, P.track.minScoreToUnlock)}">${pct}</span>`;
-      }
-      return `
-        <button class="sh-fr" type="button" data-say="${si}" aria-label="Ouvir: ${escapeHtml(s.en)}">
-          ${chip}<b>${escapeHtml(s.en)}</b><span class="sh-fr-pp">${icon('sound')}</span>
-        </button>`;
-    }).join('')}</div>`;
-  }
-
-  function bindSayButtons(body) {
-    body.querySelectorAll('[data-say]').forEach(b => {
-      b.addEventListener('click', () => speak(P.track.sentences[+b.dataset.say].en));
-    });
-  }
-
-  function retryLive() { startLiveSession(); }
-
-  // Valer nota, com nota
-  function renderResult(score, goal, isNewRecord, unlocked, attempts) {
-    const body = document.getElementById('shadowPlayerBody');
-    const tone = Shell.tone(score, goal);
-    const nextT = nextTrackOf(P.track);
-    const passed = score >= goal;
-    const title = tone === 'good' ? (unlocked ? 'Faixa concluída!' : 'Mandou bem!')
-      : tone === 'warn' ? 'No caminho!' : 'Primeira volta feita';
+    const tone = Shell.tone(dominated, t.minDominated);
+    const title = tone === 'good' ? (unlocked ? 'Faixa dominada!' : 'Mandou bem!')
+      : tone === 'warn' ? 'Quase lá!' : 'Primeira rodada feita';
     const sub = passed
-      ? (unlocked && nextT ? `Próxima faixa liberada: <b>${escapeHtml(nextT.title)}</b>.` : 'Você bateu a meta desta faixa.')
-      : `Faltam <b>${goal - score} pontos</b> para liberar ${nextT ? `<i>${escapeHtml(nextT.title)}</i>` : 'a próxima'}.`;
-    const tryFree = attempts >= RELAX_TRIES_BEFORE_CASUAL_CTA && !passed
-      ? `<p class="gs-p sh-note">Já são ${attempts} tentativas nesta faixa. Um treino livre antes da próxima pode ajudar.</p>` : '';
+      ? (unlocked ? `Próxima faixa liberada: <b>${escapeHtml(nextT.title)}</b>.` : 'Você bateu a meta desta faixa.')
+      : `Domine <b>${t.minDominated}</b> para liberar a próxima — falta${t.minDominated - dominated > 1 ? 'm' : ''} <b>${t.minDominated - dominated}</b>.`;
 
+    const body = $('shadowPlayerBody');
     body.scrollTop = 0;
     body.innerHTML = `
       <div class="gs-center">
-        ${Shell.resultRing(score, goal)}
-        ${isNewRecord ? '<span class="sh-record">🏆 novo recorde</span>' : ''}
+        ${countRing(dominated, n, t.minDominated)}
         <h2 class="gs-h2">${title}</h2>
         <p class="gs-p">${sub}</p>
         <span class="gs-xp" id="shadowXp" hidden></span>
-        ${tryFree}
       </div>
-      <span class="gs-lbl sh-frs-title">Frase a frase · toque para ouvir o nativo</span>
-      ${sentenceListHtml(true)}`;
-    bindSayButtons(body);
+      <span class="gs-lbl sh-frs-title">Suas frases · toque para ouvir de novo</span>
+      <div class="sh-frs">${t.sentences.map((s, i) => {
+        const r = P.results[i];
+        return `
+          <button class="sh-fr" type="button" data-say="${i}">
+            <span class="sh-fr-sc is-${r.dominated ? 'good' : 'neutral'}">${r.dominated ? icon('check') : icon('replay')}</span>
+            <b>${escapeHtml(s.en)}</b><span class="sh-fr-pp">${icon('sound')}</span>
+          </button>`;
+      }).join('')}</div>`;
+    body.querySelectorAll('[data-say]').forEach(b => b.addEventListener('click', () => speak(t.sentences[+b.dataset.say].en, 1)));
 
     const goNext = passed && nextT;
     setDock(`
       <button class="gs-btn is-sec" id="shadowBack" type="button">Trilha</button>
-      <button class="gs-btn is-pri" id="shadowAgain" type="button">${goNext ? 'Próxima faixa' : 'Tentar de novo'}</button>`);
-    document.getElementById('shadowBack').addEventListener('click', closePlayer);
-    document.getElementById('shadowAgain').addEventListener('click', () => {
+      <button class="gs-btn is-pri" id="shadowAgain" type="button">${goNext ? 'Próxima faixa' : 'Treinar de novo'}</button>`);
+    $('shadowBack').addEventListener('click', closePlayer);
+    $('shadowAgain').addEventListener('click', () => {
       if (goNext) { const slug = nextT.slug; closePlayer(); openTrack(slug); }
-      else retryLive();
+      else startSession();
     });
+
+    syncToBackend(t, dominated, unlocked);
   }
 
-  // Treino livre: sem reconhecimento, então sem nota (antes mostrava "0").
-  function renderFreeResult() {
-    const body = document.getElementById('shadowPlayerBody');
-    body.scrollTop = 0;
-    body.innerHTML = `
-      <div class="gs-center">
-        <span class="sh-done-ico" aria-hidden="true">${icon('check')}</span>
-        <h2 class="gs-h2">Treino livre feito</h2>
-        <p class="gs-p">Você acompanhou as ${P.track.sentences.length} frases. Repita até o ritmo ficar natural — e ligue <b>🏆 Valer nota</b> quando quiser avançar na trilha.</p>
-        ${speechSupported() ? `<button class="gs-btn is-sec" id="shadowGoRanked" type="button">🏆 Tentar valendo nota</button>` : ''}
-      </div>
-      <span class="gs-lbl sh-frs-title">Toque numa frase para ouvir de novo</span>
-      ${sentenceListHtml(false)}
-      <p class="sh-foot">Treino livre — não conta para a trilha.</p>`;
-    bindSayButtons(body);
-    const goRanked = document.getElementById('shadowGoRanked');
-    if (goRanked) goRanked.addEventListener('click', () => { P.ranked = true; renderPreview(); });
-
-    setDock(`
-      <button class="gs-btn is-sec" id="shadowBack" type="button">Trilha</button>
-      <button class="gs-btn is-pri" id="shadowAgain" type="button">Mais uma vez</button>`);
-    document.getElementById('shadowBack').addEventListener('click', closePlayer);
-    document.getElementById('shadowAgain').addEventListener('click', retryLive);
+  // Credita o vocabulário falado certo no mesmo pool da home (WordProfile)
+  // e as frases dominadas (ShadowLabPhrase) — endpoint do antigo Shadowing.
+  function syncToBackend(track, dominated, unlockedNext) {
+    const token = getAuthToken();
+    if (!token) return;
+    const words = [];
+    const sentences = [];
+    track.sentences.forEach((s, i) => {
+      const r = P.results[i];
+      if (r.best) r.best.ev.expTokens.forEach((w, k) => words.push({ word: w, correct: !!r.best.ev.matched[k] }));
+      sentences.push({ index: i, en: s.en, all_correct: r.dominated });
+    });
+    fetch(`/api/shadowing/tracks/${encodeURIComponent(track.slug)}/result`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({
+        score: Math.round((dominated / track.sentences.length) * 100),
+        words,
+        sentences,
+        unlocked_next: !!unlockedNext,
+      }),
+    }).then(r => (r.ok ? r.json() : null)).then(res => {
+      const xp = $('shadowXp');
+      if (xp && res && res.xp_earned) { xp.textContent = `ganhou +${res.xp_earned} XP`; xp.hidden = false; }
+    }).catch(err => console.warn('[ECO] sync falhou (progresso local preservado):', err && err.message));
   }
 
-  // Valendo nota, mas nenhuma fala chegou: é o microfone, não o aluno.
-  // Não grava tentativa nem nota.
-  function renderNoVoice() {
-    const body = document.getElementById('shadowPlayerBody');
-    body.scrollTop = 0;
-    body.innerHTML = `
-      <div class="gs-center">
-        <span class="sh-micoff" aria-hidden="true">${icon('micoff')}</span>
-        <h2 class="gs-h2">Não ouvimos sua voz</h2>
-        <p class="gs-p">Isso não é nota — é o microfone. Confira três coisas e tente de novo:</p>
-        <ol class="sh-check">
-          <li>Permitiu o microfone quando o navegador pediu?</li>
-          <li>Está no Chrome (ou Edge) atualizado?</li>
-          <li>Fale perto do celular, no ritmo do áudio.</li>
-        </ol>
-        <p class="sh-foot">Esta tentativa não foi contada.</p>
-      </div>`;
-    setDock(`
-      <button class="gs-btn is-sec" id="shadowListen" type="button">Só ouvir</button>
-      <button class="gs-btn is-pri" id="shadowAgain" type="button">Tentar de novo</button>`);
-    document.getElementById('shadowListen').addEventListener('click', renderPreview);
-    document.getElementById('shadowAgain').addEventListener('click', retryLive);
+  // ─── Modal "Como funciona" ────────────────────────────────────
+  function setHowOpen(open) {
+    const modal = $('shadowHowModal');
+    if (modal) modal.hidden = !open;
   }
 
-  // ─── Modal "Como funciona o Laboratório" ────────────────────────
-  function openHowItWorks() {
-    const modal = document.getElementById('shadowHowModal');
-    if (modal) modal.hidden = false;
-  }
-  function closeHowItWorks() {
-    const modal = document.getElementById('shadowHowModal');
-    if (modal) modal.hidden = true;
-  }
-
-  // ─── Init ────────────────────────────────────────────────────
   function init() {
     renderHub();
-    const howBtn = document.getElementById('shadowHowItWorksBtn');
-    const howClose = document.getElementById('shadowHowClose');
-    const howGotIt = document.getElementById('shadowHowGotIt');
-    const howModal = document.getElementById('shadowHowModal');
-    if (howBtn) howBtn.addEventListener('click', openHowItWorks);
-    if (howClose) howClose.addEventListener('click', closeHowItWorks);
-    if (howGotIt) howGotIt.addEventListener('click', closeHowItWorks);
-    if (howModal) howModal.addEventListener('click', function (e) {
-      if (e.target === howModal) closeHowItWorks();
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && P) closePlayer();
-    });
+    const bind = (id, fn) => { const el = $(id); if (el) el.addEventListener('click', fn); };
+    bind('shadowHowItWorksBtn', () => setHowOpen(true));
+    bind('shadowHowClose', () => setHowOpen(false));
+    bind('shadowHowGotIt', () => setHowOpen(false));
+    const howModal = $('shadowHowModal');
+    if (howModal) howModal.addEventListener('click', e => { if (e.target === howModal) setHowOpen(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && P) requestClose(); });
     openFromUrl();
   }
 
   // Link direto: shadowing.html?faixa=<slug> (destino do "Treino de hoje"
-  // da home). Faixa trancada não abre — o aluno cai no hub, como sempre.
+  // da home). Faixa trancada não abre — o aluno cai no hub.
   function openFromUrl() {
     let slug = null;
     try { slug = new URLSearchParams(location.search).get('faixa'); } catch (e) {}
@@ -1098,8 +952,5 @@
 
   document.addEventListener('DOMContentLoaded', init);
 
-  window.GriloShadowLab = {
-    openTrack, closePlayer,
-    _computeAlignment: computeAlignment,
-  };
+  window.GriloShadowLab = { openTrack, closePlayer, _judge: judge, _backchainSteps: backchainSteps };
 })();

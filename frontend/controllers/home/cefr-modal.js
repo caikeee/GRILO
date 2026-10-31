@@ -481,10 +481,10 @@
             cur: sc.lessons_completed || 0, target: lessonsTotal
         });
 
-        // Gate "Shadowing" — dado real do Laboratório (ShadowLabResult, 1
-        // registro por sessão Ranqueada concluída).
+        // Gate "Eco" (antigo Shadowing) — dado real (ShadowLabResult, 1
+        // registro por faixa concluída).
         html += realRow(rowIdx++, {
-            icon: '🎙️', title: 'Sessões de shadowing',
+            icon: '🎙️', title: 'Sessões de Eco',
             sub: 'Treino de fala guiado do nível',
             cur: (stats && stats.shadowing_sessions_completed) || 0,
             target: SHADOWING_SESSIONS_TARGET

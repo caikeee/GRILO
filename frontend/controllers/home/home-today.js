@@ -4,7 +4,7 @@
  * O treino de hoje amarra as frentes num percurso só, na ordem das 4 pontas:
  *   1. Aula       (ver, ouvir, escrever, falar o escopo)
  *   2. Ditação    (ouvir e escrever)
- *   3. Shadowing  (falar junto com o nativo)
+ *   3. Eco        (ouvir a frase e repetir — antigo Shadowing)
  * Cada passo aponta para o conteúdo exato (aula/faixa da vez) e marca ✓
  * quando foi feito hoje. A fonte de "feito hoje" é a mesma de cada página:
  *   - aula: completedAt de hoje no progresso do player 4 pontas
@@ -18,7 +18,7 @@
     'use strict';
 
     const DICTATION_DATA = 'assets/js/dictation-data.js?v=1';
-    const SHADOW_DATA = 'assets/js/shadowing-data.js?v=2';
+    const SHADOW_DATA = 'assets/js/shadowing-data.js?v=3';
     const DICTATION_LS = 'grilo_dictation_progress_v1';
     const SHADOW_LS = 'grilo_shadow_progress_v1';
     const LESSONS_LS = 'grilo4p_progress_v1';
@@ -138,7 +138,7 @@
             trackStep(window.GriloDictation, DICTATION_LS, st => !!st.done,
                 { ico: '✎', kicker: 'Ditação · ouvir e escrever', page: 'dictation.html', doneTitle: 'Ditação feita hoje' }),
             trackStep(window.GriloShadow, SHADOW_LS, st => !!st.rankedDone,
-                { ico: '◉', kicker: 'Shadowing · falar junto', page: 'shadowing.html', doneTitle: 'Shadowing feito hoje' }),
+                { ico: '◉', kicker: 'Eco · ouvir e repetir', page: 'shadowing.html', doneTitle: 'Eco feito hoje' }),
         ].filter(Boolean);
         if (!steps.length) return;
 

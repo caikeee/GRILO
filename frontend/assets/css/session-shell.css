@@ -299,6 +299,8 @@
 .gs-btn.is-txt { background: transparent; color: var(--gs-muted); font-weight: 600 !important; padding: 0 12px !important; }
 .gs-btn.is-ic { width: 52px; padding: 0 !important; }
 .gs-btn.is-rec { flex: 1; background: var(--gs-bad); color: #fff; }
+/* no escuro o --gs-bad é claro (para texto); com letra branca por cima ele escurece */
+:root[data-theme="dark"] .gs-btn.is-rec { background: #b4524a; }
 .gs-btn.is-lime { background: var(--gs-lime); color: var(--gs-lime-ink); }
 .gs-btn.is-sm { height: 46px; min-height: 46px !important; font-size: 16px !important; }
 

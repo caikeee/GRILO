@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Laboratório de Shadowing · GRILO</title>
+  <title>Eco · treino de pronúncia · GRILO</title>
 
   <!-- Tema: aplica antes de pintar a tela p/ evitar flash. Padrão inicial = preferência do SO. -->
   <script>
@@ -36,8 +36,8 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="assets/css/shadowing.css?v=8">
-  <link rel="stylesheet" href="assets/css/session-shell.css?v=1">
+  <link rel="stylesheet" href="assets/css/shadowing.css?v=9">
+  <link rel="stylesheet" href="assets/css/session-shell.css?v=2">
 </head>
 <body class="app-shadowing">
   <main class="gs-hub">
@@ -51,10 +51,10 @@
     <!-- ── Cabeçalho compacto ─────────────────────────────── -->
     <header class="gs-hub-head">
       <div>
-        <span class="gs-kick">Lab · ouvir e imitar</span>
-        <h1 class="gs-h1">Shadowing</h1>
+        <span class="gs-kick">Pronúncia · ouvir e repetir</span>
+        <h1 class="gs-h1">Eco</h1>
       </div>
-      <div class="gs-ring" id="shadowRing" role="img" aria-label="Faixas concluídas valendo nota">
+      <div class="gs-ring" id="shadowRing" role="img" aria-label="Faixas concluídas">
         <svg viewBox="0 0 58 58" aria-hidden="true">
           <circle class="gs-ring-track" cx="29" cy="29" r="24"/>
           <circle class="gs-ring-fill" cx="29" cy="29" r="24"/>
@@ -64,7 +64,7 @@
     </header>
     <button type="button" class="gs-how" id="shadowHowItWorksBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor" stroke="none"/></svg>
-      O que é shadowing?
+      Como funciona o Eco
     </button>
 
     <!-- ── Próxima faixa ──────────────────────────────────── -->
@@ -78,39 +78,35 @@
   <!-- ── Sessão (tela cheia no celular) ────────────────────── -->
   <div class="gs-overlay" id="shadowPlayerOverlay" hidden></div>
 
-  <!-- ── Modal "Como funciona o Laboratório" ─────────────────── -->
+  <!-- ── Modal "Como funciona o Eco" ─────────────────────────── -->
   <div class="shadow-how-modal" id="shadowHowModal" hidden>
     <div class="shadow-how-card" role="dialog" aria-modal="true" aria-labelledby="shadowHowTitle">
       <button type="button" class="shadow-how-close" id="shadowHowClose" aria-label="Fechar">✕</button>
       <span class="shadow-how-kicker">Como funciona</span>
-      <h2 class="shadow-how-title" id="shadowHowTitle">Ouça, imite, seja a sombra do som.</h2>
+      <h2 class="shadow-how-title" id="shadowHowTitle">Ouça a frase. Depois, ela é sua.</h2>
 
-      <!-- O que você faz — a ação, em uma frase -->
-      <p class="shadow-how-lede">Você escuta uma faixa falada por um nativo e imita ao mesmo tempo, copiando o ritmo, a entonação e as pausas até seu som ficar cada vez mais parecido. Não é decorar palavra, é imitar a música da língua.</p>
+      <p class="shadow-how-lede">Cada frase é um turno: primeiro você ouve a voz nativa, depois repete em voz alta. A gente compara o que você falou com a frase, palavra por palavra, e você pode ouvir a sua gravação ao lado da original.</p>
 
-      <!-- O payoff no sistema — o coração, em destaque -->
       <div class="shadow-how-payoff">
-        <span class="shadow-how-payoff-ico" aria-hidden="true">📈</span>
+        <span class="shadow-how-payoff-ico" aria-hidden="true">🎯</span>
         <div>
-          <strong>Cada acerto conta pro seu nível.</strong>
-          <p>Toda palavra e frase que você fala bem numa sessão valendo nota entra no seu vocabulário e vira frase dominada — os mesmos contadores que te levam ao próximo nível de inglês. Shadowing não é um exercício à parte: é combustível direto pra sua evolução no GRILO.</p>
+          <strong>Errar faz parte do treino.</strong>
+          <p>Ninguém acerta tudo de primeira. Na 2ª tentativa a frase vem mais devagar e com a leitura em português; na 3ª, por partes. O que ainda não saiu volta numa revisão no fim da faixa.</p>
         </div>
       </div>
 
-      <!-- Ganho pessoal + autoridade, condensados -->
-      <p class="shadow-how-body">Em poucas semanas você sente o ritmo mudar: a fala fica mais solta, o ouvido pega o inglês em velocidade real e a pronúncia se aproxima da nativa. Não é achismo: é a técnica que forma intérpretes simultâneos desde os anos 1950, usada até hoje pela ONU e pela União Europeia.</p>
-
-      <!-- Os dois modos, lado a lado -->
       <div class="shadow-how-modes">
         <div class="shadow-how-mode">
-          <span class="shadow-how-mode-tag is-casual">🎧 Treino livre</span>
-          <p>Sem fone, sem limite. Você fala junto pra pegar o ritmo do texto à vontade. Não conta pontos.</p>
+          <span class="shadow-how-mode-tag is-casual">📚 Frases das aulas</span>
+          <p>Cada faixa acompanha uma aula: parte das frases você já viu, outras são novas no mesmo assunto.</p>
         </div>
         <div class="shadow-how-mode">
-          <span class="shadow-how-mode-tag is-ranked">🏆 Valer nota</span>
-          <p>Liga no começo da faixa, com fone (ele evita que o som vaze pro microfone). Aí medimos sua voz em tempo real, você avança a trilha e ganha progresso.</p>
+          <span class="shadow-how-mode-tag is-ranked">✨ Fora da caixinha</span>
+          <p>Toda faixa traz uma curiosidade de ciência ou um trecho de literatura, pra treinar a fala com algo inesperado.</p>
         </div>
       </div>
+
+      <p class="shadow-how-body">Domine 5 das 6 frases para liberar a próxima faixa. As palavras que você fala bem entram no seu vocabulário. A gravação fica só no seu aparelho.</p>
 
       <button type="button" class="shadow-play-btn shadow-how-cta" id="shadowHowGotIt">Entendi, vamos treinar</button>
     </div>
@@ -118,9 +114,10 @@
 
   <!-- O tema é escolhido na home; aqui só é aplicado (script no <head>). -->
   <script src="assets/js/voice-recognition-utils.js?v=1779500000" defer></script>
-  <script src="assets/js/shadowing-data.js?v=2" defer></script>
+  <script src="assets/js/grilo-tts.js?v=3" defer></script>
+  <script src="assets/js/shadowing-data.js?v=3" defer></script>
   <script src="assets/js/session-shell.js?v=1" defer></script>
-  <script src="assets/js/shadowing.js?v=10" defer></script>
+  <script src="assets/js/shadowing.js?v=11" defer></script>
 
 </body>
 </html>

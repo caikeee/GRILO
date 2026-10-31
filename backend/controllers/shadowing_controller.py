@@ -1,7 +1,12 @@
-"""Controller do Laboratório de Shadowing (frontend/assets/js/shadowing.js).
+"""Controller do Eco — antigo Laboratório de Shadowing (frontend/assets/js/shadowing.js).
 
-Persiste o resultado de sessões RANQUEADAS de shadowing e credita DUAS
-fontes que a home já lê:
+O Eco é ouvir a frase → repetir: cada frase é avaliada pela transcrição
+(Whisper) da fala do aluno. O nome técnico (rota, tabelas, payload) ficou
+o mesmo do Shadowing. Toda faixa concluída envia o resultado; `all_correct`
+de uma frase = frase dominada na sessão (passou em até 3 tentativas ou na
+revisão), e `score` = % de frases dominadas.
+
+Persiste o resultado e credita DUAS fontes que a home já lê:
   • palavras faladas certo → MESMO pool de vocabulário do chat de voz
     (WordProfile) — mesma regra de domínio (>=85% acurácia, >=5 usos,
     latch monotônico).
@@ -15,9 +20,6 @@ fontes que a home já lê:
     exigir repetição — cada faixa hoje tem um único texto fixo, então
     "repetir em outra sessão" seria reler a mesma frase, não uma prova
     de domínio mais forte que a primeira aprovação).
-
-Sessões CASUAL (sem fone confirmado) não chegam aqui — não têm garantia
-de qualidade de áudio suficiente pra virar prova de pronúncia.
 
 Endpoints:
     POST /api/shadowing/tracks/{slug}/result  → registra sessão ranqueada,

@@ -1,12 +1,12 @@
 /* ============================================================
  *  Shadowing Lab — ESTILOS
  *  ============================================================
- *  "O Laboratório": trilha linear de shadowing simultâneo real.
+ *  Eco (antigo Laboratório de Shadowing): ouvir a frase → repetir.
  *  O casco (hub, sessão, dock, sheet, resultado) vem de
  *  session-shell.css; aqui ficam os tokens --sh-* (também usados
  *  pela Ditação), o fundo da página, o modal "Como funciona" e as
- *  peças próprias do Shadowing: preview frase a frase, interruptor
- *  "Valer nota", calibração, karaokê ao vivo e lista de resultado.
+ *  peças próprias do Eco: lista de frases da intro, frase em cartão,
+ *  palco ouvir/falar, tentativas, comparação e lista de resultado.
  *
  *  Design tokens --sh-* definidos abaixo — derivam dos tokens
  *  globais (mesmo padrão de lessons-4p.css com --lp-*), mas
@@ -274,7 +274,7 @@ body.app-shadowing {
 .shadow-how-cta { width: 100%; justify-content: center; }
 
 /* ============================================================
- *  SESSÃO — peças próprias do Shadowing (prefixo .sh-)
+ *  SESSÃO — peças próprias do Eco (prefixos .sh- e .eco-)
  * ============================================================ */
 
 /* ─── Preview: frases tocáveis ───────────────────────────────── */
@@ -321,156 +321,159 @@ body.app-shadowing {
 .sh-sent-t b { display: block; font: 600 15.5px/1.35 'Space Grotesk', sans-serif; }
 .sh-sent-t small { display: block; font-size: 13px; line-height: 1.35; color: var(--gs-muted); }
 
-/* ─── Interruptor "Valer nota" ───────────────────────────────── */
-.sh-toggle {
-  position: relative;
+
+/* ─── Intro: o ciclo em 3 passos + etiqueta de origem da frase ── */
+.eco-loop {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.eco-loop li {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 16px;
+  gap: 6px;
+  padding: 12px 6px;
+  border-radius: 14px;
   border: 1px solid var(--gs-border);
   background: var(--gs-surface);
-  cursor: pointer;
+  font: 700 13px/1 'Manrope', sans-serif;
+  color: var(--gs-ink);
 }
-.sh-toggle-t { flex: 1; min-width: 0; }
-.sh-toggle-t b { display: block; font: 700 15px/1.3 'Manrope', sans-serif; color: var(--gs-ink); }
-.sh-toggle-t small { display: block; font-size: 13px; line-height: 1.35; color: var(--gs-muted); }
-.sh-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
-.sh-switch {
-  position: relative;
-  flex: none;
-  width: 50px;
-  height: 30px;
-  border-radius: 99px;
-  background: var(--gs-track);
-  transition: background 0.2s ease;
-}
-.sh-switch::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 24px;
-  height: 24px;
+.eco-loop li span {
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  transition: left 0.2s var(--gs-ease-out);
-}
-.sh-toggle input:checked + .sh-switch { background: var(--gs-btn); }
-.sh-toggle input:checked + .sh-switch::after { left: 23px; }
-.sh-toggle input:focus-visible + .sh-switch { outline: 2px solid var(--gs-green); outline-offset: 2px; }
-.sh-toggle input:disabled + .sh-switch { opacity: 0.45; }
-
-/* ─── Calibração (sheet) ─────────────────────────────────────── */
-.sh-calib-ico {
-  width: 72px;
-  height: 72px;
-  margin: 4px auto 14px;
-  border-radius: 22px;
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--gs-green) 14%, var(--gs-surface));
   color: var(--gs-green);
 }
-.sh-calib-ico.is-warn { background: color-mix(in srgb, var(--gs-warm) 16%, var(--gs-surface)); color: var(--gs-warm); }
-.sh-calib-ico svg { width: 36px; height: 36px; }
-.sh-meter { height: 8px; margin: 16px 0 10px; border-radius: 99px; background: var(--gs-track); overflow: hidden; }
-.sh-meter i { display: block; width: 0; height: 100%; border-radius: 99px; background: var(--gs-green); transition: width 0.1s linear; }
-.gs-session .sh-calib-status { margin: 0; font: 700 14px/1.3 'Manrope', sans-serif !important; color: var(--gs-muted); }
-.sh-calib-status.is-good { color: var(--gs-good-ink); }
+.eco-loop li span svg { width: 16px; height: 16px; }
+.gs-session .eco-note { font-size: 14px; }
 
-/* ─── Ao vivo: karaokê por frase ─────────────────────────────── */
-.sh-live { margin: auto 0; display: flex; flex-direction: column; gap: 18px; }
-.sh-livetag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font: 700 12px/1 'Manrope', sans-serif;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.eco-tag {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font: 700 11px/1.3 'Manrope', sans-serif;
+  letter-spacing: 0.02em;
+  background: var(--gs-track);
   color: var(--gs-muted);
 }
-.sh-livetag i { width: 9px; height: 9px; border-radius: 50%; background: #8db72a; animation: gsBlink 1.2s ease-in-out infinite; }
-.sh-livetag.is-ranked { color: var(--gs-good-ink); }
+.eco-tag.is-aula { background: color-mix(in srgb, var(--gs-green) 14%, var(--gs-surface)); color: var(--gs-good-ink); }
+.eco-tag.is-ciencia { background: color-mix(in srgb, #2f5a78 14%, var(--gs-surface)); color: #2f5a78; }
+.eco-tag.is-literatura, .eco-tag.is-ditado { background: color-mix(in srgb, var(--gs-warm) 14%, var(--gs-surface)); color: var(--gs-warm-ink); }
+:root[data-theme="dark"] .eco-tag.is-ciencia { color: #8cc0e3; }
+.sh-sent-t .eco-tag { margin-top: 5px; }
 
-.gs-session .sh-kara {
-  margin: 0;
-  font-family: 'Manrope', sans-serif !important;
-  font-size: 29px;
-  font-weight: 800;
-  line-height: 1.32 !important;
-  letter-spacing: -0.015em !important;
-}
-.sh-w {
-  color: var(--gs-faint);
-  border-radius: 7px;
-  padding: 0 2px;
-  margin: 0 -2px;
-  transition: color 0.15s ease, background 0.15s ease;
-}
-.sh-w.is-said { color: var(--gs-ink); }
-.sh-w.is-good { color: var(--gs-green); }
-.sh-w.is-now { background: var(--gs-lime); color: var(--gs-lime-ink); }
-.sh-w.is-miss { color: var(--gs-faint); text-decoration: underline wavy color-mix(in srgb, var(--gs-bad) 55%, transparent); text-underline-offset: 6px; }
+/* ─── Turno: frase em cartão, palco ouvir/falar, tentativas ───── */
+.eco-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.eco-head .eco-tag { margin-top: 0; }
 
-.gs-session .sh-next {
-  margin: 0;
-  padding-top: 12px;
-  border-top: 1px dashed var(--gs-border);
-  font-size: 15px;
-  line-height: 1.4 !important;
-  color: var(--gs-muted);
-}
-.sh-next b { font-weight: 600; color: var(--gs-faint); }
-
-.sh-waves {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 16px;
+.eco-card {
+  padding: 20px 18px;
+  border-radius: 20px;
   border: 1px solid var(--gs-border);
   background: var(--gs-surface);
-  font: 700 12px/1 'Manrope', sans-serif;
-  color: var(--gs-muted);
 }
-.sh-wave { flex: 1; height: 28px; min-width: 0; }
+.gs-session .eco-phrase {
+  margin: 0;
+  font-family: 'Manrope', sans-serif !important;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.25 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--gs-ink);
+}
+.eco-phrase span { transition: color 0.25s ease, opacity 0.25s ease; }
+.eco-phrase .is-off { opacity: 0.28; }
+.eco-phrase .is-ok { color: var(--gs-green); }
+.eco-phrase .is-almost { color: var(--gs-warm-ink); }
+.eco-phrase .is-miss { color: var(--gs-faint); text-decoration: underline wavy color-mix(in srgb, var(--gs-bad) 55%, transparent); text-underline-offset: 6px; }
+.gs-session .eco-pt { margin: 8px 0 0; font-size: 15px; line-height: 1.4 !important; color: var(--gs-muted); }
+.gs-session .eco-ph {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--gs-border);
+  font: italic 500 16px/1.4 'Space Grotesk', sans-serif !important;
+  color: var(--gs-green-d);
+}
 
-.sh-ctl { flex: 1; display: flex; justify-content: center; align-items: flex-start; gap: 26px; }
-.gs-session .sh-ctl-b {
-  width: 56px;
-  min-height: 56px !important;
-  padding: 0 !important;
-  border: 0;
-  background: none;
+.eco-stage {
+  margin: auto 0;
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  color: var(--gs-green-d);
-  cursor: pointer;
+  justify-content: center;
+  gap: 14px;
 }
-.sh-ctl-b svg {
-  box-sizing: content-box;
-  width: 22px;
-  height: 22px;
-  padding: 16px;
+.gs-session .eco-ah { width: 84px; height: 84px; min-height: 84px !important; }
+.eco-stage-cap { font: 700 15px/1.3 'Manrope', sans-serif; color: var(--gs-muted); text-align: center; }
+.eco-stage-cap.is-turn { color: var(--gs-bad-ink); }
+
+.eco-mic {
+  position: relative;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
-  border: 1.5px solid var(--gs-border);
-  background: var(--gs-surface);
-}
-.sh-ctl-b small { font: 600 11.5px/1 'Manrope', sans-serif; color: var(--gs-muted); }
-.gs-session .sh-ctl-b.is-big { width: 76px; }
-.sh-ctl-b.is-big svg {
-  width: 30px;
-  height: 30px;
-  padding: 23px;
-  border: 0;
-  background: var(--gs-btn);
+  display: grid;
+  place-items: center;
+  background: var(--gs-bad);
   color: #fff;
-  box-shadow: 0 12px 24px -10px rgba(74, 124, 94, 0.8);
+}
+.eco-mic svg { position: relative; width: 34px; height: 34px; }
+:root[data-theme="dark"] .eco-mic { background: #b4524a; }
+.eco-mic i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--gs-bad) 30%, transparent);
+  transition: transform 0.08s linear;
+}
+
+.eco-spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 4px solid var(--gs-track);
+  border-top-color: var(--gs-green);
+  animation: ecoSpin 0.9s linear infinite;
+}
+@keyframes ecoSpin { to { transform: rotate(360deg); } }
+
+.eco-tries { display: flex; align-items: center; justify-content: center; gap: 6px; font: 600 13px/1 'Manrope', sans-serif; color: var(--gs-muted); }
+.eco-tries i { width: 8px; height: 8px; border-radius: 50%; background: var(--gs-track); }
+.eco-tries i.is-used { background: var(--gs-warm); }
+.eco-tries span { margin-left: 2px; }
+
+/* ─── Retorno (dentro do sheet) ───────────────────────────────── */
+.eco-compare { display: flex; gap: 8px; margin-top: 12px; }
+.gs-session .eco-compare .gs-chipbtn { background: color-mix(in srgb, var(--gs-surface) 70%, transparent); }
+.gs-session .eco-compare .gs-chipbtn:disabled { opacity: 0.45; }
+.gs-session .eco-tip { font-size: 14px; }
+
+.eco-review-ico {
+  width: 84px;
+  height: 84px;
+  border-radius: 26px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--gs-warm) 16%, var(--gs-surface));
+  color: var(--gs-warm);
+}
+.eco-review-ico svg { width: 40px; height: 40px; }
+
+.sh-fr-sc svg { width: 16px; height: 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .eco-spinner { animation-duration: 2.4s; }
+  .eco-mic i { transition: none; }
 }
 
 /* ─── Resultado ──────────────────────────────────────────────── */
@@ -510,48 +513,6 @@ body.app-shadowing {
 .sh-fr-sc.is-warn { background: color-mix(in srgb, var(--gs-warm) 16%, var(--gs-surface)); color: var(--gs-warm-ink); }
 .sh-fr-sc.is-neutral { background: var(--gs-track); color: var(--gs-muted); }
 
-.sh-done-ico, .sh-micoff {
-  width: 84px;
-  height: 84px;
-  border-radius: 26px;
-  display: grid;
-  place-items: center;
-}
-.sh-done-ico { background: color-mix(in srgb, var(--gs-green) 14%, var(--gs-surface)); color: var(--gs-green); }
-.sh-micoff { background: var(--gs-track); color: var(--gs-muted); }
-.sh-done-ico svg, .sh-micoff svg { width: 40px; height: 40px; }
-
-.sh-check { counter-reset: c; list-style: none; width: 100%; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; }
-.sh-check li {
-  counter-increment: c;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid var(--gs-border);
-  background: var(--gs-surface);
-  font-size: 15px;
-  line-height: 1.35;
-}
-.sh-check li::before {
-  content: counter(c);
-  flex: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 2px solid var(--gs-border);
-  display: grid;
-  place-items: center;
-  font: 800 13px/1 'Manrope', sans-serif;
-  color: var(--gs-green);
-}
-.gs-session .sh-foot { margin: 6px 0 0; text-align: center; font-size: 13px; color: var(--gs-muted); }
-
-@media (prefers-reduced-motion: reduce) {
-  .sh-livetag i { animation: none; }
-  .sh-w { transition: none; }
-}
 
 /* ─── Responsivo do modal ────────────────────────────────────── */
 @media (max-width: 760px) {

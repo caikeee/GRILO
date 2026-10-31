@@ -1,21 +1,30 @@
 /* ============================================================
- *  Shadowing Lab — DADOS (piloto: 3 faixas)
+ *  Eco — DADOS (ouvir a frase → repetir em voz alta)
  *  ============================================================
- *  Trilha LINEAR: a faixa N só libera após completar a N-1 em
- *  modo Ranqueada (RANKED) com score >= score mínimo vigente.
+ *  O antigo Laboratório de Shadowing virou o Eco: em vez de falar
+ *  junto com o áudio, o aluno ouve a frase inteira e depois repete.
+ *  O nome técnico (arquivo, rota shadowing.html, window.GriloShadow,
+ *  localStorage e backend /api/shadowing) ficou igual para não perder
+ *  progresso nem estatística.
  *
- *  Cada faixa é uma NARRAÇÃO EM PRIMEIRA PESSOA — um único
- *  falante contando uma micro-rotina, num fluxo contínuo de
- *  fala. NÃO é diálogo de turnos (isso quebra a prosódia e o
- *  ritmo que o shadowing treina): sem troca de interlocutor,
- *  as ideias encadeiam com conectores (so, then, because, and).
- *  Pensado pra shadowing SIMULTÂNEO (o áudio nativo toca e o
- *  aluno fala por cima, sem pausar).
+ *  Trilha LINEAR: a faixa N libera quando a N-1 termina com pelo
+ *  menos `minDominated` frases dominadas.
  *
- *  sentences[]: cada item é uma "respiração" do texto corrido
- *  (inglês + tradução), na ordem em que aparece no áudio. A
- *  quebra em frases é só pra tradução/leitura — o áudio é lido
- *  emendado, como um monólogo natural.
+ *  Cada faixa acompanha uma aula do grupo A (`lesson`): quem acabou
+ *  de fazer a aula reconhece parte das frases e encontra outras no
+ *  mesmo contexto, mais uma "fora da caixinha" (ciência ou literatura).
+ *
+ *  sentences[]:
+ *    en    frase falada (o áudio sai do /api/tts na hora; depois vira MP3
+ *          pré-gerado pelo scripts/gen_lesson_audio.py)
+ *    pt    tradução
+ *    ph    leitura aproximada em português, sílaba tônica em CAIXA ALTA
+ *          (mesma convenção das aulas) — aparece a partir da 2ª tentativa
+ *    kind  aula | novo | ciencia | literatura | ditado
+ *    src   autor/obra, quando for literatura ou ditado
+ *
+ *  Literatura só de obras em domínio público; fatos de ciência
+ *  verificáveis e ditos de forma simples, no nível A1.
  * ============================================================ */
 (function () {
   'use strict';
@@ -24,168 +33,109 @@
 
   window.GriloShadow.TRACKS = [
     {
-      slug: 'sh-01-same-coffee',
+      slug: 'eco-01-good-morning',
       order: 1,
       level: 'A1',
-      title: 'The Same Coffee',
-      theme: 'Rotina · presente simples',
-      minScoreToUnlock: 70,
+      title: 'Good Morning, World',
+      theme: 'Cumprimentos',
+      lesson: { slug: '4p-cumprimentos', num: 1 },
+      minDominated: 5,
       sentences: [
-        { en: "I get the same coffee every single day.",              pt: "Eu peço o mesmo café todo santo dia." },
-        { en: "It's always a small one, with milk and no sugar.",     pt: "É sempre um pequeno, com leite e sem açúcar." },
-        { en: "Some people think that's boring.",                     pt: "Algumas pessoas acham isso chato." },
-        { en: "But I like knowing exactly how my morning starts.",    pt: "Mas eu gosto de saber exatamente como minha manhã começa." },
-        { en: "In a day full of things I can't control,",             pt: "Num dia cheio de coisas que eu não controlo," },
-        { en: "this one small cup is mine.",                          pt: "essa xícara pequena é minha." },
+        { kind: 'aula', en: 'Good morning! How are you?', pt: 'Bom dia! Como você está?', ph: 'gud MOR-ning · rau ar IU' },
+        { kind: 'aula', en: "I'm fine, thanks. And you?", pt: 'Estou bem, obrigado. E você?', ph: 'aim FAIN thénks · énd IU' },
+        { kind: 'novo', en: "Hello! It's nice to see you again.", pt: 'Olá! Que bom te ver de novo.', ph: 'rê-LOU · its NAIS tu SI iu â-GUÉN' },
+        { kind: 'ciencia', en: 'The sun rises in the east every morning.', pt: 'O sol nasce no leste toda manhã.', ph: 'dâ SÂN RAI-ziz in di ÍST É-vri MOR-ning' },
+        { kind: 'aula', en: 'Good night! Sleep well.', pt: 'Boa noite! Durma bem.', ph: 'gud NAIT · slip UÉL' },
+        { kind: 'literatura', src: 'Shakespeare, Romeu e Julieta', en: 'Good night, good night! Parting is such sweet sorrow.', pt: 'Boa noite, boa noite! Partir é uma dor tão doce.', ph: 'gud NAIT gud NAIT · PAR-ting iz sâtch suít SÓ-rou' },
       ],
     },
     {
-      slug: 'sh-02-ten-minutes',
+      slug: 'eco-02-whats-in-a-name',
       order: 2,
       level: 'A1',
-      title: 'Ten Minutes Awake',
-      theme: 'Rotina · horas e sequência',
-      minScoreToUnlock: 70,
+      title: "What's in a Name?",
+      theme: 'Apresentações',
+      lesson: { slug: '4p-apresentacoes', num: 2 },
+      minDominated: 5,
       sentences: [
-        { en: "My alarm goes off at seven every morning.",           pt: "Meu despertador toca às sete toda manhã." },
-        { en: "First, I open the window and look outside.",          pt: "Primeiro, abro a janela e olho pra fora." },
-        { en: "Then I drink some water and wash my face.",           pt: "Depois bebo um pouco de água e lavo o rosto." },
-        { en: "I try not to check my phone right away.",             pt: "Tento não olhar o celular logo de cara." },
-        { en: "The first ten minutes are always the hardest.",       pt: "Os primeiros dez minutos são sempre os mais difíceis." },
-        { en: "But how I start the day changes everything.",         pt: "Mas como eu começo o dia muda tudo." },
+        { kind: 'aula', en: 'My name is Ana.', pt: 'Meu nome é Ana.', ph: 'mai NEIM iz A-na' },
+        { kind: 'aula', en: "I'm from Brazil.", pt: 'Eu sou do Brasil.', ph: 'aim from brâ-ZIU' },
+        { kind: 'novo', en: "What's your name, and where are you from?", pt: 'Qual é o seu nome, e de onde você é?', ph: 'uóts iór NEIM · énd uér ar iu FRÓM' },
+        { kind: 'aula', en: 'I live in a big city.', pt: 'Eu moro numa cidade grande.', ph: 'ai LIV in â big CI-ti' },
+        { kind: 'ciencia', en: 'Brazil has more than two hundred million people.', pt: 'O Brasil tem mais de duzentos milhões de pessoas.', ph: 'brâ-ZIU réz MÓR dén tchu RÂN-dred MÍ-lion PÍ-pol' },
+        { kind: 'literatura', src: 'Shakespeare, Romeu e Julieta', en: "What's in a name?", pt: 'O que há em um nome?', ph: 'uóts in â NEIM' },
       ],
     },
     {
-      slug: 'sh-03-small-place',
+      slug: 'eco-03-count-the-stars',
       order: 3,
       level: 'A1',
-      title: 'A Small Place',
-      theme: 'Casa · there is / there are',
-      minScoreToUnlock: 70,
+      title: 'Count the Stars',
+      theme: 'Números',
+      lesson: { slug: '4p-numeros', num: 3 },
+      minDominated: 5,
       sentences: [
-        { en: "I live in a very small apartment.",                   pt: "Eu moro num apartamento bem pequeno." },
-        { en: "There is one room, a tiny kitchen, and a bathroom.",  pt: "Tem um cômodo, uma cozinha minúscula e um banheiro." },
-        { en: "There are no big windows and not much light.",        pt: "Não tem janelas grandes nem muita luz." },
-        { en: "At first, I wanted something bigger.",                pt: "No começo, eu queria algo maior." },
-        { en: "But now I think a small place is enough.",            pt: "Mas agora acho que um lugar pequeno é suficiente." },
-        { en: "When you have less, you notice more.",                pt: "Quando você tem menos, você repara em mais." },
+        { kind: 'aula', en: 'How old are you?', pt: 'Quantos anos você tem?', ph: 'rau OULD ar iu' },
+        { kind: 'aula', en: 'I am ten years old.', pt: 'Eu tenho dez anos.', ph: 'ai ém TÉN íers OULD' },
+        { kind: 'aula', en: 'Three coffees, please.', pt: 'Três cafés, por favor.', ph: 'THRI KÓ-fis pliz' },
+        { kind: 'novo', en: 'I have two sisters and one brother.', pt: 'Eu tenho duas irmãs e um irmão.', ph: 'ai rév TCHU SÍS-ters énd uân BRÂ-der' },
+        { kind: 'ciencia', en: 'An octopus has three hearts.', pt: 'Um polvo tem três corações.', ph: 'én ÓK-to-pâs réz THRI RARTS' },
+        { kind: 'literatura', src: 'Robert Frost, The Road Not Taken', en: 'Two roads diverged in a wood.', pt: 'Dois caminhos se separavam num bosque.', ph: 'tchu ROUDS dai-VÊRDJD in â UÚD' },
       ],
     },
     {
-      slug: 'sh-04-long-way',
+      slug: 'eco-04-time-flies',
       order: 4,
       level: 'A1',
-      title: 'The Long Way',
-      theme: 'Direções · transporte e tempo',
-      minScoreToUnlock: 72,
+      title: 'Time Flies',
+      theme: 'Horas',
+      lesson: { slug: '4p-horas', num: 4 },
+      minDominated: 5,
       sentences: [
-        { en: "I can take the bus straight to work.",                pt: "Eu posso pegar o ônibus direto pro trabalho." },
-        { en: "It only takes about fifteen minutes.",                pt: "Leva só uns quinze minutos." },
-        { en: "But sometimes I walk the long way instead.",          pt: "Mas às vezes eu vou a pé pelo caminho mais longo." },
-        { en: "I go past the park and down a quiet street.",         pt: "Passo pelo parque e desço uma rua tranquila." },
-        { en: "It takes more time, and I don't mind.",               pt: "Leva mais tempo, e eu não me importo." },
-        { en: "Those extra minutes are just for me.",                pt: "Aqueles minutos a mais são só meus." },
+        { kind: 'aula', en: 'What time is it now?', pt: 'Que horas são agora?', ph: 'uót TAIM iz it NAU' },
+        { kind: 'aula', en: "It's half past seven.", pt: 'São sete e meia.', ph: 'its RÉF pést SÉ-ven' },
+        { kind: 'aula', en: "Sorry, I'm late!", pt: 'Desculpa, estou atrasado!', ph: 'SÓ-ri aim LEIT' },
+        { kind: 'novo', en: "Time flies when you're having fun.", pt: 'O tempo voa quando você está se divertindo.', ph: 'taim FLAIS uén iór RÉ-ving FÂN' },
+        { kind: 'ciencia', en: 'Sunlight takes about eight minutes to reach the Earth.', pt: 'A luz do sol leva uns oito minutos para chegar à Terra.', ph: 'SÂN-lait TEIKS â-BAUT EIT MÍ-nits tu RITCH di ÊRTH' },
+        { kind: 'literatura', src: 'Charles Dickens, Um Conto de Duas Cidades', en: 'It was the best of times, it was the worst of times.', pt: 'Era o melhor dos tempos, era o pior dos tempos.', ph: 'it uóz dâ BÉST óv TAIMS · it uóz dâ UÔRST óv TAIMS' },
       ],
     },
     {
-      slug: 'sh-05-dont-eat',
+      slug: 'eco-05-how-much',
       order: 5,
       level: 'A1',
-      title: "What I Don't Eat",
-      theme: 'Comida · like / don\'t like',
-      minScoreToUnlock: 72,
+      title: 'How Much Is It?',
+      theme: 'Preços e compras',
+      lesson: { slug: '4p-precos', num: 5 },
+      minDominated: 5,
       sentences: [
-        { en: "People always ask me what food I like.",              pt: "As pessoas sempre me perguntam de que comida eu gosto." },
-        { en: "But I think what you don't eat says a lot too.",      pt: "Mas acho que o que você não come também diz muito." },
-        { en: "I don't eat meat, and I don't drink soda.",           pt: "Eu não como carne e não bebo refrigerante." },
-        { en: "It's not a rule; it's just a choice.",                pt: "Não é uma regra; é só uma escolha." },
-        { en: "Every small choice becomes a habit.",                 pt: "Cada pequena escolha vira um hábito." },
-        { en: "And in the end, our habits become us.",               pt: "E no fim, nossos hábitos se tornam a gente." },
+        { kind: 'aula', en: 'How much is it?', pt: 'Quanto custa?', ph: 'rau MÂTCH iz it' },
+        { kind: 'aula', en: 'This is too expensive.', pt: 'Isso é caro demais.', ph: 'dis iz tchu eks-PÉN-siv' },
+        { kind: 'aula', en: 'I want to buy a gift.', pt: 'Eu quero comprar um presente.', ph: 'ai uónt tu BAI â GHIFT' },
+        { kind: 'novo', en: 'Can I pay with card, please?', pt: 'Posso pagar com cartão, por favor?', ph: 'kén ai PEI uif KARD pliz' },
+        { kind: 'ciencia', en: 'Honey never goes bad.', pt: 'O mel nunca estraga.', ph: 'RÂ-ni NÉ-ver gous BÉD' },
+        { kind: 'ditado', src: 'ditado popular', en: 'The best things in life are free.', pt: 'As melhores coisas da vida são de graça.', ph: 'dâ BÉST things in LAIF ar FRI' },
       ],
     },
     {
-      slug: 'sh-06-someday',
+      slug: 'eco-06-table-for-two',
       order: 6,
       level: 'A1',
-      title: 'Someday',
-      theme: 'Futuro · going to / want to',
-      minScoreToUnlock: 74,
+      title: 'A Table for Two',
+      theme: 'Restaurante e café',
+      lesson: { slug: '4p-restaurante', num: 6 },
+      minDominated: 5,
       sentences: [
-        { en: "For years I've said the same thing.",                 pt: "Faz anos que eu digo a mesma coisa." },
-        { en: "Someday I'm going to learn to play the guitar.",      pt: "Um dia eu vou aprender a tocar violão." },
-        { en: "Someday I want to travel across the country.",        pt: "Um dia eu quero viajar pelo país." },
-        { en: "But someday is not a real day on the calendar.",      pt: "Mas \"um dia\" não é um dia de verdade no calendário." },
-        { en: "This week I'm going to pick a date and start.",       pt: "Essa semana eu vou escolher uma data e começar." },
-        { en: "Because a plan with no date is just a wish.",         pt: "Porque um plano sem data é só um desejo." },
-      ],
-    },
-    {
-      slug: 'sh-07-names',
-      order: 7,
-      level: 'A1',
-      title: 'The Names I Know',
-      theme: 'Pessoas · profissões e possessivos',
-      minScoreToUnlock: 74,
-      sentences: [
-        { en: "So many people pass through my day.",                 pt: "Tanta gente passa pelo meu dia." },
-        { en: "The driver, the woman at the shop, my neighbor.",     pt: "O motorista, a mulher da loja, meu vizinho." },
-        { en: "I see their faces almost every day.",                 pt: "Vejo o rosto deles quase todo dia." },
-        { en: "But I don't know most of their names.",               pt: "Mas não sei o nome da maioria." },
-        { en: "This month I want to learn one new name.",            pt: "Esse mês eu quero aprender um nome novo." },
-        { en: "A name is a small way to really see someone.",        pt: "Um nome é um jeito pequeno de enxergar alguém de verdade." },
-      ],
-    },
-    {
-      slug: 'sh-08-wrong-size',
-      order: 8,
-      level: 'A2',
-      title: 'The Wrong Size',
-      theme: 'Compras · passado simples',
-      minScoreToUnlock: 74,
-      sentences: [
-        { en: "Last week I bought a jacket at a small store.",       pt: "Semana passada comprei uma jaqueta numa loja pequena." },
-        { en: "When I got home, I saw it was the wrong size.",       pt: "Quando cheguei em casa, vi que era o tamanho errado." },
-        { en: "I almost kept it just to avoid the trouble.",         pt: "Quase fiquei com ela só pra evitar o transtorno." },
-        { en: "I didn't want to bother anyone at the store.",        pt: "Eu não queria incomodar ninguém na loja." },
-        { en: "But I went back, and they changed it with a smile.",  pt: "Mas voltei, e trocaram com um sorriso." },
-        { en: "Asking for help is not the same as being a problem.", pt: "Pedir ajuda não é a mesma coisa que ser um problema." },
-      ],
-    },
-    {
-      slug: 'sh-09-bad-day',
-      order: 9,
-      level: 'A2',
-      title: 'A Bad Day',
-      theme: 'Saúde · corpo e conselhos (should)',
-      minScoreToUnlock: 76,
-      sentences: [
-        { en: "Yesterday I woke up with a headache and a sore throat.", pt: "Ontem acordei com dor de cabeça e dor de garganta." },
-        { en: "I felt tired, so I stayed in bed all morning.",       pt: "Me senti cansado, então fiquei na cama a manhã toda." },
-        { en: "I know I should rest when my body asks for it.",      pt: "Sei que deveria descansar quando meu corpo pede." },
-        { en: "But doing nothing is harder than it sounds.",         pt: "Mas não fazer nada é mais difícil do que parece." },
-        { en: "Being sick forces you to finally slow down.",         pt: "Ficar doente te obriga a finalmente ir mais devagar." },
-        { en: "Maybe that's the body's way of saying stop.",         pt: "Talvez seja o jeito do corpo dizer pare." },
-      ],
-    },
-    {
-      slug: 'sh-10-if-i-could-go',
-      order: 10,
-      level: 'A2',
-      title: 'If I Could Go',
-      theme: 'Desejo · want to / condicional leve',
-      minScoreToUnlock: 76,
-      sentences: [
-        { en: "If I could go anywhere in the world,",                pt: "Se eu pudesse ir a qualquer lugar do mundo," },
-        { en: "I would choose a small town near the sea.",           pt: "eu escolheria uma cidadezinha perto do mar." },
-        { en: "I want to wake up to the sound of the water.",        pt: "Eu quero acordar com o som da água." },
-        { en: "I don't need anything big or expensive.",             pt: "Não preciso de nada grande ou caro." },
-        { en: "The place we dream about says who we are.",           pt: "O lugar com que a gente sonha diz quem a gente é." },
-        { en: "And I think mine is asking me to be calm.",           pt: "E acho que o meu está me pedindo pra ter calma." },
+        { kind: 'aula', en: 'A table for two, please.', pt: 'Uma mesa para dois, por favor.', ph: 'â TEI-bâl for TCHU pliz' },
+        { kind: 'aula', en: 'Can I see the menu?', pt: 'Posso ver o cardápio?', ph: 'kén ai SI dâ MÉ-niu' },
+        { kind: 'aula', en: 'The food is delicious!', pt: 'A comida está deliciosa!', ph: 'dâ FUD iz di-LÍ-shâs' },
+        { kind: 'aula', en: 'The check, please.', pt: 'A conta, por favor.', ph: 'dâ TCHÉK pliz' },
+        { kind: 'ciencia', en: 'Bananas are berries, but strawberries are not.', pt: 'Bananas são frutas do tipo baga, mas morangos não.', ph: 'bâ-NÉ-nâs ar BÉ-ris · bât STRÓ-bé-ris ar NÓT' },
+        { kind: 'literatura', src: 'Lewis Carroll, Alice no País das Maravilhas', en: "It's always tea-time.", pt: 'É sempre hora do chá.', ph: 'its ÓL-ueis TI-taim' },
       ],
     },
   ];
 
-  // Ordem canônica de progressão da trilha (por `order`)
   window.GriloShadow.getTrackOrder = function () {
     return window.GriloShadow.TRACKS.slice().sort((a, b) => a.order - b.order);
   };
