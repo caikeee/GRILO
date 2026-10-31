@@ -1,11 +1,35 @@
 {
  "files": {
+  "A coffee and a water, please.": {
+   "f": "16663e4cc74a.mp3",
+   "v": "troy"
+  },
   "A table for two, please.": {
    "f": "6309b8a4bd25.mp3",
    "v": "troy"
   },
+  "A water for me, please.": {
+   "f": "7df28bd55134.mp3",
+   "v": "troy"
+  },
   "Can I pay with card or money?": {
    "f": "5fb83a28ada6.mp3",
+   "v": "troy"
+  },
+  "Can I pay with card?": {
+   "f": "3d9787ccc459.mp3",
+   "v": "troy"
+  },
+  "Can I see the menu, please?": {
+   "f": "92fa845e0e4d.mp3",
+   "v": "troy"
+  },
+  "Can I see the menu?": {
+   "f": "fda84a73997d.mp3",
+   "v": "troy"
+  },
+  "Everything was great, thanks.": {
+   "f": "52a1565eaa87.mp3",
    "v": "troy"
   },
   "Five stars! Ten out of ten.": {
@@ -68,6 +92,10 @@
    "f": "d51526fe8c19.mp3",
    "v": "troy"
   },
+  "I have no money this month!": {
+   "f": "61c14f99a66f.mp3",
+   "v": "troy"
+  },
   "I have one question.": {
    "f": "a4477d76371e.mp3",
    "v": "troy"
@@ -84,8 +112,24 @@
    "f": "395958d2034b.mp3",
    "v": "troy"
   },
+  "I want to buy a gift for my friend.": {
+   "f": "64c2539cee4c.mp3",
+   "v": "troy"
+  },
+  "I want to buy a gift for my mom.": {
+   "f": "d1e679d18084.mp3",
+   "v": "troy"
+  },
   "I want to buy a gift.": {
    "f": "f2b86a0a8dda.mp3",
+   "v": "troy"
+  },
+  "I want to order a coffee and water.": {
+   "f": "5259aef65e87.mp3",
+   "v": "troy"
+  },
+  "I want to order a coffee, please.": {
+   "f": "880731d4e0db.mp3",
    "v": "troy"
   },
   "I work as a teacher in a big city.": {
@@ -104,6 +148,10 @@
    "f": "58cdebef7654.mp3",
    "v": "troy"
   },
+  "Is the tip included?": {
+   "f": "b381331a40db.mp3",
+   "v": "troy"
+  },
   "It costs five dollars.": {
    "f": "4138d634a0cc.mp3",
    "v": "troy"
@@ -118,6 +166,10 @@
   },
   "It's half past seven.": {
    "f": "8233f1bc128f.mp3",
+   "v": "troy"
+  },
+  "It's so cheap! I'll take two.": {
+   "f": "e68b19652e97.mp3",
    "v": "troy"
   },
   "It's ten o'clock.": {
@@ -176,8 +228,20 @@
    "f": "d9ded0c56b4a.mp3",
    "v": "troy"
   },
+  "The check, please.": {
+   "f": "d642ce9144f5.mp3",
+   "v": "troy"
+  },
+  "The food is delicious!": {
+   "f": "6f843453aa99.mp3",
+   "v": "troy"
+  },
   "The meeting is at two.": {
    "f": "f7379e2dafed.mp3",
+   "v": "troy"
+  },
+  "The price is good today.": {
+   "f": "df72612d65ba.mp3",
    "v": "troy"
   },
   "The price is good. It's cheap!": {
@@ -194,6 +258,10 @@
   },
   "This is my friend. He is a student.": {
    "f": "b274b24e56a8.mp3",
+   "v": "troy"
+  },
+  "This is too expensive for me.": {
+   "f": "80fda032f858.mp3",
    "v": "troy"
   },
   "This is too expensive.": {
@@ -224,6 +292,10 @@
    "f": "7c4ea45686e8.mp3",
    "v": "troy"
   },
+  "Wow, this is too expensive!": {
+   "f": "f6f277642de5.mp3",
+   "v": "troy"
+  },
   "You're early! The meeting is at ten.": {
    "f": "f2a8c1b5eb18.mp3",
    "v": "troy"
@@ -244,8 +316,20 @@
    "f": "aaf0fc1b6b78.mp3",
    "v": "troy"
   },
+  "check": {
+   "f": "20fd867580ea.mp3",
+   "v": "troy"
+  },
   "city": {
    "f": "0cd6e7ea974d.mp3",
+   "v": "troy"
+  },
+  "coffee": {
+   "f": "889c2c07c33a.mp3",
+   "v": "troy"
+  },
+  "delicious": {
+   "f": "6f21c87e2e01.mp3",
    "v": "troy"
   },
   "dollars": {
@@ -272,6 +356,10 @@
    "f": "2d531b850e8b.mp3",
    "v": "troy"
   },
+  "food": {
+   "f": "6c1a8f4c47e5.mp3",
+   "v": "troy"
+  },
   "friend": {
    "f": "81a5028d44df.mp3",
    "v": "troy"
@@ -294,6 +382,10 @@
   },
   "meet": {
    "f": "45fe213e775d.mp3",
+   "v": "troy"
+  },
+  "menu": {
+   "f": "ee599fe519ae.mp3",
    "v": "troy"
   },
   "money": {
@@ -332,6 +424,10 @@
    "f": "904b8f560ebd.mp3",
    "v": "troy"
   },
+  "order": {
+   "f": "0b219e74f761.mp3",
+   "v": "troy"
+  },
   "past": {
    "f": "893fde85af92.mp3",
    "v": "troy"
@@ -350,6 +446,10 @@
   },
   "student": {
    "f": "21b41d6f6a7b.mp3",
+   "v": "troy"
+  },
+  "table": {
+   "f": "68292ccaf1be.mp3",
    "v": "troy"
   },
   "teacher": {
@@ -374,6 +474,10 @@
   },
   "two": {
    "f": "0c16121c37b9.mp3",
+   "v": "troy"
+  },
+  "water": {
+   "f": "8f834a462c24.mp3",
    "v": "troy"
   },
   "welcome": {
