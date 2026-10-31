@@ -13,6 +13,12 @@ export type Cue = {
   firstBeat: number;
   totalSeconds: number;
   fadeOutSeconds: number;
+  // Segundos cortados do início do arquivo (silêncio/intro); firstBeat já é
+  // medido no tempo do vídeo, depois do corte.
+  trimSeconds?: number;
+  // Andamento de montagem do story quando a trilha é lenta demais para a
+  // grade: os marcos seguem este BPM e são encaixados na colcheia da trilha.
+  refBpm?: number;
 };
 
 export const CUE_A: Cue = {
@@ -33,6 +39,28 @@ export const CUE_B: Cue = {
   firstBeat: 3.486,
   totalSeconds: 31,
   fadeOutSeconds: 2.6,
+};
+
+// Versão final do story: samba com piano, entre a bossa e a batucada.
+// 95 BPM é lento para a grade, então a montagem segue 122 BPM (refBpm) e
+// cada marco cai na colcheia mais próxima da trilha. O arquivo é cortado
+// (trimSeconds) para a batida forte cair em 3,5 s e a música soar desde o
+// primeiro quadro. bpm/fase medidos por fluxo espectral + regressão.
+export const CUE_E: Cue = {
+  id: "E",
+  music: "audio/music-e-samba-isobel.mp3",
+  musicVolume: 0.85,
+  bpm: 95.14,
+  refBpm: 122,
+  firstBeat: 3.5,
+  trimSeconds: 0.595,
+  totalSeconds: 36.7,
+  fadeOutSeconds: 2.4,
+};
+
+// Crédito exigido pela licença CC BY da trilha (vai no fechamento do story).
+export const MUSIC_CREDIT: Record<string, string> = {
+  E: "Música: “Samba Isobel”, Kevin MacLeod (incompetech.com) · CC BY 4.0",
 };
 
 // Marcos em batidas: balões na 0 e 1, logo horizontal na 4, fundo claro na

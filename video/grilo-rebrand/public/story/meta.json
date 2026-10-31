@@ -1,0 +1,33 @@
+{
+  "hubFullHeight": 1616,
+  "hubTap": {
+    "x": 195,
+    "y": 386
+  },
+  "aulaPlay": {
+    "x": 195,
+    "y": 194
+  },
+  "aulaTap": {
+    "x": 160,
+    "y": 361
+  },
+  "aulaSheetTop": 596,
+  "ditPlay": {
+    "x": 76,
+    "y": 192
+  },
+  "ditCheck": {
+    "x": 251,
+    "y": 787
+  },
+  "ditSheetTop": 620,
+  "shWords": [
+    8,
+    10
+  ],
+  "shTexts": [
+    "I get the same coffee every single day.",
+    "It's always a small one, with milk and no sugar."
+  ]
+}

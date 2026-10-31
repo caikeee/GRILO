@@ -24,3 +24,19 @@ Efeitos
   https://pixabay.com/sound-effects/film-special-effects-air-swoosh-352049/
 - sfx-chime.mp3 — "Clear Bell Chime", Universfield
   https://pixabay.com/sound-effects/film-special-effects-clear-bell-chime-487898/
+
+Trilhas do story do redesenho mobile (2026-10-31)
+-------------------------------------------------
+Kevin MacLeod (incompetech.com), licença Creative Commons Attribution 4.0
+(https://creativecommons.org/licenses/by/4.0/). Uso comercial permitido COM
+crédito ao autor — o crédito aparece no rodapé do fechamento do story.
+Composições de 2011, não geradas por IA. Baixadas direto do incompetech.
+- (testadas e descartadas, não versionadas: "Leblon" e "Lagoa v1", Kevin MacLeod)
+
+Vozes do story
+- voz-good-morning.wav / voz-my-name-is-ana.wav — voz do próprio app (MP3
+  pré-gerado em frontend/assets/audio), normalizada para o vídeo.
+- music-e-samba-isobel.mp3 — "Samba Isobel", Kevin MacLeod (versão final do story)
+  https://incompetech.com/music/royalty-free/mp3-royaltyfree/Samba%20Isobel.mp3
+- voz-shadow-coffee.wav — "I get the same coffee every single day.", gerada com
+  o mesmo modelo/voz do app (Groq canopylabs/orpheus-v1-english, voz "troy")
