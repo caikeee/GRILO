@@ -4,6 +4,7 @@ Uso:
     .venv/Scripts/python.exe scripts/gen_lesson_audio.py --groups A
     .venv/Scripts/python.exe scripts/gen_lesson_audio.py --groups A B C D --voice troy
     .venv/Scripts/python.exe scripts/gen_lesson_audio.py --groups A --dry-run
+    .venv/Scripts/python.exe scripts/gen_lesson_audio.py --source voice   # frases fixas do Chat de Voz
 
 Incremental: só gera o que ainda não está no manifesto (ou foi gerado com outra
 voz). Se o limite do Groq estourar no meio, a próxima execução continua de onde
@@ -45,6 +46,35 @@ def load_env():
 
 
 DICTATION_JS = ROOT / "frontend" / "assets" / "js" / "dictation-data.js"
+SERVICES_PY = ROOT / "backend" / "services.py"
+FALLBACK_PY = ROOT / "backend" / "fallback.py"
+
+# Amostra do seletor de voz do Chat de Voz: cada voz grava a SUA frase (o texto
+# muda com o nome, então cada uma é uma entrada própria no manifesto).
+VOICE_SAMPLE = "Hi, I'm {name}. Let's practice English together!"
+
+
+def extract_voice_chat_texts():
+    """Frases FIXAS do Chat de Voz (as respostas da conversa são dinâmicas e
+    ficam no cache de disco do /api/tts). Lê o código sem importar o backend.
+    Retorna [(texto, voz_forçada_ou_None)]."""
+    out = []
+    src = SERVICES_PY.read_text(encoding="utf-8")
+    # Respostas locais (NO_LLM) — só o bloco em inglês; Orpheus não fala PT
+    block = src.split("_NO_LLM_RESPONSES = {", 1)[1].split("# Portuguese", 1)[0]
+    out += [(t, None) for t in re.findall(r':\s*"([^"]+)"', block)]
+    # Frase de ruído ("não ouvi") do gate de entendimento
+    m = re.search(r'reply = "(Sorry, I didn\'t quite hear you[^"]*)"', src)
+    if m:
+        out.append((m.group(1), None))
+    # Respostas de reserva quando a API falha; as que terminam em ":" são
+    # concatenadas com outra frase em runtime, então nunca batem inteiras
+    fb = FALLBACK_PY.read_text(encoding="utf-8")
+    fb_block = fb.split("FALLBACK_RESPONSES = {", 1)[1].split("\n}", 1)[0]
+    out += [(t, None) for t in re.findall(r':\s*"([^"]+)"', fb_block) if not t.rstrip().endswith(":")]
+    for v in sorted(VOICES):
+        out.append((VOICE_SAMPLE.format(name=v.capitalize()), v))
+    return out
 
 
 def extract_dictation_texts():
@@ -122,8 +152,8 @@ def synth_mp3(client, text, voice, dest: Path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", choices=["lessons", "dictation"], default="lessons",
-                    help="de onde extrair as frases (padrão: lessons)")
+    ap.add_argument("--source", choices=["lessons", "dictation", "voice"], default="lessons",
+                    help="de onde extrair as frases (padrão: lessons; voice = frases fixas do Chat de Voz)")
     ap.add_argument("--groups", nargs="+", default=[], help="aulas: ex. A ou A B C D")
     ap.add_argument("--voice", default="troy", choices=sorted(VOICES))
     ap.add_argument("--dry-run", action="store_true")
@@ -131,13 +161,25 @@ def main():
 
     if args.source == "lessons" and not args.groups:
         sys.exit("--groups é obrigatório para --source lessons")
-    texts = extract_texts(args.groups, args.source)
+    # voice_of: voz de cada frase (amostras do seletor forçam a própria voz)
+    if args.source == "voice":
+        pairs, seen = [], set()
+        for t, v in extract_voice_chat_texts():
+            t = norm(t)
+            if t and t not in seen:
+                seen.add(t)
+                pairs.append((t, v or args.voice))
+        texts = [t for t, _ in pairs]
+        voice_of = dict(pairs)
+    else:
+        texts = extract_texts(args.groups, args.source)
+        voice_of = {t: args.voice for t in texts}
     manifest = load_manifest()
     files = manifest["files"]
     todo = [t for t in texts
-            if t not in files or files[t].get("v") != args.voice
+            if t not in files or files[t].get("v") != voice_of[t]
             or not (AUDIO_DIR / files[t]["f"]).exists()]
-    origem = f"grupos {args.groups}" if args.source == "lessons" else "ditado"
+    origem = {"lessons": f"grupos {args.groups}", "dictation": "ditado", "voice": "chat de voz"}[args.source]
     print(f"{len(texts)} frases ({origem}) | {len(todo)} a gerar | voz={args.voice}")
     too_long = [t for t in todo if len(t) > MAX_CHARS]
     if too_long:
@@ -154,16 +196,17 @@ def main():
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     done = 0
     for i, text in enumerate(todo, 1):
-        name = hashlib.sha1(f"{args.voice}|{text}".encode("utf-8")).hexdigest()[:12] + ".mp3"
+        voice = voice_of[text]
+        name = hashlib.sha1(f"{voice}|{text}".encode("utf-8")).hexdigest()[:12] + ".mp3"
         try:
-            synth_mp3(client, text, args.voice, AUDIO_DIR / name)
+            synth_mp3(client, text, voice, AUDIO_DIR / name)
         except groq.RateLimitError as exc:
             print(f"\nLimite do Groq atingido após {done} áudios — rode de novo mais tarde.\n{str(exc)[:200]}")
             break
         except Exception as exc:  # frase isolada falhou: segue com as outras
             print(f"[{i}/{len(todo)}] FALHOU {text!r}: {str(exc)[:150]}")
             continue
-        files[text] = {"f": name, "v": args.voice}
+        files[text] = {"f": name, "v": voice}
         save_manifest(manifest)  # grava a cada áudio: queda no meio não perde nada
         done += 1
         print(f"[{i}/{len(todo)}] {name}  {text}")

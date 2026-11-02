@@ -1,5 +1,7 @@
 from datetime import datetime
+from pathlib import Path
 import asyncio
+import hashlib
 import logging
 import os
 import base64
@@ -713,11 +715,40 @@ async def voice_transcribe(
         return JSONResponse({"transcript": None, "fallback": True, "reason": "transcription_error"})
 
 
+# Cache em disco do áudio gerado: o plano gratuito do Orpheus dá ~100 falas/dia
+# para a conta inteira, e as respostas curtas se repetem muito ("Nice! What
+# color?"). Cada frase é gerada UMA vez por voz/velocidade e depois sai do disco.
+# (Frases fixas já vêm pré-gravadas em frontend/assets/audio — nem chegam aqui.)
+_TTS_CACHE_DIR = Path(__file__).resolve().parent.parent / "tts_cache"
+
+
+def _tts_cache_path(text: str, voice: str, speed: float) -> Path:
+    key = f"{voice}|{speed:.2f}|{' '.join(text.split())}"
+    return _TTS_CACHE_DIR / (hashlib.sha1(key.encode("utf-8")).hexdigest()[:20] + ".wav")
+
+
+def _tts_audio_response(audio: bytes) -> JSONResponse:
+    return JSONResponse({
+        "fallback": False,
+        "audio_base64": base64.b64encode(audio).decode("utf-8"),
+        "content_type": "audio/wav",
+    })
+
+
 async def _groq_orpheus_tts(text: str, speed: float | None, voice: str | None = None) -> JSONResponse:
     """TTS via Groq Orpheus. Mesmo contrato de resposta do ramo ElevenLabs."""
     import groq as _groq_lib
 
     voice = voice if voice in GROQ_TTS_VOICES else GROQ_TTS_VOICE
+    speed = max(0.5, min(1.5, float(speed or 1.0)))
+    cache_path = _tts_cache_path(text[:500], voice, speed)
+    try:
+        audio = cache_path.read_bytes()
+        logger.info("[TTS] Orpheus CACHE-HIT | voice=%s | chars=%d", voice, len(text))
+        return _tts_audio_response(audio)
+    except OSError:
+        pass  # ainda não gerado
+
     try:
         client_tts = _groq_lib.Groq(api_key=os.getenv("GROQ_API_KEY"), timeout=12, max_retries=0)
         result = await asyncio.to_thread(
@@ -726,15 +757,16 @@ async def _groq_orpheus_tts(text: str, speed: float | None, voice: str | None = 
             voice=voice,
             input=text[:500],
             response_format="wav",
-            speed=max(0.5, min(1.5, float(speed or 1.0))),
+            speed=speed,
         )
         audio = result.read()
         logger.info("[TTS] Orpheus SUCCESS | voice=%s | chars=%d", voice, len(text))
-        return JSONResponse({
-            "fallback": False,
-            "audio_base64": base64.b64encode(audio).decode("utf-8"),
-            "content_type": "audio/wav",
-        })
+        try:
+            _TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            cache_path.write_bytes(audio)
+        except OSError as exc:  # disco cheio/somente leitura: só perde o cache
+            logger.warning("[TTS] cache write falhou: %s", exc)
+        return _tts_audio_response(audio)
     except Exception as exc:
         logger.warning("[TTS] Orpheus failed — fallback to browser TTS: %s", str(exc)[:200])
         return JSONResponse({"fallback": True, "reason": "groq_tts_error"})
