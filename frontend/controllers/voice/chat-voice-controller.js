@@ -1183,15 +1183,21 @@ async function _startMicRecording() {
 // Contador (não booleano) porque processamento e fala se sobrepõem.
 let _micGateDepth = 0;
 let _micResumeTimer = null;
+// O gate acabou, mas o microfone ainda está voltando: conta como fechado
+let _micResuming = false;
+// startVoiceListening() pedido com o microfone fechado: atendido quando ele reabrir
+let _listenWhenUngated = false;
 
 function _isMicGated() {
-    return _micGateDepth > 0;
+    return _micGateDepth > 0 || _micResuming;
 }
 
 function _gateMic() {
     _micGateDepth++;
     if (_micGateDepth > 1) return;
     clearTimeout(_micResumeTimer);
+    clearTimeout(_speechEndFallbackTimer);
+    _micResuming = false;
     isListening = false;
     try { voiceModalRecognizer && voiceModalRecognizer.stop(); } catch (e) { /* already stopped */ }
     if (_mediaRecorder && _mediaRecorder.state === 'recording') {
@@ -1209,10 +1215,29 @@ function _ungateMic() {
     if (_micGateDepth > 0) return;
     // Pequena folga: o fim do áudio da IA ainda ecoa no ambiente por alguns ms
     clearTimeout(_micResumeTimer);
-    _micResumeTimer = setTimeout(() => {
-        if (_isMicGated() || !voiceChatActive) return;
+    _micResuming = true;
+    _micResumeTimer = setTimeout(async () => {
+        if (!voiceChatActive) {
+            _micResuming = false;
+            return;
+        }
+        // O VAD reabre o microfone ANTES do reconhecedor: no celular, abrir o
+        // microfone com o reconhecedor já rodando pode derrubar o reconhecedor.
         if (_vadInstance) {
-            try { _vadInstance.start(); } catch (e) { /* noop */ }
+            try {
+                await _vadInstance.start();
+                // Tocar áudio pode suspender o AudioContext do VAD no celular
+                await _vadInstance._audioContext?.resume();
+            } catch (e) {
+                console.warn('[VAD] Falha ao reabrir o microfone:', e.message);
+            }
+        }
+        if (_micGateDepth > 0 || !_micResuming) return; // fechou de novo nesse meio-tempo
+        _micResuming = false;
+        if (!voiceChatActive) return;
+        if (_listenWhenUngated) {
+            _listenWhenUngated = false;
+            startVoiceListening();
         }
         // O reconhecedor pode ter sido religado ainda durante o gate (o onstart
         // dele não grava nesse momento) — garante a gravação para o Whisper.
@@ -1229,6 +1254,8 @@ function _beginAudioCapture() {
             ? 'audio/webm;codecs=opus'
             : MediaRecorder.isTypeSupported('audio/webm')
             ? 'audio/webm'
+            : MediaRecorder.isTypeSupported('audio/mp4')
+            ? 'audio/mp4' // iPhone
             : 'audio/ogg';
         _mediaRecorder = new MediaRecorder(_micStream, { mimeType });
         _mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) _audioChunks.push(e.data); };
@@ -1265,6 +1292,10 @@ function _stopAudioCapture() {
 let _vadInstance = null;
 let _vadReady = false;
 let _vadStarting = false;
+// Reconhecedor do navegador recusado (comum no celular): a sessão segue só com VAD + Whisper
+let _recognizerBlocked = false;
+let _speechEndFallbackTimer = null;
+const _WHISPER_FALLBACK_MS = 1500;
 
 async function _initSileroVad() {
     if (_vadInstance || _vadStarting) return _vadInstance;
@@ -1283,10 +1314,24 @@ async function _initSileroVad() {
             // factory. Reuse the pre-opened mic stream instead of letting it
             // call getUserMedia() again (which would open a second stream).
             getStream: async () => _micStream || navigator.mediaDevices.getUserMedia(_MIC_CONSTRAINTS),
+            // pause() desliga as trilhas deste stream, que é o mesmo da gravação. Por
+            // padrão o start() abriria um stream só para o VAD e _micStream ficaria
+            // morto: a partir da 2ª fala, nada mais seria gravado.
+            resumeStream: async () => {
+                const stream = await navigator.mediaDevices.getUserMedia(_MIC_CONSTRAINTS);
+                if (_micStream) _micStream.getTracks().forEach(t => t.stop());
+                if (!voiceChatActive) {
+                    stream.getTracks().forEach(t => t.stop());
+                    return stream;
+                }
+                _micStream = stream;
+                return stream;
+            },
             onSpeechStart: () => {
                 console.log('[VAD] Speech start (Silero)');
                 if (!voiceChatActive || _isMicGated()) return; // IA pensando/falando
 
+                clearTimeout(_speechEndFallbackTimer);
                 _beginAudioCapture(); // start Whisper recording immediately, no race
                 if (!isListening) startVoiceListening();
                 updateVoiceModalStatus('listening');
@@ -1298,6 +1343,8 @@ async function _initSileroVad() {
                 // hundred ms behind the raw audio signal — give it a chance to
                 // land pendingVoiceMessage before we commit on the VAD's cue.
                 setTimeout(() => _commitPendingSpeechFromVad(), 250);
+                clearTimeout(_speechEndFallbackTimer);
+                _speechEndFallbackTimer = setTimeout(_commitSpeechFromWhisperOnly, _WHISPER_FALLBACK_MS);
             },
             onVADMisfire: () => {
                 console.log('[VAD] Misfire (noise, too short) — ignoring');
@@ -1342,6 +1389,31 @@ function _commitPendingSpeechFromVad() {
     _pendingVoiceConfidence = 1.0;
     if (!committedMessage || !voiceChatActive) return;
     void processCommittedVoiceTurn(committedMessage, committedConfidence);
+}
+
+// O VAD ouviu fala e o reconhecedor do navegador não entregou nada (no celular ele
+// pode estar sem microfone): a gravação vai direto para o Whisper.
+async function _commitSpeechFromWhisperOnly() {
+    if (!voiceChatActive || _isMicGated() || pendingVoiceMessage || _voiceTurnCommitTimer) return;
+    const authToken = window.authToken || sessionStorage.getItem('grilo_token');
+    if (!authToken) return;
+
+    console.log('[VAD] Sem texto do navegador — transcrevendo só com Whisper');
+    const recordingPromise = _stopAudioCapture();
+    _gateMic();
+    updateVoiceModalStatus('processing');
+    try {
+        const transcript = await _transcribeWithWhisper(await recordingPromise, '', authToken);
+        if (!voiceChatActive) return;
+        if (transcript) {
+            void processCommittedVoiceTurn(transcript, 0);
+        } else {
+            updateVoiceModalStatus('listening');
+            startVoiceListening();
+        }
+    } finally {
+        _ungateMic();
+    }
 }
 
 async function _transcribeWithWhisper(recording, browserTranscript, authToken) {
@@ -2751,6 +2823,8 @@ function stopVoiceChat(options = {}) {
     const suppressSessionRecord = !!options.suppressSessionRecord;
     console.log("⏹️ Stopping voice chat");
     voiceChatActive = false;
+    _recognizerBlocked = false;
+    _listenWhenUngated = false;
     _stopSileroVad();
     if (voiceModalRecognizer && isListening) {
         console.log("Stopping recognizer");
@@ -3204,6 +3278,15 @@ function initializeVoiceModalRecognizer() {
             return;
         }
 
+        // Com o VAD de pé o microfone está funcionando: quem falhou foi só o
+        // reconhecedor. A conversa continua pelo Whisper, sem mostrar erro.
+        if (_vadReady && ["audio-capture", "not-allowed", "service-not-allowed"].includes(event.error)) {
+            console.warn("[VOICE] Reconhecedor indisponível — seguindo só com VAD + Whisper");
+            _recognizerBlocked = true;
+            isListening = false;
+            return;
+        }
+
         let errorMsg = "";
         let autoRestart = false;
         let restartDelay = 2000;
@@ -3353,6 +3436,7 @@ function initializeVoiceModalRecognizer() {
             console.log("Voice chat not active");
             return;
         }
+        if (_recognizerBlocked) return;
         if (_voiceTurnCommitTimer || pendingVoiceMessage) {
             console.log("⏳ Recognizer ended with pending voice turn — waiting for commit");
             return;
@@ -3378,6 +3462,13 @@ function startVoiceListening() {
         initializeVoiceModalRecognizer();
     }
 
+    if (_recognizerBlocked) return;
+
+    if (_isMicGated()) {
+        _listenWhenUngated = true;
+        return;
+    }
+
     if (isListening) {
         console.log("🎙️ Recognizer already listening in background");
         return;
@@ -3394,6 +3485,8 @@ function startVoiceListening() {
         if (e.message.includes("already started")) {
             console.log("Recognizer already active, continuing");
             isListening = true;
+        } else {
+            isListening = false; // true aqui travaria todos os próximos start
         }
     }
 }
