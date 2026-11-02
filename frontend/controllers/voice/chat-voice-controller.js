@@ -153,19 +153,41 @@ function updateVoiceButton(active) {
 
 // ==================== SPEECH SYNTHESIS ====================
 
-// Reference to the currently playing audio (ElevenLabs), used for cancellation
-let _currentTTSAudio = null;
+// Um único <audio> na sessão inteira: o iOS libera o play() por ELEMENTO, só depois
+// de um play() dentro de um toque. Um new Audio() a cada fala nasce sempre travado,
+// porque a resposta chega depois de um fetch, longe do gesto do aluno.
+const _ttsAudio = new Audio();
+_ttsAudio.preload = "auto";
+_ttsAudio.setAttribute("playsinline", "");
+// Encerra a reprodução em andamento (usado também no cancelamento)
+let _finishTTSPlayback = null;
+let _ttsAudioUnlocked = false;
+let _speechSynthesisPrimed = false;
+const _SILENT_WAV = "data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YaAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA"; // 20ms de silêncio
+
+// Destrava o <audio> e a voz do navegador no toque do aluno. Fica escutando todo
+// toque até dar certo: o touchend de uma rolagem, por exemplo, não vale como gesto.
+function _unlockTtsAudio() {
+    if (!_speechSynthesisPrimed && window.speechSynthesis) {
+        _speechSynthesisPrimed = true;
+        try { window.speechSynthesis.speak(new SpeechSynthesisUtterance("")); } catch (e) { /* noop */ }
+    }
+    if (_ttsAudioUnlocked || _finishTTSPlayback) return;
+    _ttsAudio.src = _SILENT_WAV;
+    const playing = _ttsAudio.play();
+    if (playing && playing.then) {
+        playing.then(() => { _ttsAudioUnlocked = true; }, () => { /* tenta no próximo toque */ });
+    }
+}
+["touchend", "click", "keydown"].forEach((ev) =>
+    document.addEventListener(ev, _unlockTtsAudio, { passive: true, capture: true }));
 
 /**
  * Cancel any ongoing TTS audio (ElevenLabs or Web Speech)
  */
 function cancelCurrentSpeech() {
     _speakResponseSeq++; // invalida qualquer pipeline de chunks em andamento
-    if (_currentTTSAudio) {
-        _currentTTSAudio.pause();
-        _currentTTSAudio.src = "";
-        _currentTTSAudio = null;
-    }
+    if (_finishTTSPlayback) _finishTTSPlayback(false);
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
     }
@@ -316,8 +338,9 @@ async function _speakResponseInner(text, language) {
                     nextFetch = _fetchTtsAudio(chunks[i + 1], lang, authToken)
                         .catch(() => null);
                 }
-                await _playBase64Audio(audioData.b64, audioData.contentType, language);
+                const played = await _playBase64Audio(audioData.b64, audioData.contentType, language);
                 if (seq !== _speakResponseSeq) return;
+                if (!played) throw new Error("audio-not-played");
                 spokenChunks = i + 1;
             }
             console.log("✅ [SPEAK] ElevenLabs pipeline finished");
@@ -332,42 +355,57 @@ async function _speakResponseInner(text, language) {
     // Fallback: browser Web Speech API — fala só o que ainda não foi falado
     const remainingText = chunks.slice(spokenChunks).join(" ").trim() || cleanText;
     console.log("📢 [SPEAK] Using Web Speech API fallback");
-    await _speakWithWebSpeech(remainingText, language);
+    const spoke = await _speakWithWebSpeech(remainingText, language);
+    if (!spoke && seq === _speakResponseSeq) {
+        showVoiceToast("Toque na tela para ligar o som.");
+    }
     console.log("✅ [SPEAK] Web Speech finished");
 }
 
 /**
  * Play base64-encoded audio and resolve when done.
  */
-function _playBase64Audio(b64, contentType, language) {
+async function _playBase64Audio(b64, contentType, language) {
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([bytes], { type: contentType }));
+    try {
+        return await _playAudioUrl(url, language);
+    } finally {
+        URL.revokeObjectURL(url);
+    }
+}
+
+/** Toca um áudio (blob URL ou arquivo estático). Resolve true se tocou até o fim. */
+function _playAudioUrl(audioData, language) {
     return new Promise((resolve) => {
         isAISpeaking = true;
         updateVoiceModalStatus("speaking");
 
-        const audioData = `data:${contentType};base64,${b64}`;
-        const audio = new Audio(audioData);
-        _currentTTSAudio = audio;
-
-        audio.playbackRate = 1.0;  // Neural TTS sounds better at 1x
-        audio.onplay = () => console.log("🔊 ElevenLabs TTS playing...");
-        audio.onended = () => {
+        const audio = _ttsAudio;
+        const finish = (played) => {
+            audio.onplay = audio.onended = audio.onerror = null;
+            _finishTTSPlayback = null;
+            audio.pause();
             isAISpeaking = false;
-            _currentTTSAudio = null;
             _onAISpeechEnd();
-            resolve();
+            resolve(played);
         };
+        _finishTTSPlayback = finish;
+
+        audio.onplay = () => console.log("🔊 Neural TTS playing...");
+        audio.onended = () => finish(true);
         audio.onerror = (e) => {
             console.error("[TTS] Audio playback error:", e);
-            isAISpeaking = false;
-            _currentTTSAudio = null;
-            _onAISpeechEnd();
-            resolve();
+            finish(false);
         };
+        audio.src = audioData;
+        audio.playbackRate = 1.0;  // Neural TTS sounds better at 1x
         audio.play().catch((e) => {
             console.warn("[TTS] Audio.play() blocked:", e.message);
-            isAISpeaking = false;
-            _onAISpeechEnd();
-            resolve();
+            if (e.name === "NotAllowedError") _ttsAudioUnlocked = false;
+            if (_finishTTSPlayback === finish) finish(false);
         });
     });
 }
@@ -381,7 +419,7 @@ function _speakWithWebSpeech(cleanText, language) {
     return new Promise((resolve) => {
         if (!window.speechSynthesis) {
             console.warn("💬 Speech Synthesis not supported");
-            resolve();
+            resolve(false);
             return;
         }
         window.speechSynthesis.cancel();
@@ -395,7 +433,21 @@ function _speakWithWebSpeech(cleanText, language) {
         // Chrome bug workaround: keepalive ping every 10s to prevent audio cutting mid-sentence
         let keepAliveInterval = null;
 
+        // Fora de um gesto o iOS descarta a fala sem disparar nenhum evento: sem este
+        // limite a promise nunca resolve e o microfone fica fechado para sempre.
+        let started = false;
+        const startTimeout = setTimeout(() => {
+            console.warn("[TTS] Web Speech não começou — provável bloqueio do navegador");
+            utterance.onend = utterance.onerror = null;
+            window.speechSynthesis.cancel();
+            isAISpeaking = false;
+            _onAISpeechEnd();
+            resolve(false);
+        }, 5000);
+
         utterance.onstart = () => {
+            started = true;
+            clearTimeout(startTimeout);
             console.log("🔊 Web Speech AI Speaking...");
             isAISpeaking = true;
             updateVoiceModalStatus("speaking");
@@ -410,17 +462,19 @@ function _speakWithWebSpeech(cleanText, language) {
             }, 10000);
         };
         utterance.onend = () => {
+            clearTimeout(startTimeout);
             clearInterval(keepAliveInterval);
             isAISpeaking = false;
             _onAISpeechEnd();
-            resolve();
+            resolve(true);
         };
         utterance.onerror = (event) => {
             clearInterval(keepAliveInterval);
+            clearTimeout(startTimeout);
             console.error("❌ Web Speech synthesis error:", event.error);
             isAISpeaking = false;
             _onAISpeechEnd();
-            resolve();
+            resolve(started);
         };
         window.speechSynthesis.speak(utterance);
     });
